@@ -1,5 +1,5 @@
 const TwitterAPI = require("./twitter");
-const { useTwitter } = require("./useTwitter");
+const { useTwitter } = require("./react/useTwitter");
 
 module.exports = {
   TwitterAPI,
