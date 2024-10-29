@@ -1,7 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { useContext } from 'react'
 import { TwitterAPI } from "../twitter";
+import { TwitterContext } from "./context/TwitterContext.jsx";
 
-export const useTwitter = (apiKey) => {
+export const useTwitter = () => {
+  const context = useContext(TwitterContext);
+  // console.log (context.apiKey)
+  // apiKey = apiKey || context.apiKey
   const getUserByUsername = (twitterUsername) => {
     return TwitterAPI.getUserByUsername(twitterUsername, { apiKey });
   };
