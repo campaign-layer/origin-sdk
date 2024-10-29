@@ -6,7 +6,7 @@
 //   SpotifyAPI,
 // };
 
-import * as TwitterAPI from "./twitter";
-import * as SpotifyAPI from "./spotify";
+import { TwitterAPI } from "./twitter";
+import { SpotifyAPI } from "./spotify";
 
 export { TwitterAPI, SpotifyAPI };

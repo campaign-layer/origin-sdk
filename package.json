@@ -1,7 +1,12 @@
 {
   "name": "camp-sdk",
   "version": "1.0.0",
-  "main": "dist/camp-sdk.js",
+  "main": "dist/main.js",
+  "exports": {
+    ".": "./dist/main.js",
+    "./core": "./dist/core.js",
+    "./react": "./dist/react.js"
+  },
   "scripts": {
     "build": "webpack"
   },

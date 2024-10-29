@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as TwitterAPI from "../twitter";
+import { TwitterAPI } from "../twitter";
 
 export const useTwitter = (apiKey) => {
   const getUserByUsername = (twitterUsername) => {
