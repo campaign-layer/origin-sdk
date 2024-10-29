@@ -1,5 +1,7 @@
-const axios = require("axios");
-const { APIError } = require("./errors");
+// const axios = require("axios");
+import axios from "axios";
+// const { APIError } = require("./errors");
+import { APIError } from "./errors";
 
 /**
  * Makes a GET request to the given URL with the provided headers.
@@ -53,9 +55,11 @@ function buildURL(baseURL, params = {}) {
 const baseURL =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
 
-module.exports = {
-  fetchData,
-  buildQueryString,
-  buildURL,
-  baseURL,
-};
+// module.exports = {
+//   fetchData,
+//   buildQueryString,
+//   buildURL,
+//   baseURL,
+// };
+
+export { fetchData, buildQueryString, buildURL, baseURL };

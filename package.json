@@ -1,10 +1,11 @@
 {
   "name": "camp-sdk",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/camp-sdk.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack"
   },
+  "module": "src/index.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,6 +17,8 @@
   "devDependencies": {
     "@babel/core": "^7.25.8",
     "@babel/preset-env": "^7.25.8",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   }
 }

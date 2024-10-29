@@ -1,25 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import camp from "../index";
+import * as TwitterAPI from "../twitter";
 
 export const useTwitter = (apiKey) => {
   const getUserByUsername = (twitterUsername) => {
-    return camp.getUserByUsername(twitterUsername, { apiKey });
+    return TwitterAPI.getUserByUsername(twitterUsername, { apiKey });
   };
 
   const getTweetsByUsername = (twitterUsername, options) => {
-    return camp.getTweetsByUsername(twitterUsername, { ...options, apiKey });
+    return TwitterAPI.getTweetsByUsername(twitterUsername, { ...options, apiKey });
   };
 
   const getFollowersByUsername = (twitterUsername, options) => {
-    return camp.getFollowersByUsername(twitterUsername, { ...options, apiKey });
+    return TwitterAPI.getFollowersByUsername(twitterUsername, { ...options, apiKey });
   };
 
   const getFollowingByUsername = (twitterUsername, options) => {
-    return camp.getFollowingByUsername(twitterUsername, { ...options, apiKey });
+    return TwitterAPI.getFollowingByUsername(twitterUsername, { ...options, apiKey });
   };
 
   const getTweetById = (tweetId) => {
-    return camp.getTweetById(tweetId, { apiKey });
+    return TwitterAPI.getTweetById(tweetId, { apiKey });
   };
 
   return {

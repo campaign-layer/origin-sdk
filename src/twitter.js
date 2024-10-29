@@ -1,5 +1,7 @@
-const { fetchData, buildURL, baseURL } = require("./utils");
-const { APIError } = require("./errors");
+// const { fetchData, buildURL, baseURL } = require("./utils");
+import { fetchData, buildURL, baseURL } from "./utils";
+// const { APIError } = require("./errors");
+import { APIError } from "./errors";
 
 class TwitterAPI {
   constructor(apiKey) {
@@ -175,4 +177,6 @@ class TwitterAPI {
   }
 }
 
-module.exports = TwitterAPI;
+// module.exports = TwitterAPI;
+
+export { TwitterAPI };
