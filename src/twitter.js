@@ -1,12 +1,21 @@
-const { fetchData, buildURL, baseURL } = require("./utils");
-const { APIError } = require("./errors");
+import { fetchData, buildURL, baseURL } from "./utils";
+import { APIError } from "./errors";
 
+/**
+ * The TwitterAPI class.
+ * @class
+ * @classdesc The TwitterAPI class is used to interact with the Twitter API.
+ */
 class TwitterAPI {
-  constructor(apiKey) {
-    if (!apiKey) {
-      throw new APIError("API key is required.");
-    }
+  /**
+   * Constructor for the TwitterAPI class.
+   * @param {object} options - The options object.
+   * @param {string} options.apiKey - The API key. (Needed for data fetching)
+   * @param {string} options.clientId - The client ID. (Needed for authentication)
+   */
+  constructor({ apiKey, clientId }) {
     this.apiKey = apiKey;
+    this.clientId = clientId;
   }
 
   /**
@@ -78,18 +87,24 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchTweetById(tweetId) {
-    const url = buildURL(`${baseURL}/gettweetbyid`, { tweetId });
+    const url = buildURL(`${baseURL}/getTweetById`, { tweetId });
     return this._fetchDataWithAuth(url);
   }
 
   /**
    * Fetch user by wallet address.
    * @param {string} walletAddress - The wallet address.
+   * @param {number} page - The page number.
+   * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The user data.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchUserByWalletAddress(walletAddress) {
-    const url = buildURL(`${baseURL}/wallet-twitter-data`, { walletAddress });
+  async fetchUserByWalletAddress(walletAddress, page = 1, limit = 10) {
+    const url = buildURL(`${baseURL}/wallet-twitter-data`, {
+      walletAddress,
+      page,
+      limit,
+    });
     return this._fetchDataWithAuth(url);
   }
 
@@ -130,33 +145,48 @@ class TwitterAPI {
   /**
    * Fetch likes by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
+   * @param {number} page - The page number.
+   * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The likes.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchLikesByUsername(twitterUserName) {
-    const url = buildURL(`${baseURL}/event/likes/${twitterUserName}`);
+  async fetchLikesByUsername(twitterUserName, page = 1, limit = 10) {
+    const url = buildURL(`${baseURL}/event/likes/${twitterUserName}`, {
+      page,
+      limit,
+    });
     return this._fetchDataWithAuth(url);
   }
 
   /**
    * Fetch follows by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
+   * @param {number} page - The page number.
+   * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The follows.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchFollowsByUsername(twitterUserName) {
-    const url = buildURL(`${baseURL}/event/follows/${twitterUserName}`);
+  async fetchFollowsByUsername(twitterUserName, page = 1, limit = 10) {
+    const url = buildURL(`${baseURL}/event/follows/${twitterUserName}`, {
+      page,
+      limit,
+    });
     return this._fetchDataWithAuth(url);
   }
 
   /**
    * Fetch viewed tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
+   * @param {number} page - The page number.
+   * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The viewed tweets.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchViewedTweetsByUsername(twitterUserName) {
-    const url = buildURL(`${baseURL}/event/viewed-tweets/${twitterUserName}`);
+  async fetchViewedTweetsByUsername(twitterUserName, page = 1, limit = 10) {
+    const url = buildURL(`${baseURL}/event/viewed-tweets/${twitterUserName}`, {
+      page,
+      limit,
+    });
     return this._fetchDataWithAuth(url);
   }
 
@@ -175,4 +205,6 @@ class TwitterAPI {
   }
 }
 
-module.exports = TwitterAPI;
+// module.exports = TwitterAPI;
+
+export { TwitterAPI };

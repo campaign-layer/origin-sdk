@@ -1,7 +1,12 @@
-const TwitterAPI = require("./twitter");
-// const { useTwitter } = require("./react/useTwitter");
+// const TwitterAPI = require("./twitter");
+// const SpotifyAPI = require("./spotify");
 
-module.exports = {
-  TwitterAPI,
-  // useTwitter,
-};
+// module.exports = {
+//   TwitterAPI,
+//   SpotifyAPI,
+// };
+
+import { TwitterAPI } from "./twitter";
+import { SpotifyAPI } from "./spotify";
+
+export { TwitterAPI, SpotifyAPI };
