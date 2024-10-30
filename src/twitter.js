@@ -1,14 +1,20 @@
-// const { fetchData, buildURL, baseURL } = require("./utils");
 import { fetchData, buildURL, baseURL } from "./utils";
-// const { APIError } = require("./errors");
 import { APIError } from "./errors";
 
 class TwitterAPI {
-  constructor(apiKey) {
-    if (!apiKey) {
-      throw new APIError("API key is required.");
+  /**
+   * Constructor for the TwitterAPI class.
+   * @param {object} options - The options object.
+   * @param {string} options.apiKey - The API key (needed for certain endpoints).
+   * @param {string} options.clientId - The client ID.
+   * @throws {APIError} - Throws an error if the client ID is missing.
+   */
+  constructor({ apiKey, clientId }) {
+    if(!clientId) {
+      throw new APIError("clientId is required");
     }
     this.apiKey = apiKey;
+    this.clientId = clientId;
   }
 
   /**

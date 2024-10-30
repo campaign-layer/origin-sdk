@@ -1,4 +1,5 @@
 const path = require("path");
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 
 module.exports = [
   {
@@ -30,37 +31,5 @@ module.exports = [
     experiments: {
       outputModule: true, // needed for `module` library type
     },
-  },
-  {
-    // React library
-    mode: "production",
-    entry: "./src/react/index.js",
-    output: {
-      path: path.resolve(__dirname, "dist"),
-      filename: "react.js",
-      library: {
-        type: "module",
-      },
-    },
-    module: {
-      rules: [
-        {
-          test: /\.jsx?$/,
-          exclude: /node_modules/,
-          use: {
-            loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-env", "@babel/preset-react"],
-            },
-          },
-        },
-      ],
-    },
-    experiments: {
-      outputModule: true, // needed for `module` library type
-    },
-    externals: {
-      react: "react",
-    },
-  },
+  }
 ];
