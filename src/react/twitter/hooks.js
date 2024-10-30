@@ -1,82 +1,181 @@
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from 'react'
-import { TwitterAPI } from "../../twitter.js";
-import { CampContext } from "../index.js";
+import { CampContext } from "../context/CampContext.jsx";
 
+/**
+ * Get X user by username.
+ * @param {string} - The Twitter username.
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
 export const useGetUserByUsername = (twitterUsername) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
-    queryKey: ["user", twitterUsername],
+    queryKey: ["x-user", twitterUsername],
     queryFn: () => twitter.fetchUserByUsername(twitterUsername),
   })
 }
 
+/**
+ * Get tweets by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
 
-export const useTwitter = () => {
-  const getUserByUsername = (twitterUsername) => {
-    return TwitterAPI.getUserByUsername(twitterUsername, { apiKey });
-  };
+export const useGetTweetsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["tweets", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchTweetsByUsername(twitterUsername, options.page, options.limit),
+  })
+}
 
-  const getTweetsByUsername = (twitterUsername, options) => {
-    return TwitterAPI.getTweetsByUsername(twitterUsername, { ...options, apiKey });
-  };
+/**
+ * Get followers by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
 
-  const getFollowersByUsername = (twitterUsername, options) => {
-    return TwitterAPI.getFollowersByUsername(twitterUsername, { ...options, apiKey });
-  };
+export const useGetFollowersByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["x-followers", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchFollowersByUsername(twitterUsername, options.page, options.limit),
+  })
+}
 
-  const getFollowingByUsername = (twitterUsername, options) => {
-    return TwitterAPI.getFollowingByUsername(twitterUsername, { ...options, apiKey });
-  };
+/**
+ * Get following by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
 
-  const getTweetById = (tweetId) => {
-    return TwitterAPI.getTweetById(tweetId, { apiKey });
-  };
+export const useGetFollowingByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["x-following", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchFollowingByUsername(twitterUsername, options.page, options.limit),
+  })
+}
 
-  return {
-    getUserByUsername: (twitterUsername) => {
-      return useQuery(["user", twitterUsername], () =>
-        getUserByUsername(twitterUsername)
-      );
-    },
-    getTweetsByUsername: (
-      twitterUsername,
-      options = { page: 1, limit: 10 }
-    ) => {
-      return useQuery(
-        ["tweets", twitterUsername, options.page, options.limit],
-        () => getTweetsByUsername(twitterUsername, options),
-        {
-          keepPreviousData: true,
-        }
-      );
-    },
-    getFollowersByUsername: (
-      twitterUsername,
-      options = { page: 1, limit: 10 }
-    ) => {
-      return useQuery(
-        ["followers", twitterUsername, options.page, options.limit],
-        () => getFollowersByUsername(twitterUsername, options),
-        {
-          keepPreviousData: true,
-        }
-      );
-    },
-    getFollowingByUsername: (
-      twitterUsername,
-      options = { page: 1, limit: 10 }
-    ) => {
-      return useQuery(
-        ["following", twitterUsername, options.page, options.limit],
-        () => getFollowingByUsername(twitterUsername, options),
-        {
-          keepPreviousData: true,
-        }
-      );
-    },
-    getTweetById: (tweetId) => {
-      return useQuery(["tweet", tweetId], () => getTweetById(tweetId));
-    },
-  };
-};
+/**
+ * Get tweet by ID.
+ * @param {string} tweetId - The tweet ID.
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetTweetById = (tweetId) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["tweet", tweetId],
+    queryFn: () => twitter.fetchTweetById(tweetId),
+  })
+}
+
+/**
+ * Get user by wallet address.
+ * @param {string} walletAddress - The wallet address.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetUserByWalletAddress = (walletAddress, options = { page: 1, limit: 10 } ) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["user", walletAddress, options.page, options.limit],
+    queryFn: () => twitter.fetchUserByWalletAddress(walletAddress, options.page, options.limit),
+  })
+}
+
+/**
+ * Get reposted by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetRepostedByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["reposted", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchRepostedByUsername(twitterUsername, options.page, options.limit),
+  })
+}
+
+/**
+ * Get replies by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetRepliesByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["replies", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchRepliesByUsername(twitterUsername, options.page, options.limit),
+  })
+}
+
+/**
+ * Get liked tweets by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetLikesByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["x-likes", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchLikesByUsername(twitterUsername, options.page, options.limit),
+  })
+}
+
+/**
+ * Get followed accounts by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetFollowsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["x-follows", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchFollowsByUsername(twitterUsername, options.page, options.limit),
+  })
+}
+
+/**
+ * Get viewed tweets by username.
+ * @param {string} twitterUserName - The Twitter username.
+ * @param {object} options - { page: number, limit: number }
+ * @returns {object} - useQuery object.
+ * @throws {APIError} - Throws an error if the request fails.
+ */
+
+export const useGetViewedTweetsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+  const { twitter } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["viewedTweets", twitterUsername, options.page, options.limit],
+    queryFn: () => twitter.fetchViewedTweetsByUsername(twitterUsername, options.page, options.limit),
+  })
+}
+
+export const useTwitterAPI = () => {
+  const { twitter } = useContext(CampContext);
+  return twitter;
+}
