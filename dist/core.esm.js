@@ -266,6 +266,9 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async _fetchDataWithAuth(url) {
+    if (!this.apiKey) {
+      throw new APIError("API key is required for fetching data", 401);
+    }
     try {
       return await fetchData(url, {
         "x-api-key": this.apiKey
