@@ -21,7 +21,7 @@ const twitter = new TwitterAPI({
   clientId: "your-client-id",
 });
 
-twitter.getUserByUsername("andithemudkip").then((data) => {
+twitter.fetchUserByUsername("andithemudkip").then((data) => {
   console.log(data);
 });
 ```
