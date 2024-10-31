@@ -10,6 +10,7 @@ import {
   useGetLikesByUsername,
   useGetFollowsByUsername,
   useGetViewedTweetsByUsername,
+  useTwitterAPI,
 } from "./hooks.js";
 
 export {
@@ -24,4 +25,5 @@ export {
   useGetLikesByUsername,
   useGetFollowsByUsername,
   useGetViewedTweetsByUsername,
+  useTwitterAPI,
 };
