@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { useGetUserByUsername  } from 'camp-sdk/react/twitter'
+import { useGetUserByUsername } from "camp-sdk/react/twitter";
 
-const TwitterProfile = ({ apiKey, username }) => {
-  const { data, error, isLoading } = useGetUserByUsername(username)
+const TwitterProfile = ({ username }) => {
+  const { data, error, isLoading } = useGetUserByUsername(username);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
