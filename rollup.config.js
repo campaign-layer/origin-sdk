@@ -26,5 +26,5 @@ module.exports = {
     typescript({ declaration: true, outDir: "dist" }),
     json(),
   ],
-  external: ["react", "react-dom", "@tanstack/react-query", "axios"],
+  external: ["react", "react-dom", "@tanstack/react-query", "axios", "viem", "viem/chains"],
 };

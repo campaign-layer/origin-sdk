@@ -1,6 +1,7 @@
 'use strict';
 
 var axios = require('axios');
+var viem = require('viem');
 
 class APIError extends Error {
   constructor(message, statusCode) {
@@ -283,5 +284,80 @@ class TwitterAPI {
 
 const SpotifyAPI = {};
 
+const testnet = {
+  id: 325000,
+  name: 'Camp Network Testnet V2',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH'
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-campnetwork.xyz']
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: 'Explorer',
+      url: 'https://camp-network-testnet.blockscout.com'
+    }
+  }
+};
+
+let client = null;
+const getClient = async () => {
+  if (!client) {
+    client = viem.createWalletClient({
+      chain: testnet,
+      transport: viem.http()
+    });
+  }
+  return client;
+};
+
+/**
+ * The Auth class.
+ * @class
+ * @classdesc The Auth class is used to authenticate the user.
+ */
+class Auth {
+  /**
+   * Constructor for the Auth class.
+   * @param {object} options - The options object.
+   * @param {string} options.clientId - The client ID.
+   * @throws {APIError} - Throws an error if the clientId is not provided.
+   */
+  constructor({
+    clientId
+  }) {
+    if (!clientId) {
+      throw new APIError('clientId is required');
+    }
+    this.viem = getClient();
+    this.clientId = clientId;
+    this.isAuthenticated = false;
+    this.walletAddress = '';
+  }
+  async requestAccount() {
+    const [account] = await window.ethereum.request({
+      method: 'eth_requestAccounts'
+    });
+    console.log(account);
+    this.walletAddress = account;
+  }
+  async fetchNonce() {
+    // call backend to get nonce
+    return '123456';
+  }
+  async sign() {
+    // get nonce from backend
+    // sign the nonce with the wallet using siwe
+    // call backend to verify the signature
+    // if signature is verified, set isAuthenticated to true
+  }
+}
+
+exports.Auth = Auth;
 exports.SpotifyAPI = SpotifyAPI;
 exports.TwitterAPI = TwitterAPI;
