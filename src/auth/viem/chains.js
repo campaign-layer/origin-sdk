@@ -15,3 +15,4 @@ export const testnet = {
         default: { name: 'Explorer', url: 'https://camp-network-testnet.blockscout.com' },
     }
 }
+// https://rpc.camp-network-testnet.gelato.digital

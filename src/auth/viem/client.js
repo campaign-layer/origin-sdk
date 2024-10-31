@@ -2,7 +2,7 @@ import { createWalletClient, http } from 'viem'
 import { testnet } from './chains';
 let client = null;
 
-const getClient = async () => {
+const getClient = () => {
     if (!client) {
         client = createWalletClient({
             chain: testnet,
