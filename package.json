@@ -13,7 +13,7 @@
   "scripts": {
     "build": "rollup -c"
   },
-  "module": "src/index.ts",
+  "module": "src/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
