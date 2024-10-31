@@ -15,15 +15,15 @@ module.exports = {
     {
       file: "dist/core.esm.js",
       format: "esm",
-    }
+    },
   ],
   plugins: [
     resolve({
-        preferBuiltins: true
+      preferBuiltins: true,
     }),
     commonjs(),
     babel({ babelHelpers: "bundled" }),
-    typescript({ declaration: true, outDir: "dist"}),
+    typescript({ declaration: true, outDir: "dist" }),
     json(),
   ],
   external: ["react", "react-dom", "@tanstack/react-query", "axios"],

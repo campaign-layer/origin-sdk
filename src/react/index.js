@@ -1,5 +1,2 @@
-import { CampProvider, CampContext } from '../react/context/CampContext.jsx';
-export {
-    CampProvider,
-    CampContext,
-}
+import { CampProvider, CampContext } from "../react/context/CampContext.jsx";
+export { CampProvider, CampContext };

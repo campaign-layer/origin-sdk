@@ -1,2 +1,2 @@
-const SpotifyAPI = {}
-export { SpotifyAPI }
+const SpotifyAPI = {};
+export { SpotifyAPI };

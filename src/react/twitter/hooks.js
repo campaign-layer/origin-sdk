@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useContext } from 'react'
+import { useContext } from "react";
 import { CampContext } from "../context/CampContext.jsx";
 
 /**
@@ -13,8 +13,8 @@ export const useGetUserByUsername = (twitterUsername) => {
   return useQuery({
     queryKey: ["x-user", twitterUsername],
     queryFn: () => twitter.fetchUserByUsername(twitterUsername),
-  })
-}
+  });
+};
 
 /**
  * Get tweets by username.
@@ -24,13 +24,21 @@ export const useGetUserByUsername = (twitterUsername) => {
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetTweetsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetTweetsByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["tweets", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchTweetsByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchTweetsByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get followers by username.
@@ -40,13 +48,21 @@ export const useGetTweetsByUsername = (twitterUsername, options = { page: 1, lim
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetFollowersByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetFollowersByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["x-followers", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchFollowersByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchFollowersByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get following by username.
@@ -56,13 +72,21 @@ export const useGetFollowersByUsername = (twitterUsername, options = { page: 1, 
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetFollowingByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetFollowingByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["x-following", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchFollowingByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchFollowingByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get tweet by ID.
@@ -76,8 +100,8 @@ export const useGetTweetById = (tweetId) => {
   return useQuery({
     queryKey: ["tweet", tweetId],
     queryFn: () => twitter.fetchTweetById(tweetId),
-  })
-}
+  });
+};
 
 /**
  * Get user by wallet address.
@@ -87,13 +111,21 @@ export const useGetTweetById = (tweetId) => {
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetUserByWalletAddress = (walletAddress, options = { page: 1, limit: 10 } ) => {
+export const useGetUserByWalletAddress = (
+  walletAddress,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["user", walletAddress, options.page, options.limit],
-    queryFn: () => twitter.fetchUserByWalletAddress(walletAddress, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchUserByWalletAddress(
+        walletAddress,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get reposted by username.
@@ -103,13 +135,21 @@ export const useGetUserByWalletAddress = (walletAddress, options = { page: 1, li
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetRepostedByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetRepostedByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["reposted", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchRepostedByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchRepostedByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get replies by username.
@@ -119,13 +159,21 @@ export const useGetRepostedByUsername = (twitterUsername, options = { page: 1, l
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetRepliesByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetRepliesByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["replies", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchRepliesByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchRepliesByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get liked tweets by username.
@@ -135,13 +183,21 @@ export const useGetRepliesByUsername = (twitterUsername, options = { page: 1, li
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetLikesByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetLikesByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["x-likes", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchLikesByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchLikesByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get followed accounts by username.
@@ -151,13 +207,21 @@ export const useGetLikesByUsername = (twitterUsername, options = { page: 1, limi
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetFollowsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetFollowsByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["x-follows", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchFollowsByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchFollowsByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 /**
  * Get viewed tweets by username.
@@ -167,15 +231,23 @@ export const useGetFollowsByUsername = (twitterUsername, options = { page: 1, li
  * @throws {APIError} - Throws an error if the request fails.
  */
 
-export const useGetViewedTweetsByUsername = (twitterUsername, options = { page: 1, limit: 10 }) => {
+export const useGetViewedTweetsByUsername = (
+  twitterUsername,
+  options = { page: 1, limit: 10 }
+) => {
   const { twitter } = useContext(CampContext);
   return useQuery({
     queryKey: ["viewedTweets", twitterUsername, options.page, options.limit],
-    queryFn: () => twitter.fetchViewedTweetsByUsername(twitterUsername, options.page, options.limit),
-  })
-}
+    queryFn: () =>
+      twitter.fetchViewedTweetsByUsername(
+        twitterUsername,
+        options.page,
+        options.limit
+      ),
+  });
+};
 
 export const useTwitterAPI = () => {
   const { twitter } = useContext(CampContext);
   return twitter;
-}
+};
