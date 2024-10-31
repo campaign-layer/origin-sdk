@@ -5,7 +5,7 @@ import { TwitterAPI } from "../../twitter.js";
 const CampContext = createContext({
   apiKey: null,
   clientId: null,
-  twitter: new TwitterAPI({ apiKey: null, clientId: "id" }),
+  twitter: new TwitterAPI({ apiKey: null, clientId: null }),
 });
 
 const CampProvider = ({ apiKey, clientId, children }) => {
@@ -13,7 +13,7 @@ const CampProvider = ({ apiKey, clientId, children }) => {
     <CampContext.Provider
       value={{
         apiKey,
-        twitter: new TwitterAPI({ apiKey: apiKey || null, clientId }),
+        twitter: new TwitterAPI({ apiKey: apiKey || null, clientId: clientId || null }),
       }}
     >
       {children}
