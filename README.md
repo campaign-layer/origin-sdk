@@ -1,9 +1,9 @@
 # camp sdk
 
-### commonjs - uses camp-sdk/core
+### commonjs
 
 ```js
-const { TwitterAPI } = require("camp-sdk/core");
+const { TwitterAPI } = require("camp-sdk");
 
 const twitter = new TwitterAPI({
   apiKey: "your-api-key",
