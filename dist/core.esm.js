@@ -9561,7 +9561,6 @@ class Auth {
    * Verify the signature.
    * @param {string} message - The message.
    * @param {string} signature - The signature.
-   * @param {string} nonce - The nonce.
    * @returns {Promise<object>} - A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
    */
