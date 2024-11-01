@@ -24,8 +24,10 @@ class Auth {
     }
 
     async requestAccount() {
-        const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const [account] = await this.viem.getAddresses();
         this.walletAddress = account;
+        console.log(this.walletAddress);
     }
 
     async fetchNonce() {
@@ -48,8 +50,19 @@ class Auth {
         })
         const signature = await this.viem.signMessage({
             account: this.walletAddress,
-            message: message
+            message: 'hello'
         });
+        // const signature = await this.viem.request({
+        //     method: 'personal_sign',
+        //     params: [this.walletAddress, this.walletAddress]
+        // })
+        // await window.ethereum.request({
+        //     "method": "personal_sign",
+        //     "params": [
+        //      "0x506c65617365207369676e2074686973206d65737361676520746f20636f6e6669726d20796f7572206964656e746974792e",
+        //      "0xeab0028b493e029b41f5a4386f789507c00fdc84"
+        //    ],
+        //    });
         console.log(signature);
 
         // const signature = await this.viem.signMessage(nonce);

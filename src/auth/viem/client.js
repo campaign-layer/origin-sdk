@@ -1,4 +1,4 @@
-import { createWalletClient, http } from 'viem'
+import { createWalletClient, custom } from 'viem'
 import { testnet } from './chains';
 let client = null;
 
@@ -6,7 +6,7 @@ const getClient = () => {
     if (!client) {
         client = createWalletClient({
             chain: testnet,
-            transport: http()
+            transport: custom(window.ethereum)
         })
     }
     return client

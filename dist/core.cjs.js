@@ -3353,18 +3353,6 @@ class RpcRequestError extends BaseError {
     this.code = error.code;
   }
 }
-class TimeoutError extends BaseError {
-  constructor({
-    body,
-    url
-  }) {
-    super('The request took too long to respond.', {
-      details: 'The request timed out.',
-      metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
-      name: 'TimeoutError'
-    });
-  }
-}
 
 const unknownErrorCode = -1;
 class RpcError extends BaseError {
@@ -5660,90 +5648,6 @@ function encodeDeployData(parameters) {
   return concatHex([bytecode, data]);
 }
 
-/** @internal */
-function withResolvers() {
-  let resolve = () => undefined;
-  let reject = () => undefined;
-  const promise = new Promise((resolve_, reject_) => {
-    resolve = resolve_;
-    reject = reject_;
-  });
-  return {
-    promise,
-    resolve,
-    reject
-  };
-}
-
-const schedulerCache = /*#__PURE__*/new Map();
-/** @internal */
-function createBatchScheduler({
-  fn,
-  id,
-  shouldSplitBatch,
-  wait = 0,
-  sort
-}) {
-  const exec = async () => {
-    const scheduler = getScheduler();
-    flush();
-    const args = scheduler.map(({
-      args
-    }) => args);
-    if (args.length === 0) return;
-    fn(args).then(data => {
-      if (sort && Array.isArray(data)) data.sort(sort);
-      for (let i = 0; i < scheduler.length; i++) {
-        const {
-          resolve
-        } = scheduler[i];
-        resolve?.([data[i], data]);
-      }
-    }).catch(err => {
-      for (let i = 0; i < scheduler.length; i++) {
-        const {
-          reject
-        } = scheduler[i];
-        reject?.(err);
-      }
-    });
-  };
-  const flush = () => schedulerCache.delete(id);
-  const getBatchedArgs = () => getScheduler().map(({
-    args
-  }) => args);
-  const getScheduler = () => schedulerCache.get(id) || [];
-  const setScheduler = item => schedulerCache.set(id, [...getScheduler(), item]);
-  return {
-    flush,
-    async schedule(args) {
-      const {
-        promise,
-        resolve,
-        reject
-      } = withResolvers();
-      const split = shouldSplitBatch?.([...getBatchedArgs(), args]);
-      if (split) exec();
-      const hasActiveScheduler = getScheduler().length > 0;
-      if (hasActiveScheduler) {
-        setScheduler({
-          args,
-          resolve,
-          reject
-        });
-        return promise;
-      }
-      setScheduler({
-        args,
-        resolve,
-        reject
-      });
-      setTimeout(exec, wait);
-      return promise;
-    }
-  };
-}
-
 async function wait(time) {
   return new Promise(res => setTimeout(res, time));
 }
@@ -6445,231 +6349,25 @@ function createTransport({
   };
 }
 
-class UrlRequiredError extends BaseError {
-  constructor() {
-    super('No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.', {
-      docsPath: '/docs/clients/intro',
-      name: 'UrlRequiredError'
-    });
-  }
-}
-
-function withTimeout(fn, {
-  errorInstance = new Error('timed out'),
-  timeout,
-  signal
-}) {
-  return new Promise((resolve, reject) => {
-    (async () => {
-      let timeoutId;
-      try {
-        const controller = new AbortController();
-        if (timeout > 0) {
-          timeoutId = setTimeout(() => {
-            if (signal) {
-              controller.abort();
-            } else {
-              reject(errorInstance);
-            }
-          }, timeout); // need to cast because bun globals.d.ts overrides @types/node
-        }
-        resolve(await fn({
-          signal: controller?.signal || null
-        }));
-      } catch (err) {
-        if (err?.name === 'AbortError') reject(errorInstance);
-        reject(err);
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    })();
-  });
-}
-
-function createIdStore() {
-  return {
-    current: 0,
-    take() {
-      return this.current++;
-    },
-    reset() {
-      this.current = 0;
-    }
-  };
-}
-const idCache = /*#__PURE__*/createIdStore();
-
-function getHttpRpcClient(url, options = {}) {
-  return {
-    async request(params) {
-      const {
-        body,
-        onRequest = options.onRequest,
-        onResponse = options.onResponse,
-        timeout = options.timeout ?? 10_000
-      } = params;
-      const fetchOptions = {
-        ...(options.fetchOptions ?? {}),
-        ...(params.fetchOptions ?? {})
-      };
-      const {
-        headers,
-        method,
-        signal: signal_
-      } = fetchOptions;
-      try {
-        const response = await withTimeout(async ({
-          signal
-        }) => {
-          const init = {
-            ...fetchOptions,
-            body: Array.isArray(body) ? stringify(body.map(body => ({
-              jsonrpc: '2.0',
-              id: body.id ?? idCache.take(),
-              ...body
-            }))) : stringify({
-              jsonrpc: '2.0',
-              id: body.id ?? idCache.take(),
-              ...body
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-              ...headers
-            },
-            method: method || 'POST',
-            signal: signal_ || (timeout > 0 ? signal : null)
-          };
-          const request = new Request(url, init);
-          const args = (await onRequest?.(request, init)) ?? {
-            ...init,
-            url
-          };
-          const response = await fetch(args.url ?? url, args);
-          return response;
-        }, {
-          errorInstance: new TimeoutError({
-            body,
-            url
-          }),
-          timeout,
-          signal: true
-        });
-        if (onResponse) await onResponse(response);
-        let data;
-        if (response.headers.get('Content-Type')?.startsWith('application/json')) data = await response.json();else {
-          data = await response.text();
-          try {
-            data = JSON.parse(data || '{}');
-          } catch (err) {
-            if (response.ok) throw err;
-            data = {
-              error: data
-            };
-          }
-        }
-        if (!response.ok) {
-          throw new HttpRequestError({
-            body,
-            details: stringify(data.error) || response.statusText,
-            headers: response.headers,
-            status: response.status,
-            url
-          });
-        }
-        return data;
-      } catch (err) {
-        if (err instanceof HttpRequestError) throw err;
-        if (err instanceof TimeoutError) throw err;
-        throw new HttpRequestError({
-          body,
-          cause: err,
-          url
-        });
-      }
-    }
-  };
-}
-
 /**
- * @description Creates a HTTP transport that connects to a JSON-RPC API.
+ * @description Creates a custom transport given an EIP-1193 compliant `request` attribute.
  */
-function http(/** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-url, config = {}) {
+function custom(provider, config = {}) {
   const {
-    batch,
-    fetchOptions,
-    key = 'http',
-    name = 'HTTP JSON-RPC',
-    onFetchRequest,
-    onFetchResponse,
+    key = 'custom',
+    name = 'Custom Provider',
     retryDelay
   } = config;
   return ({
-    chain,
-    retryCount: retryCount_,
-    timeout: timeout_
-  }) => {
-    const {
-      batchSize = 1000,
-      wait = 0
-    } = typeof batch === 'object' ? batch : {};
-    const retryCount = config.retryCount ?? retryCount_;
-    const timeout = timeout_ ?? config.timeout ?? 10_000;
-    const url_ = chain?.rpcUrls.default.http[0];
-    if (!url_) throw new UrlRequiredError();
-    const rpcClient = getHttpRpcClient(url_, {
-      fetchOptions,
-      onRequest: onFetchRequest,
-      onResponse: onFetchResponse,
-      timeout
-    });
-    return createTransport({
-      key,
-      name,
-      async request({
-        method,
-        params
-      }) {
-        const body = {
-          method,
-          params
-        };
-        const {
-          schedule
-        } = createBatchScheduler({
-          id: url_,
-          wait,
-          shouldSplitBatch(requests) {
-            return requests.length > batchSize;
-          },
-          fn: body => rpcClient.request({
-            body
-          }),
-          sort: (a, b) => a.id - b.id
-        });
-        const fn = async body => batch ? schedule(body) : [await rpcClient.request({
-          body
-        })];
-        const [{
-          error,
-          result
-        }] = await fn(body);
-        if (error) throw new RpcRequestError({
-          body,
-          error,
-          url: url_
-        });
-        return result;
-      },
-      retryCount,
-      retryDelay,
-      timeout,
-      type: 'http'
-    }, {
-      fetchOptions,
-      url: url_
-    });
-  };
+    retryCount: defaultRetryCount
+  }) => createTransport({
+    key,
+    name,
+    request: provider.request.bind(provider),
+    retryCount: config.retryCount ?? defaultRetryCount,
+    retryDelay,
+    type: 'custom'
+  });
 }
 
 // `bytes<M>`: binary type of `M` bytes, `0 < M <= 32`
@@ -9641,7 +9339,7 @@ const getClient = () => {
   if (!client) {
     client = createWalletClient({
       chain: testnet,
-      transport: http()
+      transport: custom(window.ethereum)
     });
   }
   return client;
@@ -9835,10 +9533,10 @@ class Auth {
     this.walletAddress = '';
   }
   async requestAccount() {
-    const [account] = await window.ethereum.request({
-      method: 'eth_requestAccounts'
-    });
+    // const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const [account] = await this.viem.getAddresses();
     this.walletAddress = account;
+    console.log(this.walletAddress);
   }
   async fetchNonce() {
     // call backend to get nonce
@@ -9848,7 +9546,7 @@ class Auth {
     if (!this.walletAddress) {
       await this.requestAccount();
     }
-    const message = createSiweMessage({
+    createSiweMessage({
       domain: window.location.host,
       address: this.walletAddress,
       statement: 'Connect with Camp Network',
@@ -9859,8 +9557,19 @@ class Auth {
     });
     const signature = await this.viem.signMessage({
       account: this.walletAddress,
-      message: message
+      message: 'hello'
     });
+    // const signature = await this.viem.request({
+    //     method: 'personal_sign',
+    //     params: [this.walletAddress, this.walletAddress]
+    // })
+    // await window.ethereum.request({
+    //     "method": "personal_sign",
+    //     "params": [
+    //      "0x506c65617365207369676e2074686973206d65737361676520746f20636f6e6669726d20796f7572206964656e746974792e",
+    //      "0xeab0028b493e029b41f5a4386f789507c00fdc84"
+    //    ],
+    //    });
     console.log(signature);
 
     // const signature = await this.viem.signMessage(nonce);
