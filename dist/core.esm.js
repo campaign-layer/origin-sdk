@@ -9565,7 +9565,7 @@ class Auth {
    * @returns {Promise<object>} - A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
    */
-  async verifySignature(message, signature, nonce) {
+  async verifySignature(message, signature) {
     try {
       const res = await fetch(constants.SIWE_API_VERIFY, {
         method: "POST",
