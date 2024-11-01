@@ -1,6 +1,7 @@
 import { APIError } from "../errors";
 import { getClient } from "./viem/client";
 import { createSiweMessage, generateSiweNonce } from "viem/siwe";
+import constants from "../constants";
 /**
  * The Auth class.
  * @class
@@ -20,25 +21,57 @@ class Auth {
         this.viem = getClient();
         this.clientId = clientId;
         this.isAuthenticated = false;
-        this.walletAddress = '';
+        this.walletAddress = null;
     }
 
     async requestAccount() {
         // const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const [account] = await this.viem.getAddresses();
+        console.log(this.viem)
+        const [account] = await this.viem.requestAddresses();
         this.walletAddress = account;
-        console.log(this.walletAddress);
     }
 
     async fetchNonce() {
-        // call backend to get nonce
-        return generateSiweNonce();
+        try {
+            const res = await fetch(constants.SIWE_API_NONCE, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await res.json();
+            return data.nonce;
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }
+
+    async verifySignature(message, signature, nonce) {
+        try {
+            const res = await fetch(constants.SIWE_API_VERIFY, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message,
+                    signature,
+                })
+            })
+            const data = await res.json();
+            return data;
+        }
+        catch (e) {
+            console.error(e);
+        }
     }
 
     async sign() {
         if (!this.walletAddress) {
             await this.requestAccount();
         }
+        const nonce = await this.fetchNonce();
         const message = createSiweMessage({
             domain: window.location.host,
             address: this.walletAddress,
@@ -46,31 +79,19 @@ class Auth {
             uri: window.location.origin,
             version: '1',
             chainId: this.viem.chain.id,
-            nonce: await this.fetchNonce()
+            nonce: nonce
         })
         const signature = await this.viem.signMessage({
             account: this.walletAddress,
-            message: 'hello'
+            message: message
         });
-        // const signature = await this.viem.request({
-        //     method: 'personal_sign',
-        //     params: [this.walletAddress, this.walletAddress]
-        // })
-        // await window.ethereum.request({
-        //     "method": "personal_sign",
-        //     "params": [
-        //      "0x506c65617365207369676e2074686973206d65737361676520746f20636f6e6669726d20796f7572206964656e746974792e",
-        //      "0xeab0028b493e029b41f5a4386f789507c00fdc84"
-        //    ],
-        //    });
-        console.log(signature);
+        const res = await this.verifySignature(message, signature, nonce);
+        console.log('res', res);
 
-        // const signature = await this.viem.signMessage(nonce);
-        // console.log(signature);
-        // get nonce from backend
-        // sign the nonce with the wallet using siwe
-        // call backend to verify the signature
-        // if signature is verified, set isAuthenticated to true
+        // 1. get nonce from backend
+        // 2. sign the nonce with the wallet using siwe
+        // 3. call backend to verify the signature
+        // 4. if signature is verified, set isAuthenticated to true
     }
 }
 
