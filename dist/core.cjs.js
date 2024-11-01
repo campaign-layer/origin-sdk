@@ -9314,25 +9314,24 @@ function createWalletClient(parameters) {
 
 const testnet = {
   id: 325000,
-  name: 'Camp Network Testnet V2',
+  name: "Camp Network Testnet V2",
   nativeCurrency: {
     decimals: 18,
-    name: 'Ether',
-    symbol: 'ETH'
+    name: "Ether",
+    symbol: "ETH"
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc-campnetwork.xyz']
+      http: ["https://rpc-campnetwork.xyz"]
     }
   },
   blockExplorers: {
     default: {
-      name: 'Explorer',
-      url: 'https://camp-network-testnet.blockscout.com'
+      name: "Explorer",
+      url: "https://camp-network-testnet.blockscout.com"
     }
   }
 };
-// https://rpc.camp-network-testnet.gelato.digital
 
 let client = null;
 const getClient = () => {
@@ -9517,39 +9516,63 @@ class Auth {
     clientId
   }) {
     if (!clientId) {
-      throw new APIError('clientId is required');
+      throw new APIError("clientId is required");
     }
     this.viem = getClient();
     this.clientId = clientId;
     this.isAuthenticated = false;
     this.walletAddress = null;
   }
+
+  /**
+   * Request the user to connect their wallet.
+   * @returns {Promise<void>} - A promise that resolves when the user connects their wallet.
+   * @throws {APIError} - Throws an error if the user does not connect their wallet.
+   */
   async requestAccount() {
-    // const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    console.log(this.viem);
-    const [account] = await this.viem.requestAddresses();
-    this.walletAddress = account;
+    try {
+      const [account] = await this.viem.requestAddresses();
+      this.walletAddress = account;
+      return account;
+    } catch (e) {
+      throw new APIError(e);
+    }
   }
+
+  /**
+   * Fetch the nonce from the server.
+   * @returns {Promise<string>} - A promise that resolves with the nonce.
+   * @throws {APIError} - Throws an error if the nonce cannot be fetched.
+   */
   async fetchNonce() {
     try {
       const res = await fetch(constants.SIWE_API_NONCE, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         }
       });
       const data = await res.json();
       return data.nonce;
     } catch (e) {
-      console.error(e);
+      throw new APIError(e);
     }
   }
+
+  /**
+   * Verify the signature.
+   * @param {string} message - The message.
+   * @param {string} signature - The signature.
+   * @param {string} nonce - The nonce.
+   * @returns {Promise<object>} - A promise that resolves with the verification result.
+   * @throws {APIError} - Throws an error if the signature cannot be verified.
+   */
   async verifySignature(message, signature, nonce) {
     try {
       const res = await fetch(constants.SIWE_API_VERIFY, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message,
@@ -9559,34 +9582,58 @@ class Auth {
       const data = await res.json();
       return data;
     } catch (e) {
-      console.error(e);
+      throw new APIError(e);
     }
   }
-  async sign() {
-    if (!this.walletAddress) {
-      await this.requestAccount();
-    }
-    const nonce = await this.fetchNonce();
-    const message = createSiweMessage({
+
+  /**
+   * Create the SIWE message.
+   * @param {string} nonce - The nonce.
+   * @returns {string} - The message.
+   */
+  createMessage(nonce) {
+    return createSiweMessage({
       domain: window.location.host,
       address: this.walletAddress,
-      statement: 'Connect with Camp Network',
+      statement: "Connect with Camp Network",
       uri: window.location.origin,
-      version: '1',
+      version: "1",
       chainId: this.viem.chain.id,
       nonce: nonce
     });
-    const signature = await this.viem.signMessage({
-      account: this.walletAddress,
-      message: message
-    });
-    const res = await this.verifySignature(message, signature, nonce);
-    console.log('res', res);
+  }
 
-    // 1. get nonce from backend
-    // 2. sign the nonce with the wallet using siwe
-    // 3. call backend to verify the signature
-    // 4. if signature is verified, set isAuthenticated to true
+  /**
+   * Connect the user's wallet and sign the message.
+   * @returns {Promise<object>} - A promise that resolves with the authentication result.
+   * @throws {APIError} - Throws an error if the user cannot be authenticated.
+   */
+  async sign() {
+    try {
+      if (!this.walletAddress) {
+        await this.requestAccount();
+      }
+      const nonce = await this.fetchNonce();
+      const message = this.createMessage(nonce);
+      const signature = await this.viem.signMessage({
+        account: this.walletAddress,
+        message: message
+      });
+      const res = await this.verifySignature(message, signature, nonce);
+      if (res.success) {
+        this.isAuthenticated = true;
+        return {
+          success: true,
+          message: "Successfully authenticated",
+          walletAddress: this.walletAddress
+        };
+      } else {
+        this.isAuthenticated = false;
+        throw new APIError("Failed to authenticate");
+      }
+    } catch (e) {
+      throw new APIError(e);
+    }
   }
 }
 
