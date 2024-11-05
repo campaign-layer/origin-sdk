@@ -3,6 +3,7 @@ import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants from "../constants";
 import { providerStore } from "./viem/providers";
+import jwt from "jsonwebtoken";
 /**
  * The Auth class.
  * @class
@@ -103,14 +104,19 @@ class Auth {
    */
   async #fetchNonce() {
     try {
-      const res = await fetch(constants.SIWE_API_NONCE, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `${constants.AUTH_HUB_BASE_API}/auth/client-user/nonce`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-client-id": this.clientId,
+          },
+          body: JSON.stringify({ walletAddress: this.walletAddress }),
+        }
+      );
       const data = await res.json();
-      return data.nonce;
+      return data.data;
     } catch (e) {
       throw new APIError(e);
     }
@@ -126,18 +132,28 @@ class Auth {
    */
   async #verifySignature(message, signature) {
     try {
-      const res = await fetch(constants.SIWE_API_VERIFY, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message,
-          signature,
-        }),
-      });
+      const res = await fetch(
+        `${constants.AUTH_HUB_BASE_API}/auth/client-user/verify`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-client-id": this.clientId,
+          },
+          body: JSON.stringify({
+            message,
+            signature,
+            walletAddress: this.walletAddress,
+          }),
+        }
+      );
       const data = await res.json();
-      return data;
+      const decoded = jwt.decode(data.data);
+      return {
+        success: !data.isError,
+        userId: decoded.id,
+        token: data.data,
+      };
     } catch (e) {
       throw new APIError(e);
     }
@@ -214,33 +230,9 @@ class Auth {
   }
 
   /**
-   * Get the user's wallet address.
-   * @returns {string} The user's wallet address.
-   */
-  getWalletAddress() {
-    return this.walletAddress;
-  }
-
-  /**
-   * Get the user's ID.
-   * @returns {string} The user's ID.
-   */
-  getUserId() {
-    return this.userId;
-  }
-
-  /**
-   * Check if the user is authenticated.
-   * @returns {boolean} True if the user is authenticated, false otherwise.
-   */
-  isAuthenticated() {
-    return this.isAuthenticated;
-  }
-
-  /**
    * Get the user's linked social accounts.
    * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
-   *
+   * @throws {APIError} - Throws an error if the user is not authenticated or if the request fails.
    * @example
    * const auth = new Auth({ clientId: "your-client-id" });
    * const socials = await auth.getLinkedSocials();
@@ -248,20 +240,24 @@ class Auth {
    */
   async getLinkedSocials() {
     const connections = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/client-user/connections`,
+      `${constants.AUTH_HUB_BASE_API}/auth/client-user/connections-sdk`,
       {
         method: "GET",
-        redirect: "follow",
         headers: {
-          "x-client-id": clientId,
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
           "Content-Type": "application/json",
         },
       }
     ).then((res) => res.json());
     if (!connections.isError) {
-      return connections.data;
+      const socials = {};
+      Object.keys(connections.data.data).forEach((key) => {
+        socials[key.split("User")[0]] = connections.data.data[key];
+      });
+      return socials;
     } else {
-      return [];
+      throw new APIError(connections.message || "Failed to fetch connections");
     }
   }
 
