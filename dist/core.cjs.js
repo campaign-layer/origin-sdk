@@ -1529,7 +1529,6 @@ class Auth {
       });
       const res = await this.#verifySignature(message, signature, nonce);
       if (res.success) {
-        console.log(res);
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
