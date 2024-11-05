@@ -1565,6 +1565,31 @@ class Auth {
   }
 
   /**
+   * Get the user's linked social accounts.
+   * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
+   *
+   * @example
+   * const auth = new Auth({ clientId: "your-client-id" });
+   * const socials = await auth.getLinkedSocials();
+   * console.log(socials);
+   */
+  async getLinkedSocials() {
+    const connections = await fetch(`${constants.AUTH_HUB_BASE_API}/auth/client-user/connections`, {
+      method: "GET",
+      redirect: "follow",
+      headers: {
+        "x-client-id": clientId,
+        "Content-Type": "application/json"
+      }
+    }).then(res => res.json());
+    if (!connections.isError) {
+      return connections.data;
+    } else {
+      return [];
+    }
+  }
+
+  /**
    * Link the user's Twitter account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
