@@ -25,6 +25,7 @@ class Auth {
     this.clientId = clientId;
     this.redirectUri = redirectUri;
     this.isAuthenticated = false;
+    this.jwt = null;
     this.walletAddress = null;
     this.userId = null;
     this.providerCallbacks = [];
@@ -67,10 +68,11 @@ class Auth {
   #loadAuthStatusFromStorage() {
     const walletAddress = localStorage.getItem("camp-sdk:wallet-address");
     const userId = localStorage.getItem("camp-sdk:user-id");
-
-    if (walletAddress && userId) {
+    const jwt = localStorage.getItem("camp-sdk:jwt");
+    if (walletAddress && userId && jwt) {
       this.walletAddress = walletAddress;
       this.userId = userId;
+      this.jwt = jwt;
       this.isAuthenticated = true;
     } else {
       this.isAuthenticated = false;
@@ -167,8 +169,10 @@ class Auth {
     this.isAuthenticated = false;
     this.walletAddress = null;
     this.userId = null;
+    this.jwt = null;
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
+    localStorage.removeItem("camp-sdk:jwt");
   }
 
   /**
@@ -189,8 +193,11 @@ class Auth {
       });
       const res = await this.#verifySignature(message, signature, nonce);
       if (res.success) {
+        console.log(res);
         this.isAuthenticated = true;
         this.userId = res.userId;
+        this.jwt = res.token;
+        localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
         localStorage.setItem("camp-sdk:user-id", this.userId);
         return {
