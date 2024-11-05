@@ -2,11 +2,13 @@ import { createWalletClient, custom } from "viem";
 import { testnet } from "./chains";
 let client = null;
 
-const getClient = () => {
-  if (!client) {
+const getClient = (provider, name = "window.ethereum") => {
+  if (!client || client.transport.name !== name) {
     client = createWalletClient({
       chain: testnet,
-      transport: custom(window.ethereum),
+      transport: custom(provider, {
+        name: name,
+      }),
     });
   }
   return client;

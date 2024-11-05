@@ -9332,11 +9332,13 @@ const testnet = {
 };
 
 let client = null;
-const getClient = () => {
-  if (!client) {
+const getClient = (provider, name = "window.ethereum") => {
+  if (!client || client.transport.name !== name) {
     client = createWalletClient({
       chain: testnet,
-      transport: custom(window.ethereum)
+      transport: custom(provider, {
+        name: name
+      })
     });
   }
   return client;
@@ -9500,6 +9502,21 @@ var constants = {
   AUTH_HUB_BASE_API: 'http://localhost:3000'
 };
 
+let providers = [];
+const providerStore = {
+  value: () => providers,
+  subscribe: callback => {
+    function onAnnouncement(event) {
+      if (providers.some(p => p.info.uuid === event.detail.info.uuid)) return;
+      providers = [...providers, event.detail];
+      callback(providers);
+    }
+    window.addEventListener("eip6963:announceProvider", onAnnouncement);
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    return () => window.removeEventListener("eip6963:announceProvider", onAnnouncement);
+  }
+};
+
 /**
  * The Auth class.
  * @class
@@ -9513,6 +9530,7 @@ class Auth {
    * @param {string} options.redirectUri The redirect URI used for oauth.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
+
   constructor({
     clientId,
     redirectUri
@@ -9520,13 +9538,43 @@ class Auth {
     if (!clientId) {
       throw new APIError("clientId is required");
     }
-    this.viem = getClient();
+    this.viem = getClient(window.ethereum);
     this.clientId = clientId;
     this.redirectUri = redirectUri;
     this.isAuthenticated = false;
     this.walletAddress = null;
     this.userId = null;
+    this.providerCallbacks = [];
     this.#loadAuthStatusFromStorage();
+    providerStore.subscribe(provs => {
+      this.providerCallbacks.forEach(callback => callback(provs));
+    });
+  }
+
+  /**
+   * Subscribe to provider updates. This is useful for updating the UI when new providers are announced.
+   * @param {function} callback The callback function that gets called when the provider list is updated. Will fire once upon subscription with the current provider list.
+   * @returns {void}
+   */
+  subscribeToProviders(callback) {
+    this.providerCallbacks.push(callback);
+    callback(providerStore.value());
+  }
+
+  /**
+   * Set the provider. This is useful for setting the provider when the user selects a provider from the UI or when dApp wishes to use a specific provider.
+   * @param {object} options The options object. Includes the provider and the provider info.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the provider is not provided.
+   */
+  setProvider({
+    provider,
+    info
+  }) {
+    if (!provider) {
+      throw new APIError("provider is required");
+    }
+    this.viem = getClient(provider, info.name);
   }
 
   /**
@@ -9674,6 +9722,42 @@ class Auth {
     } catch (e) {
       throw new APIError(e);
     }
+  }
+
+  /**
+   * Get the user's wallet address.
+   * @returns {string} The user's wallet address.
+   */
+  getWalletAddress() {
+    return this.walletAddress;
+  }
+
+  /**
+   * Get the user's ID.
+   * @returns {string} The user's ID.
+   */
+  getUserId() {
+    return this.userId;
+  }
+
+  /**
+   * Check if the user is authenticated.
+   * @returns {boolean} True if the user is authenticated, false otherwise.
+   */
+  isAuthenticated() {
+    return this.isAuthenticated;
+  }
+
+  /**
+   * Link the user's Twitter account.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  linkTwitter() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
   }
 }
 
