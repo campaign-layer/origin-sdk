@@ -9,7 +9,7 @@
     },
     "./react": "./src/react/index.js",
     "./react/twitter": "./src/react/twitter/index.js",
-    "./react/auth": "./src/react/auth/index.js"
+    "./react/auth": "./src/react/auth/index.jsx"
   },
   "scripts": {
     "build": "rollup -c",
