@@ -2,16 +2,19 @@ import { useContext, useEffect, useState, useSyncExternalStore } from "react";
 import { CampContext } from "../context/CampContext";
 import { providerStore } from "../../auth/viem/providers";
 /**
+ * Returns the instance of the Auth class.
  * @returns {Auth} The instance of the Auth class.
  * @example
- * import { useAuth } from "./auth/index.js";
- * const auth = useAuth();
  */
 export const useAuth = () => {
   const { auth } = useContext(CampContext);
   return auth;
 };
 
+/**
+ * Fetches the provider from the context and sets the provider in the auth instance.
+ * @returns { { provider: { provider: string, info: { name: string } }, setProvider: function } } The provider and a function to set the provider.
+ */
 export const useProvider = () => {
   const { auth } = useContext(CampContext);
   const [provider, setProvider] = useState({
@@ -25,6 +28,10 @@ export const useProvider = () => {
   return { provider, setProvider };
 };
 
+/**
+ * Returns the authenticated state and loading state.
+ * @returns { { authenticated: boolean, loading: boolean } } The authenticated state and loading state.
+ */
 export const useAuthState = () => {
   const { auth } = useContext(CampContext);
   const [authenticated, setAuthenticated] = useState(auth.isAuthenticated);
@@ -38,6 +45,10 @@ export const useAuthState = () => {
   return { authenticated, loading };
 };
 
+/**
+ * Connects and disconnects the user.
+ * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
+ */
 export const useConnect = () => {
   const { auth } = useContext(CampContext);
   const connect = auth.connect.bind(auth);
@@ -45,6 +56,10 @@ export const useConnect = () => {
   return { connect, disconnect };
 };
 
+/**
+ * Returns the array of providers.
+ * @returns { Array } The array of providers and the loading state.
+ */
 export const useProviders = () =>
   useSyncExternalStore(
     providerStore.subscribe,
