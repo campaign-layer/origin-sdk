@@ -1344,7 +1344,7 @@ class Auth {
    * @param {string} options.redirectUri The redirect URI used for oauth.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-
+  #triggers;
   constructor({
     clientId,
     redirectUri
@@ -1364,10 +1364,23 @@ class Auth {
     this.walletAddress = null;
     this.userId = null;
     this.providerCallbacks = [];
+    this.#triggers = [];
     this.#loadAuthStatusFromStorage();
     providerStore.subscribe(provs => {
       this.providerCallbacks.forEach(callback => callback(provs));
+      this.trigger("providers", provs);
     });
+  }
+  on(event, callback) {
+    if (!this.#triggers[event]) {
+      this.#triggers[event] = [];
+    }
+    this.#triggers[event].push(callback);
+  }
+  trigger(event, data) {
+    if (this.#triggers[event]) {
+      this.#triggers[event].forEach(callback => callback(data));
+    }
   }
 
   /**
@@ -1394,6 +1407,10 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name);
+    this.trigger("provider", {
+      provider,
+      info
+    });
   }
 
   /**
@@ -1524,6 +1541,7 @@ class Auth {
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
+    this.trigger("auth", "unauthenticated");
   }
 
   /**
@@ -1532,6 +1550,7 @@ class Auth {
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
   async connect() {
+    this.trigger("auth", "loading");
     try {
       if (!this.walletAddress) {
         await this.#requestAccount();
@@ -1550,6 +1569,7 @@ class Auth {
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
         localStorage.setItem("camp-sdk:user-id", this.userId);
+        this.trigger("auth", "authenticated");
         return {
           success: true,
           message: "Successfully authenticated",
@@ -1557,9 +1577,12 @@ class Auth {
         };
       } else {
         this.isAuthenticated = false;
+        this.trigger("auth", "unauthenticated");
         throw new APIError("Failed to authenticate");
       }
     } catch (e) {
+      this.isAuthenticated = false;
+      this.trigger("auth", "unauthenticated");
       throw new APIError(e);
     }
   }

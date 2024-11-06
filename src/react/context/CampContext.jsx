@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createContext } from "react";
 import { TwitterAPI } from "../../twitter.js";
 import { Auth } from "../../auth/index.js";
@@ -11,12 +11,24 @@ const CampContext = createContext({
 });
 
 const CampProvider = ({ apiKey, clientId, redirectUri, children }) => {
+  const [auth, setAuth] = React.useState(new Auth({ clientId, redirectUri }));
+  const [twitter, setTwitter] = React.useState(new TwitterAPI({ clientId, apiKey }));
+
+  // useEffect(() => {
+  //   if (!auth) return;
+  //   auth.on("provider", (provider) => {
+  //     setAuth({ ...auth });
+  //   });
+  // }, [auth]);
   return (
     <CampContext.Provider
       value={{
         apiKey,
-        twitter: new TwitterAPI({ apiKey: apiKey || null, clientId: clientId || null }),
-        auth: new Auth({ clientId: clientId || null, redirectUri: redirectUri || null }),
+        clientId,
+        auth,
+        setAuth,
+        twitter,
+        setTwitter,
       }}
     >
       {children}
