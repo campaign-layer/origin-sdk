@@ -1,13 +1,11 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-} from "react";
-import { CampContext, ModalContext } from "../context/CampContext";
+import { useContext, useEffect, useState, useSyncExternalStore } from "react";
+import { CampContext } from "../context/CampContext";
+import { ModalContext } from "../context/ModalContext";
 import { providerStore } from "../../auth/viem/providers";
-import styles from "./styles/auth.module.css";
+import { CampModal, MyCampModal } from "./modals";
+import { useQuery } from "@tanstack/react-query";
+
+export { CampModal, MyCampModal as CampSocialsModal };
 /**
  * Returns the instance of the Auth class.
  * @returns {Auth} The instance of the Auth class.
@@ -79,134 +77,15 @@ export const useProviders = () =>
   );
 
 /**
- * The ProviderButton component.
- * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean } } props The props.
- * @returns { JSX.Element } The ProviderButton component.
- */
-const ProviderButton = ({ provider, handleConnect, loading }) => {
-  const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const handleClick = () => {
-    handleConnect(provider);
-    setIsButtonLoading(true);
-  };
-  useEffect(() => {
-    if (!loading) {
-      setIsButtonLoading(false);
-    }
-  }, [loading]);
-  return (
-    <button
-      className={styles["provider-button"]}
-      onClick={handleClick}
-      disabled={loading}
-    >
-      <img
-        src={
-          provider.info.icon ||
-          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23333333' d='M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72M20 9v6h-7V9zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2z'/%3E%3Ccircle cx='16' cy='12' r='1.5' fill='%23aaaaaa'/%3E%3C/svg%3E"
-        }
-        alt={provider.info.name}
-      />
-      <span className={styles["provider-name"]}>{provider.info.name}</span>
-      {isButtonLoading && <div className={styles.spinner} />}
-    </button>
-  );
-};
-
-/**
  * Returns the modal context.
  * @returns { { isVisible: boolean, setIsVisible: function } } The modal context.
  */
 export const useModal = () => useContext(ModalContext);
 
-/**
- * The CampModal component.
- * @param { { injectButton: boolean } } props The props.
- * @returns { JSX.Element } The CampModal component.
- */
-export const CampModal = ({ injectButton = true }) => {
-  const { authenticated, loading } = useAuthState();
-  const { connect, disconnect } = useConnect();
-  const { setProvider } = useProvider();
-  const { isVisible, setIsVisible } = useContext(ModalContext);
-  const providers = useProviders();
-  const handleConnect = (provider) => {
-    if (provider) setProvider(provider);
-    connect();
-  };
-  const handleDisconnect = () => {
-    disconnect();
-  };
-
-  const handleModalButton = () => {
-    if (authenticated) {
-      handleDisconnect();
-    } else {
-      setIsVisible(!isVisible);
-    }
-  };
-
-  useEffect(() => {
-    if (authenticated) {
-      setIsVisible(false);
-    }
-  }, [authenticated]);
-  return (
-    <div>
-      {injectButton && (
-        <button
-          className={styles["connect-button"]}
-          onClick={handleModalButton}
-        >
-          {authenticated ? "Disconnect" : "Connect with Camp"}
-        </button>
-      )}
-      {isVisible && (
-        <div
-          className={styles.modal}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsVisible(false);
-            }
-          }}
-        >
-          <div className={styles.container}>
-            {
-              <>
-                <img
-                  className={styles["modal-icon"]}
-                  src="https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg"
-                  alt="Camp Network"
-                />
-                <div className={styles["provider-list"]}>
-                  {providers.map((provider) => (
-                    <ProviderButton
-                      provider={provider}
-                      handleConnect={handleConnect}
-                      loading={loading}
-                      key={provider.info.uuid}
-                    />
-                  ))}
-                  <ProviderButton
-                    provider={{
-                      provider: window.ethereum,
-                      info: { name: "Browser Wallet" },
-                    }}
-                    handleConnect={handleConnect}
-                    loading={loading}
-                  />
-                </div>
-                <a
-                  href="https://campnetwork.xyz"
-                  className={styles["footer-text"]}
-                >
-                  Connect with Camp Network
-                </a>
-              </>
-            }
-          </div>
-        </div>
-      )}
-    </div>
-  );
+export const useSocials = () => {
+  const { auth } = useContext(CampContext);
+  return useQuery({
+    queryKey: ["socials", auth.isAuthenticated],
+    queryFn: () => auth.getLinkedSocials(),
+  });
 };

@@ -1356,6 +1356,9 @@ class Auth {
     }
     if (typeof window !== "undefined") {
       this.viem = getClient(window.ethereum);
+      if (!redirectUri) {
+        redirectUri = window.location.href;
+      }
     } else {
       this.viem = null;
     }
@@ -1599,6 +1602,7 @@ class Auth {
    * console.log(socials);
    */
   async getLinkedSocials() {
+    if (!this.isAuthenticated) throw new APIError("User needs to be authenticated");
     const connections = await fetch(`${constants.AUTH_HUB_BASE_API}/auth/client-user/connections-sdk`, {
       method: "GET",
       headers: {
@@ -1628,6 +1632,108 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     }
     window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+  }
+
+  /**
+   * Link the user's Discord account.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  linkDiscord() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+  }
+
+  /**
+   * Link the user's Spotify account.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  linkSpotify() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+  }
+
+  /**
+   * Unlink the user's Twitter account.
+   */
+  async unlinkTwitter() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/twitter/disconnect`, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        "x-client-id": this.clientId,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: this.userId
+      })
+    }).then(res => res.json());
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to unlink Twitter account");
+    }
+  }
+
+  /**
+   * Unlink the user's Discord account.
+   */
+  async unlinkDiscord() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/discord/disconnect`, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        "x-client-id": this.clientId,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: this.userId
+      })
+    }).then(res => res.json());
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to unlink Discord account");
+    }
+  }
+
+  /**
+   * Unlink the user's Spotify account.
+   */
+  async unlinkSpotify() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/spotify/disconnect`, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        "x-client-id": this.clientId,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: this.userId
+      })
+    }).then(res => res.json());
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to unlink Spotify account");
+    }
   }
 }
 
