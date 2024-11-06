@@ -9,7 +9,7 @@ export const providerStore = {
       providers = [...providers, event.detail];
       callback(providers);
     }
-
+    if (typeof window === "undefined") return;
     window.addEventListener("eip6963:announceProvider", onAnnouncement);
     window.dispatchEvent(new Event("eip6963:requestProvider"));
 

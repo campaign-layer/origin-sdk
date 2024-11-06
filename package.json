@@ -8,7 +8,8 @@
       "require": "./dist/core.cjs.js"
     },
     "./react": "./src/react/index.js",
-    "./react/twitter": "./src/react/twitter/index.js"
+    "./react/twitter": "./src/react/twitter/index.js",
+    "./react/auth": "./src/react/auth/index.js"
   },
   "scripts": {
     "build": "rollup -c",
@@ -23,7 +24,6 @@
   "dependencies": {
     "@tanstack/react-query": "^5",
     "axios": "^1.7.7",
-    "jsonwebtoken": "^9.0.2",
     "viem": "^2.21.37"
   },
   "peerDependencies": {

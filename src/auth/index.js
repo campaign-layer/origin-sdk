@@ -3,7 +3,6 @@ import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants from "../constants";
 import { providerStore } from "./viem/providers";
-import jwt from "jsonwebtoken";
 /**
  * The Auth class.
  * @class
@@ -22,7 +21,11 @@ class Auth {
     if (!clientId) {
       throw new APIError("clientId is required");
     }
-    this.viem = getClient(window.ethereum);
+    if (typeof window !== "undefined") {
+      this.viem = getClient(window.ethereum);
+    } else {
+      this.viem = null;
+    }
     this.clientId = clientId;
     this.redirectUri = redirectUri;
     this.isAuthenticated = false;
@@ -67,9 +70,12 @@ class Auth {
    * @returns {void}
    */
   #loadAuthStatusFromStorage() {
-    const walletAddress = localStorage.getItem("camp-sdk:wallet-address");
-    const userId = localStorage.getItem("camp-sdk:user-id");
-    const jwt = localStorage.getItem("camp-sdk:jwt");
+    if (typeof localStorage === "undefined") {
+      return;
+    }
+    const walletAddress = localStorage?.getItem("camp-sdk:wallet-address");
+    const userId = localStorage?.getItem("camp-sdk:user-id");
+    const jwt = localStorage?.getItem("camp-sdk:jwt");
     if (walletAddress && userId && jwt) {
       this.walletAddress = walletAddress;
       this.userId = userId;
@@ -148,7 +154,8 @@ class Auth {
         }
       );
       const data = await res.json();
-      const decoded = jwt.decode(data.data);
+      const payload = data.data.split(".")[1];
+      const decoded = JSON.parse(atob(payload));
       return {
         success: !data.isError,
         userId: decoded.id,
