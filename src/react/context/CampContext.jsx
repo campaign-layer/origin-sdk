@@ -10,16 +10,31 @@ const CampContext = createContext({
   auth: null,
 });
 
+const ModalContext = createContext({
+  isVisible: false,
+  setIsVisible: () => {},
+});
+
+const ModalProvider = ({ children }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  return (
+    <ModalContext.Provider
+      value={{
+        isVisible,
+        setIsVisible,
+      }}
+    >
+      {children}
+    </ModalContext.Provider>
+  );
+};
+
 const CampProvider = ({ apiKey, clientId, redirectUri, children }) => {
   const [auth, setAuth] = React.useState(new Auth({ clientId, redirectUri }));
-  const [twitter, setTwitter] = React.useState(new TwitterAPI({ clientId, apiKey }));
+  const [twitter, setTwitter] = React.useState(
+    new TwitterAPI({ clientId, apiKey })
+  );
 
-  // useEffect(() => {
-  //   if (!auth) return;
-  //   auth.on("provider", (provider) => {
-  //     setAuth({ ...auth });
-  //   });
-  // }, [auth]);
   return (
     <CampContext.Provider
       value={{
@@ -31,9 +46,9 @@ const CampProvider = ({ apiKey, clientId, redirectUri, children }) => {
         setTwitter,
       }}
     >
-      {children}
+      <ModalProvider>{children}</ModalProvider>
     </CampContext.Provider>
   );
 };
 
-export { CampContext, CampProvider };
+export { CampContext, ModalContext, CampProvider, ModalProvider };

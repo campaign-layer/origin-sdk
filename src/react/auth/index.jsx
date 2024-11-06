@@ -1,5 +1,11 @@
-import { useContext, useEffect, useState, useSyncExternalStore } from "react";
-import { CampContext } from "../context/CampContext";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { CampContext, ModalContext } from "../context/CampContext";
 import { providerStore } from "../../auth/viem/providers";
 import styles from "./styles/auth.module.css";
 /**
@@ -108,14 +114,21 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
 };
 
 /**
+ * Returns the modal context.
+ * @returns { { isVisible: boolean, setIsVisible: function } } The modal context.
+ */
+export const useModal = () => useContext(ModalContext);
+
+/**
  * The CampModal component.
+ * @param { { injectButton: boolean } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-export const CampModal = () => {
+export const CampModal = ({ injectButton = true }) => {
   const { authenticated, loading } = useAuthState();
   const { connect, disconnect } = useConnect();
   const { setProvider } = useProvider();
-  const [isVisible, setIsVisible] = useState(false);
+  const { isVisible, setIsVisible } = useContext(ModalContext);
   const providers = useProviders();
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
@@ -140,9 +153,14 @@ export const CampModal = () => {
   }, [authenticated]);
   return (
     <div>
-      <button className={styles["connect-button"]} onClick={handleModalButton}>
-        {authenticated ? "Disconnect" : "Connect with Camp"}
-      </button>
+      {injectButton && (
+        <button
+          className={styles["connect-button"]}
+          onClick={handleModalButton}
+        >
+          {authenticated ? "Disconnect" : "Connect with Camp"}
+        </button>
+      )}
       {isVisible && (
         <div
           className={styles.modal}
