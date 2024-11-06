@@ -131,3 +131,25 @@
 .container a.footer-text:hover {
   text-decoration: underline;
 }
+
+.connect-button {
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.connect-button:hover {
+  background-color: #cc4e02;
+  cursor: pointer;
+}
+
+.connect-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

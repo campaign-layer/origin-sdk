@@ -140,8 +140,8 @@ export const CampModal = () => {
   }, [authenticated]);
   return (
     <div>
-      <button onClick={handleModalButton}>
-        {authenticated ? "Disconnect" : "Connect"}
+      <button className={styles["connect-button"]} onClick={handleModalButton}>
+        {authenticated ? "Disconnect" : "Connect with Camp"}
       </button>
       {isVisible && (
         <div
