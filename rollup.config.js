@@ -31,7 +31,7 @@ const config = {
     json(),
     nodePolyfills(),
   ],
-  external: ["react", "react-dom", "@tanstack/react-query", "axios", "viem"],
+  external: ["react", "react-dom", "@tanstack/react-query", "axios", "viem", "@walletconnect/ethereum-provider"],
 };
 
 module.exports = config;

@@ -111,10 +111,10 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
 };
 /**
  * The CampModal component.
- * @param { { injectButton: boolean } } props The props.
+ * @param { { injectButton?: boolean, walletConnectProjectId?: string } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-export const CampModal = ({ injectButton = true, projectId }) => {
+export const CampModal = ({ injectButton = true, walletConnectProjectId }) => {
   const { authenticated, loading } = useAuthState();
   const { connect } = useConnect();
   const { setProvider } = useProvider();
@@ -122,9 +122,21 @@ export const CampModal = ({ injectButton = true, projectId }) => {
     useContext(ModalContext);
   const providers = useProviders();
 
-  const walletConnectProvider = useWalletConnectProvider(
-    projectId ?? "1505a4097d6aaa6dcaf284778b30f2f0"
-  );
+  const walletConnectProvider = walletConnectProjectId
+    ? useWalletConnectProvider(walletConnectProjectId)
+    : null;
+
+  useEffect(() => {
+    if (walletConnectProvider) {
+      walletConnectProvider.on("connect", (data) => {
+        console.log("WalletConnect connected:", data);
+        handleConnect({
+          provider: walletConnectProvider,
+          info: { name: "WalletConnect" },
+        });
+      });
+    }
+  }, [walletConnectProvider]);
 
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
@@ -132,8 +144,11 @@ export const CampModal = ({ injectButton = true, projectId }) => {
   };
 
   const handleWalletConnect = async ({ provider }) => {
-    console.log(provider);
-    await provider.connect();
+    try {
+      await provider.connect();
+    } catch (error) {
+      console.error("Error connecting WalletConnect:", error);
+    }
   };
 
   const handleModalButton = () => {
@@ -169,12 +184,12 @@ export const CampModal = ({ injectButton = true, projectId }) => {
               <path
                 d="m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z"
                 fill="#000"
-                stroke-width="0"
+                strokeWidth="0"
               />
               <path
                 d="M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z"
                 fill="#ff6d01"
-                stroke-width="0"
+                strokeWidth="0"
               />
             </svg>
           </div>
@@ -218,23 +233,25 @@ export const CampModal = ({ injectButton = true, projectId }) => {
                     key={provider.info.uuid}
                   />
                 ))}
+                {walletConnectProvider && (
+                  <ProviderButton
+                    provider={{
+                      provider: walletConnectProvider,
+                      info: {
+                        name: "WalletConnect",
+                        icon: "data:image/svg+xml,%3Csvg fill='%233B99FC' role='img' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.913 7.519c3.915-3.831 10.26-3.831 14.174 0l.471.461a.483.483 0 0 1 0 .694l-1.611 1.577a.252.252 0 0 1-.354 0l-.649-.634c-2.73-2.673-7.157-2.673-9.887 0l-.694.68a.255.255 0 0 1-.355 0L4.397 8.719a.482.482 0 0 1 0-.693l.516-.507Zm17.506 3.263 1.434 1.404a.483.483 0 0 1 0 .694l-6.466 6.331a.508.508 0 0 1-.709 0l-4.588-4.493a.126.126 0 0 0-.178 0l-4.589 4.493a.508.508 0 0 1-.709 0L.147 12.88a.483.483 0 0 1 0-.694l1.434-1.404a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.129.048.178 0l4.589-4.493a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.128.048.178 0l4.589-4.493a.507.507 0 0 1 .708 0Z'/%3E%3C/svg%3E",
+                      },
+                    }}
+                    handleConnect={handleWalletConnect}
+                    loading={loading}
+                  />
+                )}
                 <ProviderButton
                   provider={{
                     provider: window.ethereum,
                     info: { name: "Browser Wallet" },
                   }}
                   handleConnect={handleConnect}
-                  loading={loading}
-                />
-                <ProviderButton
-                  provider={{
-                    provider: walletConnectProvider,
-                    info: {
-                      name: "WalletConnect",
-                      icon: "data:image/svg+xml,%3Csvg fill='%233B99FC' role='img' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.913 7.519c3.915-3.831 10.26-3.831 14.174 0l.471.461a.483.483 0 0 1 0 .694l-1.611 1.577a.252.252 0 0 1-.354 0l-.649-.634c-2.73-2.673-7.157-2.673-9.887 0l-.694.68a.255.255 0 0 1-.355 0L4.397 8.719a.482.482 0 0 1 0-.693l.516-.507Zm17.506 3.263 1.434 1.404a.483.483 0 0 1 0 .694l-6.466 6.331a.508.508 0 0 1-.709 0l-4.588-4.493a.126.126 0 0 0-.178 0l-4.589 4.493a.508.508 0 0 1-.709 0L.147 12.88a.483.483 0 0 1 0-.694l1.434-1.404a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.129.048.178 0l4.589-4.493a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.128.048.178 0l4.589-4.493a.507.507 0 0 1 .708 0Z'/%3E%3C/svg%3E",
-                    },
-                  }}
-                  handleConnect={handleWalletConnect}
                   loading={loading}
                 />
               </div>
@@ -305,7 +322,7 @@ const ConnectorButton = ({
                   fill="none"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeWidth="2"
                   d="M17 22v-2m-8-5l6-6m-4-3l.463-.536a5 5 0 0 1 7.071 7.072L18 13m-5 5l-.397.534a5.07 5.07 0 0 1-7.127 0a4.97 4.97 0 0 1 0-7.071L6 11m14 6h2M2 7h2m3-5v2"
                 />
               </svg>

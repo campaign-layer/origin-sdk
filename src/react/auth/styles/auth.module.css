@@ -94,7 +94,7 @@
   gap: 0.5rem;
   width: 100%;
   margin-bottom: 0.75rem;
-  max-height: 17.8rem;
+  max-height: 17.9rem;
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
@@ -390,7 +390,6 @@
   cursor: not-allowed;
 }
 
-/* loader that goes back and forth */
 @keyframes loader {
   0% {
     transform: translateX(0%);
