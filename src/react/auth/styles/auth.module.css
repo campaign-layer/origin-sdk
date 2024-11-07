@@ -222,7 +222,7 @@
   width: 3rem;
   height: 100%;
   margin-right: 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.75);
   box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
     rgba(0, 0, 0, 0.05) 0 -2px 4px inset;
   display: grid;
@@ -243,7 +243,7 @@
 }
 
 .connect-button:hover .button-icon {
-  background: rgba(255, 255, 255, 0.875);
+  background: rgba(255, 255, 255, 0.675);
 }
 
 .connect-button:focus {
