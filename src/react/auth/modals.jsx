@@ -9,6 +9,7 @@ import {
 import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext";
+import { formatAddress } from "../../utils";
 const DiscordIcon = () => (
   <svg
     className="w-8 h-8"
@@ -327,7 +328,10 @@ export const MyCampModal = () => {
           >
             <CloseIcon />
           </div>
-          <div className={styles.header}>My Camp</div>
+          <div className={styles.header}>
+            <span>My Camp</span>
+            <span className={styles['wallet-address']}>{formatAddress(auth.walletAddress)}</span>
+          </div>
           <div>
             {loading ? (
               <div className={styles.spinner} />
@@ -335,7 +339,7 @@ export const MyCampModal = () => {
               <div className={styles["socials-container"]}>
                 <ConnectorButton
                   name="Discord"
-                  link={auth.linkDiscord}
+                  link={auth.linkDiscord.bind(auth)}
                   unlink={auth.unlinkDiscord.bind(auth)}
                   isConnected={socials?.discord}
                   refetch={refetch}
@@ -343,7 +347,7 @@ export const MyCampModal = () => {
                 />
                 <ConnectorButton
                   name="Twitter"
-                  link={auth.linkTwitter}
+                  link={auth.linkTwitter.bind(auth)}
                   unlink={auth.unlinkTwitter.bind(auth)}
                   isConnected={socials?.twitter}
                   refetch={refetch}
@@ -351,7 +355,7 @@ export const MyCampModal = () => {
                 />
                 <ConnectorButton
                   name="Spotify"
-                  link={auth.linkSpotify}
+                  link={auth.linkSpotify.bind(auth)}
                   unlink={auth.unlinkSpotify.bind(auth)}
                   isConnected={socials?.spotify}
                   refetch={refetch}

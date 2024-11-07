@@ -52,6 +52,13 @@
   font-weight: bold;
 }
 
+.container .header .wallet-address {
+  font-size: 0.75rem;
+  color: #777;
+  font-weight: normal;
+  margin-top: 0.5rem;
+}
+
 .container .close-button {
   position: absolute;
   top: 0.5rem;

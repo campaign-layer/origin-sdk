@@ -1629,7 +1629,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
   }
 
   /**
@@ -1641,7 +1641,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
   }
 
   /**
@@ -1653,7 +1653,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirectUri=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
   }
 
   /**
