@@ -111,10 +111,10 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
 };
 /**
  * The CampModal component.
- * @param { { injectButton?: boolean, walletConnectProjectId?: string } } props The props.
+ * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-export const CampModal = ({ injectButton = true, walletConnectProjectId }) => {
+export const CampModal = ({ injectButton = true, wcProjectId }) => {
   const { authenticated, loading } = useAuthState();
   const { connect } = useConnect();
   const { setProvider } = useProvider();
@@ -122,8 +122,8 @@ export const CampModal = ({ injectButton = true, walletConnectProjectId }) => {
     useContext(ModalContext);
   const providers = useProviders();
 
-  const walletConnectProvider = walletConnectProjectId
-    ? useWalletConnectProvider(walletConnectProjectId)
+  const walletConnectProvider = wcProjectId
+    ? useWalletConnectProvider(wcProjectId)
     : null;
 
   useEffect(() => {
