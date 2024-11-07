@@ -363,6 +363,14 @@ export const MyCampModal = () => {
           <button className={styles["disconnect-button"]} onClick={disconnect}>
             Disconnect
           </button>
+          <a
+            href="https://campnetwork.xyz"
+            className={styles["footer-text"]}
+            target="_blank"
+            style={{ marginTop: 0 }}
+          >
+            via Camp Network
+          </a>
         </div>
       </div>
     )
