@@ -71,6 +71,30 @@ const SpotifyIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg
+    className={styles["close-icon"]}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M18 6L6 18"
+      stroke="#777777"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6 6L18 18"
+      stroke="#777777"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 /**
  * The ProviderButton component.
  * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean } } props The props.
@@ -161,6 +185,12 @@ export const CampModal = ({ injectButton = true }) => {
             }}
           >
             <div className={styles.container}>
+              <div
+                className={styles["close-button"]}
+                onClick={() => setIsAuthVisible(false)}
+              >
+                <CloseIcon />
+              </div>
               <div className={styles.header}>
                 <img
                   className={styles["modal-icon"]}
@@ -191,6 +221,7 @@ export const CampModal = ({ injectButton = true }) => {
               <a
                 href="https://campnetwork.xyz"
                 className={styles["footer-text"]}
+                target="_blank"
               >
                 via Camp Network
               </a>
@@ -290,6 +321,12 @@ export const MyCampModal = () => {
         }}
       >
         <div className={styles.container}>
+          <div
+            className={styles["close-button"]}
+            onClick={() => setIsVisible(false)}
+          >
+            <CloseIcon />
+          </div>
           <div className={styles.header}>My Camp</div>
           <div>
             {loading ? (

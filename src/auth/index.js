@@ -21,7 +21,6 @@ class Auth {
     if (!clientId) {
       throw new APIError("clientId is required");
     }
-    
 
     if (typeof window !== "undefined") {
       this.viem = getClient(window.ethereum);
