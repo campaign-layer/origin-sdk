@@ -1,0 +1,14 @@
+{
+  "linter": {
+    "rules": {
+      "a11y": {
+        "useButtonType": "off",
+        "noSvgWithoutTitle": "off",
+        "useKeyWithClickEvents": "off"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
+      }
+    }
+  }
+}
