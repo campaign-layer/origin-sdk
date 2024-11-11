@@ -43,7 +43,7 @@ class Auth {
 
   /**
    * Subscribe to an event. Possible events are "auth", "provider", and "providers".
-   * @param {string} event The event.
+   * @param {("auth"|"provider"|"providers")} event The event.
    * @param {function} callback The callback function.
    * @returns {void}
    * @example

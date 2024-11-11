@@ -4,11 +4,12 @@ import { ModalContext } from "../context/ModalContext";
 import { providerStore } from "../../auth/viem/providers";
 import { CampModal, MyCampModal } from "./modals";
 import { useQuery } from "@tanstack/react-query";
+import { Auth } from "../../auth/index";
 
 export { CampModal, MyCampModal as CampSocialsModal };
 /**
  * Returns the instance of the Auth class.
- * @returns {Auth} The instance of the Auth class.
+ * @returns { Auth } The instance of the Auth class.
  * @example
  */
 export const useAuth = () => {
@@ -82,6 +83,10 @@ export const useProviders = () =>
  */
 export const useModal = () => useContext(ModalContext);
 
+/**
+ * Fetches the socials linked to the user.
+ * @returns { { data: Array, error: Error, loading: boolean } } The socials linked to the user.
+ */
 export const useSocials = () => {
   const { auth } = useContext(CampContext);
   return useQuery({
