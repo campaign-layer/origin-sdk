@@ -1,9 +1,10 @@
 # Camp SDK
 
 The camp-sdk currently exposes the following modules:
-`"camp-sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
-`"camp-sdk/react"` - Exposes the CampProvider and CampConext for use in React applications
-`"camp-sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
+
+- `"camp-sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
+- `"camp-sdk/react"` - Exposes the CampProvider and CampConext for use in React applications
+- `"camp-sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
 
 # Core
 
@@ -354,7 +355,7 @@ createRoot(document.getElementById("root")).render(
 
 ## CampModal
 
-The **CampModal** component will display a button with the text "**Connect**" that the user can click to summon the modal. The modal will display a list of available providers that the user can select from. After a provider has been selected, the `connect` method will be called on the Auth instance to authenticate the user.
+The **CampModal** component will display a button with the text "**Connect**" that the user can click on in order to summon the modal. The modal will display a list of available providers that the user can select from. After a provider has been selected, the `connect` method will be called on the Auth instance to authenticate the user.
 
 If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
 
