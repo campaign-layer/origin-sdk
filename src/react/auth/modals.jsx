@@ -296,17 +296,22 @@ const ConnectorButton = ({
   };
   return (
     <div className={styles["connector-container"]}>
-      <button
-        onClick={handleClick}
-        className={styles["connector-button"]}
-        disabled={isConnected}
-        data-connected={isConnected}
-      >
-        {icon}
-        <span>{name}</span>
-        {isConnected &&
-          (isUnlinking ? (
-            <div className={styles.loader} />
+      {isConnected ? (
+        <div
+          className={styles["connector-connected"]}
+          data-connected={isConnected}
+        >
+          {icon}
+          <span>{name}</span>
+          {isUnlinking ? (
+            <div
+              className={styles.loader}
+              style={{
+                alignSelf: "flex-end",
+                position: "absolute",
+                right: "0.375rem",
+              }}
+            />
           ) : (
             <button
               className={styles["unlink-connector-button"]}
@@ -320,16 +325,26 @@ const ConnectorButton = ({
               >
                 <path
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   strokeWidth="2"
                   d="M17 22v-2m-8-5l6-6m-4-3l.463-.536a5 5 0 0 1 7.071 7.072L18 13m-5 5l-.397.534a5.07 5.07 0 0 1-7.127 0a4.97 4.97 0 0 1 0-7.071L6 11m14 6h2M2 7h2m3-5v2"
                 />
               </svg>
               Unlink
             </button>
-          ))}
-      </button>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={handleClick}
+          className={styles["connector-button"]}
+          disabled={isConnected}
+        >
+          {icon}
+          <span>{name}</span>
+        </button>
+      )}
     </div>
   );
 };
@@ -359,7 +374,7 @@ export const MyCampModal = () => {
       name: "Twitter",
       link: auth.linkTwitter.bind(auth),
       unlink: auth.unlinkTwitter.bind(auth),
-      isConnected: socials?.twitter,
+      isConnected: true || socials?.twitter,
       icon: <TwitterIcon />,
     },
     {
