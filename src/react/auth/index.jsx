@@ -6,7 +6,7 @@ import { CampModal, MyCampModal } from "./modals";
 import { useQuery } from "@tanstack/react-query";
 import { Auth } from "../../auth/index";
 
-export { CampModal, MyCampModal as CampSocialsModal };
+export { CampModal, MyCampModal };
 /**
  * Returns the instance of the Auth class.
  * @returns { Auth } The instance of the Auth class.
@@ -79,7 +79,7 @@ export const useProviders = () =>
 
 /**
  * Returns the modal context.
- * @returns { { isVisible: boolean, setIsVisible: function } } The modal context.
+ * @returns { { isAuthVisible: boolean, setIsAuthVisible: function, isMyCampVisible, setIsMyCampVisible } } The modal context.
  */
 export const useModal = () => useContext(ModalContext);
 

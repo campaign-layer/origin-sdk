@@ -329,15 +329,238 @@ await auth.unlinkSpotify();
 
 # React
 
-# Building
+The React components and hooks can be imported as ES6 modules. The example below shows how to set up the CampProvider and subsequently use the the provided hooks and components.
 
-To build the SDK, run the following command:
+```js
+// main.jsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { CampProvider } from "camp-sdk/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import App from "./App.jsx";
+
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <CampProvider apiKey="your-api-key" clientId="your-client-id">
+        <App />
+      </CampProvider>
+    </QueryClientProvider>
+  </StrictMode>
+);
+```
+
+## CampModal
+
+The **CampModal** component will display a button with the text "**Connect**" that the user can click to summon the modal. The modal will display a list of available providers that the user can select from. After a provider has been selected, the `connect` method will be called on the Auth instance to authenticate the user.
+
+If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
+
+The **CampModal** can optionally take a `wcProjectId` prop which will allow the user to authenticate via WalletConnect.
+
+`wcProjectId` - The WalletConnect project ID to use for authentication.
+
+### Usage
+
+```jsx
+import { CampModal } from "camp-sdk/react/auth";
+
+function App() {
+  return (
+    <div>
+      <CampModal />
+    </div>
+  );
+}
+```
+
+After the user has authenticated, the following hooks can be used to fetch user state, data, and link and unlink social accounts:
+
+## Hooks
+
+### useAuth
+
+The `useAuth` hook returns the instance of the Auth class that is provided by the CampProvider.
+It can be used as outlined in the Core section in order to build custom authentication flows, listen for events, and fetch user data.
+
+```jsx
+import { useAuth } from "camp-sdk/react/auth";
+
+function App() {
+  const auth = useAuth();
+
+  return (
+    <div>
+      <button onClick={auth.connect}>Connect</button>
+    </div>
+  );
+}
+```
+
+### useAuthState
+
+The `useAuthState` hook returns the current authentication state of the user.
+
+```jsx
+import { useAuthState } from "camp-sdk/react/auth";
+
+function App() {
+  const { authenticated, loading } = useAuthState();
+
+  return (
+    <div>
+      {loading && <div>Loading...</div>}
+      {authenticated && <div>Authenticated</div>}
+    </div>
+  );
+}
+```
+
+### useProvider
+
+The `useProvider` hook returns the provider that has been set via the `setProvider` method, as well as a `setProvider` function that can be used to update the provider.
+
+```jsx
+import { useProvider } from "camp-sdk/react/auth";
+
+function App() {
+  const { provider, setProvider } = useProvider();
+
+  return (
+    <div>
+      <div>Current provider: {provider.info.name}</div>
+      <button
+        onClick={() =>
+          setProvider({ provider: window.ethereum, info: { name: "Metamask" } })
+        }
+      >
+        Set Provider
+      </button>
+    </div>
+  );
+}
+```
+
+### useProviders
+
+The `useProviders` hook returns the list of providers that have been injected via EIP6963 and that the user or app can select from.
+
+```jsx
+import { useProviders, useAuth } from "camp-sdk/react/auth";
+
+function App() {
+  const providers = useProviders();
+  const auth = useAuth();
+
+  return (
+    <div>
+      {providers.map((provider) => (
+        <button
+          key={provider.info.name}
+          onClick={() => auth.setProvider(provider)}
+        >
+          {provider.info.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+### useConnect
+
+The `useConnect` hook returns functions that can be used to connect and disconnect the user.
+
+```jsx
+import { useConnect, useAuthState } from "camp-sdk/react/auth";
+
+function App() {
+  const { connect, disconnect } = useConnect();
+  const { authenticated } = useAuthState();
+
+  return (
+    <div>
+      {authenticated ? (
+        <button onClick={disconnect}>Disconnect</button>
+      ) : (
+        <button onClick={connect}>Connect</button>
+      )}
+    </div>
+  );
+}
+```
+
+### useSocials
+
+The `useSocials` hook returns the state of the user's linked social accounts.
+
+```jsx
+import { useSocials } from "camp-sdk/react/auth";
+
+function App() {
+  const { data, error, loading } = useSocials();
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <div>Twitter: {data.twitter ? "Linked" : "Not linked"}</div>
+      <div>Discord: {data.discord ? "Linked" : "Not linked"}</div>
+      <div>Spotify: {data.spotify ? "Linked" : "Not linked"}</div>
+    </div>
+  );
+}
+```
+
+### useModal (may change in the future)
+
+The `useModal` hook returns functions that can be used to open and close the CampModal.
+
+**Note: The `<CampModal/>` component must be rendered in the component tree for the modals to be displayed.**
+**Note: The `MyCampModal` will only be displayed if the user is authenticated.**
+
+```jsx
+import { useModal, CampModal } from "camp-sdk/react/auth";
+
+function App() {
+  const {
+    isAuthVisible,
+    setIsAuthVisible,
+    isMyCampVisible,
+    setIsMyCampVisible,
+  } = useModal();
+
+  return (
+    <div>
+      <CampModal />
+      <button onClick={() => setIsAuthVisible(true)}>Show Auth Modal</button>
+      <button onClick={() => setIsMyCampVisible(true)}>
+        Show My Camp Modal
+      </button>
+    </div>
+  );
+}
+```
+
+# Contributing
+
+Install the dependencies.
+
+```bash
+npm install
+```
+
+Build the SDK.
 
 ```bash
 npm run build
 ```
 
 This will generate the SDK in the `dist` folder.
+
 You can also run the following command to watch for changes and rebuild the SDK automatically:
 
 ```bash
