@@ -364,6 +364,10 @@ createRoot(document.getElementById("root")).render(
 
 ![camp-sdk-banner](https://github.com/user-attachments/assets/ce8fee05-f5d9-431e-b76b-d8e7b0389760)
 
+The **CampModal** is a one-line* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
+
+It works as follows:
+
 The **CampModal** component displays a button with the text "**Connect**" that the user can click on in order to summon the modal. The modal shows a list of available providers that the user can select from. After a provider has been selected, the `connect` method is called on the Auth instance to authenticate the user.
 
 If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
@@ -387,7 +391,9 @@ function App() {
 }
 ```
 
-After the user has authenticated, the following hooks can be used to connect users, fetch user data, and listen for events.
+Users can authenticate either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
+
+After the user has authenticated, you can use the provided hooks to fetch user data and listen for events.
 
 ## Hooks
 
