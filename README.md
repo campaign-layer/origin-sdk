@@ -525,35 +525,29 @@ function App() {
 }
 ```
 
-### useModal (may change in the future)
+### useModal
 
-The `useModal` hook returns functions that can be used to open and close the CampModal.
+The `useModal` hook returns the state of the Auth and My Camp modals, as well as functions to show and hide them.
 
 **Note: The `<CampModal/>` component must be rendered in the component tree for the modals to be displayed.**
-**Note: The `MyCampModal` will only be displayed if the user is authenticated.**
 
 ```jsx
 import { useModal, CampModal } from "camp-sdk/react/auth";
 
 function App() {
-  const {
-    isAuthVisible,
-    setIsAuthVisible,
-    isMyCampVisible,
-    setIsMyCampVisible,
-  } = useModal();
+  const { isOpen, openModal, closeModal } = useModal();
 
   return (
     <div>
+      <button onClick={openModal}>Open Modal</button>
+      <button onClick={closeModal}>Close Modal</button>
       <CampModal />
-      <button onClick={() => setIsAuthVisible(true)}>Show Auth Modal</button>
-      <button onClick={() => setIsMyCampVisible(true)}>
-        Show My Camp Modal
-      </button>
     </div>
   );
 }
 ```
+
+The state and functions returned by the `useModal` hook can be used to show and hide the Auth and My Camp modals, as well as to check if they are currently open. The modal being controlled is dictated by the user's authentication state.
 
 # Contributing
 
