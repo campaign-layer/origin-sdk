@@ -61,5 +61,9 @@ const baseURL =
 //   buildURL,
 //   baseURL,
 // };
+// format eth address as 0x1234...5678
+const formatAddress = (address, n = 8) => {
+  return `${address.slice(0, n)}...${address.slice(-n)}`;
+};
 
-export { fetchData, buildQueryString, buildURL, baseURL };
+export { fetchData, buildQueryString, buildURL, baseURL, formatAddress };

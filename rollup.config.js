@@ -1,30 +1,37 @@
 const resolve = require("@rollup/plugin-node-resolve");
 const commonjs = require("@rollup/plugin-commonjs");
 const babel = require("@rollup/plugin-babel");
-const typescript = require("@rollup/plugin-typescript");
+// const typescript = require("@rollup/plugin-typescript");
 const json = require("@rollup/plugin-json");
+const nodePolyfills = require("rollup-plugin-polyfill-node");
 
-module.exports = {
+const config = {
   input: "src/index.js",
   output: [
     {
       file: "dist/core.cjs.js",
       format: "cjs",
       exports: "auto",
+      inlineDynamicImports: true,
     },
     {
       file: "dist/core.esm.js",
       format: "esm",
+      exports: "auto",
+      inlineDynamicImports: true,
     },
   ],
   plugins: [
     resolve({
-      preferBuiltins: true,
+      preferBuiltins: false,
+      browser: true,
     }),
     commonjs(),
     babel({ babelHelpers: "bundled" }),
-    typescript({ declaration: true, outDir: "dist" }),
     json(),
+    nodePolyfills(),
   ],
-  external: ["react", "react-dom", "@tanstack/react-query", "axios"],
+  external: ["react", "react-dom", "@tanstack/react-query", "axios", "viem", "@walletconnect/ethereum-provider"],
 };
+
+module.exports = config;

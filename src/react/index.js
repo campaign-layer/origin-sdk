@@ -1,2 +1,3 @@
 import { CampProvider, CampContext } from "../react/context/CampContext.jsx";
-export { CampProvider, CampContext };
+import { useAuth } from "./auth/index.jsx";
+export { CampProvider, CampContext, useAuth };
