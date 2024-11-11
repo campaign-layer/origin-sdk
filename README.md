@@ -364,7 +364,7 @@ createRoot(document.getElementById("root")).render(
 
 ![camp-sdk-banner](https://github.com/user-attachments/assets/ce8fee05-f5d9-431e-b76b-d8e7b0389760)
 
-The **CampModal** component will display a button with the text "**Connect**" that the user can click on in order to summon the modal. The modal will display a list of available providers that the user can select from. After a provider has been selected, the `connect` method will be called on the Auth instance to authenticate the user.
+The **CampModal** component displays a button with the text "**Connect**" that the user can click on in order to summon the modal. The modal shows a list of available providers that the user can select from. After a provider has been selected, the `connect` method is called on the Auth instance to authenticate the user.
 
 If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
 
