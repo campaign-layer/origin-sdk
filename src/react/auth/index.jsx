@@ -78,10 +78,40 @@ export const useProviders = () =>
   );
 
 /**
- * Returns the modal context.
- * @returns { { isAuthVisible: boolean, setIsAuthVisible: function, isMyCampVisible, setIsMyCampVisible } } The modal context.
+ * Returns the modal state and functions to open and close the modal.
+ * @returns { { isOpen: boolean, openModal: function, closeModal: function } } The modal state and functions to open and close the modal.
  */
-export const useModal = () => useContext(ModalContext);
+export const useModal = () => {
+  const {
+    isAuthVisible,
+    setIsAuthVisible,
+    isMyCampVisible,
+    setIsMyCampVisible,
+  } = useContext(ModalContext);
+  const { authenticated } = useAuthState();
+
+  const handleOpen = () => {
+    if (authenticated) {
+      setIsMyCampVisible(true);
+    } else {
+      setIsAuthVisible(true);
+    }
+  };
+
+  const handleClose = () => {
+    if (authenticated) {
+      setIsMyCampVisible(false);
+    } else {
+      setIsAuthVisible(false);
+    }
+  };
+
+  return {
+    isOpen: isAuthVisible || isMyCampVisible,
+    openModal: handleOpen,
+    closeModal: handleClose,
+  };
+};
 
 /**
  * Fetches the socials linked to the user.
