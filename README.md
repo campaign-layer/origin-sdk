@@ -145,8 +145,8 @@ The Auth class is the entry point for authenticating users with the Camp SDK. It
 
 ### Constructor
 
-`clientId` - The client ID of your app. This is required to authenticate users with the Camp SDK.
-`redirectUri` - The the URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
+- `clientId` - The client ID of your app. This is required to authenticate users with the Camp SDK.
+- `redirectUri` - The the URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
 
 ```js
 import { Auth } from "camp-sdk";
@@ -164,7 +164,7 @@ const auth = new Auth({
 `connect() => void`
 
 The `connect` method prompts the user to sign a message with their wallet in order to authenticate with the Camp SDK.
-The wallet provider can be set by by calling the `setProvider` method on the Auth instance beforehand. The default provider used is `window.ethereum`.
+The wallet provider can be set by calling the `setProvider` method on the Auth instance beforehand. The default provider used is `window.ethereum`.
 
 ```js
 auth.connect();
@@ -220,7 +220,7 @@ auth.on("auth", (data) => {
 ##### "provider"
 
 Returns the provider that has been set via the `setProvider` method.
-If using the Camp SDK React components, this event is emitted when the user selects a provider i the Auth modal.
+If using the Camp SDK React components, this event is emitted when the user selects a provider in the Auth modal.
 
 ```js
 auth.on("provider", (data) => {
@@ -260,6 +260,8 @@ The `getLinkedSocials` method returns a promise that resolves to an object conta
 
 ```js
 const linkedSocials = await auth.getLinkedSocials();
+
+console.log(linkedSocials); // { twitter: true, discord: false, spotify: true }
 ```
 
 ---
@@ -272,7 +274,7 @@ Afterwards, the user will be redirected back to the `redirectUri` specified in t
 
 `linkTwitter() => void`
 
-The `linkTwitter` method redirects the user to the Twitter OAuth flow to link their Twitter account to the Camp SDK.
+The `linkTwitter` method redirects the user to the Twitter OAuth flow to link their Twitter account to the Auth Hub.
 
 ```js
 auth.linkTwitter();
@@ -282,7 +284,7 @@ auth.linkTwitter();
 
 `linkDiscord() => void`
 
-The `linkDiscord` method redirects the user to the Discord OAuth flow to link their Discord account to the Camp SDK.
+The `linkDiscord` method redirects the user to the Discord OAuth flow to link their Discord account to the Auth Hub.
 
 ```js
 auth.linkDiscord();
@@ -292,7 +294,7 @@ auth.linkDiscord();
 
 `linkSpotify() => void`
 
-The `linkSpotify` method redirects the user to the Spotify OAuth flow to link their Spotify account to the Camp SDK.
+The `linkSpotify` method redirects the user to the Spotify OAuth flow to link their Spotify account to the Auth Hub.
 
 ```js
 auth.linkSpotify();
@@ -302,7 +304,7 @@ auth.linkSpotify();
 
 `unlinkTwitter() => Promise<void>`
 
-The `unlinkTwitter` method unlinks the user's Twitter account from the Camp SDK.
+The `unlinkTwitter` method unlinks the user's Twitter account from the Auth Hub.
 
 ```js
 await auth.unlinkTwitter();
@@ -312,7 +314,7 @@ await auth.unlinkTwitter();
 
 `unlinkDiscord() => Promise<void>`
 
-The `unlinkDiscord` method unlinks the user's Discord account from the Camp SDK.
+The `unlinkDiscord` method unlinks the user's Discord account from the Auth Hub.
 
 ```js
 await auth.unlinkDiscord();
@@ -322,7 +324,7 @@ await auth.unlinkDiscord();
 
 `unlinkSpotify() => Promise<void>`
 
-The `unlinkSpotify` method unlinks the user's Spotify account from the Camp SDK.
+The `unlinkSpotify` method unlinks the user's Spotify account from the Auth Hub.
 
 ```js
 await auth.unlinkSpotify();
@@ -330,7 +332,7 @@ await auth.unlinkSpotify();
 
 # React
 
-The React components and hooks can be imported as ES6 modules. The example below shows how to set up the CampProvider and subsequently use the the provided hooks and components.
+The React components and hooks can be imported as ES6 modules. The example below shows how to set up the `CampProvider` component and subsequently use the the provided hooks and components.
 
 ```js
 // main.jsx
@@ -377,7 +379,7 @@ function App() {
 }
 ```
 
-After the user has authenticated, the following hooks can be used to fetch user state, data, and link and unlink social accounts:
+After the user has authenticated, the following hooks can be used to connect users, fetch user data, and listen for events.
 
 ## Hooks
 
