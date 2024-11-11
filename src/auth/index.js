@@ -13,7 +13,7 @@ class Auth {
    * Constructor for the Auth class.
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
-   * @param {string} options.redirectUri The redirect URI used for oauth.
+   * @param {string} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   #triggers;
@@ -36,38 +36,42 @@ class Auth {
     this.jwt = null;
     this.walletAddress = null;
     this.userId = null;
-    this.providerCallbacks = [];
     this.#triggers = [];
 
     this.#loadAuthStatusFromStorage();
-
-    providerStore.subscribe((provs) => {
-      this.providerCallbacks.forEach((callback) => callback(provs));
-      this.trigger("providers", provs);
-    });
   }
 
+  /**
+   * Subscribe to an event. Possible events are "auth", "provider", and "providers".
+   * @param {string} event The event.
+   * @param {function} callback The callback function.
+   * @returns {void}
+   * @example
+   * auth.on("auth", (state) => {
+   *  console.log(state);
+   * });
+   */
   on(event, callback) {
     if (!this.#triggers[event]) {
       this.#triggers[event] = [];
     }
     this.#triggers[event].push(callback);
-  }
-
-  trigger(event, data) {
-    if (this.#triggers[event]) {
-      this.#triggers[event].forEach((callback) => callback(data));
+    if (event === "providers") {
+      callback(providerStore.value());
     }
   }
 
   /**
-   * Subscribe to provider updates. This is useful for updating the UI when new providers are announced.
-   * @param {function} callback The callback function that gets called when the provider list is updated. Will fire once upon subscription with the current provider list.
+   * Trigger an event.
+   * @private
+   * @param {string} event The event.
+   * @param {object} data The data.
    * @returns {void}
    */
-  subscribeToProviders(callback) {
-    this.providerCallbacks.push(callback);
-    callback(providerStore.value());
+  #trigger(event, data) {
+    if (this.#triggers[event]) {
+      this.#triggers[event].forEach((callback) => callback(data));
+    }
   }
 
   /**
@@ -81,7 +85,7 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name);
-    this.trigger("provider", { provider, info });
+    this.#trigger("provider", { provider, info });
   }
 
   /**
@@ -216,7 +220,7 @@ class Auth {
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
-    this.trigger("auth", "unauthenticated");
+    this.#trigger("auth", "unauthenticated");
   }
 
   /**
@@ -225,24 +229,24 @@ class Auth {
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
   async connect() {
-    this.trigger("auth", "loading");
+    this.#trigger("auth", "loading");
     try {
       if (!this.walletAddress) {
         await this.#requestAccount();
       }
-      // const nonce = await this.#fetchNonce();
-      const nonce = 'abcdefghijklmnopqrstuvwx';
+      const nonce = await this.#fetchNonce();
+      // const nonce = 'abcdefghijklmnopqrstuvwx';
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({
         account: this.walletAddress,
         message: message,
       });
-      // const res = await this.#verifySignature(message, signature, nonce);
-      const res = {
-        success: true,
-        userId: '123456',
-        token: '123456',
-      }
+      const res = await this.#verifySignature(message, signature, nonce);
+      // const res = {
+      //   success: true,
+      //   userId: '123456',
+      //   token: '123456',
+      // }
       if (res.success) {
         this.isAuthenticated = true;
         this.userId = res.userId;
@@ -250,7 +254,7 @@ class Auth {
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
         localStorage.setItem("camp-sdk:user-id", this.userId);
-        this.trigger("auth", "authenticated");
+        this.#trigger("auth", "authenticated");
         return {
           success: true,
           message: "Successfully authenticated",
@@ -258,12 +262,12 @@ class Auth {
         };
       } else {
         this.isAuthenticated = false;
-        this.trigger("auth", "unauthenticated");
+        this.#trigger("auth", "unauthenticated");
         throw new APIError("Failed to authenticate");
       }
     } catch (e) {
       this.isAuthenticated = false;
-      this.trigger("auth", "unauthenticated");
+      this.#trigger("auth", "unauthenticated");
       throw new APIError(e);
     }
   }
