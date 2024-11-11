@@ -374,7 +374,7 @@ export const MyCampModal = () => {
       name: "Twitter",
       link: auth.linkTwitter.bind(auth),
       unlink: auth.unlinkTwitter.bind(auth),
-      isConnected: true || socials?.twitter,
+      isConnected: socials?.twitter,
       icon: <TwitterIcon />,
     },
     {
