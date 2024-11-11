@@ -1,3 +1,8 @@
+<p align="center">
+<img src="https://github.com/user-attachments/assets/951c1a22-c251-4891-bb2e-9fec282a83fa" height="200px"/>
+</p>
+<br/>
+
 # Camp SDK
 
 The camp-sdk currently exposes the following modules:
