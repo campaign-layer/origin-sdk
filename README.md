@@ -368,9 +368,10 @@ The **CampModal** component displays a button with the text "**Connect**" that t
 
 If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
 
-The **CampModal** can optionally take a `wcProjectId` prop which will allow the user to authenticate via WalletConnect.
+The **CampModal** can take two props:
 
-`wcProjectId` - The WalletConnect project ID to use for authentication.
+- `wcProjectId` - `string` - The WalletConnect project ID to use for authentication. Allows the users to authenticate via WalletConnect.
+- `injectButton` - `boolean` - Whether to inject the button into the DOM or not. Defaults to `true`. If set to `false`, the button will not be rendered and the modal can be opened programmatically via the `openModal` function returned by the `useModal` hook.
 
 ### Usage
 
