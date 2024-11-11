@@ -13,9 +13,7 @@ const CampContext = createContext({
 
 const CampProvider = ({ apiKey, clientId, redirectUri, children }) => {
   const [auth, setAuth] = React.useState(new Auth({ clientId, redirectUri }));
-  const [twitter, setTwitter] = React.useState(
-    new TwitterAPI({ clientId, apiKey })
-  );
+  const [twitter, setTwitter] = React.useState(new TwitterAPI({ apiKey }));
 
   return (
     <CampContext.Provider

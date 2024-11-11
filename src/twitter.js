@@ -11,11 +11,9 @@ class TwitterAPI {
    * Constructor for the TwitterAPI class.
    * @param {object} options - The options object.
    * @param {string} options.apiKey - The API key. (Needed for data fetching)
-   * @param {string} options.clientId - The client ID. (Needed for authentication)
    */
-  constructor({ apiKey, clientId }) {
+  constructor({ apiKey }) {
     this.apiKey = apiKey;
-    this.clientId = clientId;
   }
 
   /**
