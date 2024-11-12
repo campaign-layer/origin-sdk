@@ -151,7 +151,7 @@ The Auth class is the entry point for authenticating users with the Camp SDK. It
 ### Constructor
 
 - `clientId` - The client ID of your app. This is required to authenticate users with the Camp SDK.
-- `redirectUri` - The the URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
+- `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
 
 ```js
 import { Auth } from "camp-sdk";
@@ -337,7 +337,7 @@ await auth.unlinkSpotify();
 
 # React
 
-The React components and hooks can be imported as ES6 modules. The example below shows how to set up the `CampProvider` component and subsequently use the the provided hooks and components.
+The React components and hooks can be imported as ES6 modules. The example below shows how to set up the `CampProvider` component and subsequently use the provided hooks and components.
 
 ```js
 // main.jsx
@@ -364,7 +364,7 @@ createRoot(document.getElementById("root")).render(
 
 ![camp-sdk-banner](https://github.com/user-attachments/assets/ce8fee05-f5d9-431e-b76b-d8e7b0389760)
 
-The **CampModal** is a one-line* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
+The **CampModal** is a one-line\* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
 
 It works as follows:
 
