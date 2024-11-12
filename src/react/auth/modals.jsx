@@ -109,16 +109,47 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
     </button>
   );
 };
+
 /**
- * The CampModal component.
- * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
- * @returns { JSX.Element } The CampModal component.
+ * The injected CampButton component.
+ * @param { { onClick: function, authenticated: boolean } } props The props.
+ * @returns { JSX.Element } The CampButton component.
  */
-export const CampModal = ({ injectButton = true, wcProjectId }) => {
-  const { authenticated, loading } = useAuthState();
+const CampButton = ({ onClick, authenticated }) => {
+  return (
+    <button className={styles["connect-button"]} onClick={onClick}>
+      <div className={styles["button-icon"]}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 571.95 611.12"
+          height="1rem"
+          width="1rem"
+        >
+          <path
+            d="m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z"
+            fill="#000"
+            strokeWidth="0"
+          />
+          <path
+            d="M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z"
+            fill="#ff6d01"
+            strokeWidth="0"
+          />
+        </svg>
+      </div>
+      {authenticated ? "My Camp" : "Connect"}
+    </button>
+  );
+};
+
+/**
+ * The Auth modal component.
+ * @param { { providers: { provider: string, info: { name: string, icon: string } }[], setIsVisible: function, wcProjectId: string, loading: boolean } } props The props.
+ * @returns { JSX.Element } The Auth modal component.
+ */
+const AuthModal = ({ setIsVisible, wcProjectId, loading }) => {
   const { connect } = useConnect();
   const { setProvider } = useProvider();
-  const { isVisible, setIsVisible } = useContext(ModalContext);
   const providers = useProviders();
 
   const walletConnectProvider = wcProjectId
@@ -128,7 +159,6 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   useEffect(() => {
     if (walletConnectProvider) {
       walletConnectProvider.on("connect", (data) => {
-        console.log("WalletConnect connected:", data);
         handleConnect({
           provider: walletConnectProvider,
           info: { name: "WalletConnect" },
@@ -136,11 +166,6 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
       });
     }
   }, [walletConnectProvider]);
-
-  const handleConnect = (provider) => {
-    if (provider) setProvider(provider);
-    connect();
-  };
 
   const handleWalletConnect = async ({ provider }) => {
     try {
@@ -150,10 +175,82 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
     }
   };
 
+  const handleConnect = (provider) => {
+    if (provider) setProvider(provider);
+    connect();
+  };
+  return (
+    <div className={styles.container}>
+      <div
+        className={styles["close-button"]}
+        onClick={() => setIsVisible(false)}
+      >
+        <CloseIcon />
+      </div>
+      <div className={styles.header}>
+        <img
+          className={styles["modal-icon"]}
+          src="https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg"
+          alt="Camp Network"
+        />
+        <span>Connect with Camp</span>
+      </div>
+
+      <div className={styles["provider-list"]}>
+        {providers.map((provider) => (
+          <ProviderButton
+            provider={provider}
+            handleConnect={handleConnect}
+            loading={loading}
+            key={provider.info.uuid}
+          />
+        ))}
+        {wcProjectId && (
+          <ProviderButton
+            provider={{
+              provider: walletConnectProvider,
+              info: {
+                name: "WalletConnect",
+                icon: "data:image/svg+xml,%3Csvg fill='%233B99FC' role='img' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.913 7.519c3.915-3.831 10.26-3.831 14.174 0l.471.461a.483.483 0 0 1 0 .694l-1.611 1.577a.252.252 0 0 1-.354 0l-.649-.634c-2.73-2.673-7.157-2.673-9.887 0l-.694.68a.255.255 0 0 1-.355 0L4.397 8.719a.482.482 0 0 1 0-.693l.516-.507Zm17.506 3.263 1.434 1.404a.483.483 0 0 1 0 .694l-6.466 6.331a.508.508 0 0 1-.709 0l-4.588-4.493a.126.126 0 0 0-.178 0l-4.589 4.493a.508.508 0 0 1-.709 0L.147 12.88a.483.483 0 0 1 0-.694l1.434-1.404a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.129.048.178 0l4.589-4.493a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.128.048.178 0l4.589-4.493a.507.507 0 0 1 .708 0Z'/%3E%3C/svg%3E",
+              },
+            }}
+            handleConnect={handleWalletConnect}
+            loading={loading}
+          />
+        )}
+        <ProviderButton
+          provider={{
+            provider: window.ethereum,
+            info: { name: "Browser Wallet" },
+          }}
+          handleConnect={handleConnect}
+          loading={loading}
+        />
+      </div>
+      <a
+        href="https://campnetwork.xyz"
+        className={styles["footer-text"]}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Powered by Camp Network
+      </a>
+    </div>
+  );
+};
+
+/**
+ * The CampModal component.
+ * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
+ * @returns { JSX.Element } The CampModal component.
+ */
+export const CampModal = ({ injectButton = true, wcProjectId }) => {
+  const { authenticated, loading } = useAuthState();
+  const { isVisible, setIsVisible } = useContext(ModalContext);
+
   const handleModalButton = () => {
     setIsVisible(true);
   };
-
   useEffect(() => {
     if (authenticated) {
       if (isVisible) {
@@ -164,31 +261,7 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   return (
     <div>
       {injectButton && (
-        <button
-          className={styles["connect-button"]}
-          onClick={handleModalButton}
-        >
-          <div className={styles["button-icon"]}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 571.95 611.12"
-              height="1rem"
-              width="1rem"
-            >
-              <path
-                d="m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z"
-                fill="#000"
-                strokeWidth="0"
-              />
-              <path
-                d="M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z"
-                fill="#ff6d01"
-                strokeWidth="0"
-              />
-            </svg>
-          </div>
-          {authenticated ? "My Camp" : "Connect"}
-        </button>
+        <CampButton onClick={handleModalButton} authenticated={authenticated} />
       )}
       {isVisible && (
         <div
@@ -202,62 +275,11 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
           {authenticated ? (
             <MyCampModal />
           ) : (
-            <div className={styles.container}>
-              <div
-                className={styles["close-button"]}
-                onClick={() => setIsVisible(false)}
-              >
-                <CloseIcon />
-              </div>
-              <div className={styles.header}>
-                <img
-                  className={styles["modal-icon"]}
-                  src="https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg"
-                  alt="Camp Network"
-                />
-                <span>Connect with Camp</span>
-              </div>
-
-              <div className={styles["provider-list"]}>
-                {providers.map((provider) => (
-                  <ProviderButton
-                    provider={provider}
-                    handleConnect={handleConnect}
-                    loading={loading}
-                    key={provider.info.uuid}
-                  />
-                ))}
-                {walletConnectProvider && (
-                  <ProviderButton
-                    provider={{
-                      provider: walletConnectProvider,
-                      info: {
-                        name: "WalletConnect",
-                        icon: "data:image/svg+xml,%3Csvg fill='%233B99FC' role='img' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.913 7.519c3.915-3.831 10.26-3.831 14.174 0l.471.461a.483.483 0 0 1 0 .694l-1.611 1.577a.252.252 0 0 1-.354 0l-.649-.634c-2.73-2.673-7.157-2.673-9.887 0l-.694.68a.255.255 0 0 1-.355 0L4.397 8.719a.482.482 0 0 1 0-.693l.516-.507Zm17.506 3.263 1.434 1.404a.483.483 0 0 1 0 .694l-6.466 6.331a.508.508 0 0 1-.709 0l-4.588-4.493a.126.126 0 0 0-.178 0l-4.589 4.493a.508.508 0 0 1-.709 0L.147 12.88a.483.483 0 0 1 0-.694l1.434-1.404a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.129.048.178 0l4.589-4.493a.508.508 0 0 1 .709 0l4.589 4.493c.05.048.128.048.178 0l4.589-4.493a.507.507 0 0 1 .708 0Z'/%3E%3C/svg%3E",
-                      },
-                    }}
-                    handleConnect={handleWalletConnect}
-                    loading={loading}
-                  />
-                )}
-                <ProviderButton
-                  provider={{
-                    provider: window.ethereum,
-                    info: { name: "Browser Wallet" },
-                  }}
-                  handleConnect={handleConnect}
-                  loading={loading}
-                />
-              </div>
-              <a
-                href="https://campnetwork.xyz"
-                className={styles["footer-text"]}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Powered by Camp Network
-              </a>
-            </div>
+            <AuthModal
+              setIsVisible={setIsVisible}
+              wcProjectId={wcProjectId}
+              loading={loading}
+            />
           )}
         </div>
       )}
