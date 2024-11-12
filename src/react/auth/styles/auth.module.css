@@ -351,7 +351,6 @@
   border: 1px solid #ddd;
   width: 100%;
   flex: 1;
-  /* height: 1rem; */
 }
 
 .socials-container .connector-connected svg {
@@ -384,6 +383,7 @@
   border-radius: 0.5rem;
   text-align: center;
   background-color: #999;
+  color: white;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -441,4 +441,11 @@
   left: 0;
   animation: loader 1.5s ease-in-out infinite;
   border-radius: 0.125rem;
+}
+
+.no-socials {
+  color: #777;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
 }

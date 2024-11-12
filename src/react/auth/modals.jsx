@@ -430,6 +430,11 @@ export const MyCampModal = () => {
                       icon={social.icon}
                     />
                   ))}
+                  {notConnected.length === 0 && (
+                    <span className={styles["no-socials"]}>
+                      You've linked all your socials!
+                    </span>
+                  )}
                 </div>
                 <div className={styles["socials-container"]}>
                   <h3>Linked</h3>
@@ -444,6 +449,11 @@ export const MyCampModal = () => {
                       icon={social.icon}
                     />
                   ))}
+                  {connected.length === 0 && (
+                    <span className={styles["no-socials"]}>
+                      You have no socials linked.
+                    </span>
+                  )}
                 </div>
               </>
             )}
