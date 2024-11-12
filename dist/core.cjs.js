@@ -1565,18 +1565,12 @@ class Auth {
         await this.#requestAccount();
       }
       const nonce = await this.#fetchNonce();
-      // const nonce = 'abcdefghijklmnopqrstuvwx';
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({
         account: this.walletAddress,
         message: message
       });
       const res = await this.#verifySignature(message, signature, nonce);
-      // const res = {
-      //   success: true,
-      //   userId: '123456',
-      //   token: '123456',
-      // }
       if (res.success) {
         this.isAuthenticated = true;
         this.userId = res.userId;
@@ -1675,7 +1669,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/twitter/disconnect`, {
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`, {
       method: "POST",
       redirect: "follow",
       headers: {
@@ -1701,7 +1695,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/discord/disconnect`, {
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/discord/disconnect-sdk`, {
       method: "POST",
       redirect: "follow",
       headers: {
@@ -1727,7 +1721,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/spotify/disconnect`, {
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`, {
       method: "POST",
       redirect: "follow",
       headers: {
