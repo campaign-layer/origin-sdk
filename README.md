@@ -208,7 +208,7 @@ The `on` method listens for events emitted by the Auth module of the Camp SDK.
 
 The following events are emitted:
 
-##### "auth"
+##### "state"
 
 Possible states:
 
@@ -217,7 +217,7 @@ Possible states:
 - `loading` - The user is in the process of authenticating.
 
 ```js
-auth.on("auth", (data) => {
+auth.on("state", (data) => {
   console.log(data); // "authenticated" | "unauthenticated" | "loading"
 });
 ```
