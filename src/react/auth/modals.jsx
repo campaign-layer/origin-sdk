@@ -144,7 +144,7 @@ const CampButton = ({ onClick, authenticated }) => {
 
 /**
  * The Auth modal component.
- * @param { { providers: { provider: string, info: { name: string, icon: string } }[], setIsVisible: function, wcProjectId: string, loading: boolean } } props The props.
+ * @param { { setIsVisible: function, wcProjectId: string, loading: boolean } } props The props.
  * @returns { JSX.Element } The Auth modal component.
  */
 const AuthModal = ({ setIsVisible, wcProjectId, loading }) => {
