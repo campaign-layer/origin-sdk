@@ -118,8 +118,7 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   const { authenticated, loading } = useAuthState();
   const { connect } = useConnect();
   const { setProvider } = useProvider();
-  const { isAuthVisible, setIsAuthVisible, setIsMyCampVisible } =
-    useContext(ModalContext);
+  const { isVisible, setIsVisible } = useContext(ModalContext);
   const providers = useProviders();
 
   const walletConnectProvider = wcProjectId
@@ -152,18 +151,13 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   };
 
   const handleModalButton = () => {
-    if (authenticated) {
-      setIsMyCampVisible(true);
-    } else {
-      setIsAuthVisible(!isAuthVisible);
-    }
+    setIsVisible(true);
   };
 
   useEffect(() => {
     if (authenticated) {
-      if (isAuthVisible) {
-        setIsAuthVisible(false);
-        setIsMyCampVisible(false);
+      if (isVisible) {
+        setIsVisible(false);
       }
     }
   }, [authenticated]);
@@ -196,22 +190,22 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
           {authenticated ? "My Camp" : "Connect"}
         </button>
       )}
-      {authenticated ? (
-        <MyCampModal />
-      ) : (
-        isAuthVisible && (
-          <div
-            className={styles.modal}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setIsAuthVisible(false);
-              }
-            }}
-          >
+      {isVisible && (
+        <div
+          className={styles.modal}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsVisible(false);
+            }
+          }}
+        >
+          {authenticated ? (
+            <MyCampModal />
+          ) : (
             <div className={styles.container}>
               <div
                 className={styles["close-button"]}
-                onClick={() => setIsAuthVisible(false)}
+                onClick={() => setIsVisible(false)}
               >
                 <CloseIcon />
               </div>
@@ -264,8 +258,8 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
                 Powered by Camp Network
               </a>
             </div>
-          </div>
-        )
+          )}
+        </div>
       )}
     </div>
   );
@@ -351,16 +345,14 @@ const ConnectorButton = ({
 
 export const MyCampModal = () => {
   const { auth } = useContext(CampContext);
-  const { isMyCampVisible: isVisible, setIsMyCampVisible: setIsVisible } =
-    useContext(ModalContext);
-  const { authenticated } = useAuthState();
+  const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
   const { data: socials, loading, refetch } = useSocials();
-  useEffect(() => {
-    if (!authenticated) {
-      setIsVisible(false);
-    }
-  }, [authenticated]);
+
+  const handleDisconnect = () => {
+    disconnect();
+    setIsVisible(false);
+  };
 
   const connectedSocials = [
     {
@@ -390,88 +382,80 @@ export const MyCampModal = () => {
   const notConnected = connectedSocials.filter((social) => !social.isConnected);
 
   return (
-    isVisible && (
+    <div className={styles.container}>
       <div
-        className={styles.modal}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setIsVisible(false);
-          }
-        }}
+        className={styles["close-button"]}
+        onClick={() => setIsVisible(false)}
       >
-        <div className={styles.container}>
-          <div
-            className={styles["close-button"]}
-            onClick={() => setIsVisible(false)}
-          >
-            <CloseIcon />
-          </div>
-          <div className={styles.header}>
-            <span>My Camp</span>
-            <span className={styles["wallet-address"]}>
-              {formatAddress(auth.walletAddress)}
-            </span>
-          </div>
-          <div className={styles["socials-wrapper"]}>
-            {loading ? (
-              <div className={styles.spinner} />
-            ) : (
-              <>
-                <div className={styles["socials-container"]}>
-                  <h3>Not Linked</h3>
-                  {notConnected.map((social) => (
-                    <ConnectorButton
-                      key={social.name}
-                      name={social.name}
-                      link={social.link}
-                      unlink={social.unlink}
-                      isConnected={social.isConnected}
-                      refetch={refetch}
-                      icon={social.icon}
-                    />
-                  ))}
-                  {notConnected.length === 0 && (
-                    <span className={styles["no-socials"]}>
-                      You've linked all your socials!
-                    </span>
-                  )}
-                </div>
-                <div className={styles["socials-container"]}>
-                  <h3>Linked</h3>
-                  {connected.map((social) => (
-                    <ConnectorButton
-                      key={social.name}
-                      name={social.name}
-                      link={social.link}
-                      unlink={social.unlink}
-                      isConnected={social.isConnected}
-                      refetch={refetch}
-                      icon={social.icon}
-                    />
-                  ))}
-                  {connected.length === 0 && (
-                    <span className={styles["no-socials"]}>
-                      You have no socials linked.
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-          <button className={styles["disconnect-button"]} onClick={disconnect}>
-            Disconnect
-          </button>
-          <a
-            href="https://campnetwork.xyz"
-            className={styles["footer-text"]}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ marginTop: 0 }}
-          >
-            Powered by Camp Network
-          </a>
-        </div>
+        <CloseIcon />
       </div>
-    )
+      <div className={styles.header}>
+        <span>My Camp</span>
+        <span className={styles["wallet-address"]}>
+          {formatAddress(auth.walletAddress)}
+        </span>
+      </div>
+      <div className={styles["socials-wrapper"]}>
+        {loading ? (
+          <div className={styles.spinner} />
+        ) : (
+          <>
+            <div className={styles["socials-container"]}>
+              <h3>Not Linked</h3>
+              {notConnected.map((social) => (
+                <ConnectorButton
+                  key={social.name}
+                  name={social.name}
+                  link={social.link}
+                  unlink={social.unlink}
+                  isConnected={social.isConnected}
+                  refetch={refetch}
+                  icon={social.icon}
+                />
+              ))}
+              {notConnected.length === 0 && (
+                <span className={styles["no-socials"]}>
+                  You've linked all your socials!
+                </span>
+              )}
+            </div>
+            <div className={styles["socials-container"]}>
+              <h3>Linked</h3>
+              {connected.map((social) => (
+                <ConnectorButton
+                  key={social.name}
+                  name={social.name}
+                  link={social.link}
+                  unlink={social.unlink}
+                  isConnected={social.isConnected}
+                  refetch={refetch}
+                  icon={social.icon}
+                />
+              ))}
+              {connected.length === 0 && (
+                <span className={styles["no-socials"]}>
+                  You have no socials linked.
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+      <button
+        className={styles["disconnect-button"]}
+        onClick={handleDisconnect}
+      >
+        Disconnect
+      </button>
+      <a
+        href="https://campnetwork.xyz"
+        className={styles["footer-text"]}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ marginTop: 0 }}
+      >
+        Powered by Camp Network
+      </a>
+    </div>
   );
 };

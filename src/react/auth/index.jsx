@@ -82,32 +82,18 @@ export const useProviders = () =>
  * @returns { { isOpen: boolean, openModal: function, closeModal: function } } The modal state and functions to open and close the modal.
  */
 export const useModal = () => {
-  const {
-    isAuthVisible,
-    setIsAuthVisible,
-    isMyCampVisible,
-    setIsMyCampVisible,
-  } = useContext(ModalContext);
-  const { authenticated } = useAuthState();
+  const { isVisible, setIsVisible } = useContext(ModalContext);
 
   const handleOpen = () => {
-    if (authenticated) {
-      setIsMyCampVisible(true);
-    } else {
-      setIsAuthVisible(true);
-    }
+    setIsVisible(true);
   };
 
   const handleClose = () => {
-    if (authenticated) {
-      setIsMyCampVisible(false);
-    } else {
-      setIsAuthVisible(false);
-    }
+    setIsVisible(false);
   };
 
   return {
-    isOpen: isAuthVisible || isMyCampVisible,
+    isOpen: isVisible,
     openModal: handleOpen,
     closeModal: handleClose,
   };
