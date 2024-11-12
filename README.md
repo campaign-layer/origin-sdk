@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://github.com/user-attachments/assets/951c1a22-c251-4891-bb2e-9fec282a83fa" height="200px"/>
+<img src="https://imgur.com/7nLZezD.png" height="200px"/>
 </p>
 <br/>
 
@@ -362,7 +362,8 @@ createRoot(document.getElementById("root")).render(
 
 ## CampModal
 
-![camp-sdk-banner](https://github.com/user-attachments/assets/ce8fee05-f5d9-431e-b76b-d8e7b0389760)
+
+![camp-sdk](https://imgur.com/n9o0rJ3.png)
 
 The **CampModal** is a one-line\* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
 
