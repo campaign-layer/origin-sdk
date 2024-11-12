@@ -548,7 +548,7 @@ function App() {
     <div>
       <button onClick={openModal}>Open Modal</button>
       <button onClick={closeModal}>Close Modal</button>
-      <CampModal />
+      <CampModal injectButton={false} />
     </div>
   );
 }
