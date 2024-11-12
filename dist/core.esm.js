@@ -1368,12 +1368,12 @@ class Auth {
   }
 
   /**
-   * Subscribe to an event. Possible events are "auth", "provider", and "providers".
-   * @param {("auth"|"provider"|"providers")} event The event.
+   * Subscribe to an event. Possible events are "state", "provider", and "providers".
+   * @param {("state"|"provider"|"providers")} event The event.
    * @param {function} callback The callback function.
    * @returns {void}
    * @example
-   * auth.on("auth", (state) => {
+   * auth.on("state", (state) => {
    *  console.log(state);
    * });
    */
@@ -1548,7 +1548,7 @@ class Auth {
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
-    this.#trigger("auth", "unauthenticated");
+    this.#trigger("state", "unauthenticated");
   }
 
   /**
@@ -1557,7 +1557,7 @@ class Auth {
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
   async connect() {
-    this.#trigger("auth", "loading");
+    this.#trigger("state", "loading");
     try {
       if (!this.walletAddress) {
         await this.#requestAccount();
@@ -1582,7 +1582,7 @@ class Auth {
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
         localStorage.setItem("camp-sdk:user-id", this.userId);
-        this.#trigger("auth", "authenticated");
+        this.#trigger("state", "authenticated");
         return {
           success: true,
           message: "Successfully authenticated",
@@ -1590,12 +1590,12 @@ class Auth {
         };
       } else {
         this.isAuthenticated = false;
-        this.#trigger("auth", "unauthenticated");
+        this.#trigger("state", "unauthenticated");
         throw new APIError("Failed to authenticate");
       }
     } catch (e) {
       this.isAuthenticated = false;
-      this.#trigger("auth", "unauthenticated");
+      this.#trigger("state", "unauthenticated");
       throw new APIError(e);
     }
   }

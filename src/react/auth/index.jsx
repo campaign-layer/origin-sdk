@@ -47,7 +47,7 @@ export const useAuthState = () => {
   const [authenticated, setAuthenticated] = useState(auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    auth.on("auth", (state) => {
+    auth.on("state", (state) => {
       setAuthenticated(state === "authenticated");
       setLoading(state === "loading");
     });
