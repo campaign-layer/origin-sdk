@@ -8,7 +8,7 @@
 The camp-sdk currently exposes the following modules:
 
 - `"camp-sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
-- `"camp-sdk/react"` - Exposes the CampProvider and CampConext for use in React applications
+- `"camp-sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
 - `"camp-sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
 
 # Core
@@ -21,7 +21,7 @@ The core modules can be imported either as a CommonJS module or as an ES6 module
 const { TwitterAPI } = require("camp-sdk");
 
 const twitter = new TwitterAPI({
-  apiKey,
+  apiKey: "your-api-key",
 });
 ```
 
@@ -31,7 +31,7 @@ const twitter = new TwitterAPI({
 import { TwitterAPI } from "camp-sdk";
 
 const twitter = new TwitterAPI({
-  apiKey,
+  apiKey: "your-api-key",
 });
 ```
 
