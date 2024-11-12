@@ -362,7 +362,6 @@ createRoot(document.getElementById("root")).render(
 
 ## CampModal
 
-
 ![camp-sdk](https://imgur.com/n9o0rJ3.png)
 
 The **CampModal** is a one-line\* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
@@ -578,3 +577,17 @@ You can also run the following command to watch for changes and rebuild the SDK 
 ```bash
 npm run dev
 ```
+
+In order to use the sdk in a local project, you can link the sdk to the project.
+
+```bash
+npm link
+```
+
+Then, in the project you want to use the sdk in, run:
+
+```bash
+npm link camp-sdk
+```
+
+This will link the local sdk to the project.
