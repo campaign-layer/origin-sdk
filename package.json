@@ -8,7 +8,6 @@
       "require": "./dist/core.cjs.js"
     },
     "./react": "./src/react/index.js",
-    "./react/twitter": "./src/react/twitter/index.js",
     "./react/auth": "./src/react/auth/index.jsx"
   },
   "scripts": {
