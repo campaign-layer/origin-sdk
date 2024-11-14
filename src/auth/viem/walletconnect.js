@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { testnet } from "./chains";
+import { mainnet } from "viem/chains";
 
 const getWalletConnectProvider = async (projectId) => {
   const provider = await EthereumProvider.init({
-    chains: [testnet.id],
+    // chains: [mainnet.id],
+    optionalChains: [testnet.id],
     projectId,
     showQrModal: true,
+    methods: ["personal_sign"]
   });
   return provider;
 };

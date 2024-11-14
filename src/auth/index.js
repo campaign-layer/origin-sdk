@@ -19,7 +19,7 @@ class Auth {
   #triggers;
   constructor({ clientId, redirectUri }) {
     if (!clientId) {
-      throw new APIError("clientId is required");
+      throw new Error("clientId is required");
     }
 
     if (typeof window !== "undefined") {
@@ -72,6 +72,22 @@ class Auth {
     if (this.#triggers[event]) {
       this.#triggers[event].forEach((callback) => callback(data));
     }
+  }
+
+  /**
+   * Set the loading state.
+   * @param {boolean} loading The loading state.
+   * @returns {void}
+   */
+  setLoading(loading) {
+    this.#trigger(
+      "state",
+      loading
+        ? "loading"
+        : this.isAuthenticated
+        ? "authenticated"
+        : "unauthenticated"
+    );
   }
 
   /**
@@ -146,9 +162,12 @@ class Auth {
         }
       );
       const data = await res.json();
+      if (res.status !== 200) {
+        return Promise.reject(data.message || "Failed to fetch nonce");
+      }
       return data.data;
     } catch (e) {
-      throw new APIError(e);
+      throw new Error(e);
     }
   }
 
