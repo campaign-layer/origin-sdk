@@ -67,7 +67,7 @@ const config = [
       json(),
       nodePolyfills(),
     ],
-    external: ["react", "react-dom", "viem"],
+    external: ["react", "react-dom", "viem", "lodash"],
   },
 ];
 
