@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   useAuthState,
   useConnect,
@@ -115,9 +115,13 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
  * @param { { onClick: function, authenticated: boolean } } props The props.
  * @returns { JSX.Element } The CampButton component.
  */
-const CampButton = ({ onClick, authenticated }) => {
+const CampButton = ({ onClick, authenticated, disabled }) => {
   return (
-    <button className={styles["connect-button"]} onClick={onClick}>
+    <button
+      className={styles["connect-button"]}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <div className={styles["button-icon"]}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -252,6 +256,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
 export const CampModal = ({ injectButton = true, wcProjectId }) => {
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
+  const { provider } = useProvider();
 
   const walletConnectProvider = wcProjectId
     ? useWalletConnectProvider(wcProjectId)
@@ -270,7 +275,11 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   return (
     <div>
       {injectButton && (
-        <CampButton onClick={handleModalButton} authenticated={authenticated} />
+        <CampButton
+          disabled={!provider.provider}
+          onClick={handleModalButton}
+          authenticated={authenticated}
+        />
       )}
       {isVisible && (
         <div

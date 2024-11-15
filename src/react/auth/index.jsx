@@ -24,8 +24,8 @@ export const useAuth = () => {
 export const useProvider = () => {
   const { auth } = useContext(CampContext);
   const [provider, setProvider] = useState({
-    provider: auth.viem.transport,
-    info: { name: auth.viem.transport.name },
+    provider: auth.viem?.transport,
+    info: { name: auth.viem?.transport?.name },
   });
   useEffect(() => {
     auth.on("provider", ({ provider, info }) => {
