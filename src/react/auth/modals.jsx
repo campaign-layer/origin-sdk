@@ -379,12 +379,17 @@ export const MyCampModal = ({ wcProvider }) => {
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
   const { data: socials, loading, refetch } = useSocials();
+  const [isLoadingSocials, setIsLoadingSocials] = useState(true);
 
   const handleDisconnect = () => {
     wcProvider?.disconnect();
     disconnect();
     setIsVisible(false);
   };
+
+  useEffect(() => {
+    if (socials) setIsLoadingSocials(false);
+  }, [socials]);
 
   const connectedSocials = [
     {
@@ -428,8 +433,11 @@ export const MyCampModal = ({ wcProvider }) => {
         </span>
       </div>
       <div className={styles["socials-wrapper"]}>
-        {loading ? (
-          <div className={styles.spinner} />
+        {loading || isLoadingSocials ? (
+          <div
+            className={styles.spinner}
+            style={{ margin: "auto", marginTop: "6rem", marginBottom: "6rem" }}
+          />
         ) : (
           <>
             <div className={styles["socials-container"]}>
