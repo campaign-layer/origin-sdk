@@ -41,34 +41,28 @@ const config = [
       "@walletconnect/ethereum-provider",
     ],
   },
-  {
-    input: "src/auth/viem/walletconnect.js",
-    output: [
-      {
-        file: "dist/auth/viem/walletconnect.cjs.js",
-        format: "cjs",
-        exports: "auto",
-        inlineDynamicImports: true,
-      },
-      {
-        file: "dist/auth/viem/walletconnect.esm.js",
-        format: "esm",
-        exports: "auto",
-        inlineDynamicImports: true,
-      },
-    ],
-    plugins: [
-      resolve({
-        preferBuiltins: false,
-        browser: true,
-      }),
-      commonjs(),
-      babel({ babelHelpers: "bundled" }),
-      json(),
-      nodePolyfills(),
-    ],
-    external: ["react", "react-dom", "viem"],
-  },
+  // {
+  //   input: "src/auth/viem/walletconnect.js",
+  //   output: [
+  //     {
+  //       file: "dist/auth/viem/walletconnect.esm.js",
+  //       format: "esm",
+  //       exports: "auto",
+  //       inlineDynamicImports: true,
+  //     },
+  //   ],
+  //   plugins: [
+  //     resolve({
+  //       preferBuiltins: false,
+  //       browser: true,
+  //     }),
+  //     commonjs(),
+  //     babel({ babelHelpers: "bundled" }),
+  //     json(),
+  //     nodePolyfills(),
+  //   ],
+  //   external: ["react", "react-dom", "viem"],
+  // },
 ];
 
 module.exports = config;
