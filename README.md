@@ -5,11 +5,17 @@
 
 # Camp SDK
 
-The @campnetwork/sdk currently exposes the following modules:
+The Camp SDK currently exposes the following modules:
 
 - `"@campnetwork/sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
 - `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
 - `"@campnetwork/sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
+
+# Installation
+
+```bash
+npm install @campnetwork/sdk
+```
 
 # Core
 
