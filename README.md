@@ -358,7 +358,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <CampProvider apiKey="your-api-key" clientId="your-client-id">
+      <CampProvider clientId="your-client-id">
         <App />
       </CampProvider>
     </QueryClientProvider>
@@ -379,14 +379,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ["react", "react-dom"],
     },
   },
   optimizeDeps: {
-    include: [
-      '@walletconnect/ethereum-provider',
-    ],
-  }
+    include: ["@walletconnect/ethereum-provider"],
+  },
 });
 ```
 
