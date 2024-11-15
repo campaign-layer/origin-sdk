@@ -11,7 +11,6 @@ import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext";
 import { formatAddress } from "../../utils";
 import { useWalletConnectProvider } from "../../auth/viem/walletconnect";
-// import { useWalletConnectProvider } from "../../../dist/auth/viem/walletconnect.esm.js";
 
 const DiscordIcon = () => (
   <svg

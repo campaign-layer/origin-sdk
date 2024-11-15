@@ -360,6 +360,32 @@ createRoot(document.getElementById("root")).render(
 );
 ```
 
+## Usage with Vite
+
+If you are using Vite, you need to edit your `vite.config.js` file to include the following configuration:
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      external: ['react', 'react-dom'],
+    },
+  },
+  optimizeDeps: {
+    include: [
+      '@walletconnect/ethereum-provider',
+    ],
+  }
+});
+```
+
+We need to include the `@walletconnect/ethereum-provider` package in the `optimizeDeps` configuration in order to tell Vite to pre-bundle the package.
+
 ## CampModal
 
 ![@campnetwork/sdk](https://imgur.com/n9o0rJ3.png)
