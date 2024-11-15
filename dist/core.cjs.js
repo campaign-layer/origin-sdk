@@ -1366,6 +1366,9 @@ class Auth {
     this.walletAddress = null;
     this.userId = null;
     this.#triggers = [];
+    providerStore.subscribe(providers => {
+      this.#trigger("providers", providers);
+    });
     this.#loadAuthStatusFromStorage();
   }
 
