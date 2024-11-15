@@ -5,11 +5,11 @@
 
 # Camp SDK
 
-The camp-sdk currently exposes the following modules:
+The @campnetwork/sdk currently exposes the following modules:
 
-- `"camp-sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
-- `"camp-sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
-- `"camp-sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
+- `"@campnetwork/sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
+- `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
+- `"@campnetwork/sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
 
 # Core
 
@@ -18,7 +18,7 @@ The core modules can be imported either as a CommonJS module or as an ES6 module
 ### CommonJS
 
 ```js
-const { TwitterAPI } = require("camp-sdk");
+const { TwitterAPI } = require("@campnetwork/sdk");
 
 const twitter = new TwitterAPI({
   apiKey: "your-api-key",
@@ -28,7 +28,7 @@ const twitter = new TwitterAPI({
 ### ES6
 
 ```js
-import { TwitterAPI } from "camp-sdk";
+import { TwitterAPI } from "@campnetwork/sdk";
 
 const twitter = new TwitterAPI({
   apiKey: "your-api-key",
@@ -154,7 +154,7 @@ The Auth class is the entry point for authenticating users with the Camp SDK. It
 - `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
 
 ```js
-import { Auth } from "camp-sdk";
+import { Auth } from "@campnetwork/sdk";
 
 const auth = new Auth({
   clientId: string,
@@ -343,7 +343,7 @@ The React components and hooks can be imported as ES6 modules. The example below
 // main.jsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { CampProvider } from "camp-sdk/react";
+import { CampProvider } from "@campnetwork/sdk/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.jsx";
 
@@ -362,7 +362,7 @@ createRoot(document.getElementById("root")).render(
 
 ## CampModal
 
-![camp-sdk](https://imgur.com/n9o0rJ3.png)
+![@campnetwork/sdk](https://imgur.com/n9o0rJ3.png)
 
 The **CampModal** is a one-line\* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
 
@@ -380,7 +380,7 @@ The **CampModal** can take two props:
 ### Usage
 
 ```jsx
-import { CampModal } from "camp-sdk/react/auth";
+import { CampModal } from "@campnetwork/sdk/react/auth";
 
 function App() {
   return (
@@ -403,7 +403,7 @@ The `useAuth` hook returns the instance of the Auth class that is provided by th
 It can be used as outlined in the Core section in order to build custom authentication flows, listen for events, and fetch user data.
 
 ```jsx
-import { useAuth } from "camp-sdk/react/auth";
+import { useAuth } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const auth = useAuth();
@@ -421,7 +421,7 @@ function App() {
 The `useAuthState` hook returns the current authentication state of the user.
 
 ```jsx
-import { useAuthState } from "camp-sdk/react/auth";
+import { useAuthState } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const { authenticated, loading } = useAuthState();
@@ -440,7 +440,7 @@ function App() {
 The `useProvider` hook returns the provider that has been set via the `setProvider` method, as well as a `setProvider` function that can be used to update the provider.
 
 ```jsx
-import { useProvider } from "camp-sdk/react/auth";
+import { useProvider } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const { provider, setProvider } = useProvider();
@@ -465,7 +465,7 @@ function App() {
 The `useProviders` hook returns the list of providers that have been injected via EIP6963 and that the user or app can select from.
 
 ```jsx
-import { useProviders, useAuth } from "camp-sdk/react/auth";
+import { useProviders, useAuth } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const providers = useProviders();
@@ -491,7 +491,7 @@ function App() {
 The `useConnect` hook returns functions that can be used to connect and disconnect the user.
 
 ```jsx
-import { useConnect, useAuthState } from "camp-sdk/react/auth";
+import { useConnect, useAuthState } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const { connect, disconnect } = useConnect();
@@ -514,7 +514,7 @@ function App() {
 The `useSocials` hook returns the state of the user's linked social accounts.
 
 ```jsx
-import { useSocials } from "camp-sdk/react/auth";
+import { useSocials } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const { data, error, loading } = useSocials();
@@ -539,7 +539,7 @@ The `useModal` hook returns the state of the Auth and My Camp modals, as well as
 **Note: The `<CampModal/>` component must be rendered in the component tree for the modals to be displayed.**
 
 ```jsx
-import { useModal, CampModal } from "camp-sdk/react/auth";
+import { useModal, CampModal } from "@campnetwork/sdk/react/auth";
 
 function App() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -587,7 +587,7 @@ npm link
 Then, in the project you want to use the sdk in, run:
 
 ```bash
-npm link camp-sdk
+npm link @campnetwork/sdk
 ```
 
 This will link the local sdk to the project.
