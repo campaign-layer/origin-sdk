@@ -7,7 +7,10 @@
 
 The Camp SDK currently exposes the following modules:
 
-- `"@campnetwork/sdk"` - The main entry point for the SDK, exposes the TwitterAPI class and the Auth class
+- `"@campnetwork/sdk"` - The main entry point for the SDK, exposes the following classes:
+  - `TwitterAPI` - For fetching user Twitter data from the Auth Hub
+  - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
+  - `Auth` - For authenticating users with the Camp SDK
 - `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
 - `"@campnetwork/sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
 
@@ -19,26 +22,18 @@ npm install @campnetwork/sdk
 
 # Core
 
-The core modules can be imported either as a CommonJS module or as an ES6 module. The examples below show how to import and instantiate the TwitterAPI class using both methods.
+The core modules can be imported either as a CommonJS module or as an ES6 module.
 
 ### CommonJS
 
 ```js
-const { TwitterAPI } = require("@campnetwork/sdk");
-
-const twitter = new TwitterAPI({
-  apiKey: "your-api-key",
-});
+const { TwitterAPI, SpotifyAPI, Auth } = require("@campnetwork/sdk");
 ```
 
 ### ES6
 
 ```js
-import { TwitterAPI } from "@campnetwork/sdk";
-
-const twitter = new TwitterAPI({
-  apiKey: "your-api-key",
-});
+import { TwitterAPI, SpotifyAPI, Auth } from "@campnetwork/sdk";
 ```
 
 ## Socials
@@ -149,9 +144,84 @@ const follows = await twitter.fetchFollowsByUsername("jack", 1, 10);
 const viewedTweets = await twitter.fetchViewedTweetsByUsername("jack", 1, 10);
 ```
 
+### SpotifyAPI
+
+The SpotifyAPI class is the entry point for fetching user Spotify data from the Auth Hub. It requires an API key to be instantiated.
+
+**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Camp SDK.**
+
+#### Constructor
+
+`apiKey` - The API key of your app.
+
+```js
+const spotify = new SpotifyAPI({
+  apiKey: string,
+});
+```
+
+#### Methods
+
+##### fetchSavedTracksById
+
+`fetchSavedTracksById(spotifyId: string)`
+
+```js
+const savedTracks = await spotify.fetchSavedTracksById("1234567890");
+```
+
+##### fetchPlayedTracksById
+
+`fetchPlayedTracksById(spotifyId: string)`
+
+```js
+const playedTracks = await spotify.fetchPlayedTracksById("1234567890");
+```
+
+##### fetchSavedAlbumsById
+
+`fetchSavedAlbumsById(spotifyId: string)`
+
+```js
+const savedAlbums = await spotify.fetchSavedAlbumsById("1234567890");
+```
+
+##### fetchSavedPlaylistsById
+
+`fetchSavedPlaylistsById(spotifyId: string)`
+
+```js
+const savedPlaylists = await spotify.fetchSavedPlaylistsById("1234567890");
+```
+
+##### fetchTracksInAlbum
+
+`fetchTracksInAlbum(spotifyId: string, albumId: string)`
+
+```js
+const tracks = await spotify.fetchTracksInAlbum("1234567890", "1234567890");
+```
+
+##### fetchTracksInPlaylist
+
+`fetchTracksInPlaylist(spotifyId: string, playlistId: string)`
+
+```js
+const tracks = await spotify.fetchTracksInPlaylist("1234567890", "1234567890");
+```
+
+##### fetchUserByWalletAddress
+
+`fetchUserByWalletAddress(walletAddress: string)`
+
+```js
+const user = await spotify.fetchUserByWalletAddress("0x1234567890");
+```
+
 ## Auth
 
 The Auth class is the entry point for authenticating users with the Camp SDK. It requires a clientId to be instantiated.
+
 **Note: The Auth class is only to be used on the client side.**
 
 ### Constructor
