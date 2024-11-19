@@ -12,7 +12,7 @@ The Camp SDK currently exposes the following modules:
   - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
   - `Auth` - For authenticating users with the Camp SDK
 - `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
-- `"@campnetwork/sdk/react/auth"` - Exposes React hooks for authentication and fetching user data via the Camp Auth Hub
+- `"@campnetwork/sdk/react/auth"` - Exposes React components and hooks for authentication and fetching user data via the Camp Auth Hub
 
 # Installation
 
