@@ -101,7 +101,7 @@ export const useModal = () => {
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, loading: boolean } } The socials linked to the user.
+ * @returns { { data: Array, error: Error, isLoading: boolean } } The socials linked to the user.
  */
 export const useSocials = () => {
   const { auth } = useContext(CampContext);
