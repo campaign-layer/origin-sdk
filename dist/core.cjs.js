@@ -64,7 +64,8 @@ function buildURL(baseURL, params = {}) {
   const queryString = buildQueryString(params);
   return queryString ? `${baseURL}?${queryString}` : baseURL;
 }
-const baseURL = "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
+const baseTwitterURL = "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
+const baseSpotifyURL = "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
 
 /**
  * The TwitterAPI class.
@@ -90,7 +91,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchUserByUsername(twitterUserName) {
-    const url = buildURL(`${baseURL}/user`, {
+    const url = buildURL(`${baseTwitterURL}/user`, {
       twitterUserName
     });
     return this._fetchDataWithAuth(url);
@@ -105,7 +106,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchTweetsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/tweets`, {
+    const url = buildURL(`${baseTwitterURL}/tweets`, {
       twitterUserName,
       page,
       limit
@@ -122,7 +123,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchFollowersByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/followers`, {
+    const url = buildURL(`${baseTwitterURL}/followers`, {
       twitterUserName,
       page,
       limit
@@ -139,7 +140,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchFollowingByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/following`, {
+    const url = buildURL(`${baseTwitterURL}/following`, {
       twitterUserName,
       page,
       limit
@@ -154,7 +155,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchTweetById(tweetId) {
-    const url = buildURL(`${baseURL}/getTweetById`, {
+    const url = buildURL(`${baseTwitterURL}/getTweetById`, {
       tweetId
     });
     return this._fetchDataWithAuth(url);
@@ -169,7 +170,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchUserByWalletAddress(walletAddress, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/wallet-twitter-data`, {
+    const url = buildURL(`${baseTwitterURL}/wallet-twitter-data`, {
       walletAddress,
       page,
       limit
@@ -186,7 +187,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchRepostedByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/reposted`, {
+    const url = buildURL(`${baseTwitterURL}/reposted`, {
       twitterUserName,
       page,
       limit
@@ -203,7 +204,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchRepliesByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/replies`, {
+    const url = buildURL(`${baseTwitterURL}/replies`, {
       twitterUserName,
       page,
       limit
@@ -220,7 +221,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchLikesByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/event/likes/${twitterUserName}`, {
+    const url = buildURL(`${baseTwitterURL}/event/likes/${twitterUserName}`, {
       page,
       limit
     });
@@ -236,7 +237,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchFollowsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/event/follows/${twitterUserName}`, {
+    const url = buildURL(`${baseTwitterURL}/event/follows/${twitterUserName}`, {
       page,
       limit
     });
@@ -252,7 +253,7 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchViewedTweetsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseURL}/event/viewed-tweets/${twitterUserName}`, {
+    const url = buildURL(`${baseTwitterURL}/event/viewed-tweets/${twitterUserName}`, {
       page,
       limit
     });
@@ -279,7 +280,136 @@ class TwitterAPI {
   }
 }
 
-const SpotifyAPI = {};
+/**
+ * The SpotifyAPI class.
+ * @class
+ */
+class SpotifyAPI {
+  /**
+   * Constructor for the SpotifyAPI class.
+   * @param {object} options - The options object.
+   * @param {string} options.apiKey - The Camp API key.
+   */
+  constructor({
+    apiKey
+  }) {
+    this.apiKey = apiKey;
+  }
+
+  /**
+   * Fetch the user's saved tracks by Spotify user ID.
+   * @param {string} spotifyId - The user's Spotify ID.
+   * @returns {Promise<object>} - The saved tracks.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchSavedTracksById(spotifyId) {
+    const url = buildURL(`${baseSpotifyURL}/save-tracks`, {
+      spotifyId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the played tracks of a user by Spotify ID.
+   * @param {string} spotifyId - The user's Spotify ID.
+   * @returns {Promise<object>} - The played tracks.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchPlayedTracksById(spotifyId) {
+    const url = buildURL(`${baseSpotifyURL}/played-tracks`, {
+      spotifyId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the user's saved albums by Spotify user ID.
+   * @param {string} spotifyId - The user's Spotify ID.
+   * @returns {Promise<object>} - The saved albums.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchSavedAlbumsById(spotifyId) {
+    const url = buildURL(`${baseSpotifyURL}/saved-albums`, {
+      spotifyId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the user's saved playlists by Spotify user ID.
+   * @param {string} spotifyId - The user's Spotify ID.
+   * @returns {Promise<object>} - The saved playlists.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchSavedPlaylistsById(spotifyId) {
+    const url = buildURL(`${baseSpotifyURL}/saved-playlists`, {
+      spotifyId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the tracks of an album by album ID.
+   * @param {string} spotifyId - The Spotify ID of the user.
+   * @param {string} albumId - The album ID.
+   * @returns {Promise<object>} - The tracks in the album.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchTracksInAlbum(spotifyId, albumId) {
+    const url = buildURL(`${baseSpotifyURL}/album/tracks`, {
+      spotifyId,
+      albumId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the tracks in a playlist by playlist ID.
+   * @param {string} spotifyId - The Spotify ID of the user.
+   * @param {string} playlistId - The playlist ID.
+   * @returns {Promise<object>} - The tracks in the playlist.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchTracksInPlaylist(spotifyId, playlistId) {
+    const url = buildURL(`${baseSpotifyURL}/playlist/tracks`, {
+      spotifyId,
+      playlistId
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Fetch the user's Spotify data by wallet address.
+   * @param {string} walletAddress - The wallet address.
+   * @returns {Promise<object>} - The user's Spotify data.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async fetchUserByWalletAddress(walletAddress) {
+    const url = buildURL(`${baseSpotifyURL}/wallet-spotify-data`, {
+      walletAddress
+    });
+    return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Private method to fetch data with authorization header.
+   * @param {string} url - The URL to fetch.
+   * @returns {Promise<object>} - The response data.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
+  async _fetchDataWithAuth(url) {
+    if (!this.apiKey) {
+      throw new APIError("API key is required for fetching data", 401);
+    }
+    try {
+      return await fetchData(url, {
+        "x-api-key": this.apiKey
+      });
+    } catch (error) {
+      throw new APIError(error.message, error.statusCode);
+    }
+  }
+}
 
 const testnet = {
   id: 325000,
