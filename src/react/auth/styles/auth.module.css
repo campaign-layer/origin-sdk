@@ -15,6 +15,7 @@
 }
 
 .modal .container {
+  box-sizing: border-box;
   background-color: #fefefe;
   padding: 2rem;
   padding-bottom: 1rem;
@@ -100,6 +101,10 @@
   padding-left: 0.5rem;
 }
 
+.provider-list.big {
+  max-height: 19.2rem;
+}
+
 .provider-list::-webkit-scrollbar {
   width: 0.5rem;
   border-radius: 0.25rem;
@@ -144,6 +149,10 @@
   height: 2rem;
 }
 
+.provider-button .provider-icon {
+  border-radius: 0.2rem;
+}
+
 .provider-button span {
   margin-left: 0.5rem;
 }
@@ -155,7 +164,7 @@
 
 .provider-button span.provider-label {
   color: #777;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .spinner::after {
@@ -453,4 +462,19 @@
   font-size: 0.875rem;
   text-align: center;
   margin-top: 0.5rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
 }

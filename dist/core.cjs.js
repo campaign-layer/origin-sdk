@@ -1704,12 +1704,16 @@ class Auth {
 
   /**
    * Connect the user's wallet and sign the message.
+   * @param {string} address The wallet address (optional - if not provided, the user will be prompted to connect their wallet)
    * @returns {Promise<object>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
-  async connect() {
+  async connect(address) {
     this.#trigger("state", "loading");
     try {
+      if (address) {
+        this.walletAddress = address;
+      }
       if (!this.walletAddress) {
         await this.#requestAccount();
       }

@@ -11,7 +11,18 @@ import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext";
 import { formatAddress } from "../../utils";
 import { useWalletConnectProvider } from "../../auth/viem/walletconnect";
-import { custom, useAccount, useConnectorClient } from "wagmi";
+import { useAccount, useConnectorClient } from "wagmi";
+
+const getIconByConnectorName = (name) => {
+  switch (name) {
+    case "AppKit Auth":
+      return "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='56' height='56' rx='16.3333' fill='%23FF573B'/%3E%3Cpath d='M11.6667 33.8333H44.3334V38.5C44.3334 39.7886 43.2501 40.8333 41.9137 40.8333H14.0865C12.7501 40.8333 11.6667 39.7886 11.6667 38.5V33.8333Z' fill='%23202020'/%3E%3Cpath d='M11.6667 24.5H44.3334V31.5H11.6667V24.5Z' fill='%23202020'/%3E%3Cpath d='M11.6667 17.5C11.6667 16.2113 12.7501 15.1666 14.0865 15.1666H41.9137C43.2501 15.1666 44.3334 16.2113 44.3334 17.5V22.1666H11.6667V17.5Z' fill='%23202020'/%3E%3C/svg%3E";
+    case "Privy Wallet":
+      return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='464' viewBox='0 0 360 464' fill='none' id='svg-669804622_503'%3E%3Cpath d='M180 359.794C279.396 359.794 360 279.236 360 179.897C360 80.5579 279.396 0 180 0C80.604 0 0 80.5579 0 179.897C0 279.236 80.604 359.794 180 359.794Z' fill='%23010110'/%3E%3Cpath d='M180 463.997C247.932 463.997 303.012 452.411 303.012 438.2C303.012 423.988 247.968 412.402 180 412.402C112.032 412.402 56.9883 423.988 56.9883 438.2C56.9883 452.411 112.032 463.997 180 463.997Z' fill='%23010110'/%3E%3C/svg%3E";
+    default:
+      return "";
+  }
+};
 
 const DiscordIcon = () => (
   <svg
@@ -103,6 +114,7 @@ const ProviderButton = ({ provider, handleConnect, loading, label }) => {
           provider.info.icon ||
           "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23777777' d='M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72M20 9v6h-7V9zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2z'/%3E%3Ccircle cx='16' cy='12' r='1.5' fill='%23777777'/%3E%3C/svg%3E"
         }
+        className={styles["provider-icon"]}
         alt={provider.info.name}
       />
       <div
@@ -212,7 +224,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
 
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
-    connect();
+    connect(customAccount?.address);
   };
   return (
     <div className={styles.container}>
@@ -231,7 +243,30 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
         <span>Connect with Camp</span>
       </div>
 
-      <div className={styles["provider-list"]}>
+      <div
+        className={`${customAccount?.connector ? styles["big"] : ""} ${
+          styles["provider-list"]
+        }`}
+      >
+        {customAccount?.connector && (
+          <>
+            <ProviderButton
+              provider={{
+                provider: customProvider || window.ethereum,
+                info: {
+                  name: customAccount.connector.name,
+                  icon:
+                    customAccount.connector.icon ||
+                    getIconByConnectorName(customAccount.connector.name),
+                },
+              }}
+              label={formatAddress(customAccount.address)}
+              handleConnect={handleConnect}
+              loading={loading}
+            />
+            <div className={styles["divider"]} />
+          </>
+        )}
         {providers.map((provider) => (
           <ProviderButton
             provider={provider}
@@ -253,20 +288,15 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
             loading={loading}
           />
         )}
-        {(customProvider || window.ethereum) && (
+        {window.ethereum && (
           <ProviderButton
             provider={{
-              provider: customProvider || window.ethereum,
+              provider: window.ethereum,
               info: {
                 name: "Browser Wallet",
-                icon: customAccount?.connector?.icon,
               },
             }}
-            label={
-              customAccount?.connector
-                ? customAccount.connector.name
-                : "window.ethereum"
-            }
+            label="window.ethereum"
             handleConnect={handleConnect}
             loading={loading}
           />
