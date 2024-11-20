@@ -52,18 +52,20 @@ function buildURL(baseURL, params = {}) {
   return queryString ? `${baseURL}?${queryString}` : baseURL;
 }
 
-const baseURL =
+const baseTwitterURL =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
+const baseSpotifyURL =
+  "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
 
-// module.exports = {
-//   fetchData,
-//   buildQueryString,
-//   buildURL,
-//   baseURL,
-// };
-// format eth address as 0x1234...5678
 const formatAddress = (address, n = 8) => {
   return `${address.slice(0, n)}...${address.slice(-n)}`;
 };
 
-export { fetchData, buildQueryString, buildURL, baseURL, formatAddress };
+export {
+  fetchData,
+  buildQueryString,
+  buildURL,
+  baseTwitterURL,
+  baseSpotifyURL,
+  formatAddress,
+};

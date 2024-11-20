@@ -1,4 +1,4 @@
-import { fetchData, buildURL, baseURL } from "./utils";
+import { fetchData, buildURL, baseTwitterURL as baseURL } from "./utils";
 import { APIError } from "./errors";
 
 /**
