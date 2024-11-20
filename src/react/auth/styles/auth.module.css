@@ -153,6 +153,11 @@
   font-size: 0.875rem;
 }
 
+.provider-button span.provider-label {
+  color: #777;
+  font-size: 0.75rem;
+}
+
 .spinner::after {
   content: "";
   display: block;

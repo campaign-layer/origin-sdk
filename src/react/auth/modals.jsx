@@ -11,6 +11,7 @@ import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext";
 import { formatAddress } from "../../utils";
 import { useWalletConnectProvider } from "../../auth/viem/walletconnect";
+import { custom, useAccount, useConnectorClient } from "wagmi";
 
 const DiscordIcon = () => (
   <svg
@@ -77,10 +78,10 @@ const CloseIcon = () => (
 
 /**
  * The ProviderButton component.
- * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean } } props The props.
+ * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean, label: string } } props The props.
  * @returns { JSX.Element } The ProviderButton component.
  */
-const ProviderButton = ({ provider, handleConnect, loading }) => {
+const ProviderButton = ({ provider, handleConnect, loading, label }) => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const handleClick = () => {
     handleConnect(provider);
@@ -104,7 +105,16 @@ const ProviderButton = ({ provider, handleConnect, loading }) => {
         }
         alt={provider.info.name}
       />
-      <span className={styles["provider-name"]}>{provider.info.name}</span>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        <span className={styles["provider-name"]}>{provider.info.name}</span>
+        {label && <span className={styles["provider-label"]}>({label})</span>}
+      </div>
       {isButtonLoading && <div className={styles.spinner} />}
     </button>
   );
@@ -154,8 +164,15 @@ const CampButton = ({ onClick, authenticated, disabled }) => {
 const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   const { connect } = useConnect();
   const { setProvider } = useProvider();
-  const { auth } = useContext(CampContext);
+  const { auth, wagmiAvailable } = useContext(CampContext);
+  const [customProvider, setCustomProvider] = useState(null);
   const providers = useProviders();
+  let customConnector;
+  let customAccount;
+  if (wagmiAvailable) {
+    customConnector = useConnectorClient();
+    customAccount = useAccount();
+  }
 
   const handleWalletConnect = async ({ provider }) => {
     auth.setLoading(true);
@@ -166,6 +183,20 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
       auth.setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log(customAccount?.isConnected);
+    console.log(customAccount?.connector)
+  }, [customAccount]);
+
+  useEffect(() => {
+    if (wagmiAvailable && customConnector) {
+      const provider = customConnector.data;
+      if (provider) {
+        setCustomProvider(provider);
+      }
+    }
+  }, [customConnector, customAccount]);
 
   useEffect(() => {
     const doConnect = async () => {
@@ -229,9 +260,14 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
         )}
         <ProviderButton
           provider={{
-            provider: window.ethereum,
-            info: { name: "Browser Wallet" },
+            provider: customProvider || window.ethereum,
+            info: { name: "Browser Wallet", icon: customAccount?.connector?.icon },
           }}
+          label={
+            customAccount?.connector
+              ? customAccount.connector.name
+              : "window.ethereum"
+          }
           handleConnect={handleConnect}
           loading={loading}
         />
