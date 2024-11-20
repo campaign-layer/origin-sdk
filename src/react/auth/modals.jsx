@@ -185,11 +185,6 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   };
 
   useEffect(() => {
-    console.log(customAccount?.isConnected);
-    console.log(customAccount?.connector)
-  }, [customAccount]);
-
-  useEffect(() => {
     if (wagmiAvailable && customConnector) {
       const provider = customConnector.data;
       if (provider) {
@@ -258,19 +253,24 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
             loading={loading}
           />
         )}
-        <ProviderButton
-          provider={{
-            provider: customProvider || window.ethereum,
-            info: { name: "Browser Wallet", icon: customAccount?.connector?.icon },
-          }}
-          label={
-            customAccount?.connector
-              ? customAccount.connector.name
-              : "window.ethereum"
-          }
-          handleConnect={handleConnect}
-          loading={loading}
-        />
+        {(customProvider || window.ethereum) && (
+          <ProviderButton
+            provider={{
+              provider: customProvider || window.ethereum,
+              info: {
+                name: "Browser Wallet",
+                icon: customAccount?.connector?.icon,
+              },
+            }}
+            label={
+              customAccount?.connector
+                ? customAccount.connector.name
+                : "window.ethereum"
+            }
+            handleConnect={handleConnect}
+            loading={loading}
+          />
+        )}
       </div>
       <a
         href="https://campnetwork.xyz"
@@ -293,6 +293,12 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
   const { provider } = useProvider();
+  const providers = useProviders();
+  const { wagmiAvailable } = useContext(CampContext);
+  let customAccount;
+  if (wagmiAvailable) {
+    customAccount = useAccount();
+  }
 
   const walletConnectProvider = wcProjectId
     ? useWalletConnectProvider(wcProjectId)
@@ -312,7 +318,12 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
     <div>
       {injectButton && (
         <CampButton
-          disabled={!provider.provider}
+          disabled={
+            !provider.provider &&
+            (!wagmiAvailable || !customAccount?.isConnected) &&
+            !walletConnectProvider &&
+            !providers.length
+          }
           onClick={handleModalButton}
           authenticated={authenticated}
         />

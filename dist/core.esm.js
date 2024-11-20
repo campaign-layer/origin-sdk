@@ -433,7 +433,7 @@ const testnet = {
 let client = null;
 const getClient = (provider, name = "window.ethereum") => {
   if (!provider && !client) {
-    console.error("Provider is required to create a client.");
+    console.warn("Provider is required to create a client.");
     return null;
   }
   if (!client || client.transport.name !== name && provider) {
