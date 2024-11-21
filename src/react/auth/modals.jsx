@@ -224,7 +224,10 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
 
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
-    connect(customAccount?.address);
+    if(customAccount?.address) {
+      auth.setWalletAddress(customAccount?.address);
+    }
+    connect();
   };
   return (
     <div className={styles.container}>

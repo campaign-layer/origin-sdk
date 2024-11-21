@@ -1569,6 +1569,15 @@ class Auth {
   }
 
   /**
+   * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
+   * @param {string} walletAddress The wallet address.
+   * @returns {void}
+   */
+  setWalletAddress(walletAddress) {
+    this.walletAddress = walletAddress;
+  }
+
+  /**
    * Load the authentication status from local storage.
    * @private
    * @returns {void}
@@ -1704,16 +1713,12 @@ class Auth {
 
   /**
    * Connect the user's wallet and sign the message.
-   * @param {string} address The wallet address (optional - if not provided, the user will be prompted to connect their wallet)
    * @returns {Promise<object>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
-  async connect(address) {
+  async connect() {
     this.#trigger("state", "loading");
     try {
-      if (address) {
-        this.walletAddress = address;
-      }
       if (!this.walletAddress) {
         await this.#requestAccount();
       }
