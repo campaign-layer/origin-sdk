@@ -33,6 +33,18 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  /* dialog on mobile */
+  @media screen and (max-width: 440px) {
+    width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    bottom: 0;
+    top: auto;
+    padding: 1rem;
+    transform: translate(-50%, 0);
+    max-height: 70%;
+  }
 }
 
 .container h2 {
@@ -50,7 +62,7 @@
   width: 100%;
   text-align: center;
   margin-bottom: 1rem;
-  font-size: larger;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
@@ -155,6 +167,7 @@
 
 .provider-button span {
   margin-left: 0.5rem;
+  line-height: 1rem;
 }
 
 .provider-button span.provider-name {
