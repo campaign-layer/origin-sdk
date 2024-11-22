@@ -1631,9 +1631,6 @@ var CampModal = function CampModal(_ref7) {
     }
   }, [authenticated]);
   useEffect(setServer, []);
-  if (!hasMounted) {
-    return null;
-  }
   return isServer ? /*#__PURE__*/React.createElement("div", null) : /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: !provider.provider && (!wagmiAvailable || !((_customAccount5 = customAccount) !== null && _customAccount5 !== void 0 && _customAccount5.isConnected)) && !walletConnectProvider && !providers.length,
     onClick: handleModalButton,

@@ -352,10 +352,6 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
 
   useEffect(setServer, []);
 
-  if (!hasMounted) {
-    return null;
-  }
-
   return isServer ? (
     <div />
   ) : (
