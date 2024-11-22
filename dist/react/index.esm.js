@@ -1600,10 +1600,10 @@ var CampModal = function CampModal(_ref7) {
   var _ref7$injectButton = _ref7.injectButton,
     injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
     wcProjectId = _ref7.wcProjectId;
-  var _useState5 = useState(false),
+  var _useState5 = useState(true),
     _useState6 = _slicedToArray(_useState5, 2),
-    hasMounted = _useState6[0],
-    setHasMounted = _useState6[1];
+    isServer = _useState6[0],
+    setServer = _useState6[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1630,13 +1630,11 @@ var CampModal = function CampModal(_ref7) {
       }
     }
   }, [authenticated]);
-  useEffect(function () {
-    setHasMounted(true);
-  }, []);
+  useEffect(setServer, []);
   if (!hasMounted) {
     return null;
   }
-  return /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
+  return isServer ? /*#__PURE__*/React.createElement("div", null) : /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: !provider.provider && (!wagmiAvailable || !((_customAccount5 = customAccount) !== null && _customAccount5 !== void 0 && _customAccount5.isConnected)) && !walletConnectProvider && !providers.length,
     onClick: handleModalButton,
     authenticated: authenticated

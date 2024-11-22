@@ -323,7 +323,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
  * @returns { JSX.Element } The CampModal component.
  */
 export const CampModal = ({ injectButton = true, wcProjectId }) => {
-  const [hasMounted, setHasMounted] = useState(false);
+  const [isServer, setServer] = useState(true);
 
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
@@ -350,15 +350,15 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
     }
   }, [authenticated]);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  useEffect(setServer, []);
 
   if (!hasMounted) {
     return null;
   }
 
-  return (
+  return isServer ? (
+    <div />
+  ) : (
     <div>
       {injectButton && (
         <CampButton
