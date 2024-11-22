@@ -1600,6 +1600,10 @@ var CampModal = function CampModal(_ref7) {
   var _ref7$injectButton = _ref7.injectButton,
     injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
     wcProjectId = _ref7.wcProjectId;
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    hasMounted = _useState6[0],
+    setHasMounted = _useState6[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1626,6 +1630,12 @@ var CampModal = function CampModal(_ref7) {
       }
     }
   }, [authenticated]);
+  useEffect(function () {
+    setHasMounted(true);
+  }, []);
+  if (!hasMounted) {
+    return null;
+  }
   return /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: !provider.provider && (!wagmiAvailable || !((_customAccount5 = customAccount) !== null && _customAccount5 !== void 0 && _customAccount5.isConnected)) && !walletConnectProvider && !providers.length,
     onClick: handleModalButton,
@@ -1652,10 +1662,10 @@ var ConnectorButton = function ConnectorButton(_ref8) {
     icon = _ref8.icon,
     isConnected = _ref8.isConnected,
     refetch = _ref8.refetch;
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    isUnlinking = _useState6[0],
-    setIsUnlinking = _useState6[1];
+  var _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    isUnlinking = _useState8[0],
+    setIsUnlinking = _useState8[1];
   var handleClick = function handleClick() {
     link();
   };
@@ -1734,10 +1744,10 @@ var MyCampModal = function MyCampModal(_ref10) {
     socials = _useSocials.data,
     loading = _useSocials.loading,
     refetch = _useSocials.refetch;
-  var _useState7 = useState(true),
-    _useState8 = _slicedToArray(_useState7, 2),
-    isLoadingSocials = _useState8[0],
-    setIsLoadingSocials = _useState8[1];
+  var _useState9 = useState(true),
+    _useState10 = _slicedToArray(_useState9, 2),
+    isLoadingSocials = _useState10[0],
+    setIsLoadingSocials = _useState10[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
