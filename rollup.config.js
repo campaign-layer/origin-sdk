@@ -32,12 +32,8 @@ const config = {
     nodePolyfills(),
   ],
   external: [
-    "react",
-    "react-dom",
-    "@tanstack/react-query",
     "axios",
     "viem",
-    "@walletconnect/ethereum-provider",
   ],
 };
 

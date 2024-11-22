@@ -435,7 +435,7 @@ const testnet = {
 let client = null;
 const getClient = (provider, name = "window.ethereum") => {
   if (!provider && !client) {
-    console.error("Provider is required to create a client.");
+    console.warn("Provider is required to create a client.");
     return null;
   }
   if (!client || client.transport.name !== name && provider) {
@@ -1566,6 +1566,15 @@ class Auth {
       provider,
       info
     });
+  }
+
+  /**
+   * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
+   * @param {string} walletAddress The wallet address.
+   * @returns {void}
+   */
+  setWalletAddress(walletAddress) {
+    this.walletAddress = walletAddress;
   }
 
   /**

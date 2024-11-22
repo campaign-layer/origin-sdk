@@ -276,6 +276,18 @@ auth.setProvider({
 });
 ```
 
+#### setWalletAddress
+
+`setWalletAddress(walletAddress: string) => void`
+
+The `setWalletAddress` method sets the wallet address to be used for authentication (via the `connect` method).
+
+**This is only needed if the provider does not support the `eth_requestAccounts` method. Only use this method if you are sure you need to set the wallet address manually.**
+
+```js
+auth.setWalletAddress("0x1234567890");
+```
+
 #### on
 
 `on(event: string, callback: (data: any) => void) => void`

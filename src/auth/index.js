@@ -107,6 +107,15 @@ class Auth {
   }
 
   /**
+   * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
+   * @param {string} walletAddress The wallet address.
+   * @returns {void}
+   */
+  setWalletAddress(walletAddress) {
+    this.walletAddress = walletAddress;
+  }
+
+  /**
    * Load the authentication status from local storage.
    * @private
    * @returns {void}

@@ -15,8 +15,9 @@
 }
 
 .modal .container {
+  box-sizing: border-box;
   background-color: #fefefe;
-  padding: 2rem;
+  padding: 1.5rem;
   padding-bottom: 1rem;
   border: 1px solid #888;
   width: 300px; /* temporary */
@@ -32,6 +33,16 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  /* dialog on mobile */
+  @media screen and (max-width: 440px) {
+    width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    bottom: 0;
+    top: auto;
+    transform: translate(-50%, 0);
+  }
 }
 
 .container h2 {
@@ -49,7 +60,7 @@
   width: 100%;
   text-align: center;
   margin-bottom: 1rem;
-  font-size: larger;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
@@ -89,6 +100,7 @@
 }
 
 .provider-list {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -98,6 +110,10 @@
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
+}
+
+.provider-list.big {
+  max-height: 16rem;
 }
 
 .provider-list::-webkit-scrollbar {
@@ -124,6 +140,7 @@
   gap: 0.5rem;
   width: 100%;
   transition: background-color 0.15s;
+  font-family: inherit;
 }
 
 .provider-button:focus {
@@ -144,13 +161,23 @@
   height: 2rem;
 }
 
+.provider-button .provider-icon {
+  border-radius: 0.2rem;
+}
+
 .provider-button span {
   margin-left: 0.5rem;
+  line-height: 1rem;
 }
 
 .provider-button span.provider-name {
   color: #333;
   font-size: 0.875rem;
+}
+
+.provider-button span.provider-label {
+  color: #777;
+  font-size: 0.7rem;
 }
 
 .spinner::after {
@@ -448,4 +475,19 @@
   font-size: 0.875rem;
   text-align: center;
   margin-top: 0.5rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
 }
