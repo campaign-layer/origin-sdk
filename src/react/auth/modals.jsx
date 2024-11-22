@@ -317,16 +317,6 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   );
 };
 
-const useHasMounted = () => {
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  return hasMounted;
-};
-
 /**
  * The CampModal component.
  * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
@@ -362,39 +352,35 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
 
   return (
     <div>
-      {useHasMounted() && (
-        <div>
-          {injectButton && (
-            <CampButton
-              disabled={
-                !provider.provider &&
-                (!wagmiAvailable || !customAccount?.isConnected) &&
-                !walletConnectProvider &&
-                !providers.length
-              }
-              onClick={handleModalButton}
-              authenticated={authenticated}
+      {injectButton && (
+        <CampButton
+          disabled={
+            !provider.provider &&
+            (!wagmiAvailable || !customAccount?.isConnected) &&
+            !walletConnectProvider &&
+            !providers.length
+          }
+          onClick={handleModalButton}
+          authenticated={authenticated}
+        />
+      )}
+      {isVisible && (
+        <div
+          className={styles.modal}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsVisible(false);
+            }
+          }}
+        >
+          {authenticated ? (
+            <MyCampModal wcProvider={walletConnectProvider} />
+          ) : (
+            <AuthModal
+              setIsVisible={setIsVisible}
+              wcProvider={walletConnectProvider}
+              loading={loading}
             />
-          )}
-          {isVisible && (
-            <div
-              className={styles.modal}
-              onClick={(e) => {
-                if (e.target === e.currentTarget) {
-                  setIsVisible(false);
-                }
-              }}
-            >
-              {authenticated ? (
-                <MyCampModal wcProvider={walletConnectProvider} />
-              ) : (
-                <AuthModal
-                  setIsVisible={setIsVisible}
-                  wcProvider={walletConnectProvider}
-                  loading={loading}
-                />
-              )}
-            </div>
           )}
         </div>
       )}

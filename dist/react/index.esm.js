@@ -1589,16 +1589,6 @@ var AuthModal = function AuthModal(_ref3) {
     rel: "noopener noreferrer"
   }, "Powered by Camp Network"));
 };
-var useHasMounted = function useHasMounted() {
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    hasMounted = _useState6[0],
-    setHasMounted = _useState6[1];
-  useEffect(function () {
-    setHasMounted(true);
-  }, []);
-  return hasMounted;
-};
 
 /**
  * The CampModal component.
@@ -1637,7 +1627,7 @@ var CampModal = function CampModal(_ref7) {
     }
   }, [authenticated]);
   useEffect(function () {}, wagmiAvailable, customAccount);
-  return /*#__PURE__*/React.createElement("div", null, useHasMounted() && /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
+  return /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: !provider.provider && (!wagmiAvailable || !((_customAccount5 = customAccount) !== null && _customAccount5 !== void 0 && _customAccount5.isConnected)) && !walletConnectProvider && !providers.length,
     onClick: handleModalButton,
     authenticated: authenticated
@@ -1654,7 +1644,7 @@ var CampModal = function CampModal(_ref7) {
     setIsVisible: setIsVisible,
     wcProvider: walletConnectProvider,
     loading: loading
-  }))));
+  })));
 };
 var ConnectorButton = function ConnectorButton(_ref8) {
   var name = _ref8.name,
@@ -1663,10 +1653,10 @@ var ConnectorButton = function ConnectorButton(_ref8) {
     icon = _ref8.icon,
     isConnected = _ref8.isConnected,
     refetch = _ref8.refetch;
-  var _useState7 = useState(false),
-    _useState8 = _slicedToArray(_useState7, 2),
-    isUnlinking = _useState8[0],
-    setIsUnlinking = _useState8[1];
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    isUnlinking = _useState6[0],
+    setIsUnlinking = _useState6[1];
   var handleClick = function handleClick() {
     link();
   };
@@ -1745,10 +1735,10 @@ var MyCampModal = function MyCampModal(_ref10) {
     socials = _useSocials.data,
     loading = _useSocials.loading,
     refetch = _useSocials.refetch;
-  var _useState9 = useState(true),
-    _useState10 = _slicedToArray(_useState9, 2),
-    isLoadingSocials = _useState10[0],
-    setIsLoadingSocials = _useState10[1];
+  var _useState7 = useState(true),
+    _useState8 = _slicedToArray(_useState7, 2),
+    isLoadingSocials = _useState8[0],
+    setIsLoadingSocials = _useState8[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
