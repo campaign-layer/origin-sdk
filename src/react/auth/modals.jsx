@@ -323,6 +323,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
  * @returns { JSX.Element } The CampModal component.
  */
 export const CampModal = ({ injectButton = true, wcProjectId }) => {
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
   const { provider } = useProvider();
@@ -348,18 +349,30 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
     }
   }, [authenticated]);
 
-  useEffect(() => {}, wagmiAvailable, customAccount);
+  useEffect(() => {
+    if (
+      !provider.provider &&
+      (!wagmiAvailable || !customAccount?.isConnected) &&
+      !walletConnectProvider &&
+      !providers.length
+    ) {
+      setIsButtonDisabled(true);
+    } else {
+      setIsButtonDisabled(false);
+    }
+  }, [
+    provider,
+    wagmiAvailable,
+    customAccount,
+    walletConnectProvider,
+    providers,
+  ]);
 
   return (
     <div>
       {injectButton && (
         <CampButton
-          disabled={
-            !provider.provider &&
-            (!wagmiAvailable || !customAccount?.isConnected) &&
-            !walletConnectProvider &&
-            !providers.length
-          }
+          disabled={isButtonDisabled}
           onClick={handleModalButton}
           authenticated={authenticated}
         />
