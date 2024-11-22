@@ -318,6 +318,25 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
 };
 
 /**
+ * The ClientOnly component. Renders children only on the client. Needed for Next.js.
+ * @param { { children: JSX.Element } } props The props.
+ * @returns { JSX.Element } The ClientOnly component.
+ */
+function ClientOnly({ children, ...delegated }) {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return null;
+  }
+
+  return <div {...delegated}>{children}</div>;
+}
+
+/**
  * The CampModal component.
  * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
  * @returns { JSX.Element } The CampModal component.
@@ -369,35 +388,37 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   ]);
 
   return (
-    <div>
-      {injectButton && (
-        <CampButton
-          disabled={isButtonDisabled}
-          onClick={handleModalButton}
-          authenticated={authenticated}
-        />
-      )}
-      {isVisible && (
-        <div
-          className={styles.modal}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsVisible(false);
-            }
-          }}
-        >
-          {authenticated ? (
-            <MyCampModal wcProvider={walletConnectProvider} />
-          ) : (
-            <AuthModal
-              setIsVisible={setIsVisible}
-              wcProvider={walletConnectProvider}
-              loading={loading}
-            />
-          )}
-        </div>
-      )}
-    </div>
+    <ClientOnly>
+      <div>
+        {injectButton && (
+          <CampButton
+            disabled={isButtonDisabled}
+            onClick={handleModalButton}
+            authenticated={authenticated}
+          />
+        )}
+        {isVisible && (
+          <div
+            className={styles.modal}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsVisible(false);
+              }
+            }}
+          >
+            {authenticated ? (
+              <MyCampModal wcProvider={walletConnectProvider} />
+            ) : (
+              <AuthModal
+                setIsVisible={setIsVisible}
+                wcProvider={walletConnectProvider}
+                loading={loading}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </ClientOnly>
   );
 };
 

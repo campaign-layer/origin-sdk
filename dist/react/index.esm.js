@@ -98,6 +98,26 @@ function _nonIterableRest() {
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
+function _objectWithoutProperties(e, t) {
+  if (null == e) return {};
+  var o,
+    r,
+    i = _objectWithoutPropertiesLoose(e, t);
+  if (Object.getOwnPropertySymbols) {
+    var s = Object.getOwnPropertySymbols(e);
+    for (r = 0; r < s.length; r++) o = s[r], t.includes(o) || {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]);
+  }
+  return i;
+}
+function _objectWithoutPropertiesLoose(r, e) {
+  if (null == r) return {};
+  var t = {};
+  for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
+    if (e.includes(n)) continue;
+    t[n] = r[n];
+  }
+  return t;
+}
 function _regeneratorRuntime() {
   _regeneratorRuntime = function () {
     return e;
@@ -1276,6 +1296,7 @@ var useWalletConnectProvider = function useWalletConnectProvider(projectId) {
   return walletConnectProvider;
 };
 
+var _excluded = ["children"];
 var getIconByConnectorName = function getIconByConnectorName(name) {
   switch (name) {
     case "AppKit Auth":
@@ -1591,18 +1612,39 @@ var AuthModal = function AuthModal(_ref3) {
 };
 
 /**
+ * The ClientOnly component. Renders children only on the client. Needed for Next.js.
+ * @param { { children: JSX.Element } } props The props.
+ * @returns { JSX.Element } The ClientOnly component.
+ */
+function ClientOnly(_ref7) {
+  var children = _ref7.children,
+    delegated = _objectWithoutProperties(_ref7, _excluded);
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    hasMounted = _useState6[0],
+    setHasMounted = _useState6[1];
+  useEffect(function () {
+    setHasMounted(true);
+  }, []);
+  if (!hasMounted) {
+    return null;
+  }
+  return /*#__PURE__*/React.createElement("div", delegated, children);
+}
+
+/**
  * The CampModal component.
  * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-var CampModal = function CampModal(_ref7) {
-  var _ref7$injectButton = _ref7.injectButton,
-    injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
-    wcProjectId = _ref7.wcProjectId;
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    isButtonDisabled = _useState6[0],
-    setIsButtonDisabled = _useState6[1];
+var CampModal = function CampModal(_ref8) {
+  var _ref8$injectButton = _ref8.injectButton,
+    injectButton = _ref8$injectButton === void 0 ? true : _ref8$injectButton,
+    wcProjectId = _ref8.wcProjectId;
+  var _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    isButtonDisabled = _useState8[0],
+    setIsButtonDisabled = _useState8[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1637,7 +1679,7 @@ var CampModal = function CampModal(_ref7) {
       setIsButtonDisabled(false);
     }
   }, [provider, wagmiAvailable, customAccount, walletConnectProvider, providers]);
-  return /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
+  return /*#__PURE__*/React.createElement(ClientOnly, null, /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: isButtonDisabled,
     onClick: handleModalButton,
     authenticated: authenticated
@@ -1654,24 +1696,24 @@ var CampModal = function CampModal(_ref7) {
     setIsVisible: setIsVisible,
     wcProvider: walletConnectProvider,
     loading: loading
-  })));
+  }))));
 };
-var ConnectorButton = function ConnectorButton(_ref8) {
-  var name = _ref8.name,
-    link = _ref8.link,
-    unlink = _ref8.unlink,
-    icon = _ref8.icon,
-    isConnected = _ref8.isConnected,
-    refetch = _ref8.refetch;
-  var _useState7 = useState(false),
-    _useState8 = _slicedToArray(_useState7, 2),
-    isUnlinking = _useState8[0],
-    setIsUnlinking = _useState8[1];
+var ConnectorButton = function ConnectorButton(_ref9) {
+  var name = _ref9.name,
+    link = _ref9.link,
+    unlink = _ref9.unlink,
+    icon = _ref9.icon,
+    isConnected = _ref9.isConnected,
+    refetch = _ref9.refetch;
+  var _useState9 = useState(false),
+    _useState10 = _slicedToArray(_useState9, 2),
+    isUnlinking = _useState10[0],
+    setIsUnlinking = _useState10[1];
   var handleClick = function handleClick() {
     link();
   };
   var handleDisconnect = /*#__PURE__*/function () {
-    var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+    var _ref10 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
@@ -1698,7 +1740,7 @@ var ConnectorButton = function ConnectorButton(_ref8) {
       }, _callee3, null, [[1, 9]]);
     }));
     return function handleDisconnect() {
-      return _ref9.apply(this, arguments);
+      return _ref10.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", {
@@ -1733,8 +1775,8 @@ var ConnectorButton = function ConnectorButton(_ref8) {
     disabled: isConnected
   }, icon, /*#__PURE__*/React.createElement("span", null, name)));
 };
-var MyCampModal = function MyCampModal(_ref10) {
-  var wcProvider = _ref10.wcProvider;
+var MyCampModal = function MyCampModal(_ref11) {
+  var wcProvider = _ref11.wcProvider;
   var _useContext4 = useContext(CampContext),
     auth = _useContext4.auth;
   var _useContext5 = useContext(ModalContext),
@@ -1745,10 +1787,10 @@ var MyCampModal = function MyCampModal(_ref10) {
     socials = _useSocials.data,
     loading = _useSocials.loading,
     refetch = _useSocials.refetch;
-  var _useState9 = useState(true),
-    _useState10 = _slicedToArray(_useState9, 2),
-    isLoadingSocials = _useState10[0],
-    setIsLoadingSocials = _useState10[1];
+  var _useState11 = useState(true),
+    _useState12 = _slicedToArray(_useState11, 2),
+    isLoadingSocials = _useState12[0],
+    setIsLoadingSocials = _useState12[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
