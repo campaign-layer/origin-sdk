@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useState, useContext, useEffect, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';

@@ -44,6 +44,7 @@ const config = [
       format: "esm",
       exports: "auto",
       inlineDynamicImports: true,
+      banner: "'use client';",
     },
 
     plugins: [
