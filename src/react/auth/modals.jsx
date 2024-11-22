@@ -1,16 +1,16 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   useAuthState,
   useConnect,
   useProvider,
   useProviders,
   useSocials,
-} from ".";
-import { ModalContext } from "../context/ModalContext";
+} from "./index.jsx";
+import { ModalContext } from "../context/ModalContext.jsx";
 import styles from "./styles/auth.module.css";
-import { CampContext } from "../context/CampContext";
-import { formatAddress } from "../../utils";
-import { useWalletConnectProvider } from "../../auth/viem/walletconnect";
+import { CampContext } from "../context/CampContext.jsx";
+import { formatAddress } from "../../utils.js";
+import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
 
 const getIconByConnectorName = (name) => {
@@ -224,7 +224,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
 
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
-    if(customAccount?.address) {
+    if (customAccount?.address) {
       auth.setWalletAddress(customAccount?.address);
     }
     connect();

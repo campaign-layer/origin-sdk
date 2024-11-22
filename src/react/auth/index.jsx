@@ -1,12 +1,14 @@
 import { useContext, useEffect, useState, useSyncExternalStore } from "react";
-import { CampContext } from "../context/CampContext";
-import { ModalContext } from "../context/ModalContext";
-import { providerStore } from "../../auth/viem/providers";
-import { CampModal, MyCampModal } from "./modals";
+import { CampContext, CampProvider } from "../context/CampContext.jsx";
+import { ModalContext } from "../context/ModalContext.jsx";
+import { providerStore } from "../../auth/viem/providers.js";
+import { CampModal, MyCampModal } from "./modals.jsx";
 import { useQuery } from "@tanstack/react-query";
-import { Auth } from "../../auth/index";
+import { Auth } from "../../auth/index.js";
 
 export { CampModal, MyCampModal };
+
+export { CampContext, CampProvider, ModalContext };
 /**
  * Returns the instance of the Auth class.
  * @returns { Auth } The instance of the Auth class.

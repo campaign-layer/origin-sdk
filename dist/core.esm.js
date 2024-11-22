@@ -1,24 +1,5 @@
-import axios from 'axios';
-import { createWalletClient, custom } from 'viem';
-
-class APIError extends Error {
-  constructor(message, statusCode) {
-    super(message);
-    this.name = "APIError";
-    this.statusCode = statusCode;
-    Error.captureStackTrace(this, this.constructor);
-  }
-  toJSON() {
-    return {
-      error: this.name,
-      message: this.message,
-      statusCode: this.statusCode || 500
-    };
-  }
-}
-
+import t from"axios";import{createWalletClient as e,custom as s}from"viem";import{createSiweMessage as i}from"viem/siwe";class a extends Error{constructor(t,e){super(t),this.name="APIError",this.statusCode=e,Error.captureStackTrace(this,this.constructor)}toJSON(){return{error:this.name,message:this.message,statusCode:this.statusCode||500}}}
 // const axios = require("axios");
-
 /**
  * Makes a GET request to the given URL with the provided headers.
  *
@@ -26,31 +7,13 @@ class APIError extends Error {
  * @param {object} headers - The headers to include in the request.
  * @returns {Promise<object>} - The response data.
  * @throws {APIError} - Throws an error if the request fails.
- */
-async function fetchData(url, headers = {}) {
-  try {
-    const response = await axios.get(url, {
-      headers
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      throw new APIError(error.response.data.message || "API request failed", error.response.status);
-    }
-    throw new APIError("Network error or server is unavailable", 500);
-  }
-}
-
+ */async function r(e,s={}){try{return(await t.get(e,{headers:s})).data}catch(t){if(t.response)throw new a(t.response.data.message||"API request failed",t.response.status);throw new a("Network error or server is unavailable",500)}}
 /**
  * Constructs a query string from an object of query parameters.
  *
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The encoded query string.
  */
-function buildQueryString(params = {}) {
-  return Object.keys(params).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`).join("&");
-}
-
 /**
  * Builds a complete URL with query parameters.
  *
@@ -58,1453 +21,183 @@ function buildQueryString(params = {}) {
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function buildURL(baseURL, params = {}) {
-  const queryString = buildQueryString(params);
-  return queryString ? `${baseURL}?${queryString}` : baseURL;
-}
-const baseTwitterURL = "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
-const baseSpotifyURL = "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
-
+function n(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return s?`${t}?${s}`:t}const o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",c="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
 /**
  * The TwitterAPI class.
  * @class
  * @classdesc The TwitterAPI class is used to interact with the Twitter API.
  */
-class TwitterAPI {
-  /**
+class h{
+/**
    * Constructor for the TwitterAPI class.
    * @param {object} options - The options object.
    * @param {string} options.apiKey - The API key. (Needed for data fetching)
    */
-  constructor({
-    apiKey
-  }) {
-    this.apiKey = apiKey;
-  }
-
-  /**
+constructor({apiKey:t}){this.apiKey=t}
+/**
    * Fetch Twitter user details by username.
    * @param {string} twitterUserName - The Twitter username.
    * @returns {Promise<object>} - The user details.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchUserByUsername(twitterUserName) {
-    const url = buildURL(`${baseTwitterURL}/user`, {
-      twitterUserName
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchUserByUsername(t){const e=n(`${o}/user`,{twitterUserName:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchTweetsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/tweets`, {
-      twitterUserName,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchTweetsByUsername(t,e=1,s=10){const i=n(`${o}/tweets`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch followers by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The followers.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchFollowersByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/followers`, {
-      twitterUserName,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchFollowersByUsername(t,e=1,s=10){const i=n(`${o}/followers`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch following by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The following.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchFollowingByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/following`, {
-      twitterUserName,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchFollowingByUsername(t,e=1,s=10){const i=n(`${o}/following`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch tweet by tweet ID.
    * @param {string} tweetId - The tweet ID.
    * @returns {Promise<object>} - The tweet.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchTweetById(tweetId) {
-    const url = buildURL(`${baseTwitterURL}/getTweetById`, {
-      tweetId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchTweetById(t){const e=n(`${o}/getTweetById`,{tweetId:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch user by wallet address.
    * @param {string} walletAddress - The wallet address.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The user data.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchUserByWalletAddress(walletAddress, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/wallet-twitter-data`, {
-      walletAddress,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchUserByWalletAddress(t,e=1,s=10){const i=n(`${o}/wallet-twitter-data`,{walletAddress:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch reposted tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The reposted tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchRepostedByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/reposted`, {
-      twitterUserName,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchRepostedByUsername(t,e=1,s=10){const i=n(`${o}/reposted`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch replies by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The replies.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchRepliesByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/replies`, {
-      twitterUserName,
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchRepliesByUsername(t,e=1,s=10){const i=n(`${o}/replies`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch likes by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The likes.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchLikesByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/event/likes/${twitterUserName}`, {
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchLikesByUsername(t,e=1,s=10){const i=n(`${o}/event/likes/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch follows by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The follows.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchFollowsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/event/follows/${twitterUserName}`, {
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchFollowsByUsername(t,e=1,s=10){const i=n(`${o}/event/follows/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Fetch viewed tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
    * @param {number} page - The page number.
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The viewed tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchViewedTweetsByUsername(twitterUserName, page = 1, limit = 10) {
-    const url = buildURL(`${baseTwitterURL}/event/viewed-tweets/${twitterUserName}`, {
-      page,
-      limit
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchViewedTweetsByUsername(t,e=1,s=10){const i=n(`${o}/event/viewed-tweets/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+/**
    * Private method to fetch data with authorization header.
    * @param {string} url - The URL to fetch.
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async _fetchDataWithAuth(url) {
-    if (!this.apiKey) {
-      throw new APIError("API key is required for fetching data", 401);
-    }
-    try {
-      return await fetchData(url, {
-        "x-api-key": this.apiKey
-      });
-    } catch (error) {
-      throw new APIError(error.message, error.statusCode);
-    }
-  }
-}
-
+   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new a("API key is required for fetching data",401);try{return await r(t,{"x-api-key":this.apiKey})}catch(t){throw new a(t.message,t.statusCode)}}}
 /**
  * The SpotifyAPI class.
  * @class
- */
-class SpotifyAPI {
-  /**
+ */class d{
+/**
    * Constructor for the SpotifyAPI class.
    * @param {object} options - The options object.
    * @param {string} options.apiKey - The Camp API key.
    */
-  constructor({
-    apiKey
-  }) {
-    this.apiKey = apiKey;
-  }
-
-  /**
+constructor({apiKey:t}){this.apiKey=t}
+/**
    * Fetch the user's saved tracks by Spotify user ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved tracks.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchSavedTracksById(spotifyId) {
-    const url = buildURL(`${baseSpotifyURL}/save-tracks`, {
-      spotifyId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchSavedTracksById(t){const e=n(`${c}/save-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch the played tracks of a user by Spotify ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The played tracks.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchPlayedTracksById(spotifyId) {
-    const url = buildURL(`${baseSpotifyURL}/played-tracks`, {
-      spotifyId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchPlayedTracksById(t){const e=n(`${c}/played-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch the user's saved albums by Spotify user ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved albums.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchSavedAlbumsById(spotifyId) {
-    const url = buildURL(`${baseSpotifyURL}/saved-albums`, {
-      spotifyId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchSavedAlbumsById(t){const e=n(`${c}/saved-albums`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch the user's saved playlists by Spotify user ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved playlists.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchSavedPlaylistsById(spotifyId) {
-    const url = buildURL(`${baseSpotifyURL}/saved-playlists`, {
-      spotifyId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchSavedPlaylistsById(t){const e=n(`${c}/saved-playlists`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+/**
    * Fetch the tracks of an album by album ID.
    * @param {string} spotifyId - The Spotify ID of the user.
    * @param {string} albumId - The album ID.
    * @returns {Promise<object>} - The tracks in the album.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchTracksInAlbum(spotifyId, albumId) {
-    const url = buildURL(`${baseSpotifyURL}/album/tracks`, {
-      spotifyId,
-      albumId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchTracksInAlbum(t,e){const s=n(`${c}/album/tracks`,{spotifyId:t,albumId:e});return this._fetchDataWithAuth(s)}
+/**
    * Fetch the tracks in a playlist by playlist ID.
    * @param {string} spotifyId - The Spotify ID of the user.
    * @param {string} playlistId - The playlist ID.
    * @returns {Promise<object>} - The tracks in the playlist.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchTracksInPlaylist(spotifyId, playlistId) {
-    const url = buildURL(`${baseSpotifyURL}/playlist/tracks`, {
-      spotifyId,
-      playlistId
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchTracksInPlaylist(t,e){const s=n(`${c}/playlist/tracks`,{spotifyId:t,playlistId:e});return this._fetchDataWithAuth(s)}
+/**
    * Fetch the user's Spotify data by wallet address.
    * @param {string} walletAddress - The wallet address.
    * @returns {Promise<object>} - The user's Spotify data.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async fetchUserByWalletAddress(walletAddress) {
-    const url = buildURL(`${baseSpotifyURL}/wallet-spotify-data`, {
-      walletAddress
-    });
-    return this._fetchDataWithAuth(url);
-  }
-
-  /**
+   */async fetchUserByWalletAddress(t){const e=n(`${c}/wallet-spotify-data`,{walletAddress:t});return this._fetchDataWithAuth(e)}
+/**
    * Private method to fetch data with authorization header.
    * @param {string} url - The URL to fetch.
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
-   */
-  async _fetchDataWithAuth(url) {
-    if (!this.apiKey) {
-      throw new APIError("API key is required for fetching data", 401);
-    }
-    try {
-      return await fetchData(url, {
-        "x-api-key": this.apiKey
-      });
-    } catch (error) {
-      throw new APIError(error.message, error.statusCode);
-    }
-  }
-}
-
-const testnet = {
-  id: 325000,
-  name: "Camp Network Testnet V2",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH"
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc-campnetwork.xyz"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Explorer",
-      url: "https://camp-network-testnet.blockscout.com"
-    }
-  }
-};
-
-let client = null;
-const getClient = (provider, name = "window.ethereum") => {
-  if (!provider && !client) {
-    console.warn("Provider is required to create a client.");
-    return null;
-  }
-  if (!client || client.transport.name !== name && provider) {
-    client = createWalletClient({
-      chain: testnet,
-      transport: custom(provider, {
-        name: name
-      })
-    });
-  }
-  return client;
-};
-
-function number(n) {
-  if (!Number.isSafeInteger(n) || n < 0) throw new Error(`positive integer expected, not ${n}`);
-}
-// copied from utils
-function isBytes(a) {
-  return a instanceof Uint8Array || a != null && typeof a === 'object' && a.constructor.name === 'Uint8Array';
-}
-function bytes(b, ...lengths) {
-  if (!isBytes(b)) throw new Error('Uint8Array expected');
-  if (lengths.length > 0 && !lengths.includes(b.length)) throw new Error(`Uint8Array expected of length ${lengths}, not of length=${b.length}`);
-}
-function exists(instance, checkFinished = true) {
-  if (instance.destroyed) throw new Error('Hash instance has been destroyed');
-  if (checkFinished && instance.finished) throw new Error('Hash#digest() has already been called');
-}
-function output(out, instance) {
-  bytes(out);
-  const min = instance.outputLen;
-  if (out.length < min) {
-    throw new Error(`digestInto() expects output buffer of length at least ${min}`);
-  }
-}
-
-const U32_MASK64 = /* @__PURE__ */BigInt(2 ** 32 - 1);
-const _32n = /* @__PURE__ */BigInt(32);
-// We are not using BigUint64Array, because they are extremely slow as per 2022
-function fromBig(n, le = false) {
-  if (le) return {
-    h: Number(n & U32_MASK64),
-    l: Number(n >> _32n & U32_MASK64)
-  };
-  return {
-    h: Number(n >> _32n & U32_MASK64) | 0,
-    l: Number(n & U32_MASK64) | 0
-  };
-}
-function split(lst, le = false) {
-  let Ah = new Uint32Array(lst.length);
-  let Al = new Uint32Array(lst.length);
-  for (let i = 0; i < lst.length; i++) {
-    const {
-      h,
-      l
-    } = fromBig(lst[i], le);
-    [Ah[i], Al[i]] = [h, l];
-  }
-  return [Ah, Al];
-}
-// Left rotate for Shift in [1, 32)
-const rotlSH = (h, l, s) => h << s | l >>> 32 - s;
-const rotlSL = (h, l, s) => l << s | h >>> 32 - s;
-// Left rotate for Shift in (32, 64), NOTE: 32 is special case.
-const rotlBH = (h, l, s) => l << s - 32 | h >>> 64 - s;
-const rotlBL = (h, l, s) => h << s - 32 | l >>> 64 - s;
-
-/*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-// We use WebCrypto aka globalThis.crypto, which exists in browsers and node.js 16+.
-// node.js versions earlier than v19 don't declare it in global scope.
-// For node.js, package.json#exports field mapping rewrites import
-// from `crypto` to `cryptoNode`, which imports native module.
-// Makes the utils un-importable in browsers without a bundler.
-// Once node.js 18 is deprecated (2025-04-30), we can just drop the import.
-const u32 = arr => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
-const isLE = new Uint8Array(new Uint32Array([0x11223344]).buffer)[0] === 0x44;
-// The byte swap operation for uint32
-const byteSwap = word => word << 24 & 0xff000000 | word << 8 & 0xff0000 | word >>> 8 & 0xff00 | word >>> 24 & 0xff;
-// In place byte swap for Uint32Array
-function byteSwap32(arr) {
-  for (let i = 0; i < arr.length; i++) {
-    arr[i] = byteSwap(arr[i]);
-  }
-}
-/**
- * @example utf8ToBytes('abc') // new Uint8Array([97, 98, 99])
- */
-function utf8ToBytes(str) {
-  if (typeof str !== 'string') throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
-  return new Uint8Array(new TextEncoder().encode(str)); // https://bugzil.la/1681809
-}
-/**
- * Normalizes (non-hex) string or Uint8Array to Uint8Array.
- * Warning: when Uint8Array is passed, it would NOT get copied.
- * Keep in mind for future mutable operations.
- */
-function toBytes$1(data) {
-  if (typeof data === 'string') data = utf8ToBytes(data);
-  bytes(data);
-  return data;
-}
-// For runtime check if class implements interface
-class Hash {
-  // Safe version that clones internal state
-  clone() {
-    return this._cloneInto();
-  }
-}
-function wrapConstructor(hashCons) {
-  const hashC = msg => hashCons().update(toBytes$1(msg)).digest();
-  const tmp = hashCons();
-  hashC.outputLen = tmp.outputLen;
-  hashC.blockLen = tmp.blockLen;
-  hashC.create = () => hashCons();
-  return hashC;
-}
-
-// SHA3 (keccak) is based on a new design: basically, the internal state is bigger than output size.
-// It's called a sponge function.
-// Various per round constants calculations
-const SHA3_PI = [];
-const SHA3_ROTL = [];
-const _SHA3_IOTA = [];
-const _0n = /* @__PURE__ */BigInt(0);
-const _1n = /* @__PURE__ */BigInt(1);
-const _2n = /* @__PURE__ */BigInt(2);
-const _7n = /* @__PURE__ */BigInt(7);
-const _256n = /* @__PURE__ */BigInt(256);
-const _0x71n = /* @__PURE__ */BigInt(0x71);
-for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
-  // Pi
-  [x, y] = [y, (2 * x + 3 * y) % 5];
-  SHA3_PI.push(2 * (5 * y + x));
-  // Rotational
-  SHA3_ROTL.push((round + 1) * (round + 2) / 2 % 64);
-  // Iota
-  let t = _0n;
-  for (let j = 0; j < 7; j++) {
-    R = (R << _1n ^ (R >> _7n) * _0x71n) % _256n;
-    if (R & _2n) t ^= _1n << (_1n << /* @__PURE__ */BigInt(j)) - _1n;
-  }
-  _SHA3_IOTA.push(t);
-}
-const [SHA3_IOTA_H, SHA3_IOTA_L] = /* @__PURE__ */split(_SHA3_IOTA, true);
-// Left rotation (without 0, 32, 64)
-const rotlH = (h, l, s) => s > 32 ? rotlBH(h, l, s) : rotlSH(h, l, s);
-const rotlL = (h, l, s) => s > 32 ? rotlBL(h, l, s) : rotlSL(h, l, s);
-// Same as keccakf1600, but allows to skip some rounds
-function keccakP(s, rounds = 24) {
-  const B = new Uint32Array(5 * 2);
-  // NOTE: all indices are x2 since we store state as u32 instead of u64 (bigints to slow in js)
-  for (let round = 24 - rounds; round < 24; round++) {
-    // Theta θ
-    for (let x = 0; x < 10; x++) B[x] = s[x] ^ s[x + 10] ^ s[x + 20] ^ s[x + 30] ^ s[x + 40];
-    for (let x = 0; x < 10; x += 2) {
-      const idx1 = (x + 8) % 10;
-      const idx0 = (x + 2) % 10;
-      const B0 = B[idx0];
-      const B1 = B[idx0 + 1];
-      const Th = rotlH(B0, B1, 1) ^ B[idx1];
-      const Tl = rotlL(B0, B1, 1) ^ B[idx1 + 1];
-      for (let y = 0; y < 50; y += 10) {
-        s[x + y] ^= Th;
-        s[x + y + 1] ^= Tl;
-      }
-    }
-    // Rho (ρ) and Pi (π)
-    let curH = s[2];
-    let curL = s[3];
-    for (let t = 0; t < 24; t++) {
-      const shift = SHA3_ROTL[t];
-      const Th = rotlH(curH, curL, shift);
-      const Tl = rotlL(curH, curL, shift);
-      const PI = SHA3_PI[t];
-      curH = s[PI];
-      curL = s[PI + 1];
-      s[PI] = Th;
-      s[PI + 1] = Tl;
-    }
-    // Chi (χ)
-    for (let y = 0; y < 50; y += 10) {
-      for (let x = 0; x < 10; x++) B[x] = s[y + x];
-      for (let x = 0; x < 10; x++) s[y + x] ^= ~B[(x + 2) % 10] & B[(x + 4) % 10];
-    }
-    // Iota (ι)
-    s[0] ^= SHA3_IOTA_H[round];
-    s[1] ^= SHA3_IOTA_L[round];
-  }
-  B.fill(0);
-}
-class Keccak extends Hash {
-  // NOTE: we accept arguments in bytes instead of bits here.
-  constructor(blockLen, suffix, outputLen, enableXOF = false, rounds = 24) {
-    super();
-    this.blockLen = blockLen;
-    this.suffix = suffix;
-    this.outputLen = outputLen;
-    this.enableXOF = enableXOF;
-    this.rounds = rounds;
-    this.pos = 0;
-    this.posOut = 0;
-    this.finished = false;
-    this.destroyed = false;
-    // Can be passed from user as dkLen
-    number(outputLen);
-    // 1600 = 5x5 matrix of 64bit.  1600 bits === 200 bytes
-    if (0 >= this.blockLen || this.blockLen >= 200) throw new Error('Sha3 supports only keccak-f1600 function');
-    this.state = new Uint8Array(200);
-    this.state32 = u32(this.state);
-  }
-  keccak() {
-    if (!isLE) byteSwap32(this.state32);
-    keccakP(this.state32, this.rounds);
-    if (!isLE) byteSwap32(this.state32);
-    this.posOut = 0;
-    this.pos = 0;
-  }
-  update(data) {
-    exists(this);
-    const {
-      blockLen,
-      state
-    } = this;
-    data = toBytes$1(data);
-    const len = data.length;
-    for (let pos = 0; pos < len;) {
-      const take = Math.min(blockLen - this.pos, len - pos);
-      for (let i = 0; i < take; i++) state[this.pos++] ^= data[pos++];
-      if (this.pos === blockLen) this.keccak();
-    }
-    return this;
-  }
-  finish() {
-    if (this.finished) return;
-    this.finished = true;
-    const {
-      state,
-      suffix,
-      pos,
-      blockLen
-    } = this;
-    // Do the padding
-    state[pos] ^= suffix;
-    if ((suffix & 0x80) !== 0 && pos === blockLen - 1) this.keccak();
-    state[blockLen - 1] ^= 0x80;
-    this.keccak();
-  }
-  writeInto(out) {
-    exists(this, false);
-    bytes(out);
-    this.finish();
-    const bufferOut = this.state;
-    const {
-      blockLen
-    } = this;
-    for (let pos = 0, len = out.length; pos < len;) {
-      if (this.posOut >= blockLen) this.keccak();
-      const take = Math.min(blockLen - this.posOut, len - pos);
-      out.set(bufferOut.subarray(this.posOut, this.posOut + take), pos);
-      this.posOut += take;
-      pos += take;
-    }
-    return out;
-  }
-  xofInto(out) {
-    // Sha3/Keccak usage with XOF is probably mistake, only SHAKE instances can do XOF
-    if (!this.enableXOF) throw new Error('XOF is not possible for this instance');
-    return this.writeInto(out);
-  }
-  xof(bytes) {
-    number(bytes);
-    return this.xofInto(new Uint8Array(bytes));
-  }
-  digestInto(out) {
-    output(out, this);
-    if (this.finished) throw new Error('digest() was already called');
-    this.writeInto(out);
-    this.destroy();
-    return out;
-  }
-  digest() {
-    return this.digestInto(new Uint8Array(this.outputLen));
-  }
-  destroy() {
-    this.destroyed = true;
-    this.state.fill(0);
-  }
-  _cloneInto(to) {
-    const {
-      blockLen,
-      suffix,
-      outputLen,
-      rounds,
-      enableXOF
-    } = this;
-    to || (to = new Keccak(blockLen, suffix, outputLen, enableXOF, rounds));
-    to.state32.set(this.state32);
-    to.pos = this.pos;
-    to.posOut = this.posOut;
-    to.finished = this.finished;
-    to.rounds = rounds;
-    // Suffix can change in cSHAKE
-    to.suffix = suffix;
-    to.outputLen = outputLen;
-    to.enableXOF = enableXOF;
-    to.destroyed = this.destroyed;
-    return to;
-  }
-}
-const gen = (suffix, blockLen, outputLen) => wrapConstructor(() => new Keccak(blockLen, suffix, outputLen));
-/**
- * keccak-256 hash function. Different from SHA3-256.
- * @param message - that would be hashed
- */
-const keccak_256 = /* @__PURE__ */gen(0x01, 136, 256 / 8);
-
-function isHex(value, {
-  strict = true
-} = {}) {
-  if (!value) return false;
-  if (typeof value !== 'string') return false;
-  return strict ? /^0x[0-9a-fA-F]*$/.test(value) : value.startsWith('0x');
-}
-
-const version = '2.21.37';
-
-let errorConfig = {
-  getDocsUrl: ({
-    docsBaseUrl,
-    docsPath = '',
-    docsSlug
-  }) => docsPath ? `${docsBaseUrl ?? 'https://viem.sh'}${docsPath}${docsSlug ? `#${docsSlug}` : ''}` : undefined,
-  version: `viem@${version}`
-};
-class BaseError extends Error {
-  constructor(shortMessage, args = {}) {
-    const details = (() => {
-      if (args.cause instanceof BaseError) return args.cause.details;
-      if (args.cause?.message) return args.cause.message;
-      return args.details;
-    })();
-    const docsPath = (() => {
-      if (args.cause instanceof BaseError) return args.cause.docsPath || args.docsPath;
-      return args.docsPath;
-    })();
-    const docsUrl = errorConfig.getDocsUrl?.({
-      ...args,
-      docsPath
-    });
-    const message = [shortMessage || 'An error occurred.', '', ...(args.metaMessages ? [...args.metaMessages, ''] : []), ...(docsUrl ? [`Docs: ${docsUrl}`] : []), ...(details ? [`Details: ${details}`] : []), ...(errorConfig.version ? [`Version: ${errorConfig.version}`] : [])].join('\n');
-    super(message, args.cause ? {
-      cause: args.cause
-    } : undefined);
-    Object.defineProperty(this, "details", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "docsPath", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "metaMessages", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "shortMessage", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "version", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "name", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: 'BaseError'
-    });
-    this.details = details;
-    this.docsPath = docsPath;
-    this.metaMessages = args.metaMessages;
-    this.name = args.name ?? this.name;
-    this.shortMessage = shortMessage;
-    this.version = version;
-  }
-  walk(fn) {
-    return walk(this, fn);
-  }
-}
-function walk(err, fn) {
-  if (fn?.(err)) return err;
-  if (err && typeof err === 'object' && 'cause' in err) return walk(err.cause, fn);
-  return fn ? null : err;
-}
-
-class SizeExceedsPaddingSizeError extends BaseError {
-  constructor({
-    size,
-    targetSize,
-    type
-  }) {
-    super(`${type.charAt(0).toUpperCase()}${type.slice(1).toLowerCase()} size (${size}) exceeds padding size (${targetSize}).`, {
-      name: 'SizeExceedsPaddingSizeError'
-    });
-  }
-}
-
-function pad(hexOrBytes, {
-  dir,
-  size = 32
-} = {}) {
-  if (typeof hexOrBytes === 'string') return padHex(hexOrBytes, {
-    dir,
-    size
-  });
-  return padBytes(hexOrBytes, {
-    dir,
-    size
-  });
-}
-function padHex(hex_, {
-  dir,
-  size = 32
-} = {}) {
-  if (size === null) return hex_;
-  const hex = hex_.replace('0x', '');
-  if (hex.length > size * 2) throw new SizeExceedsPaddingSizeError({
-    size: Math.ceil(hex.length / 2),
-    targetSize: size,
-    type: 'hex'
-  });
-  return `0x${hex[dir === 'right' ? 'padEnd' : 'padStart'](size * 2, '0')}`;
-}
-function padBytes(bytes, {
-  dir,
-  size = 32
-} = {}) {
-  if (size === null) return bytes;
-  if (bytes.length > size) throw new SizeExceedsPaddingSizeError({
-    size: bytes.length,
-    targetSize: size,
-    type: 'bytes'
-  });
-  const paddedBytes = new Uint8Array(size);
-  for (let i = 0; i < size; i++) {
-    const padEnd = dir === 'right';
-    paddedBytes[padEnd ? i : size - i - 1] = bytes[padEnd ? i : bytes.length - i - 1];
-  }
-  return paddedBytes;
-}
-
-class IntegerOutOfRangeError extends BaseError {
-  constructor({
-    max,
-    min,
-    signed,
-    size,
-    value
-  }) {
-    super(`Number "${value}" is not in safe ${size ? `${size * 8}-bit ${signed ? 'signed' : 'unsigned'} ` : ''}integer range ${max ? `(${min} to ${max})` : `(above ${min})`}`, {
-      name: 'IntegerOutOfRangeError'
-    });
-  }
-}
-class SizeOverflowError extends BaseError {
-  constructor({
-    givenSize,
-    maxSize
-  }) {
-    super(`Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`, {
-      name: 'SizeOverflowError'
-    });
-  }
-}
-
-/**
- * @description Retrieves the size of the value (in bytes).
- *
- * @param value The value (hex or byte array) to retrieve the size of.
- * @returns The size of the value (in bytes).
- */
-function size(value) {
-  if (isHex(value, {
-    strict: false
-  })) return Math.ceil((value.length - 2) / 2);
-  return value.length;
-}
-
-function assertSize(hexOrBytes, {
-  size: size$1
-}) {
-  if (size(hexOrBytes) > size$1) throw new SizeOverflowError({
-    givenSize: size(hexOrBytes),
-    maxSize: size$1
-  });
-}
-
-/**
- * Encodes a number or bigint into a hex string
- *
- * - Docs: https://viem.sh/docs/utilities/toHex#numbertohex
- *
- * @param value Value to encode.
- * @param opts Options.
- * @returns Hex value.
- *
- * @example
- * import { numberToHex } from 'viem'
- * const data = numberToHex(420)
- * // '0x1a4'
- *
- * @example
- * import { numberToHex } from 'viem'
- * const data = numberToHex(420, { size: 32 })
- * // '0x00000000000000000000000000000000000000000000000000000000000001a4'
- */
-function numberToHex(value_, opts = {}) {
-  const {
-    signed,
-    size
-  } = opts;
-  const value = BigInt(value_);
-  let maxValue;
-  if (size) {
-    if (signed) maxValue = (1n << BigInt(size) * 8n - 1n) - 1n;else maxValue = 2n ** (BigInt(size) * 8n) - 1n;
-  } else if (typeof value_ === 'number') {
-    maxValue = BigInt(Number.MAX_SAFE_INTEGER);
-  }
-  const minValue = typeof maxValue === 'bigint' && signed ? -maxValue - 1n : 0;
-  if (maxValue && value > maxValue || value < minValue) {
-    const suffix = typeof value_ === 'bigint' ? 'n' : '';
-    throw new IntegerOutOfRangeError({
-      max: maxValue ? `${maxValue}${suffix}` : undefined,
-      min: `${minValue}${suffix}`,
-      signed,
-      size,
-      value: `${value_}${suffix}`
-    });
-  }
-  const hex = `0x${(signed && value < 0 ? (1n << BigInt(size * 8)) + BigInt(value) : value).toString(16)}`;
-  if (size) return pad(hex, {
-    size
-  });
-  return hex;
-}
-
-const encoder = /*#__PURE__*/new TextEncoder();
-/**
- * Encodes a UTF-8 string, hex value, bigint, number or boolean to a byte array.
- *
- * - Docs: https://viem.sh/docs/utilities/toBytes
- * - Example: https://viem.sh/docs/utilities/toBytes#usage
- *
- * @param value Value to encode.
- * @param opts Options.
- * @returns Byte array value.
- *
- * @example
- * import { toBytes } from 'viem'
- * const data = toBytes('Hello world')
- * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
- *
- * @example
- * import { toBytes } from 'viem'
- * const data = toBytes(420)
- * // Uint8Array([1, 164])
- *
- * @example
- * import { toBytes } from 'viem'
- * const data = toBytes(420, { size: 4 })
- * // Uint8Array([0, 0, 1, 164])
- */
-function toBytes(value, opts = {}) {
-  if (typeof value === 'number' || typeof value === 'bigint') return numberToBytes(value, opts);
-  if (typeof value === 'boolean') return boolToBytes(value, opts);
-  if (isHex(value)) return hexToBytes(value, opts);
-  return stringToBytes(value, opts);
-}
-/**
- * Encodes a boolean into a byte array.
- *
- * - Docs: https://viem.sh/docs/utilities/toBytes#booltobytes
- *
- * @param value Boolean value to encode.
- * @param opts Options.
- * @returns Byte array value.
- *
- * @example
- * import { boolToBytes } from 'viem'
- * const data = boolToBytes(true)
- * // Uint8Array([1])
- *
- * @example
- * import { boolToBytes } from 'viem'
- * const data = boolToBytes(true, { size: 32 })
- * // Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
- */
-function boolToBytes(value, opts = {}) {
-  const bytes = new Uint8Array(1);
-  bytes[0] = Number(value);
-  if (typeof opts.size === 'number') {
-    assertSize(bytes, {
-      size: opts.size
-    });
-    return pad(bytes, {
-      size: opts.size
-    });
-  }
-  return bytes;
-}
-// We use very optimized technique to convert hex string to byte array
-const charCodeMap = {
-  zero: 48,
-  nine: 57,
-  A: 65,
-  F: 70,
-  a: 97,
-  f: 102
-};
-function charCodeToBase16(char) {
-  if (char >= charCodeMap.zero && char <= charCodeMap.nine) return char - charCodeMap.zero;
-  if (char >= charCodeMap.A && char <= charCodeMap.F) return char - (charCodeMap.A - 10);
-  if (char >= charCodeMap.a && char <= charCodeMap.f) return char - (charCodeMap.a - 10);
-  return undefined;
-}
-/**
- * Encodes a hex string into a byte array.
- *
- * - Docs: https://viem.sh/docs/utilities/toBytes#hextobytes
- *
- * @param hex Hex string to encode.
- * @param opts Options.
- * @returns Byte array value.
- *
- * @example
- * import { hexToBytes } from 'viem'
- * const data = hexToBytes('0x48656c6c6f20776f726c6421')
- * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
- *
- * @example
- * import { hexToBytes } from 'viem'
- * const data = hexToBytes('0x48656c6c6f20776f726c6421', { size: 32 })
- * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
- */
-function hexToBytes(hex_, opts = {}) {
-  let hex = hex_;
-  if (opts.size) {
-    assertSize(hex, {
-      size: opts.size
-    });
-    hex = pad(hex, {
-      dir: 'right',
-      size: opts.size
-    });
-  }
-  let hexString = hex.slice(2);
-  if (hexString.length % 2) hexString = `0${hexString}`;
-  const length = hexString.length / 2;
-  const bytes = new Uint8Array(length);
-  for (let index = 0, j = 0; index < length; index++) {
-    const nibbleLeft = charCodeToBase16(hexString.charCodeAt(j++));
-    const nibbleRight = charCodeToBase16(hexString.charCodeAt(j++));
-    if (nibbleLeft === undefined || nibbleRight === undefined) {
-      throw new BaseError(`Invalid byte sequence ("${hexString[j - 2]}${hexString[j - 1]}" in "${hexString}").`);
-    }
-    bytes[index] = nibbleLeft * 16 + nibbleRight;
-  }
-  return bytes;
-}
-/**
- * Encodes a number into a byte array.
- *
- * - Docs: https://viem.sh/docs/utilities/toBytes#numbertobytes
- *
- * @param value Number to encode.
- * @param opts Options.
- * @returns Byte array value.
- *
- * @example
- * import { numberToBytes } from 'viem'
- * const data = numberToBytes(420)
- * // Uint8Array([1, 164])
- *
- * @example
- * import { numberToBytes } from 'viem'
- * const data = numberToBytes(420, { size: 4 })
- * // Uint8Array([0, 0, 1, 164])
- */
-function numberToBytes(value, opts) {
-  const hex = numberToHex(value, opts);
-  return hexToBytes(hex);
-}
-/**
- * Encodes a UTF-8 string into a byte array.
- *
- * - Docs: https://viem.sh/docs/utilities/toBytes#stringtobytes
- *
- * @param value String to encode.
- * @param opts Options.
- * @returns Byte array value.
- *
- * @example
- * import { stringToBytes } from 'viem'
- * const data = stringToBytes('Hello world!')
- * // Uint8Array([72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
- *
- * @example
- * import { stringToBytes } from 'viem'
- * const data = stringToBytes('Hello world!', { size: 32 })
- * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
- */
-function stringToBytes(value, opts = {}) {
-  const bytes = encoder.encode(value);
-  if (typeof opts.size === 'number') {
-    assertSize(bytes, {
-      size: opts.size
-    });
-    return pad(bytes, {
-      dir: 'right',
-      size: opts.size
-    });
-  }
-  return bytes;
-}
-
-function keccak256(value, to_) {
-  const bytes = keccak_256(isHex(value, {
-    strict: false
-  }) ? toBytes(value) : value);
-  return bytes;
-}
-
-class InvalidAddressError extends BaseError {
-  constructor({
-    address
-  }) {
-    super(`Address "${address}" is invalid.`, {
-      metaMessages: ['- Address must be a hex value of 20 bytes (40 hex characters).', '- Address must match its checksum counterpart.'],
-      name: 'InvalidAddressError'
-    });
-  }
-}
-
-/**
- * Map with a LRU (Least recently used) policy.
- *
- * @link https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU
- */
-class LruMap extends Map {
-  constructor(size) {
-    super();
-    Object.defineProperty(this, "maxSize", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    this.maxSize = size;
-  }
-  get(key) {
-    const value = super.get(key);
-    if (super.has(key) && value !== undefined) {
-      this.delete(key);
-      super.set(key, value);
-    }
-    return value;
-  }
-  set(key, value) {
-    super.set(key, value);
-    if (this.maxSize && this.size > this.maxSize) {
-      const firstKey = this.keys().next().value;
-      if (firstKey) this.delete(firstKey);
-    }
-    return this;
-  }
-}
-
-const checksumAddressCache = /*#__PURE__*/new LruMap(8192);
-function checksumAddress(address_,
-/**
- * Warning: EIP-1191 checksum addresses are generally not backwards compatible with the
- * wider Ethereum ecosystem, meaning it will break when validated against an application/tool
- * that relies on EIP-55 checksum encoding (checksum without chainId).
- *
- * It is highly recommended to not use this feature unless you
- * know what you are doing.
- *
- * See more: https://github.com/ethereum/EIPs/issues/1121
- */
-chainId) {
-  if (checksumAddressCache.has(`${address_}.${chainId}`)) return checksumAddressCache.get(`${address_}.${chainId}`);
-  const hexAddress = address_.substring(2).toLowerCase();
-  const hash = keccak256(stringToBytes(hexAddress));
-  const address = (hexAddress).split('');
-  for (let i = 0; i < 40; i += 2) {
-    if (hash[i >> 1] >> 4 >= 8 && address[i]) {
-      address[i] = address[i].toUpperCase();
-    }
-    if ((hash[i >> 1] & 0x0f) >= 8 && address[i + 1]) {
-      address[i + 1] = address[i + 1].toUpperCase();
-    }
-  }
-  const result = `0x${address.join('')}`;
-  checksumAddressCache.set(`${address_}.${chainId}`, result);
-  return result;
-}
-function getAddress(address,
-/**
- * Warning: EIP-1191 checksum addresses are generally not backwards compatible with the
- * wider Ethereum ecosystem, meaning it will break when validated against an application/tool
- * that relies on EIP-55 checksum encoding (checksum without chainId).
- *
- * It is highly recommended to not use this feature unless you
- * know what you are doing.
- *
- * See more: https://github.com/ethereum/EIPs/issues/1121
- */
-chainId) {
-  if (!isAddress(address, {
-    strict: false
-  })) throw new InvalidAddressError({
-    address
-  });
-  return checksumAddress(address, chainId);
-}
-
-const addressRegex = /^0x[a-fA-F0-9]{40}$/;
-/** @internal */
-const isAddressCache = /*#__PURE__*/new LruMap(8192);
-function isAddress(address, options) {
-  const {
-    strict = true
-  } = options ?? {};
-  const cacheKey = `${address}.${strict}`;
-  if (isAddressCache.has(cacheKey)) return isAddressCache.get(cacheKey);
-  const result = (() => {
-    if (!addressRegex.test(address)) return false;
-    if (address.toLowerCase() === address) return true;
-    if (strict) return checksumAddress(address) === address;
-    return true;
-  })();
-  isAddressCache.set(cacheKey, result);
-  return result;
-}
-
-class SiweInvalidMessageFieldError extends BaseError {
-  constructor(parameters) {
-    const {
-      docsPath,
-      field,
-      metaMessages
-    } = parameters;
-    super(`Invalid Sign-In with Ethereum message field "${field}".`, {
-      docsPath,
-      metaMessages,
-      name: 'SiweInvalidMessageFieldError'
-    });
-  }
-}
-
-function isUri(value) {
-  // based on https://github.com/ogt/valid-url
-  // check for illegal characters
-  if (/[^a-z0-9\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\.\-\_\~\%]/i.test(value)) return false;
-  // check for hex escapes that aren't complete
-  if (/%[^0-9a-f]/i.test(value)) return false;
-  if (/%[0-9a-f](:?[^0-9a-f]|$)/i.test(value)) return false;
-  // from RFC 3986
-  const splitted = splitUri(value);
-  const scheme = splitted[1];
-  const authority = splitted[2];
-  const path = splitted[3];
-  const query = splitted[4];
-  const fragment = splitted[5];
-  // scheme and path are required, though the path can be empty
-  if (!(scheme?.length && path.length >= 0)) return false;
-  // if authority is present, the path must be empty or begin with a /
-  if (authority?.length) {
-    if (!(path.length === 0 || /^\//.test(path))) return false;
-  } else {
-    // if authority is not present, the path must not start with //
-    if (/^\/\//.test(path)) return false;
-  }
-  // scheme must begin with a letter, then consist of letters, digits, +, ., or -
-  if (!/^[a-z][a-z0-9\+\-\.]*$/.test(scheme.toLowerCase())) return false;
-  let out = '';
-  // re-assemble the URL per section 5.3 in RFC 3986
-  out += `${scheme}:`;
-  if (authority?.length) out += `//${authority}`;
-  out += path;
-  if (query?.length) out += `?${query}`;
-  if (fragment?.length) out += `#${fragment}`;
-  return out;
-}
-function splitUri(value) {
-  return value.match(/(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/);
-}
-
-/**
- * @description Creates EIP-4361 formatted message.
- *
- * @example
- * const message = createMessage({
- *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
- *   chainId: 1,
- *   domain: 'example.com',
- *   nonce: 'foobarbaz',
- *   uri: 'https://example.com/path',
- *   version: '1',
- * })
- *
- * @see https://eips.ethereum.org/EIPS/eip-4361
- */
-function createSiweMessage(parameters) {
-  const {
-    chainId,
-    domain,
-    expirationTime,
-    issuedAt = new Date(),
-    nonce,
-    notBefore,
-    requestId,
-    resources,
-    scheme,
-    uri,
-    version
-  } = parameters;
-  // Validate fields
-  {
-    // Required fields
-    if (chainId !== Math.floor(chainId)) throw new SiweInvalidMessageFieldError({
-      field: 'chainId',
-      metaMessages: ['- Chain ID must be a EIP-155 chain ID.', '- See https://eips.ethereum.org/EIPS/eip-155', '', `Provided value: ${chainId}`]
-    });
-    if (!(domainRegex.test(domain) || ipRegex.test(domain) || localhostRegex.test(domain))) throw new SiweInvalidMessageFieldError({
-      field: 'domain',
-      metaMessages: ['- Domain must be an RFC 3986 authority.', '- See https://www.rfc-editor.org/rfc/rfc3986', '', `Provided value: ${domain}`]
-    });
-    if (!nonceRegex.test(nonce)) throw new SiweInvalidMessageFieldError({
-      field: 'nonce',
-      metaMessages: ['- Nonce must be at least 8 characters.', '- Nonce must be alphanumeric.', '', `Provided value: ${nonce}`]
-    });
-    if (!isUri(uri)) throw new SiweInvalidMessageFieldError({
-      field: 'uri',
-      metaMessages: ['- URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.', '- See https://www.rfc-editor.org/rfc/rfc3986', '', `Provided value: ${uri}`]
-    });
-    if (version !== '1') throw new SiweInvalidMessageFieldError({
-      field: 'version',
-      metaMessages: ["- Version must be '1'.", '', `Provided value: ${version}`]
-    });
-    // Optional fields
-    if (scheme && !schemeRegex.test(scheme)) throw new SiweInvalidMessageFieldError({
-      field: 'scheme',
-      metaMessages: ['- Scheme must be an RFC 3986 URI scheme.', '- See https://www.rfc-editor.org/rfc/rfc3986#section-3.1', '', `Provided value: ${scheme}`]
-    });
-    const statement = parameters.statement;
-    if (statement?.includes('\n')) throw new SiweInvalidMessageFieldError({
-      field: 'statement',
-      metaMessages: ["- Statement must not include '\\n'.", '', `Provided value: ${statement}`]
-    });
-  }
-  // Construct message
-  const address = getAddress(parameters.address);
-  const origin = (() => {
-    if (scheme) return `${scheme}://${domain}`;
-    return domain;
-  })();
-  const statement = (() => {
-    if (!parameters.statement) return '';
-    return `${parameters.statement}\n`;
-  })();
-  const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n\n${statement}`;
-  let suffix = `URI: ${uri}\nVersion: ${version}\nChain ID: ${chainId}\nNonce: ${nonce}\nIssued At: ${issuedAt.toISOString()}`;
-  if (expirationTime) suffix += `\nExpiration Time: ${expirationTime.toISOString()}`;
-  if (notBefore) suffix += `\nNot Before: ${notBefore.toISOString()}`;
-  if (requestId) suffix += `\nRequest ID: ${requestId}`;
-  if (resources) {
-    let content = '\nResources:';
-    for (const resource of resources) {
-      if (!isUri(resource)) throw new SiweInvalidMessageFieldError({
-        field: 'resources',
-        metaMessages: ['- Every resource must be a RFC 3986 URI.', '- See https://www.rfc-editor.org/rfc/rfc3986', '', `Provided value: ${resource}`]
-      });
-      content += `\n- ${resource}`;
-    }
-    suffix += content;
-  }
-  return `${prefix}\n${suffix}`;
-}
-const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(:[0-9]{1,5})?$/;
-const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$/;
-const localhostRegex = /^localhost(:[0-9]{1,5})?$/;
-const nonceRegex = /^[a-zA-Z0-9]{8,}$/;
-const schemeRegex = /^([a-zA-Z][a-zA-Z0-9+-.]*)$/;
-
-var constants = {
-  SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
-  AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev"
-};
-
-let providers = [];
-const providerStore = {
-  value: () => providers,
-  subscribe: callback => {
-    function onAnnouncement(event) {
-      if (providers.some(p => p.info.uuid === event.detail.info.uuid)) return;
-      providers = [...providers, event.detail];
-      callback(providers);
-    }
-    if (typeof window === "undefined") return;
-    window.addEventListener("eip6963:announceProvider", onAnnouncement);
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-    return () => window.removeEventListener("eip6963:announceProvider", onAnnouncement);
-  }
-};
-
+   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new a("API key is required for fetching data",401);try{return await r(t,{"x-api-key":this.apiKey})}catch(t){throw new a(t.message,t.statusCode)}}}const l={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let u=null;const w=(t,i="window.ethereum")=>t||u?((!u||u.transport.name!==i&&t)&&(u=e({chain:l,transport:s(t,{name:i})})),u):(console.warn("Provider is required to create a client."),null);var f="Connect with Camp Network",m="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let p=[];const y=()=>p,g=t=>{function e(e){p.some((t=>t.info.uuid===e.detail.info.uuid))||(p=[...p,e.detail],t(p))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};
 /**
  * The Auth class.
  * @class
  * @classdesc The Auth class is used to authenticate the user.
- */
-class Auth {
-  /**
+ */class A{
+/**
    * Constructor for the Auth class.
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
    * @param {string} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-  #triggers;
-  constructor({
-    clientId,
-    redirectUri
-  }) {
-    if (!clientId) {
-      throw new Error("clientId is required");
-    }
-    if (typeof window !== "undefined") {
-      this.viem = getClient(window.ethereum);
-      if (!redirectUri) {
-        redirectUri = window.location.href;
-      }
-    } else {
-      this.viem = null;
-    }
-    this.clientId = clientId;
-    this.redirectUri = redirectUri;
-    this.isAuthenticated = false;
-    this.jwt = null;
-    this.walletAddress = null;
-    this.userId = null;
-    this.#triggers = [];
-    providerStore.subscribe(providers => {
-      this.#trigger("providers", providers);
-    });
-    this.#loadAuthStatusFromStorage();
-  }
-
-  /**
+#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");"undefined"!=typeof window?(this.viem=w(window.ethereum),e||(e=window.location.href)):this.viem=null,this.clientId=t,this.redirectUri=e,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],g((t=>{this.#e("providers",t)})),this.#s()}
+/**
    * Subscribe to an event. Possible events are "state", "provider", and "providers".
    * @param {("state"|"provider"|"providers")} event The event.
    * @param {function} callback The callback function.
@@ -1513,246 +206,71 @@ class Auth {
    * auth.on("state", (state) => {
    *  console.log(state);
    * });
-   */
-  on(event, callback) {
-    if (!this.#triggers[event]) {
-      this.#triggers[event] = [];
-    }
-    this.#triggers[event].push(callback);
-    if (event === "providers") {
-      callback(providerStore.value());
-    }
-  }
-
-  /**
+   */on(t,e){this.#t[t]||(this.#t[t]=[]),this.#t[t].push(e),"providers"===t&&e(y())}
+/**
    * Trigger an event.
    * @private
    * @param {string} event The event.
    * @param {object} data The data.
    * @returns {void}
-   */
-  #trigger(event, data) {
-    if (this.#triggers[event]) {
-      this.#triggers[event].forEach(callback => callback(data));
-    }
-  }
-
-  /**
+   */#e(t,e){this.#t[t]&&this.#t[t].forEach((t=>t(e)))}
+/**
    * Set the loading state.
    * @param {boolean} loading The loading state.
    * @returns {void}
-   */
-  setLoading(loading) {
-    this.#trigger("state", loading ? "loading" : this.isAuthenticated ? "authenticated" : "unauthenticated");
-  }
-
-  /**
+   */setLoading(t){this.#e("state",t?"loading":this.isAuthenticated?"authenticated":"unauthenticated")}
+/**
    * Set the provider. This is useful for setting the provider when the user selects a provider from the UI or when dApp wishes to use a specific provider.
    * @param {object} options The options object. Includes the provider and the provider info.
    * @returns {void}
    * @throws {APIError} - Throws an error if the provider is not provided.
-   */
-  setProvider({
-    provider,
-    info
-  }) {
-    if (!provider) {
-      throw new APIError("provider is required");
-    }
-    this.viem = getClient(provider, info.name);
-    this.#trigger("provider", {
-      provider,
-      info
-    });
-  }
-
-  /**
+   */setProvider({provider:t,info:e}){if(!t)throw new a("provider is required");this.viem=w(t,e.name),this.#e("provider",{provider:t,info:e})}
+/**
    * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
    * @param {string} walletAddress The wallet address.
    * @returns {void}
-   */
-  setWalletAddress(walletAddress) {
-    this.walletAddress = walletAddress;
-  }
-
-  /**
+   */setWalletAddress(t){this.walletAddress=t}
+/**
    * Load the authentication status from local storage.
    * @private
    * @returns {void}
-   */
-  #loadAuthStatusFromStorage() {
-    if (typeof localStorage === "undefined") {
-      return;
-    }
-    const walletAddress = localStorage?.getItem("camp-sdk:wallet-address");
-    const userId = localStorage?.getItem("camp-sdk:user-id");
-    const jwt = localStorage?.getItem("camp-sdk:jwt");
-    if (walletAddress && userId && jwt) {
-      this.walletAddress = walletAddress;
-      this.userId = userId;
-      this.jwt = jwt;
-      this.isAuthenticated = true;
-    } else {
-      this.isAuthenticated = false;
-    }
-  }
-
-  /**
+   */#s(){if("undefined"==typeof localStorage)return;const t=localStorage?.getItem("camp-sdk:wallet-address"),e=localStorage?.getItem("camp-sdk:user-id"),s=localStorage?.getItem("camp-sdk:jwt");t&&e&&s?(this.walletAddress=t,this.userId=e,this.jwt=s,this.isAuthenticated=!0):this.isAuthenticated=!1}
+/**
    * Request the user to connect their wallet.
    * @private
    * @returns {Promise<void>} A promise that resolves when the user connects their wallet.
    * @throws {APIError} - Throws an error if the user does not connect their wallet.
-   */
-  async #requestAccount() {
-    try {
-      const [account] = await this.viem.requestAddresses();
-      this.walletAddress = account;
-      return account;
-    } catch (e) {
-      throw new APIError(e);
-    }
-  }
-
-  /**
+   */async#i(){try{const[t]=await this.viem.requestAddresses();return this.walletAddress=t,t}catch(t){throw new a(t)}}
+/**
    * Fetch the nonce from the server.
    * @private
    * @returns {Promise<string>} A promise that resolves with the nonce.
    * @throws {APIError} - Throws an error if the nonce cannot be fetched.
-   */
-  async #fetchNonce() {
-    try {
-      const res = await fetch(`${constants.AUTH_HUB_BASE_API}/auth/client-user/nonce`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-client-id": this.clientId
-        },
-        body: JSON.stringify({
-          walletAddress: this.walletAddress
-        })
-      });
-      const data = await res.json();
-      if (res.status !== 200) {
-        return Promise.reject(data.message || "Failed to fetch nonce");
-      }
-      return data.data;
-    } catch (e) {
-      throw new Error(e);
-    }
-  }
-
-  /**
+   */async#a(){try{const t=await fetch(`${m}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=await t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}
+/**
    * Verify the signature.
    * @private
    * @param {string} message The message.
    * @param {string} signature The signature.
    * @returns {Promise<object>} A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
-   */
-  async #verifySignature(message, signature) {
-    try {
-      const res = await fetch(`${constants.AUTH_HUB_BASE_API}/auth/client-user/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-client-id": this.clientId
-        },
-        body: JSON.stringify({
-          message,
-          signature,
-          walletAddress: this.walletAddress
-        })
-      });
-      const data = await res.json();
-      const payload = data.data.split(".")[1];
-      const decoded = JSON.parse(atob(payload));
-      return {
-        success: !data.isError,
-        userId: decoded.id,
-        token: data.data
-      };
-    } catch (e) {
-      throw new APIError(e);
-    }
-  }
-
-  /**
+   */async#r(t,e){try{const s=await fetch(`${m}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=await s.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(t){throw new a(t)}}
+/**
    * Create the SIWE message.
    * @private
    * @param {string} nonce The nonce.
    * @returns {string} The EIP-4361 formatted message.
-   */
-  #createMessage(nonce) {
-    return createSiweMessage({
-      domain: window.location.host,
-      address: this.walletAddress,
-      statement: constants.SIWE_MESSAGE_STATEMENT,
-      uri: window.location.origin,
-      version: "1",
-      chainId: this.viem.chain.id,
-      nonce: nonce
-    });
-  }
-
-  /**
+   */#n(t){return i({domain:window.location.host,address:this.walletAddress,statement:f,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})}
+/**
    * Disconnect the user.
    * @returns {void}
-   */
-  async disconnect() {
-    this.isAuthenticated = false;
-    this.walletAddress = null;
-    this.userId = null;
-    this.jwt = null;
-    localStorage.removeItem("camp-sdk:wallet-address");
-    localStorage.removeItem("camp-sdk:user-id");
-    localStorage.removeItem("camp-sdk:jwt");
-    this.#trigger("state", "unauthenticated");
-  }
-
-  /**
+   */async disconnect(){this.isAuthenticated=!1,this.walletAddress=null,this.userId=null,this.jwt=null,localStorage.removeItem("camp-sdk:wallet-address"),localStorage.removeItem("camp-sdk:user-id"),localStorage.removeItem("camp-sdk:jwt"),this.#e("state","unauthenticated")}
+/**
    * Connect the user's wallet and sign the message.
    * @returns {Promise<object>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
-   */
-  async connect() {
-    this.#trigger("state", "loading");
-    try {
-      if (!this.walletAddress) {
-        await this.#requestAccount();
-      }
-      const nonce = await this.#fetchNonce();
-      const message = this.#createMessage(nonce);
-      const signature = await this.viem.signMessage({
-        account: this.walletAddress,
-        message: message
-      });
-      const res = await this.#verifySignature(message, signature, nonce);
-      if (res.success) {
-        this.isAuthenticated = true;
-        this.userId = res.userId;
-        this.jwt = res.token;
-        localStorage.setItem("camp-sdk:jwt", this.jwt);
-        localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
-        localStorage.setItem("camp-sdk:user-id", this.userId);
-        this.#trigger("state", "authenticated");
-        return {
-          success: true,
-          message: "Successfully authenticated",
-          walletAddress: this.walletAddress
-        };
-      } else {
-        this.isAuthenticated = false;
-        this.#trigger("state", "unauthenticated");
-        throw new APIError("Failed to authenticate");
-      }
-    } catch (e) {
-      this.isAuthenticated = false;
-      this.#trigger("state", "unauthenticated");
-      throw new APIError(e);
-    }
-  }
-
-  /**
+   */async connect(){this.#e("state","loading");try{this.walletAddress||await this.#i();const t=await this.#a(),e=this.#n(t),s=await this.viem.signMessage({account:this.walletAddress,message:e}),i=await this.#r(e,s,t);if(i.success)return this.isAuthenticated=!0,this.userId=i.userId,this.jwt=i.token,localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),this.#e("state","authenticated"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new a("Failed to authenticate")}catch(t){throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new a(t)}}
+/**
    * Get the user's linked social accounts.
    * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
    * @throws {APIError} - Throws an error if the user is not authenticated or if the request fails.
@@ -1760,141 +278,28 @@ class Auth {
    * const auth = new Auth({ clientId: "your-client-id" });
    * const socials = await auth.getLinkedSocials();
    * console.log(socials);
-   */
-  async getLinkedSocials() {
-    if (!this.isAuthenticated) throw new APIError("User needs to be authenticated");
-    const connections = await fetch(`${constants.AUTH_HUB_BASE_API}/auth/client-user/connections-sdk`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json"
-      }
-    }).then(res => res.json());
-    if (!connections.isError) {
-      const socials = {};
-      Object.keys(connections.data.data).forEach(key => {
-        socials[key.split("User")[0]] = connections.data.data[key];
-      });
-      return socials;
-    } else {
-      throw new APIError(connections.message || "Failed to fetch connections");
-    }
-  }
-
-  /**
+   */async getLinkedSocials(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");const t=await fetch(`${m}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new a(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((s=>{e[s.split("User")[0]]=t.data.data[s]})),e}}
+/**
    * Link the user's Twitter account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */
-  linkTwitter() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
-  }
-
-  /**
+   */linkTwitter(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");window.location.href=`${m}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+/**
    * Link the user's Discord account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */
-  linkDiscord() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
-  }
-
-  /**
+   */linkDiscord(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");window.location.href=`${m}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+/**
    * Link the user's Spotify account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */
-  linkSpotify() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
-  }
-
-  /**
+   */linkSpotify(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");window.location.href=`${m}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+/**
    * Unlink the user's Twitter account.
-   */
-  async unlinkTwitter() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`, {
-      method: "POST",
-      redirect: "follow",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: this.userId
-      })
-    }).then(res => res.json());
-    if (!data.isError) {
-      return data.data;
-    } else {
-      throw new APIError(data.message || "Failed to unlink Twitter account");
-    }
-  }
-
-  /**
+   */async unlinkTwitter(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");const t=await fetch(`${m}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new a(t.message||"Failed to unlink Twitter account");return t.data}
+/**
    * Unlink the user's Discord account.
-   */
-  async unlinkDiscord() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/discord/disconnect-sdk`, {
-      method: "POST",
-      redirect: "follow",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: this.userId
-      })
-    }).then(res => res.json());
-    if (!data.isError) {
-      return data.data;
-    } else {
-      throw new APIError(data.message || "Failed to unlink Discord account");
-    }
-  }
-
-  /**
+   */async unlinkDiscord(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");const t=await fetch(`${m}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new a(t.message||"Failed to unlink Discord account");return t.data}
+/**
    * Unlink the user's Spotify account.
-   */
-  async unlinkSpotify() {
-    if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
-    }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`, {
-      method: "POST",
-      redirect: "follow",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: this.userId
-      })
-    }).then(res => res.json());
-    if (!data.isError) {
-      return data.data;
-    } else {
-      throw new APIError(data.message || "Failed to unlink Spotify account");
-    }
-  }
-}
-
-export { Auth, SpotifyAPI, TwitterAPI };
+   */async unlinkSpotify(){if(!this.isAuthenticated)throw new a("User needs to be authenticated");const t=await fetch(`${m}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new a(t.message||"Failed to unlink Spotify account");return t.data}}export{A as Auth,d as SpotifyAPI,h as TwitterAPI};

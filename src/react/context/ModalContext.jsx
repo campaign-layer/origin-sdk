@@ -1,5 +1,4 @@
-import React from "react";
-import { createContext } from "react";
+import React, { useState, createContext } from "react";
 
 export const ModalContext = createContext({
   isVisible: false,
@@ -7,7 +6,7 @@ export const ModalContext = createContext({
 });
 
 export const ModalProvider = ({ children }) => {
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   return (
     <ModalContext.Provider
       value={{

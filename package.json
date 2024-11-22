@@ -7,8 +7,8 @@
       "import": "./dist/core.esm.js",
       "require": "./dist/core.cjs.js"
     },
-    "./react": "./src/react/index.js",
-    "./react/auth": "./src/react/auth/index.jsx"
+    "./react/auth": "./dist/react/index.esm.js",
+    "./react": "./dist/react/index.esm.js"
   },
   "scripts": {
     "build": "rollup -c",
@@ -48,13 +48,14 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^28.0.1",
-    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
+    "autoprefixer": "^10.4.20",
     "husky": "^9.1.6",
     "rollup": "^4.24.3",
     "rollup-plugin-polyfill-node": "^0.13.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^5.6.3"
   }
 }

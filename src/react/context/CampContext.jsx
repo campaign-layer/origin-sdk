@@ -1,5 +1,4 @@
-import React from "react";
-import { createContext } from "react";
+import React, { useState, useContext, createContext } from "react";
 import { Auth } from "../../auth/index.js";
 import { ModalProvider } from "./ModalContext.jsx";
 import { WagmiContext } from "wagmi";
@@ -12,9 +11,9 @@ const CampContext = createContext({
 });
 
 const CampProvider = ({ clientId, redirectUri, children }) => {
-  const [auth, setAuth] = React.useState(new Auth({ clientId, redirectUri }));
+  const [auth, setAuth] = useState(new Auth({ clientId, redirectUri }));
 
-  const wagmiContext = React.useContext(WagmiContext);
+  const wagmiContext = useContext(WagmiContext);
 
   return (
     <CampContext.Provider
