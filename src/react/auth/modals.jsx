@@ -1,4 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   useAuthState,
   useConnect,
@@ -12,6 +16,7 @@ import { CampContext } from "../context/CampContext.jsx";
 import { formatAddress } from "../../utils.js";
 import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
+import { ClientOnly, ReactPortal } from "../utils.js";
 
 const getIconByConnectorName = (name) => {
   switch (name) {
@@ -317,24 +322,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   );
 };
 
-/**
- * The ClientOnly component. Renders children only on the client. Needed for Next.js.
- * @param { { children: JSX.Element } } props The props.
- * @returns { JSX.Element } The ClientOnly component.
- */
-function ClientOnly({ children, ...delegated }) {
-  const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return null;
-  }
-
-  return <div {...delegated}>{children}</div>;
-}
 
 /**
  * The CampModal component.
@@ -397,26 +385,28 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
             authenticated={authenticated}
           />
         )}
-        {isVisible && (
-          <div
-            className={styles.modal}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setIsVisible(false);
-              }
-            }}
-          >
-            {authenticated ? (
-              <MyCampModal wcProvider={walletConnectProvider} />
-            ) : (
-              <AuthModal
-                setIsVisible={setIsVisible}
-                wcProvider={walletConnectProvider}
-                loading={loading}
-              />
-            )}
-          </div>
-        )}
+        <ReactPortal wrapperId="camp-modal-wrapper">
+          {isVisible && (
+            <div
+              className={styles.modal}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setIsVisible(false);
+                }
+              }}
+            >
+              {authenticated ? (
+                <MyCampModal wcProvider={walletConnectProvider} />
+              ) : (
+                <AuthModal
+                  setIsVisible={setIsVisible}
+                  wcProvider={walletConnectProvider}
+                  loading={loading}
+                />
+              )}
+            </div>
+          )}
+        </ReactPortal>
       </div>
     </ClientOnly>
   );

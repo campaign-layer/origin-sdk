@@ -2,7 +2,7 @@
 
 .modal {
   position: fixed;
-  z-index: 50;
+  z-index: 50000;
   left: 0;
   top: 0;
   width: 100%;
@@ -110,6 +110,8 @@
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #f1f1f1;
 }
 
 .provider-list.big {

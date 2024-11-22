@@ -1,11 +1,12 @@
 'use client';
-import React, { createContext, useState, useContext, useEffect, useSyncExternalStore } from 'react';
+import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
 import { useQuery } from '@tanstack/react-query';
 import 'axios';
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
+import { createPortal } from 'react-dom';
 
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -1222,7 +1223,7 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:50}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_provider-button__R1Zrg{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.auth-module_provider-button__R1Zrg:focus{outline:1px solid #43b7c4}.auth-module_provider-button__R1Zrg:hover{border-color:#43b7c4}.auth-module_provider-button__R1Zrg:hover:not(:disabled){background-color:#ddd;cursor:pointer}.auth-module_provider-button__R1Zrg img{height:2rem;width:2rem}.auth-module_provider-button__R1Zrg .auth-module_provider-icon__xWrdE{border-radius:.2rem}.auth-module_provider-button__R1Zrg span{line-height:1rem;margin-left:.5rem}.auth-module_provider-button__R1Zrg span.auth-module_provider-name__KIaDQ{color:#333;font-size:.875rem}.auth-module_provider-button__R1Zrg span.auth-module_provider-label__FeZGs{color:#777;font-size:.7rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{height:5rem;width:5rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_connect-button__Xxdra{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.auth-module_connect-button__Xxdra .auth-module_button-icon__02zOF{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.auth-module_connect-button__Xxdra .auth-module_button-icon__02zOF svg{height:1.25rem;width:1.25rem}.auth-module_connect-button__Xxdra:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.auth-module_connect-button__Xxdra:hover .auth-module_button-icon__02zOF{background:hsla(0,0%,100%,.675)}.auth-module_connect-button__Xxdra:focus{outline:none}.auth-module_connect-button__Xxdra:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}";
+var css_248z = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:50000}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_provider-button__R1Zrg{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.auth-module_provider-button__R1Zrg:focus{outline:1px solid #43b7c4}.auth-module_provider-button__R1Zrg:hover{border-color:#43b7c4}.auth-module_provider-button__R1Zrg:hover:not(:disabled){background-color:#ddd;cursor:pointer}.auth-module_provider-button__R1Zrg img{height:2rem;width:2rem}.auth-module_provider-button__R1Zrg .auth-module_provider-icon__xWrdE{border-radius:.2rem}.auth-module_provider-button__R1Zrg span{line-height:1rem;margin-left:.5rem}.auth-module_provider-button__R1Zrg span.auth-module_provider-name__KIaDQ{color:#333;font-size:.875rem}.auth-module_provider-button__R1Zrg span.auth-module_provider-label__FeZGs{color:#777;font-size:.7rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{height:5rem;width:5rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_connect-button__Xxdra{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.auth-module_connect-button__Xxdra .auth-module_button-icon__02zOF{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.auth-module_connect-button__Xxdra .auth-module_button-icon__02zOF svg{height:1.25rem;width:1.25rem}.auth-module_connect-button__Xxdra:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.auth-module_connect-button__Xxdra:hover .auth-module_button-icon__02zOF{background:hsla(0,0%,100%,.675)}.auth-module_connect-button__Xxdra:focus{outline:none}.auth-module_connect-button__Xxdra:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}";
 var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","provider-button":"auth-module_provider-button__R1Zrg","provider-icon":"auth-module_provider-icon__xWrdE","provider-name":"auth-module_provider-name__KIaDQ","provider-label":"auth-module_provider-label__FeZGs","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","connect-button":"auth-module_connect-button__Xxdra","button-icon":"auth-module_button-icon__02zOF","disconnect-button":"auth-module_disconnect-button__bsu-3","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me"};
 styleInject(css_248z);
 
@@ -1297,6 +1298,71 @@ var useWalletConnectProvider = function useWalletConnectProvider(projectId) {
 };
 
 var _excluded = ["children"];
+
+/**
+ * Creates a wrapper element and appends it to the body.
+ * @param { string } wrapperId The wrapper ID.
+ * @returns { HTMLElement } The wrapper element.
+ */
+var createWrapperAndAppendToBody = function createWrapperAndAppendToBody(wrapperId) {
+  var wrapperElement = document.createElement("div");
+  wrapperElement.setAttribute("id", wrapperId);
+  document.body.appendChild(wrapperElement);
+  return wrapperElement;
+};
+
+/**
+ * The ReactPortal component. Renders children in a portal.
+ * @param { { children: JSX.Element, wrapperId: string } } props The props.
+ * @returns { JSX.Element } The ReactPortal component.
+ */
+var ReactPortal = function ReactPortal(_ref) {
+  var children = _ref.children,
+    _ref$wrapperId = _ref.wrapperId,
+    wrapperId = _ref$wrapperId === void 0 ? "react-portal-wrapper" : _ref$wrapperId;
+  var _useState = useState(null),
+    _useState2 = _slicedToArray(_useState, 2),
+    wrapperElement = _useState2[0],
+    setWrapperElement = _useState2[1];
+  useLayoutEffect(function () {
+    var element = document.getElementById(wrapperId);
+    var systemCreated = false;
+    if (!element) {
+      systemCreated = true;
+      element = createWrapperAndAppendToBody(wrapperId);
+    }
+    setWrapperElement(element);
+    return function () {
+      if (systemCreated && element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    };
+  }, [wrapperId]);
+  if (wrapperElement === null) return null;
+  return /*#__PURE__*/createPortal(children, wrapperElement);
+};
+
+/**
+ * The ClientOnly component. Renders children only on the client. Needed for Next.js.
+ * @param { { children: JSX.Element } } props The props.
+ * @returns { JSX.Element } The ClientOnly component.
+ */
+var ClientOnly = function ClientOnly(_ref2) {
+  var children = _ref2.children,
+    delegated = _objectWithoutProperties(_ref2, _excluded);
+  var _useState3 = useState(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    hasMounted = _useState4[0],
+    setHasMounted = _useState4[1];
+  useEffect(function () {
+    setHasMounted(true);
+  }, []);
+  if (!hasMounted) {
+    return null;
+  }
+  return /*#__PURE__*/React.createElement("div", delegated, children);
+};
+
 var getIconByConnectorName = function getIconByConnectorName(name) {
   switch (name) {
     case "AppKit Auth":
@@ -1612,39 +1678,18 @@ var AuthModal = function AuthModal(_ref3) {
 };
 
 /**
- * The ClientOnly component. Renders children only on the client. Needed for Next.js.
- * @param { { children: JSX.Element } } props The props.
- * @returns { JSX.Element } The ClientOnly component.
- */
-function ClientOnly(_ref7) {
-  var children = _ref7.children,
-    delegated = _objectWithoutProperties(_ref7, _excluded);
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    hasMounted = _useState6[0],
-    setHasMounted = _useState6[1];
-  useEffect(function () {
-    setHasMounted(true);
-  }, []);
-  if (!hasMounted) {
-    return null;
-  }
-  return /*#__PURE__*/React.createElement("div", delegated, children);
-}
-
-/**
  * The CampModal component.
  * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-var CampModal = function CampModal(_ref8) {
-  var _ref8$injectButton = _ref8.injectButton,
-    injectButton = _ref8$injectButton === void 0 ? true : _ref8$injectButton,
-    wcProjectId = _ref8.wcProjectId;
-  var _useState7 = useState(false),
-    _useState8 = _slicedToArray(_useState7, 2),
-    isButtonDisabled = _useState8[0],
-    setIsButtonDisabled = _useState8[1];
+var CampModal = function CampModal(_ref7) {
+  var _ref7$injectButton = _ref7.injectButton,
+    injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
+    wcProjectId = _ref7.wcProjectId;
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    isButtonDisabled = _useState6[0],
+    setIsButtonDisabled = _useState6[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1683,7 +1728,9 @@ var CampModal = function CampModal(_ref8) {
     disabled: isButtonDisabled,
     onClick: handleModalButton,
     authenticated: authenticated
-  }), isVisible && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(ReactPortal, {
+    wrapperId: "camp-modal-wrapper"
+  }, isVisible && /*#__PURE__*/React.createElement("div", {
     className: styles.modal,
     onClick: function onClick(e) {
       if (e.target === e.currentTarget) {
@@ -1696,24 +1743,24 @@ var CampModal = function CampModal(_ref8) {
     setIsVisible: setIsVisible,
     wcProvider: walletConnectProvider,
     loading: loading
-  }))));
+  })))));
 };
-var ConnectorButton = function ConnectorButton(_ref9) {
-  var name = _ref9.name,
-    link = _ref9.link,
-    unlink = _ref9.unlink,
-    icon = _ref9.icon,
-    isConnected = _ref9.isConnected,
-    refetch = _ref9.refetch;
-  var _useState9 = useState(false),
-    _useState10 = _slicedToArray(_useState9, 2),
-    isUnlinking = _useState10[0],
-    setIsUnlinking = _useState10[1];
+var ConnectorButton = function ConnectorButton(_ref8) {
+  var name = _ref8.name,
+    link = _ref8.link,
+    unlink = _ref8.unlink,
+    icon = _ref8.icon,
+    isConnected = _ref8.isConnected,
+    refetch = _ref8.refetch;
+  var _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    isUnlinking = _useState8[0],
+    setIsUnlinking = _useState8[1];
   var handleClick = function handleClick() {
     link();
   };
   var handleDisconnect = /*#__PURE__*/function () {
-    var _ref10 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+    var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
@@ -1740,7 +1787,7 @@ var ConnectorButton = function ConnectorButton(_ref9) {
       }, _callee3, null, [[1, 9]]);
     }));
     return function handleDisconnect() {
-      return _ref10.apply(this, arguments);
+      return _ref9.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", {
@@ -1775,8 +1822,8 @@ var ConnectorButton = function ConnectorButton(_ref9) {
     disabled: isConnected
   }, icon, /*#__PURE__*/React.createElement("span", null, name)));
 };
-var MyCampModal = function MyCampModal(_ref11) {
-  var wcProvider = _ref11.wcProvider;
+var MyCampModal = function MyCampModal(_ref10) {
+  var wcProvider = _ref10.wcProvider;
   var _useContext4 = useContext(CampContext),
     auth = _useContext4.auth;
   var _useContext5 = useContext(ModalContext),
@@ -1787,10 +1834,10 @@ var MyCampModal = function MyCampModal(_ref11) {
     socials = _useSocials.data,
     loading = _useSocials.loading,
     refetch = _useSocials.refetch;
-  var _useState11 = useState(true),
-    _useState12 = _slicedToArray(_useState11, 2),
-    isLoadingSocials = _useState12[0],
-    setIsLoadingSocials = _useState12[1];
+  var _useState9 = useState(true),
+    _useState10 = _slicedToArray(_useState9, 2),
+    isLoadingSocials = _useState10[0],
+    setIsLoadingSocials = _useState10[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
