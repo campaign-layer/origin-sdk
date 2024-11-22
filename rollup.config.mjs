@@ -10,7 +10,7 @@ const config = [
     input: "src/index.js",
     output: [
       {
-        file: "dist/core.cjs.js",
+        file: "dist/core.cjs",
         format: "cjs",
         exports: "auto",
         inlineDynamicImports: true,

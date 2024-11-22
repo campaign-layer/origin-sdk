@@ -1,11 +1,11 @@
 {
   "name": "@campnetwork/sdk",
   "version": "1.2.1-alpha.0",
-  "main": "dist/main.js",
+  "main": "dist/core.cjs",
   "exports": {
     ".": {
       "import": "./dist/core.esm.js",
-      "require": "./dist/core.cjs.js"
+      "require": "./dist/core.cjs"
     },
     "./react/auth": "./dist/react/index.esm.js",
     "./react": "./dist/react/index.esm.js"
@@ -29,6 +29,7 @@
     "type": "git",
     "url": "git+https://github.com/campaign-layer/camp-sdk.git"
   },
+  "type": "module",
   "license": "ISC",
   "description": "Camp Network SDK",
   "dependencies": {
