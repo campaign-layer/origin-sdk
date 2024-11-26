@@ -487,6 +487,7 @@ Users can authenticate either via the Camp Modal as outlined above or programmat
 The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. It will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider.
 
 [Example usage with Privy](./examples/client-side/react/privy-connector/)
+
 [Example usage with Appkit](./examples/client-side/react/appkit-connector/)
 
 After the user has authenticated, you can use the provided hooks to fetch user data and listen for events.
