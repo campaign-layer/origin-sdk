@@ -11,8 +11,9 @@ The Camp SDK currently exposes the following modules:
   - `TwitterAPI` - For fetching user Twitter data from the Auth Hub
   - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
   - `Auth` - For authenticating users with the Camp SDK
-- `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext for use in React applications
-- `"@campnetwork/sdk/react/auth"` - Exposes React components and hooks for authentication and fetching user data via the Camp Auth Hub
+- `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via the Camp Auth Hub
+
+_the `@campnetwork/sdk/react/auth` module is deprecated and will be removed in a future release; all functionality has been moved to the `@campnetwork/sdk/react` module_
 
 # Installation
 
@@ -448,25 +449,6 @@ createRoot(document.getElementById("root")).render(
 );
 ```
 
-## Usage with Vite
-
-If you are using Vite, you need to edit your `vite.config.js` file to include the following configuration:
-
-```js
-// vite.config.js
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-
-export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    include: ["@walletconnect/ethereum-provider"],
-  },
-});
-```
-
-We need to include the `@walletconnect/ethereum-provider` package in the `optimizeDeps` configuration in order to tell Vite to pre-bundle the package.
-
 ## CampModal
 
 ![@campnetwork/sdk](https://imgur.com/n9o0rJ3.png)
@@ -487,7 +469,7 @@ The **CampModal** can take two props:
 ### Usage
 
 ```jsx
-import { CampModal } from "@campnetwork/sdk/react/auth";
+import { CampModal } from "@campnetwork/sdk/react";
 
 function App() {
   return (
@@ -500,6 +482,13 @@ function App() {
 
 Users can authenticate either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
 
+## Usage with Privy and Appkit
+
+The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. It will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider.
+
+[Example usage with Privy](./examples/client-side/react/privy-connector/)
+[Example usage with Appkit](./examples/client-side/react/appkit-connector/)
+
 After the user has authenticated, you can use the provided hooks to fetch user data and listen for events.
 
 ## Hooks
@@ -510,7 +499,7 @@ The `useAuth` hook returns the instance of the Auth class that is provided by th
 It can be used as outlined in the Core section in order to build custom authentication flows, listen for events, and fetch user data.
 
 ```jsx
-import { useAuth } from "@campnetwork/sdk/react/auth";
+import { useAuth } from "@campnetwork/sdk/react";
 
 function App() {
   const auth = useAuth();
@@ -528,7 +517,7 @@ function App() {
 The `useAuthState` hook returns the current authentication state of the user.
 
 ```jsx
-import { useAuthState } from "@campnetwork/sdk/react/auth";
+import { useAuthState } from "@campnetwork/sdk/react";
 
 function App() {
   const { authenticated, loading } = useAuthState();
@@ -547,7 +536,7 @@ function App() {
 The `useProvider` hook returns the provider that has been set via the `setProvider` method, as well as a `setProvider` function that can be used to update the provider.
 
 ```jsx
-import { useProvider } from "@campnetwork/sdk/react/auth";
+import { useProvider } from "@campnetwork/sdk/react";
 
 function App() {
   const { provider, setProvider } = useProvider();
@@ -572,7 +561,7 @@ function App() {
 The `useProviders` hook returns the list of providers that have been injected via EIP6963 and that the user or app can select from.
 
 ```jsx
-import { useProviders, useAuth } from "@campnetwork/sdk/react/auth";
+import { useProviders, useAuth } from "@campnetwork/sdk/react";
 
 function App() {
   const providers = useProviders();
@@ -598,7 +587,7 @@ function App() {
 The `useConnect` hook returns functions that can be used to connect and disconnect the user.
 
 ```jsx
-import { useConnect, useAuthState } from "@campnetwork/sdk/react/auth";
+import { useConnect, useAuthState } from "@campnetwork/sdk/react";
 
 function App() {
   const { connect, disconnect } = useConnect();
@@ -621,7 +610,7 @@ function App() {
 The `useSocials` hook returns the state of the user's linked social accounts.
 
 ```jsx
-import { useSocials } from "@campnetwork/sdk/react/auth";
+import { useSocials } from "@campnetwork/sdk/react";
 
 function App() {
   const { data, error, loading } = useSocials();
@@ -646,7 +635,7 @@ The `useModal` hook returns the state of the Auth and My Camp modals, as well as
 **Note: The `<CampModal/>` component must be rendered in the component tree for the modals to be displayed.**
 
 ```jsx
-import { useModal, CampModal } from "@campnetwork/sdk/react/auth";
+import { useModal, CampModal } from "@campnetwork/sdk/react";
 
 function App() {
   const { isOpen, openModal, closeModal } = useModal();
