@@ -7,7 +7,7 @@
  * @param {object} headers - The headers to include in the request.
  * @returns {Promise<object>} - The response data.
  * @throws {APIError} - Throws an error if the request fails.
- */async function a(e,s={}){try{return(await t.get(e,{headers:s})).data}catch(t){if(t.response)throw new i(t.response.data.message||"API request failed",t.response.status);throw new i("Network error or server is unavailable",500)}}
+ */async function r(e,s={}){try{return(await t.get(e,{headers:s})).data}catch(t){if(t.response)throw new i(t.response.data.message||"API request failed",t.response.status);throw new i("Network error or server is unavailable",500)}}
 /**
  * Constructs a query string from an object of query parameters.
  *
@@ -21,20 +21,21 @@
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function r(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return s?`${t}?${s}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let h=null;const d=(t,s="window.ethereum")=>t||h?((!h||h.transport.name!==s&&t)&&(h=e.createWalletClient({chain:c,transport:e.custom(t,{name:s})})),h):(console.warn("Provider is required to create a client."),null);var l="Connect with Camp Network",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,p=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};
+function a(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return s?`${t}?${s}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let h=null;const d=(t,s="window.ethereum")=>t||h?((!h||h.transport.name!==s&&t)&&(h=e.createWalletClient({chain:c,transport:e.custom(t,{name:s})})),h):(console.warn("Provider is required to create a client."),null);var l="Connect with Camp Network",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,p=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};exports.Auth=
 /**
  * The Auth class.
  * @class
  * @classdesc The Auth class is used to authenticate the user.
- */exports.Auth=class{
+ */
+class{
 /**
    * Constructor for the Auth class.
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
-   * @param {string} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL.
+   * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");"undefined"!=typeof window?(this.viem=d(window.ethereum),e||(e=window.location.href)):this.viem=null,this.clientId=t,this.redirectUri=e,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],p((t=>{this.#e("providers",t)})),this.#s()}
+#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");this.redirectUri=null,this.viem=null,"undefined"!=typeof window&&(this.viem=d(window.ethereum),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,s)=>(e[s]=t[s]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,s)=>(e[s]=t,e)),{}):t?void 0:e.reduce(((t,e)=>(t[e]=window.location.href,t)),{})})(e)),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],p((t=>{this.#e("providers",t)})),this.#s()}
 /**
    * Subscribe to an event. Possible events are "state", "provider", and "providers".
    * @param {("state"|"provider"|"providers")} event The event.
@@ -84,7 +85,7 @@ function r(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encod
    * @private
    * @returns {Promise<string>} A promise that resolves with the nonce.
    * @throws {APIError} - Throws an error if the nonce cannot be fetched.
-   */async#a(){try{const t=await fetch(`${u}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=await t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}
+   */async#r(){try{const t=await fetch(`${u}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=await t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}
 /**
    * Verify the signature.
    * @private
@@ -92,7 +93,7 @@ function r(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encod
    * @param {string} signature The signature.
    * @returns {Promise<object>} A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
-   */async#r(t,e){try{const s=await fetch(`${u}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=await s.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(t){throw new i(t)}}
+   */async#a(t,e){try{const s=await fetch(`${u}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=await s.json(),r=i.data.split(".")[1],a=JSON.parse(atob(r));return{success:!i.isError,userId:a.id,token:i.data}}catch(t){throw new i(t)}}
 /**
    * Create the SIWE message.
    * @private
@@ -107,7 +108,7 @@ function r(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encod
    * Connect the user's wallet and sign the message.
    * @returns {Promise<object>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
-   */async connect(){this.#e("state","loading");try{this.walletAddress||await this.#i();const t=await this.#a(),e=this.#n(t),s=await this.viem.signMessage({account:this.walletAddress,message:e}),a=await this.#r(e,s,t);if(a.success)return this.isAuthenticated=!0,this.userId=a.userId,this.jwt=a.token,localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),this.#e("state","authenticated"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new i("Failed to authenticate")}catch(t){throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new i(t)}}
+   */async connect(){this.#e("state","loading");try{this.walletAddress||await this.#i();const t=await this.#r(),e=this.#n(t),s=await this.viem.signMessage({account:this.walletAddress,message:e}),r=await this.#a(e,s,t);if(r.success)return this.isAuthenticated=!0,this.userId=r.userId,this.jwt=r.token,localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),this.#e("state","authenticated"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new i("Failed to authenticate")}catch(t){throw this.isAuthenticated=!1,this.#e("state","unauthenticated"),new i(t)}}
 /**
    * Get the user's linked social accounts.
    * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
@@ -121,17 +122,17 @@ function r(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encod
    * Link the user's Twitter account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+   */linkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.twitter}`}
 /**
    * Link the user's Discord account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+   */linkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.discord}`}
 /**
    * Link the user's Spotify account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`}
+   */linkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.spotify}`}
 /**
    * Unlink the user's Twitter account.
    */async unlinkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${u}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Twitter account");return t.data}
@@ -157,51 +158,51 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved tracks.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchSavedTracksById(t){const e=r(`${o}/save-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+   */async fetchSavedTracksById(t){const e=a(`${o}/save-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch the played tracks of a user by Spotify ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The played tracks.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchPlayedTracksById(t){const e=r(`${o}/played-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+   */async fetchPlayedTracksById(t){const e=a(`${o}/played-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch the user's saved albums by Spotify user ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved albums.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchSavedAlbumsById(t){const e=r(`${o}/saved-albums`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+   */async fetchSavedAlbumsById(t){const e=a(`${o}/saved-albums`,{spotifyId:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch the user's saved playlists by Spotify user ID.
    * @param {string} spotifyId - The user's Spotify ID.
    * @returns {Promise<object>} - The saved playlists.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchSavedPlaylistsById(t){const e=r(`${o}/saved-playlists`,{spotifyId:t});return this._fetchDataWithAuth(e)}
+   */async fetchSavedPlaylistsById(t){const e=a(`${o}/saved-playlists`,{spotifyId:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch the tracks of an album by album ID.
    * @param {string} spotifyId - The Spotify ID of the user.
    * @param {string} albumId - The album ID.
    * @returns {Promise<object>} - The tracks in the album.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchTracksInAlbum(t,e){const s=r(`${o}/album/tracks`,{spotifyId:t,albumId:e});return this._fetchDataWithAuth(s)}
+   */async fetchTracksInAlbum(t,e){const s=a(`${o}/album/tracks`,{spotifyId:t,albumId:e});return this._fetchDataWithAuth(s)}
 /**
    * Fetch the tracks in a playlist by playlist ID.
    * @param {string} spotifyId - The Spotify ID of the user.
    * @param {string} playlistId - The playlist ID.
    * @returns {Promise<object>} - The tracks in the playlist.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchTracksInPlaylist(t,e){const s=r(`${o}/playlist/tracks`,{spotifyId:t,playlistId:e});return this._fetchDataWithAuth(s)}
+   */async fetchTracksInPlaylist(t,e){const s=a(`${o}/playlist/tracks`,{spotifyId:t,playlistId:e});return this._fetchDataWithAuth(s)}
 /**
    * Fetch the user's Spotify data by wallet address.
    * @param {string} walletAddress - The wallet address.
    * @returns {Promise<object>} - The user's Spotify data.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchUserByWalletAddress(t){const e=r(`${o}/wallet-spotify-data`,{walletAddress:t});return this._fetchDataWithAuth(e)}
+   */async fetchUserByWalletAddress(t){const e=a(`${o}/wallet-spotify-data`,{walletAddress:t});return this._fetchDataWithAuth(e)}
 /**
    * Private method to fetch data with authorization header.
    * @param {string} url - The URL to fetch.
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
-   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new i("API key is required for fetching data",401);try{return await a(t,{"x-api-key":this.apiKey})}catch(t){throw new i(t.message,t.statusCode)}}},exports.TwitterAPI=
+   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new i("API key is required for fetching data",401);try{return await r(t,{"x-api-key":this.apiKey})}catch(t){throw new i(t.message,t.statusCode)}}},exports.TwitterAPI=
 /**
  * The TwitterAPI class.
  * @class
@@ -219,7 +220,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {string} twitterUserName - The Twitter username.
    * @returns {Promise<object>} - The user details.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchUserByUsername(t){const e=r(`${n}/user`,{twitterUserName:t});return this._fetchDataWithAuth(e)}
+   */async fetchUserByUsername(t){const e=a(`${n}/user`,{twitterUserName:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -227,7 +228,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchTweetsByUsername(t,e=1,s=10){const i=r(`${n}/tweets`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchTweetsByUsername(t,e=1,s=10){const i=a(`${n}/tweets`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch followers by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -235,7 +236,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The followers.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchFollowersByUsername(t,e=1,s=10){const i=r(`${n}/followers`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchFollowersByUsername(t,e=1,s=10){const i=a(`${n}/followers`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch following by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -243,13 +244,13 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The following.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchFollowingByUsername(t,e=1,s=10){const i=r(`${n}/following`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchFollowingByUsername(t,e=1,s=10){const i=a(`${n}/following`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch tweet by tweet ID.
    * @param {string} tweetId - The tweet ID.
    * @returns {Promise<object>} - The tweet.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchTweetById(t){const e=r(`${n}/getTweetById`,{tweetId:t});return this._fetchDataWithAuth(e)}
+   */async fetchTweetById(t){const e=a(`${n}/getTweetById`,{tweetId:t});return this._fetchDataWithAuth(e)}
 /**
    * Fetch user by wallet address.
    * @param {string} walletAddress - The wallet address.
@@ -257,7 +258,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The user data.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchUserByWalletAddress(t,e=1,s=10){const i=r(`${n}/wallet-twitter-data`,{walletAddress:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchUserByWalletAddress(t,e=1,s=10){const i=a(`${n}/wallet-twitter-data`,{walletAddress:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch reposted tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -265,7 +266,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The reposted tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchRepostedByUsername(t,e=1,s=10){const i=r(`${n}/reposted`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchRepostedByUsername(t,e=1,s=10){const i=a(`${n}/reposted`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch replies by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -273,7 +274,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The replies.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchRepliesByUsername(t,e=1,s=10){const i=r(`${n}/replies`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchRepliesByUsername(t,e=1,s=10){const i=a(`${n}/replies`,{twitterUserName:t,page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch likes by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -281,7 +282,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The likes.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchLikesByUsername(t,e=1,s=10){const i=r(`${n}/event/likes/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchLikesByUsername(t,e=1,s=10){const i=a(`${n}/event/likes/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch follows by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -289,7 +290,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The follows.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchFollowsByUsername(t,e=1,s=10){const i=r(`${n}/event/follows/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchFollowsByUsername(t,e=1,s=10){const i=a(`${n}/event/follows/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Fetch viewed tweets by Twitter username.
    * @param {string} twitterUserName - The Twitter username.
@@ -297,10 +298,10 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {number} limit - The number of items per page.
    * @returns {Promise<object>} - The viewed tweets.
    * @throws {APIError} - Throws an error if the request fails.
-   */async fetchViewedTweetsByUsername(t,e=1,s=10){const i=r(`${n}/event/viewed-tweets/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
+   */async fetchViewedTweetsByUsername(t,e=1,s=10){const i=a(`${n}/event/viewed-tweets/${t}`,{page:e,limit:s});return this._fetchDataWithAuth(i)}
 /**
    * Private method to fetch data with authorization header.
    * @param {string} url - The URL to fetch.
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
-   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new i("API key is required for fetching data",401);try{return await a(t,{"x-api-key":this.apiKey})}catch(t){throw new i(t.message,t.statusCode)}}};
+   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new i("API key is required for fetching data",401);try{return await r(t,{"x-api-key":this.apiKey})}catch(t){throw new i(t.message,t.statusCode)}}};

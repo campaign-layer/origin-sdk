@@ -229,13 +229,31 @@ The Auth class is the entry point for authenticating users with the Camp SDK. It
 
 - `clientId` - The client ID of your app. This is required to authenticate users with the Camp SDK.
 - `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
+  The `redirectUri` can also be an object with the following optional properties:
+  - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
+  - `discord` - The URI to redirect to after the user completes oauth for Discord.
+  - `spotify` - The URI to redirect to after the user completes oauth for Spotify.
+
+You may use the `redirectUri` object to redirect the user to different pages based on the social they are linking.
+You may only define the URIs for the socials you are using, the rest will default to `window.location.href`.
 
 ```js
 import { Auth } from "@campnetwork/sdk";
 
 const auth = new Auth({
   clientId: string,
-  redirectUri: string,
+  redirectUri: string | object,
+});
+```
+
+```js
+const auth = new Auth({
+  clientId: "your-client-id",
+  redirectUri: {
+    twitter: "https://your-website.com/twitter",
+    discord: "https://your-website.com/discord",
+    spotify: "https://your-website.com/spotify",
+  },
 });
 ```
 
@@ -448,6 +466,54 @@ createRoot(document.getElementById("root")).render(
   </StrictMode>
 );
 ```
+
+## CampProvider
+
+The `CampProvider` component requires a `clientId` prop to be passed in order link the users to your app.
+It can also take the following optional props:
+
+- `wcProjectId` - `string` - The WalletConnect project ID to use for authentication. Allows the users to authenticate via WalletConnect.
+- `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `discord`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
+
+```jsx
+import { CampProvider } from "@campnetwork/sdk/react";
+// ...
+function App() {
+  return (
+    <CampProvider
+      clientId="your-client-id"
+      wcProjectId="your-wc-project-id"
+      redirectUri="https://your-website.com"
+    >
+      <div>Your app</div>
+    </CampProvider>
+  );
+}
+```
+
+Or, with an object for the `redirectUri`:
+
+```jsx
+import { CampProvider } from "@campnetwork/sdk/react";
+// ...
+function App() {
+  return (
+    <CampProvider
+      clientId="your-client-id"
+      wcProjectId="your-wc-project-id"
+      redirectUri={{
+        twitter: "https://your-website.com/twitter",
+        discord: "https://your-website.com/discord",
+        spotify: "https://your-website.com/spotify",
+      }}
+    >
+      <div>Your app</div>
+    </CampProvider>
+  );
+}
+```
+
+The `CampProvider` component sets up the context for the Camp SDK and provides the Auth instance to the rest of the app.
 
 ## CampModal
 

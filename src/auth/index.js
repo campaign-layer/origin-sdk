@@ -3,6 +3,28 @@ import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants from "../constants";
 import { providerStore } from "./viem/providers";
+
+const createRedirectUriObject = (redirectUri) => {
+  const keys = ["twitter", "discord", "spotify"];
+
+  if (typeof redirectUri === "object") {
+    return keys.reduce((object, key) => {
+      object[key] = redirectUri[key] || (typeof window !== "undefined" ? window.location.href : "");
+      return object;
+    }, {});
+  } else if (typeof redirectUri === "string") {
+    return keys.reduce((object, key) => {
+      object[key] = redirectUri;
+      return object;
+    }, {});
+  } else if (!redirectUri) {
+    return keys.reduce((object, key) => {
+      object[key] = window.location.href;
+      return object;
+    }, {});
+  }
+};
+
 /**
  * The Auth class.
  * @class
@@ -13,7 +35,7 @@ class Auth {
    * Constructor for the Auth class.
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
-   * @param {string} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL.
+   * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   #triggers;
@@ -22,16 +44,15 @@ class Auth {
       throw new Error("clientId is required");
     }
 
+    this.redirectUri = null;
+    this.viem = null;
+
     if (typeof window !== "undefined") {
       this.viem = getClient(window.ethereum);
-      if (!redirectUri) {
-        redirectUri = window.location.href;
-      }
-    } else {
-      this.viem = null;
+      this.redirectUri = createRedirectUriObject(redirectUri);
     }
+
     this.clientId = clientId;
-    this.redirectUri = redirectUri;
     this.isAuthenticated = false;
     this.jwt = null;
     this.walletAddress = null;
@@ -339,7 +360,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
 
   /**
@@ -351,7 +372,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
 
   /**
@@ -363,7 +384,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri}`;
+    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 
   /**

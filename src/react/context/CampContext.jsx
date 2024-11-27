@@ -10,6 +10,14 @@ const CampContext = createContext({
   wagmiAvailable: false,
 });
 
+/**
+ * CampProvider
+ * @param {Object} props The props
+ * @param {string} props.clientId The Camp client ID
+ * @param {string} props.redirectUri The redirect URI to use after social oauths
+ * @param {React.ReactNode} props.children The children components
+ * @returns {JSX.Element} The CampProvider component
+ */
 const CampProvider = ({ clientId, redirectUri, children }) => {
   const [auth, setAuth] = useState(new Auth({ clientId, redirectUri }));
 

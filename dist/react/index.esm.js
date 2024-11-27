@@ -426,6 +426,15 @@ function _slicedToArray(r, e) {
 function _toConsumableArray(r) {
   return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
 }
+function _typeof(o) {
+  "@babel/helpers - typeof";
+
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, _typeof(o);
+}
 function _unsupportedIterableToArray(r, a) {
   if (r) {
     if ("string" == typeof r) return _arrayLikeToArray(r, a);
@@ -516,6 +525,26 @@ var providerStore = {
   }
 };
 
+var createRedirectUriObject = function createRedirectUriObject(redirectUri) {
+  var keys = ["twitter", "discord", "spotify"];
+  if (_typeof(redirectUri) === "object") {
+    return keys.reduce(function (object, key) {
+      object[key] = redirectUri[key] || (typeof window !== "undefined" ? window.location.href : "");
+      return object;
+    }, {});
+  } else if (typeof redirectUri === "string") {
+    return keys.reduce(function (object, key) {
+      object[key] = redirectUri;
+      return object;
+    }, {});
+  } else if (!redirectUri) {
+    return keys.reduce(function (object, key) {
+      object[key] = window.location.href;
+      return object;
+    }, {});
+  }
+};
+
 /**
  * The Auth class.
  * @class
@@ -540,23 +569,20 @@ class Auth {
      * Constructor for the Auth class.
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
-     * @param {string} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL.
+     * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
     _classPrivateFieldInitSpec(this, _triggers, void 0);
     if (!clientId) {
       throw new Error("clientId is required");
     }
+    this.redirectUri = null;
+    this.viem = null;
     if (typeof window !== "undefined") {
       this.viem = getClient(window.ethereum);
-      if (!redirectUri) {
-        redirectUri = window.location.href;
-      }
-    } else {
-      this.viem = null;
+      this.redirectUri = createRedirectUriObject(redirectUri);
     }
     this.clientId = clientId;
-    this.redirectUri = redirectUri;
     this.isAuthenticated = false;
     this.jwt = null;
     this.walletAddress = null;
@@ -793,7 +819,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/twitter/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri);
+    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/twitter/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri["twitter"]);
   }
 
   /**
@@ -805,7 +831,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/discord/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri);
+    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/discord/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri["discord"]);
   }
 
   /**
@@ -817,7 +843,7 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/spotify/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri);
+    window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/spotify/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri["spotify"]);
   }
 
   /**
@@ -1174,6 +1200,15 @@ var CampContext = /*#__PURE__*/createContext({
   setAuth: function setAuth() {},
   wagmiAvailable: false
 });
+
+/**
+ * CampProvider
+ * @param {Object} props The props
+ * @param {string} props.clientId The Camp client ID
+ * @param {string} props.redirectUri The redirect URI to use after social oauths
+ * @param {React.ReactNode} props.children The children components
+ * @returns {JSX.Element} The CampProvider component
+ */
 var CampProvider = function CampProvider(_ref) {
   var clientId = _ref.clientId,
     redirectUri = _ref.redirectUri,
