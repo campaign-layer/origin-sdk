@@ -539,7 +539,7 @@ var createRedirectUriObject = function createRedirectUriObject(redirectUri) {
     }, {});
   } else if (!redirectUri) {
     return keys.reduce(function (object, key) {
-      object[key] = window.location.href;
+      object[key] = typeof window !== "undefined" ? window.location.href : "";
       return object;
     }, {});
   }
@@ -576,12 +576,11 @@ class Auth {
     if (!clientId) {
       throw new Error("clientId is required");
     }
-    this.redirectUri = null;
     this.viem = null;
     if (typeof window !== "undefined") {
-      this.viem = getClient(window.ethereum);
-      this.redirectUri = createRedirectUriObject(redirectUri);
+      if (window.ethereum) this.viem = getClient(window.ethereum);
     }
+    this.redirectUri = createRedirectUriObject(redirectUri);
     this.clientId = clientId;
     this.isAuthenticated = false;
     this.jwt = null;

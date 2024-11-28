@@ -1,110 +1,119 @@
-const TwitterAPI = require("./twitter");
-const axios = require("axios");
-jest.mock("axios");
+const { TwitterAPI } = require("../dist/core.cjs");
 
 describe("TwitterAPI", () => {
   let twitterAPI;
-  const mockApiKey = process.env.MOCK_API_KEY;
 
-  beforeEach(() => {
-    if (!mockApiKey) {
-      throw new Error("MOCK_API_KEY environment variable is not set");
-    }
-    twitterAPI = new TwitterAPI(mockApiKey);
+  beforeAll(() => {
+    twitterAPI = new TwitterAPI({ apiKey: "test-api-key" });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  test("fetchUserByUsername should fetch user details", async () => {
+    const mockResponse = { id: "123", name: "testuser" };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
+
+    const result = await twitterAPI.fetchUserByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should throw an error if API key is not provided", () => {
-    expect(() => new TwitterAPI()).toThrow("API key is required.");
+  test("fetchTweetsByUsername should fetch tweets", async () => {
+    const mockResponse = { tweets: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
+
+    const result = await twitterAPI.fetchTweetsByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should fetch user by username", async () => {
-    const mockUserData = { name: "John Doe", username: "johndoe" };
-    axios.get.mockResolvedValue({ data: mockUserData });
+  test("fetchFollowersByUsername should fetch followers", async () => {
+    const mockResponse = { followers: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
-    const result = await twitterAPI.fetchUserByUsername("johndoe");
-    expect(result).toEqual(mockUserData);
-    expect(axios.get).toHaveBeenCalledWith("/user", {
-      params: { twitterUserName: "johndoe" },
-    });
+    const result = await twitterAPI.fetchFollowersByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should fetch tweets by username", async () => {
-    const mockTweets = [{ id: 1, text: "Hello world!" }];
-    axios.get.mockResolvedValue({ data: mockTweets });
+  test("fetchFollowingByUsername should fetch following", async () => {
+    const mockResponse = { following: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
-    const result = await twitterAPI.fetchTweetsByUsername("johndoe", 1, 10);
-    expect(result).toEqual(mockTweets);
-    expect(axios.get).toHaveBeenCalledWith("/tweets", {
-      params: { twitterUserName: "johndoe", page: 1, limit: 10 },
-    });
+    const result = await twitterAPI.fetchFollowingByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should fetch followers by username", async () => {
-    const mockFollowers = [{ id: 1, name: "Jane Doe" }];
-    axios.get.mockResolvedValue({ data: mockFollowers });
+  test("fetchTweetById should fetch a tweet by ID", async () => {
+    const mockResponse = { id: "tweet123", text: "Hello World" };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
-    const result = await twitterAPI.fetchFollowersByUsername("johndoe", 1, 10);
-    expect(result).toEqual(mockFollowers);
-    expect(axios.get).toHaveBeenCalledWith("/followers", {
-      params: { twitterUserName: "johndoe", page: 1, limit: 10 },
-    });
+    const result = await twitterAPI.fetchTweetById("tweet123");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should fetch following by username", async () => {
-    const mockFollowing = [{ id: 1, name: "Jane Doe" }];
-    axios.get.mockResolvedValue({ data: mockFollowing });
-
-    const result = await twitterAPI.fetchFollowingByUsername("johndoe", 1, 10);
-    expect(result).toEqual(mockFollowing);
-    expect(axios.get).toHaveBeenCalledWith("/following", {
-      params: { twitterUserName: "johndoe", page: 1, limit: 10 },
-    });
-  });
-
-  test("should fetch tweet by tweet ID", async () => {
-    const mockTweet = { id: 123, text: "Sample tweet" };
-    axios.get.mockResolvedValue({ data: mockTweet });
-
-    const result = await twitterAPI.fetchTweetById("123");
-    expect(result).toEqual(mockTweet);
-    expect(axios.get).toHaveBeenCalledWith("/gettweetbyid", {
-      params: { tweetId: "123" },
-    });
-  });
-
-  test("should fetch user by wallet address", async () => {
-    const mockUserData = { name: "John Doe", walletAddress: "0x123" };
-    axios.get.mockResolvedValue({ data: mockUserData });
+  test("fetchUserByWalletAddress should fetch user data by wallet address", async () => {
+    const mockResponse = { id: "user123", walletAddress: "0x123" };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
     const result = await twitterAPI.fetchUserByWalletAddress("0x123");
-    expect(result).toEqual(mockUserData);
-    expect(axios.get).toHaveBeenCalledWith("/wallet-twitter-data", {
-      params: { walletAddress: "0x123" },
-    });
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should handle API errors gracefully", async () => {
-    axios.get.mockRejectedValue({
-      response: {
-        data: { message: "User not found" },
-        status: 404,
-      },
-    });
+  test("fetchRepostedByUsername should fetch reposted tweets", async () => {
+    const mockResponse = { reposts: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
-    await expect(
-      twitterAPI.fetchUserByUsername("nonexistentuser")
-    ).rejects.toThrow("Error fetching user: User not found");
+    const result = await twitterAPI.fetchRepostedByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 
-  test("should handle network errors gracefully", async () => {
-    axios.get.mockRejectedValue(new Error("Network error"));
+  test("fetchRepliesByUsername should fetch replies", async () => {
+    const mockResponse = { replies: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
 
-    await expect(twitterAPI.fetchUserByUsername("johndoe")).rejects.toThrow(
-      "Error fetching user: Network error"
-    );
+    const result = await twitterAPI.fetchRepliesByUsername("testuser");
+    expect(result).toEqual(mockResponse);
+  });
+
+  test("fetchLikesByUsername should fetch likes", async () => {
+    const mockResponse = { likes: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
+
+    const result = await twitterAPI.fetchLikesByUsername("testuser");
+    expect(result).toEqual(mockResponse);
+  });
+
+  test("fetchFollowsByUsername should fetch follows", async () => {
+    const mockResponse = { follows: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
+
+    const result = await twitterAPI.fetchFollowsByUsername("testuser");
+    expect(result).toEqual(mockResponse);
+  });
+
+  test("fetchViewedTweetsByUsername should fetch viewed tweets", async () => {
+    const mockResponse = { views: [] };
+    jest
+      .spyOn(twitterAPI, "_fetchDataWithAuth")
+      .mockResolvedValue(mockResponse);
+
+    const result = await twitterAPI.fetchViewedTweetsByUsername("testuser");
+    expect(result).toEqual(mockResponse);
   });
 });

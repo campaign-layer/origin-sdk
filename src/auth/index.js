@@ -9,7 +9,9 @@ const createRedirectUriObject = (redirectUri) => {
 
   if (typeof redirectUri === "object") {
     return keys.reduce((object, key) => {
-      object[key] = redirectUri[key] || (typeof window !== "undefined" ? window.location.href : "");
+      object[key] =
+        redirectUri[key] ||
+        (typeof window !== "undefined" ? window.location.href : "");
       return object;
     }, {});
   } else if (typeof redirectUri === "string") {
@@ -19,7 +21,7 @@ const createRedirectUriObject = (redirectUri) => {
     }, {});
   } else if (!redirectUri) {
     return keys.reduce((object, key) => {
-      object[key] = window.location.href;
+      object[key] = typeof window !== "undefined" ? window.location.href : "";
       return object;
     }, {});
   }
@@ -44,13 +46,12 @@ class Auth {
       throw new Error("clientId is required");
     }
 
-    this.redirectUri = null;
     this.viem = null;
 
     if (typeof window !== "undefined") {
-      this.viem = getClient(window.ethereum);
-      this.redirectUri = createRedirectUriObject(redirectUri);
+      if (window.ethereum) this.viem = getClient(window.ethereum);
     }
+    this.redirectUri = createRedirectUriObject(redirectUri);
 
     this.clientId = clientId;
     this.isAuthenticated = false;
