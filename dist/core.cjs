@@ -21,7 +21,7 @@
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function a(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return s?`${t}?${s}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let h=null;const d=(t,s="window.ethereum")=>t||h?((!h||h.transport.name!==s&&t)&&(h=e.createWalletClient({chain:c,transport:e.custom(t,{name:s})})),h):(console.warn("Provider is required to create a client."),null);var l="Connect with Camp Network",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,p=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};exports.Auth=
+function a(t,e={}){const s=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return s?`${t}?${s}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let h=null;const d=(t,s="window.ethereum")=>t||h?((!h||h.transport.name!==s&&t)&&(h=e.createWalletClient({chain:c,transport:e.custom(t,{name:s})})),h):(console.warn("Provider is required to create a client."),null);var u="Connect with Camp Network",l="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,p=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};exports.Auth=
 /**
  * The Auth class.
  * @class
@@ -35,7 +35,7 @@ class{
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");this.redirectUri=null,this.viem=null,"undefined"!=typeof window&&(this.viem=d(window.ethereum),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,s)=>(e[s]=t[s]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,s)=>(e[s]=t,e)),{}):t?void 0:e.reduce(((t,e)=>(t[e]=window.location.href,t)),{})})(e)),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],p((t=>{this.#e("providers",t)})),this.#s()}
+#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=d(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,s)=>(e[s]=t[s]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,s)=>(e[s]=t,e)),{}):t?void 0:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],p((t=>{this.#e("providers",t)})),this.#s()}
 /**
    * Subscribe to an event. Possible events are "state", "provider", and "providers".
    * @param {("state"|"provider"|"providers")} event The event.
@@ -85,7 +85,7 @@ class{
    * @private
    * @returns {Promise<string>} A promise that resolves with the nonce.
    * @throws {APIError} - Throws an error if the nonce cannot be fetched.
-   */async#r(){try{const t=await fetch(`${u}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=await t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}
+   */async#r(){try{const t=await fetch(`${l}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=await t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}
 /**
    * Verify the signature.
    * @private
@@ -93,13 +93,13 @@ class{
    * @param {string} signature The signature.
    * @returns {Promise<object>} A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
-   */async#a(t,e){try{const s=await fetch(`${u}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=await s.json(),r=i.data.split(".")[1],a=JSON.parse(atob(r));return{success:!i.isError,userId:a.id,token:i.data}}catch(t){throw new i(t)}}
+   */async#a(t,e){try{const s=await fetch(`${l}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=await s.json(),r=i.data.split(".")[1],a=JSON.parse(atob(r));return{success:!i.isError,userId:a.id,token:i.data}}catch(t){throw new i(t)}}
 /**
    * Create the SIWE message.
    * @private
    * @param {string} nonce The nonce.
    * @returns {string} The EIP-4361 formatted message.
-   */#n(t){return s.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:l,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})}
+   */#n(t){return s.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:u,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})}
 /**
    * Disconnect the user.
    * @returns {void}
@@ -117,31 +117,31 @@ class{
    * const auth = new Auth({ clientId: "your-client-id" });
    * const socials = await auth.getLinkedSocials();
    * console.log(socials);
-   */async getLinkedSocials(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${u}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((s=>{e[s.split("User")[0]]=t.data.data[s]})),e}}
+   */async getLinkedSocials(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${l}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((s=>{e[s.split("User")[0]]=t.data.data[s]})),e}}
 /**
    * Link the user's Twitter account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.twitter}`}
+   */linkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${l}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.twitter}`}
 /**
    * Link the user's Discord account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.discord}`}
+   */linkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${l}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.discord}`}
 /**
    * Link the user's Spotify account.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */linkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${u}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.spotify}`}
+   */linkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");window.location.href=`${l}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.spotify}`}
 /**
    * Unlink the user's Twitter account.
-   */async unlinkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${u}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Twitter account");return t.data}
+   */async unlinkTwitter(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${l}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Twitter account");return t.data}
 /**
    * Unlink the user's Discord account.
-   */async unlinkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${u}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Discord account");return t.data}
+   */async unlinkDiscord(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${l}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Discord account");return t.data}
 /**
    * Unlink the user's Spotify account.
-   */async unlinkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${u}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Spotify account");return t.data}},exports.SpotifyAPI=
+   */async unlinkSpotify(){if(!this.isAuthenticated)throw new i("User needs to be authenticated");const t=await fetch(`${l}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new i(t.message||"Failed to unlink Spotify account");return t.data}},exports.SpotifyAPI=
 /**
  * The SpotifyAPI class.
  * @class
