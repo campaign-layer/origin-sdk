@@ -63,6 +63,14 @@ function _classPrivateFieldSet2(s, a, r) {
 function _classPrivateMethodInitSpec(e, a) {
   _checkPrivateRedeclaration(e, a), a.add(e);
 }
+function _defineProperty(e, r, t) {
+  return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+    value: t,
+    enumerable: !0,
+    configurable: !0,
+    writable: !0
+  }) : e[r] = t, e;
+}
 function _iterableToArray(r) {
   if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
 }
@@ -98,6 +106,27 @@ function _nonIterableRest() {
 }
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function ownKeys(e, r) {
+  var t = Object.keys(e);
+  if (Object.getOwnPropertySymbols) {
+    var o = Object.getOwnPropertySymbols(e);
+    r && (o = o.filter(function (r) {
+      return Object.getOwnPropertyDescriptor(e, r).enumerable;
+    })), t.push.apply(t, o);
+  }
+  return t;
+}
+function _objectSpread2(e) {
+  for (var r = 1; r < arguments.length; r++) {
+    var t = null != arguments[r] ? arguments[r] : {};
+    r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+      _defineProperty(e, r, t[r]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
+      Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+    });
+  }
+  return e;
 }
 function _objectWithoutProperties(e, t) {
   if (null == e) return {};
@@ -425,6 +454,20 @@ function _slicedToArray(r, e) {
 }
 function _toConsumableArray(r) {
   return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+}
+function _toPrimitive(t, r) {
+  if ("object" != typeof t || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != typeof i) return i;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return ("string" === r ? String : Number)(t);
+}
+function _toPropertyKey(t) {
+  var i = _toPrimitive(t, "string");
+  return "symbol" == typeof i ? i : i + "";
 }
 function _typeof(o) {
   "@babel/helpers - typeof";
@@ -1404,7 +1447,11 @@ var getIconByConnectorName = function getIconByConnectorName(name) {
     case "Privy Wallet":
       return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='-25 -25 410 514' fill='none' id='svg-669804622_503'%3E%3Cpath d='M180 359.794C279.396 359.794 360 279.236 360 179.897C360 80.5579 279.396 0 180 0C80.604 0 0 80.5579 0 179.897C0 279.236 80.604 359.794 180 359.794Z' fill='%23010110'/%3E%3Cpath d='M180 463.997C247.932 463.997 303.012 452.411 303.012 438.2C303.012 423.988 247.968 412.402 180 412.402C112.032 412.402 56.9883 423.988 56.9883 438.2C56.9883 452.411 112.032 463.997 180 463.997Z' fill='%23010110'/%3E%3C/svg%3E";
     default:
-      return "";
+      if (name.toLowerCase().includes("privy")) {
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='-25 -25 410 514' fill='none' id='svg-669804622_503'%3E%3Cpath d='M180 359.794C279.396 359.794 360 279.236 360 179.897C360 80.5579 279.396 0 180 0C80.604 0 0 80.5579 0 179.897C0 279.236 80.604 359.794 180 359.794Z' fill='%23010110'/%3E%3Cpath d='M180 463.997C247.932 463.997 303.012 452.411 303.012 438.2C303.012 423.988 247.968 412.402 180 412.402C112.032 412.402 56.9883 423.988 56.9883 438.2C56.9883 452.411 112.032 463.997 180 463.997Z' fill='%23010110'/%3E%3C/svg%3E";
+      } else if (name.toLowerCase().includes("appkit")) {
+        return "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='56' height='56' rx='16.3333' fill='%23FF573B'/%3E%3Cpath d='M11.6667 33.8333H44.3334V38.5C44.3334 39.7886 43.2501 40.8333 41.9137 40.8333H14.0865C12.7501 40.8333 11.6667 39.7886 11.6667 38.5V33.8333Z' fill='%23202020'/%3E%3Cpath d='M11.6667 24.5H44.3334V31.5H11.6667V24.5Z' fill='%23202020'/%3E%3Cpath d='M11.6667 17.5C11.6667 16.2113 12.7501 15.1666 14.0865 15.1666H41.9137C43.2501 15.1666 44.3334 16.2113 44.3334 17.5V22.1666H11.6667V17.5Z' fill='%23202020'/%3E%3C/svg%3E";
+      } else return "";
   }
 };
 var DiscordIcon = function DiscordIcon() {
@@ -1539,14 +1586,15 @@ var CampButton = function CampButton(_ref2) {
 
 /**
  * The Auth modal component.
- * @param { { setIsVisible: function, wcProvider: object, loading: boolean } } props The props.
+ * @param { { setIsVisible: function, wcProvider: object, loading: boolean, onlyWagmi: boolean, defaultProvider: object } } props The props.
  * @returns { JSX.Element } The Auth modal component.
  */
 var AuthModal = function AuthModal(_ref3) {
-  var _customAccount3, _customAccount4;
   var setIsVisible = _ref3.setIsVisible,
     wcProvider = _ref3.wcProvider,
-    loading = _ref3.loading;
+    loading = _ref3.loading,
+    onlyWagmi = _ref3.onlyWagmi,
+    defaultProvider = _ref3.defaultProvider;
   var _useConnect = useConnect(),
     connect = _useConnect.connect;
   var _useProvider = useProvider(),
@@ -1559,12 +1607,16 @@ var AuthModal = function AuthModal(_ref3) {
     customProvider = _useState4[0],
     setCustomProvider = _useState4[1];
   var providers = useProviders();
-  var customConnector;
-  var customAccount;
-  if (wagmiAvailable) {
-    customConnector = useConnectorClient();
-    customAccount = useAccount();
-  }
+  var _useState5 = useState(null),
+    _useState6 = _slicedToArray(_useState5, 2),
+    customConnector = _useState6[0],
+    setCustomConnector = _useState6[1];
+  var _useState7 = useState(null),
+    _useState8 = _slicedToArray(_useState7, 2),
+    customAccount = _useState8[0],
+    setCustomAccount = _useState8[1];
+  var wagmiConnectorClient = useConnectorClient();
+  var wagmiAccount = useAccount();
   var handleWalletConnect = /*#__PURE__*/function () {
     var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref4) {
       var provider;
@@ -1601,13 +1653,42 @@ var AuthModal = function AuthModal(_ref3) {
     };
   }();
   useEffect(function () {
+    if (wagmiAvailable && !defaultProvider) {
+      setCustomConnector(wagmiConnectorClient);
+      setCustomAccount(wagmiAccount);
+    }
+  }, [wagmiAvailable, defaultProvider, wagmiAccount]);
+  useEffect(function () {
+    if (defaultProvider && defaultProvider.provider && defaultProvider.info) {
+      var addr = defaultProvider.provider.address;
+      var acc = {
+        connector: _objectSpread2(_objectSpread2({}, defaultProvider.info), {}, {
+          icon: defaultProvider.info.icon || getIconByConnectorName(defaultProvider.info.name)
+        }),
+        address: addr
+      };
+      if (!addr) {
+        defaultProvider.provider.request({
+          method: "eth_requestAccounts"
+        }).then(function (accounts) {
+          setCustomAccount(_objectSpread2(_objectSpread2({}, acc), {}, {
+            address: accounts[0]
+          }));
+        });
+      } else {
+        setCustomAccount(acc);
+      }
+      setCustomProvider(defaultProvider.provider);
+    }
+  }, [defaultProvider]);
+  useEffect(function () {
     if (wagmiAvailable && customConnector) {
       var provider = customConnector.data;
       if (provider) {
         setCustomProvider(provider);
       }
     }
-  }, [customConnector, customAccount]);
+  }, [customConnector, customConnector === null || customConnector === void 0 ? void 0 : customConnector.data, wagmiAvailable, customProvider]);
   useEffect(function () {
     var doConnect = /*#__PURE__*/function () {
       var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
@@ -1640,11 +1721,9 @@ var AuthModal = function AuthModal(_ref3) {
     };
   }, [wcProvider]);
   var handleConnect = function handleConnect(provider) {
-    var _customAccount;
     if (provider) setProvider(provider);
-    if ((_customAccount = customAccount) !== null && _customAccount !== void 0 && _customAccount.address) {
-      var _customAccount2;
-      auth.setWalletAddress((_customAccount2 = customAccount) === null || _customAccount2 === void 0 ? void 0 : _customAccount2.address);
+    if (customAccount !== null && customAccount !== void 0 && customAccount.address) {
+      auth.setWalletAddress(customAccount === null || customAccount === void 0 ? void 0 : customAccount.address);
     }
     connect();
   };
@@ -1662,8 +1741,8 @@ var AuthModal = function AuthModal(_ref3) {
     src: "https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg",
     alt: "Camp Network"
   }), /*#__PURE__*/React.createElement("span", null, "Connect with Camp")), /*#__PURE__*/React.createElement("div", {
-    className: "".concat((_customAccount3 = customAccount) !== null && _customAccount3 !== void 0 && _customAccount3.connector ? styles["big"] : "", " ").concat(styles["provider-list"])
-  }, ((_customAccount4 = customAccount) === null || _customAccount4 === void 0 ? void 0 : _customAccount4.connector) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProviderButton, {
+    className: "".concat(customAccount !== null && customAccount !== void 0 && customAccount.connector ? styles["big"] : "", " ").concat(styles["provider-list"])
+  }, (customAccount === null || customAccount === void 0 ? void 0 : customAccount.connector) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(ProviderButton, {
     provider: {
       provider: customProvider || window.ethereum,
       info: {
@@ -1674,16 +1753,16 @@ var AuthModal = function AuthModal(_ref3) {
     label: formatAddress(customAccount.address),
     handleConnect: handleConnect,
     loading: loading
-  }), /*#__PURE__*/React.createElement("div", {
+  }), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && /*#__PURE__*/React.createElement("div", {
     className: styles["divider"]
-  })), providers.map(function (provider) {
+  })), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && providers.map(function (provider) {
     return /*#__PURE__*/React.createElement(ProviderButton, {
       provider: provider,
       handleConnect: handleConnect,
       loading: loading,
       key: provider.info.uuid
     });
-  }), wcProvider && /*#__PURE__*/React.createElement(ProviderButton, {
+  }), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && wcProvider && /*#__PURE__*/React.createElement(ProviderButton, {
     provider: {
       provider: wcProvider,
       info: {
@@ -1693,7 +1772,7 @@ var AuthModal = function AuthModal(_ref3) {
     },
     handleConnect: handleWalletConnect,
     loading: loading
-  }), window.ethereum && /*#__PURE__*/React.createElement(ProviderButton, {
+  }), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && window.ethereum && /*#__PURE__*/React.createElement(ProviderButton, {
     provider: {
       provider: window.ethereum,
       info: {
@@ -1713,17 +1792,20 @@ var AuthModal = function AuthModal(_ref3) {
 
 /**
  * The CampModal component.
- * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
+ * @param { { injectButton?: boolean, wcProjectId?: string, onlyWagmi?: boolean, defaultProvider?: object } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
 var CampModal = function CampModal(_ref7) {
   var _ref7$injectButton = _ref7.injectButton,
     injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
-    wcProjectId = _ref7.wcProjectId;
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    isButtonDisabled = _useState6[0],
-    setIsButtonDisabled = _useState6[1];
+    wcProjectId = _ref7.wcProjectId,
+    _ref7$onlyWagmi = _ref7.onlyWagmi,
+    onlyWagmi = _ref7$onlyWagmi === void 0 ? false : _ref7$onlyWagmi,
+    defaultProvider = _ref7.defaultProvider;
+  var _useState9 = useState(false),
+    _useState10 = _slicedToArray(_useState9, 2),
+    isButtonDisabled = _useState10[0],
+    setIsButtonDisabled = _useState10[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1751,13 +1833,18 @@ var CampModal = function CampModal(_ref7) {
     }
   }, [authenticated]);
   useEffect(function () {
-    var _customAccount5;
-    if (!provider.provider && (!wagmiAvailable || !((_customAccount5 = customAccount) !== null && _customAccount5 !== void 0 && _customAccount5.isConnected)) && !walletConnectProvider && !providers.length) {
-      setIsButtonDisabled(true);
-    } else {
-      setIsButtonDisabled(false);
-    }
-  }, [provider, wagmiAvailable, customAccount, walletConnectProvider, providers]);
+    var _customAccount, _customAccount2;
+    var noProvider = !provider.provider;
+    var noWagmiOrAccount = !wagmiAvailable || !((_customAccount = customAccount) !== null && _customAccount !== void 0 && _customAccount.isConnected);
+    var noWalletConnectProvider = !walletConnectProvider;
+    var noProviders = !providers.length;
+    var onlyWagmiNoAccount = onlyWagmi && !((_customAccount2 = customAccount) !== null && _customAccount2 !== void 0 && _customAccount2.isConnected);
+    var noDefaultProvider = !defaultProvider;
+    var defaultProviderNotReady = defaultProvider && !defaultProvider.provider;
+    var defaultProviderExclusive = defaultProvider === null || defaultProvider === void 0 ? void 0 : defaultProvider.exclusive;
+    var shouldDisableButton = (noProvider && noWagmiOrAccount && noWalletConnectProvider && noProviders && noDefaultProvider || onlyWagmiNoAccount || defaultProviderNotReady && defaultProviderExclusive) && !authenticated;
+    setIsButtonDisabled(shouldDisableButton);
+  }, [provider, wagmiAvailable, customAccount, walletConnectProvider, providers, authenticated, defaultProvider]);
   return /*#__PURE__*/React.createElement(ClientOnly, null, /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {
     disabled: isButtonDisabled,
     onClick: handleModalButton,
@@ -1776,7 +1863,9 @@ var CampModal = function CampModal(_ref7) {
   }) : /*#__PURE__*/React.createElement(AuthModal, {
     setIsVisible: setIsVisible,
     wcProvider: walletConnectProvider,
-    loading: loading
+    loading: loading,
+    onlyWagmi: onlyWagmi,
+    defaultProvider: defaultProvider
   })))));
 };
 var ConnectorButton = function ConnectorButton(_ref8) {
@@ -1786,10 +1875,10 @@ var ConnectorButton = function ConnectorButton(_ref8) {
     icon = _ref8.icon,
     isConnected = _ref8.isConnected,
     refetch = _ref8.refetch;
-  var _useState7 = useState(false),
-    _useState8 = _slicedToArray(_useState7, 2),
-    isUnlinking = _useState8[0],
-    setIsUnlinking = _useState8[1];
+  var _useState11 = useState(false),
+    _useState12 = _slicedToArray(_useState11, 2),
+    isUnlinking = _useState12[0],
+    setIsUnlinking = _useState12[1];
   var handleClick = function handleClick() {
     link();
   };
@@ -1868,10 +1957,10 @@ var MyCampModal = function MyCampModal(_ref10) {
     socials = _useSocials.data,
     loading = _useSocials.loading,
     refetch = _useSocials.refetch;
-  var _useState9 = useState(true),
-    _useState10 = _slicedToArray(_useState9, 2),
-    isLoadingSocials = _useState10[0],
-    setIsLoadingSocials = _useState10[1];
+  var _useState13 = useState(true),
+    _useState14 = _slicedToArray(_useState13, 2),
+    isLoadingSocials = _useState14[0],
+    setIsLoadingSocials = _useState14[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();

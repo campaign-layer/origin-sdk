@@ -1,8 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   useAuthState,
   useConnect,
@@ -25,7 +21,11 @@ const getIconByConnectorName = (name) => {
     case "Privy Wallet":
       return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='-25 -25 410 514' fill='none' id='svg-669804622_503'%3E%3Cpath d='M180 359.794C279.396 359.794 360 279.236 360 179.897C360 80.5579 279.396 0 180 0C80.604 0 0 80.5579 0 179.897C0 279.236 80.604 359.794 180 359.794Z' fill='%23010110'/%3E%3Cpath d='M180 463.997C247.932 463.997 303.012 452.411 303.012 438.2C303.012 423.988 247.968 412.402 180 412.402C112.032 412.402 56.9883 423.988 56.9883 438.2C56.9883 452.411 112.032 463.997 180 463.997Z' fill='%23010110'/%3E%3C/svg%3E";
     default:
-      return "";
+      if (name.toLowerCase().includes("privy")) {
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='-25 -25 410 514' fill='none' id='svg-669804622_503'%3E%3Cpath d='M180 359.794C279.396 359.794 360 279.236 360 179.897C360 80.5579 279.396 0 180 0C80.604 0 0 80.5579 0 179.897C0 279.236 80.604 359.794 180 359.794Z' fill='%23010110'/%3E%3Cpath d='M180 463.997C247.932 463.997 303.012 452.411 303.012 438.2C303.012 423.988 247.968 412.402 180 412.402C112.032 412.402 56.9883 423.988 56.9883 438.2C56.9883 452.411 112.032 463.997 180 463.997Z' fill='%23010110'/%3E%3C/svg%3E";
+      } else if (name.toLowerCase().includes("appkit")) {
+        return "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='56' height='56' rx='16.3333' fill='%23FF573B'/%3E%3Cpath d='M11.6667 33.8333H44.3334V38.5C44.3334 39.7886 43.2501 40.8333 41.9137 40.8333H14.0865C12.7501 40.8333 11.6667 39.7886 11.6667 38.5V33.8333Z' fill='%23202020'/%3E%3Cpath d='M11.6667 24.5H44.3334V31.5H11.6667V24.5Z' fill='%23202020'/%3E%3Cpath d='M11.6667 17.5C11.6667 16.2113 12.7501 15.1666 14.0865 15.1666H41.9137C43.2501 15.1666 44.3334 16.2113 44.3334 17.5V22.1666H11.6667V17.5Z' fill='%23202020'/%3E%3C/svg%3E";
+      } else return "";
   }
 };
 
@@ -175,21 +175,25 @@ const CampButton = ({ onClick, authenticated, disabled }) => {
 
 /**
  * The Auth modal component.
- * @param { { setIsVisible: function, wcProvider: object, loading: boolean } } props The props.
+ * @param { { setIsVisible: function, wcProvider: object, loading: boolean, onlyWagmi: boolean, defaultProvider: object } } props The props.
  * @returns { JSX.Element } The Auth modal component.
  */
-const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
+const AuthModal = ({
+  setIsVisible,
+  wcProvider,
+  loading,
+  onlyWagmi,
+  defaultProvider,
+}) => {
   const { connect } = useConnect();
   const { setProvider } = useProvider();
   const { auth, wagmiAvailable } = useContext(CampContext);
   const [customProvider, setCustomProvider] = useState(null);
   const providers = useProviders();
-  let customConnector;
-  let customAccount;
-  if (wagmiAvailable) {
-    customConnector = useConnectorClient();
-    customAccount = useAccount();
-  }
+  const [customConnector, setCustomConnector] = useState(null);
+  const [customAccount, setCustomAccount] = useState(null);
+  const wagmiConnectorClient = useConnectorClient();
+  const wagmiAccount = useAccount();
 
   const handleWalletConnect = async ({ provider }) => {
     auth.setLoading(true);
@@ -202,13 +206,50 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   };
 
   useEffect(() => {
+    if (wagmiAvailable && !defaultProvider) {
+      setCustomConnector(wagmiConnectorClient);
+      setCustomAccount(wagmiAccount);
+    }
+  }, [wagmiAvailable, defaultProvider, wagmiAccount]);
+
+  useEffect(() => {
+    if (defaultProvider && defaultProvider.provider && defaultProvider.info) {
+      let addr = defaultProvider.provider.address;
+      const acc = {
+        connector: {
+          ...defaultProvider.info,
+          icon:
+            defaultProvider.info.icon ||
+            getIconByConnectorName(defaultProvider.info.name),
+        },
+        address: addr,
+      };
+      if (!addr) {
+        defaultProvider.provider
+          .request({
+            method: "eth_requestAccounts",
+          })
+          .then((accounts) => {
+            setCustomAccount({
+              ...acc,
+              address: accounts[0],
+            });
+          });
+      } else {
+        setCustomAccount(acc);
+      }
+      setCustomProvider(defaultProvider.provider);
+    }
+  }, [defaultProvider]);
+
+  useEffect(() => {
     if (wagmiAvailable && customConnector) {
       const provider = customConnector.data;
       if (provider) {
         setCustomProvider(provider);
       }
     }
-  }, [customConnector, customAccount]);
+  }, [customConnector, customConnector?.data, wagmiAvailable, customProvider]);
 
   useEffect(() => {
     const doConnect = async () => {
@@ -272,18 +313,22 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
               handleConnect={handleConnect}
               loading={loading}
             />
-            <div className={styles["divider"]} />
+            {!onlyWagmi && !defaultProvider?.exclusive && (
+              <div className={styles["divider"]} />
+            )}
           </>
         )}
-        {providers.map((provider) => (
-          <ProviderButton
-            provider={provider}
-            handleConnect={handleConnect}
-            loading={loading}
-            key={provider.info.uuid}
-          />
-        ))}
-        {wcProvider && (
+        {!onlyWagmi &&
+          !defaultProvider?.exclusive &&
+          providers.map((provider) => (
+            <ProviderButton
+              provider={provider}
+              handleConnect={handleConnect}
+              loading={loading}
+              key={provider.info.uuid}
+            />
+          ))}
+        {!onlyWagmi && !defaultProvider?.exclusive && wcProvider && (
           <ProviderButton
             provider={{
               provider: wcProvider,
@@ -296,7 +341,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
             loading={loading}
           />
         )}
-        {window.ethereum && (
+        {!onlyWagmi && !defaultProvider?.exclusive && window.ethereum && (
           <ProviderButton
             provider={{
               provider: window.ethereum,
@@ -322,14 +367,17 @@ const AuthModal = ({ setIsVisible, wcProvider, loading }) => {
   );
 };
 
-
-
 /**
  * The CampModal component.
- * @param { { injectButton?: boolean, wcProjectId?: string } } props The props.
+ * @param { { injectButton?: boolean, wcProjectId?: string, onlyWagmi?: boolean, defaultProvider?: object } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-export const CampModal = ({ injectButton = true, wcProjectId }) => {
+export const CampModal = ({
+  injectButton = true,
+  wcProjectId,
+  onlyWagmi = false,
+  defaultProvider,
+}) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
@@ -357,22 +405,35 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
   }, [authenticated]);
 
   useEffect(() => {
-    if (
-      !provider.provider &&
-      (!wagmiAvailable || !customAccount?.isConnected) &&
-      !walletConnectProvider &&
-      !providers.length
-    ) {
-      setIsButtonDisabled(true);
-    } else {
-      setIsButtonDisabled(false);
-    }
+    const noProvider = !provider.provider;
+    const noWagmiOrAccount = !wagmiAvailable || !customAccount?.isConnected;
+    const noWalletConnectProvider = !walletConnectProvider;
+    const noProviders = !providers.length;
+    const onlyWagmiNoAccount = onlyWagmi && !customAccount?.isConnected;
+    const noDefaultProvider = !defaultProvider;
+    const defaultProviderNotReady =
+      defaultProvider && !defaultProvider.provider;
+    const defaultProviderExclusive = defaultProvider?.exclusive;
+
+    const shouldDisableButton =
+      ((noProvider &&
+        noWagmiOrAccount &&
+        noWalletConnectProvider &&
+        noProviders &&
+        noDefaultProvider) ||
+        onlyWagmiNoAccount ||
+        (defaultProviderNotReady && defaultProviderExclusive)) &&
+      !authenticated;
+
+    setIsButtonDisabled(shouldDisableButton);
   }, [
     provider,
     wagmiAvailable,
     customAccount,
     walletConnectProvider,
     providers,
+    authenticated,
+    defaultProvider,
   ]);
 
   return (
@@ -402,6 +463,8 @@ export const CampModal = ({ injectButton = true, wcProjectId }) => {
                   setIsVisible={setIsVisible}
                   wcProvider={walletConnectProvider}
                   loading={loading}
+                  onlyWagmi={onlyWagmi}
+                  defaultProvider={defaultProvider}
                 />
               )}
             </div>
