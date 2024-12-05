@@ -527,12 +527,16 @@ The **CampModal** component displays a button with the text "**Connect**" that t
 
 If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
 
-The **CampModal** can take two props:
+The **CampModal** can take the following props:
 
 - `wcProjectId` - `string` - The WalletConnect project ID to use for authentication. Allows the users to authenticate via WalletConnect.
 - `injectButton` - `boolean` - Whether to inject the button into the DOM or not. Defaults to `true`. If set to `false`, the button will not be rendered and the modal can be opened programmatically via the `openModal` function returned by the `useModal` hook.
+- `onlyWagmi` - `boolean` - Whether to only show the provider that the user is currently authenticated with. Defaults to `false`.
+- `defaultProvider` - `{ provider: EIP1193Provider, info: EIP6963ProviderInfo, exclusive: boolean }` - Custom provider to set as the highlighted provider in the modal. If not set, the wagmi provider will be highlighted if it is available. The `exclusive` property can be set to `true` to only show this provider in the modal.
 
 ### Usage
+
+Basic usage of the **CampModal** component:
 
 ```jsx
 import { CampModal } from "@campnetwork/sdk/react";
@@ -546,7 +550,44 @@ function App() {
 }
 ```
 
-Users can authenticate either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
+With custom props:
+
+```jsx
+import { CampModal } from "@campnetwork/sdk/react";
+
+function App() {
+  return (
+    <div>
+      <CampModal
+        wcProjectId="your-wc-project-id"
+        defaultProvider={{
+          provider: window.ethereum,
+          info: { name: "MetaMask", icon: "https://..." },
+          exclusive: false,
+        }}
+      />
+    </div>
+  );
+}
+```
+
+You can find more [examples here](./examples/client-side/react/providers-configuration).
+
+Only show the provider that the user is currently authenticated with (if using wagmi):
+
+```jsx
+import { CampModal } from "@campnetwork/sdk/react";
+
+function App() {
+  return (
+    <div>
+      <CampModal onlyWagmi />
+    </div>
+  );
+}
+```
+
+Users can be authenticated either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
 
 ## Usage with Privy and Appkit
 
