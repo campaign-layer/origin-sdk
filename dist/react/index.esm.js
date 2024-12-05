@@ -1757,7 +1757,7 @@ var AuthModal = function AuthModal(_ref3) {
     label: formatAddress(customAccount.address),
     handleConnect: handleConnect,
     loading: loading
-  }), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && /*#__PURE__*/React.createElement("div", {
+  }), (providers.length || wcProvider || window.ethereum) && !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && /*#__PURE__*/React.createElement("div", {
     className: styles["divider"]
   })), !onlyWagmi && !(defaultProvider !== null && defaultProvider !== void 0 && defaultProvider.exclusive) && providers.map(function (provider) {
     return /*#__PURE__*/React.createElement(ProviderButton, {
@@ -1843,10 +1843,10 @@ var CampModal = function CampModal(_ref7) {
     var noWalletConnectProvider = !walletConnectProvider;
     var noProviders = !providers.length;
     var onlyWagmiNoAccount = onlyWagmi && !((_customAccount2 = customAccount) !== null && _customAccount2 !== void 0 && _customAccount2.isConnected);
-    var noDefaultProvider = !defaultProvider;
-    var defaultProviderNotReady = defaultProvider && !defaultProvider.provider;
+    var noDefaultProvider = !defaultProvider || !defaultProvider.provider;
     var defaultProviderExclusive = defaultProvider === null || defaultProvider === void 0 ? void 0 : defaultProvider.exclusive;
-    var shouldDisableButton = (noProvider && noWagmiOrAccount && noWalletConnectProvider && noProviders && noDefaultProvider || onlyWagmiNoAccount || defaultProviderNotReady && defaultProviderExclusive) && !authenticated;
+    var noAvailableProviders = noProvider && noWagmiOrAccount && noWalletConnectProvider && noProviders && noDefaultProvider;
+    var shouldDisableButton = (noAvailableProviders || onlyWagmiNoAccount || noDefaultProvider && defaultProviderExclusive) && !authenticated;
     setIsButtonDisabled(shouldDisableButton);
   }, [provider, wagmiAvailable, customAccount, walletConnectProvider, providers, authenticated, defaultProvider]);
   return /*#__PURE__*/React.createElement(ClientOnly, null, /*#__PURE__*/React.createElement("div", null, injectButton && /*#__PURE__*/React.createElement(CampButton, {

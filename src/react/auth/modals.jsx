@@ -317,9 +317,11 @@ const AuthModal = ({
               handleConnect={handleConnect}
               loading={loading}
             />
-            {!onlyWagmi && !defaultProvider?.exclusive && (
-              <div className={styles["divider"]} />
-            )}
+            {(providers.length || wcProvider || window.ethereum) &&
+              !onlyWagmi &&
+              !defaultProvider?.exclusive && (
+                <div className={styles["divider"]} />
+              )}
           </>
         )}
         {!onlyWagmi &&
@@ -414,19 +416,20 @@ export const CampModal = ({
     const noWalletConnectProvider = !walletConnectProvider;
     const noProviders = !providers.length;
     const onlyWagmiNoAccount = onlyWagmi && !customAccount?.isConnected;
-    const noDefaultProvider = !defaultProvider;
-    const defaultProviderNotReady =
-      defaultProvider && !defaultProvider.provider;
+    const noDefaultProvider = !defaultProvider || !defaultProvider.provider;
     const defaultProviderExclusive = defaultProvider?.exclusive;
 
+    const noAvailableProviders =
+      noProvider &&
+      noWagmiOrAccount &&
+      noWalletConnectProvider &&
+      noProviders &&
+      noDefaultProvider;
+
     const shouldDisableButton =
-      ((noProvider &&
-        noWagmiOrAccount &&
-        noWalletConnectProvider &&
-        noProviders &&
-        noDefaultProvider) ||
+      (noAvailableProviders ||
         onlyWagmiNoAccount ||
-        (defaultProviderNotReady && defaultProviderExclusive)) &&
+        (noDefaultProvider && defaultProviderExclusive)) &&
       !authenticated;
 
     setIsButtonDisabled(shouldDisableButton);
