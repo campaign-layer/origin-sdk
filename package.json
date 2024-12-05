@@ -16,7 +16,7 @@
     "prepare": "husky",
     "test": "jest"
   },
-  "module": "src/index.js",
+  "module": "dist/core.esm.js",
   "keywords": [
     "camp",
     "sdk",
@@ -30,6 +30,9 @@
     "type": "git",
     "url": "git+https://github.com/campaign-layer/camp-sdk.git"
   },
+  "files": [
+    "/dist"
+  ],
   "type": "module",
   "license": "ISC",
   "description": "Camp Network SDK",
