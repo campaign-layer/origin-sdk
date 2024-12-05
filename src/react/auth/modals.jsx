@@ -192,8 +192,12 @@ const AuthModal = ({
   const providers = useProviders();
   const [customConnector, setCustomConnector] = useState(null);
   const [customAccount, setCustomAccount] = useState(null);
-  const wagmiConnectorClient = useConnectorClient();
-  const wagmiAccount = useAccount();
+  let wagmiConnectorClient;
+  let wagmiAccount;
+  if (wagmiAvailable) {
+    wagmiConnectorClient = useConnectorClient();
+    wagmiAccount = useAccount();
+  }
 
   const handleWalletConnect = async ({ provider }) => {
     auth.setLoading(true);

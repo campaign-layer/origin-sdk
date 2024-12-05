@@ -1615,8 +1615,12 @@ var AuthModal = function AuthModal(_ref3) {
     _useState8 = _slicedToArray(_useState7, 2),
     customAccount = _useState8[0],
     setCustomAccount = _useState8[1];
-  var wagmiConnectorClient = useConnectorClient();
-  var wagmiAccount = useAccount();
+  var wagmiConnectorClient;
+  var wagmiAccount;
+  if (wagmiAvailable) {
+    wagmiConnectorClient = useConnectorClient();
+    wagmiAccount = useAccount();
+  }
   var handleWalletConnect = /*#__PURE__*/function () {
     var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref4) {
       var provider;
