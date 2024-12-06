@@ -472,7 +472,6 @@ createRoot(document.getElementById("root")).render(
 The `CampProvider` component requires a `clientId` prop to be passed in order link the users to your app.
 It can also take the following optional props:
 
-- `wcProjectId` - `string` - The WalletConnect project ID to use for authentication. Allows the users to authenticate via WalletConnect.
 - `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `discord`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
 
 ```jsx
@@ -482,7 +481,6 @@ function App() {
   return (
     <CampProvider
       clientId="your-client-id"
-      wcProjectId="your-wc-project-id"
       redirectUri="https://your-website.com"
     >
       <div>Your app</div>
@@ -500,7 +498,6 @@ function App() {
   return (
     <CampProvider
       clientId="your-client-id"
-      wcProjectId="your-wc-project-id"
       redirectUri={{
         twitter: "https://your-website.com/twitter",
         discord: "https://your-website.com/discord",
