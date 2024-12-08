@@ -12,7 +12,18 @@ function App() {
     data: socials,
     error: socialsError,
     loading: socialsLoading,
+    refetch: refetchSocials,
   } = useSocials();
+
+  // refetch the socials after unlinking
+  const handleUnlinkTwitter = async () => {
+    try {
+      await unlinkTwitter();
+      await refetchSocials();
+    } catch (error) {
+      console.error(error);
+    }
+  }
   return (
     <div>
       <CampModal />
@@ -26,7 +37,7 @@ function App() {
             <div>
               <p>Twitter: {socials.twitter ? "Linked" : "Not linked"}</p>
               {socials.twitter ? (
-                <button onClick={unlinkTwitter}>Unlink Twitter</button>
+                <button onClick={handleUnlinkTwitter}>Unlink Twitter</button>
               ) : (
                 <button onClick={linkTwitter}>Link Twitter</button>
               )}
