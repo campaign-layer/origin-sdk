@@ -14,9 +14,66 @@ export { CampContext, CampProvider, ModalContext };
  * @returns { Auth } The instance of the Auth class.
  * @example
  */
+const getAuthProperties = (auth) => {
+  const prototype = Object.getPrototypeOf(auth);
+  const properties = Object.getOwnPropertyNames(prototype);
+  const object = {};
+
+  for (const property of properties) {
+    if (typeof auth[property] === "function") {
+      object[property] = auth[property].bind(auth);
+    }
+  }
+
+  return object;
+};
+
+const getAuthVariables = (auth) => {
+  const variables = Object.keys(auth);
+  const object = {};
+
+  for (const variable of variables) {
+    object[variable] = auth[variable];
+  }
+
+  return object;
+};
+
 export const useAuth = () => {
   const { auth } = useContext(CampContext);
-  return auth;
+  if (!auth) {
+    return null;
+  }
+
+  const properties = getAuthProperties(auth);
+  const variables = getAuthVariables(auth);
+
+  return { ...variables, ...properties };
+};
+
+/**
+ * Returns the functions to link and unlink socials.
+ * @returns { { linkTwitter: function, unlinkTwitter: function, linkDiscord: function, unlinkDiscord: function, linkSpotify: function, unlinkSpotify: function } } The functions to link and unlink socials.
+ * @example
+ * const { linkTwitter, unlinkTwitter, linkDiscord, unlinkDiscord, linkSpotify, unlinkSpotify } = useLinkSocials();
+ * linkTwitter();
+ */
+export const useLinkSocials = () => {
+  const { auth } = useContext(CampContext);
+  if (!auth) {
+    return {};
+  }
+  const prototype = Object.getPrototypeOf(auth);
+  const linkingProps = Object.getOwnPropertyNames(prototype).filter(
+    (prop) => prop.startsWith("link") || prop.startsWith("unlink")
+  );
+
+  const linkingFunctions = linkingProps.reduce((acc, prop) => {
+    acc[prop] = auth[prop].bind(auth);
+    return acc;
+  }, {});
+
+  return linkingFunctions;
 };
 
 /**

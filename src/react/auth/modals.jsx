@@ -214,7 +214,12 @@ const AuthModal = ({
       setCustomConnector(wagmiConnectorClient);
       setCustomAccount(wagmiAccount);
     }
-  }, [wagmiAvailable, defaultProvider, wagmiAccount]);
+  }, [
+    wagmiAvailable,
+    defaultProvider,
+    wagmiAccount,
+    wagmiConnectorClient?.data,
+  ]);
 
   useEffect(() => {
     if (defaultProvider && defaultProvider.provider && defaultProvider.info) {

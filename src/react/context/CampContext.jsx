@@ -3,6 +3,14 @@ import { Auth } from "../../auth/index.js";
 import { ModalProvider } from "./ModalContext.jsx";
 import { WagmiContext } from "wagmi";
 
+/**
+ * CampContext
+ * @type {React.Context}
+ * @property {string} clientId The Camp client ID
+ * @property {Auth} auth The Camp Auth instance
+ * @property {function} setAuth The function to set the Camp Auth instance
+ * @property {boolean} wagmiAvailable Whether Wagmi is available
+ */
 const CampContext = createContext({
   clientId: null,
   auth: null,

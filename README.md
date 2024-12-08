@@ -733,6 +733,29 @@ function App() {
 }
 ```
 
+### useLinkSocials
+
+The `useLinkSocials` hook returns functions that can be used to link and unlink social accounts.
+
+```jsx
+import { useLinkSocials } from "@campnetwork/sdk/react";
+
+function App() {
+  const { linkTwitter, linkDiscord, linkSpotify, unlinkTwitter, unlinkDiscord, unlinkSpotify } = useLinkSocials();
+
+  return (
+    <div>
+      <button onClick={linkTwitter}>Link Twitter</button>
+      <button onClick={linkDiscord}>Link Discord</button>
+      <button onClick={linkSpotify}>Link Spotify</button>
+      <button onClick={unlinkTwitter}>Unlink Twitter</button>
+      <button onClick={unlinkDiscord}>Unlink Discord</button>
+      <button onClick={unlinkSpotify}>Unlink Spotify</button>
+    </div>
+  );
+}
+```
+
 ### useModal
 
 The `useModal` hook returns the state of the Auth and My Camp modals, as well as functions to show and hide them.

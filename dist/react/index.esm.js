@@ -63,6 +63,54 @@ function _classPrivateFieldSet2(s, a, r) {
 function _classPrivateMethodInitSpec(e, a) {
   _checkPrivateRedeclaration(e, a), a.add(e);
 }
+function _createForOfIteratorHelper(r, e) {
+  var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+  if (!t) {
+    if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e) {
+      t && (r = t);
+      var n = 0,
+        F = function () {};
+      return {
+        s: F,
+        n: function () {
+          return n >= r.length ? {
+            done: !0
+          } : {
+            done: !1,
+            value: r[n++]
+          };
+        },
+        e: function (r) {
+          throw r;
+        },
+        f: F
+      };
+    }
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var o,
+    a = !0,
+    u = !1;
+  return {
+    s: function () {
+      t = t.call(r);
+    },
+    n: function () {
+      var r = t.next();
+      return a = r.done, r;
+    },
+    e: function (r) {
+      u = !0, o = r;
+    },
+    f: function () {
+      try {
+        a || null == t.return || t.return();
+      } finally {
+        if (u) throw o;
+      }
+    }
+  };
+}
 function _defineProperty(e, r, t) {
   return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
     value: t,
@@ -1236,6 +1284,14 @@ var ModalProvider = function ModalProvider(_ref) {
   }, children);
 };
 
+/**
+ * CampContext
+ * @type {React.Context}
+ * @property {string} clientId The Camp client ID
+ * @property {Auth} auth The Camp Auth instance
+ * @property {function} setAuth The function to set the Camp Auth instance
+ * @property {boolean} wagmiAvailable Whether Wagmi is available
+ */
 var CampContext = /*#__PURE__*/createContext({
   clientId: null,
   auth: null,
@@ -1590,6 +1646,7 @@ var CampButton = function CampButton(_ref2) {
  * @returns { JSX.Element } The Auth modal component.
  */
 var AuthModal = function AuthModal(_ref3) {
+  var _wagmiConnectorClient;
   var setIsVisible = _ref3.setIsVisible,
     wcProvider = _ref3.wcProvider,
     loading = _ref3.loading,
@@ -1661,7 +1718,7 @@ var AuthModal = function AuthModal(_ref3) {
       setCustomConnector(wagmiConnectorClient);
       setCustomAccount(wagmiAccount);
     }
-  }, [wagmiAvailable, defaultProvider, wagmiAccount]);
+  }, [wagmiAvailable, defaultProvider, wagmiAccount, (_wagmiConnectorClient = wagmiConnectorClient) === null || _wagmiConnectorClient === void 0 ? void 0 : _wagmiConnectorClient.data]);
   useEffect(function () {
     if (defaultProvider && defaultProvider.provider && defaultProvider.info) {
       var addr = defaultProvider.provider.address;
@@ -2065,10 +2122,68 @@ var MyCampModal = function MyCampModal(_ref10) {
  * @returns { Auth } The instance of the Auth class.
  * @example
  */
+var getAuthProperties = function getAuthProperties(auth) {
+  var prototype = Object.getPrototypeOf(auth);
+  var properties = Object.getOwnPropertyNames(prototype);
+  var object = {};
+  var _iterator = _createForOfIteratorHelper(properties),
+    _step;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var property = _step.value;
+      if (typeof auth[property] === "function") {
+        object[property] = auth[property].bind(auth);
+      }
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+  return object;
+};
+var getAuthVariables = function getAuthVariables(auth) {
+  var variables = Object.keys(auth);
+  var object = {};
+  for (var _i = 0, _variables = variables; _i < _variables.length; _i++) {
+    var variable = _variables[_i];
+    object[variable] = auth[variable];
+  }
+  return object;
+};
 var useAuth = function useAuth() {
   var _useContext = useContext(CampContext),
     auth = _useContext.auth;
-  return auth;
+  if (!auth) {
+    return null;
+  }
+  var properties = getAuthProperties(auth);
+  var variables = getAuthVariables(auth);
+  return _objectSpread2(_objectSpread2({}, variables), properties);
+};
+
+/**
+ * Returns the functions to link and unlink socials.
+ * @returns { { linkTwitter: function, unlinkTwitter: function, linkDiscord: function, unlinkDiscord: function, linkSpotify: function, unlinkSpotify: function } } The functions to link and unlink socials.
+ * @example
+ * const { linkTwitter, unlinkTwitter, linkDiscord, unlinkDiscord, linkSpotify, unlinkSpotify } = useLinkSocials();
+ * linkTwitter();
+ */
+var useLinkSocials = function useLinkSocials() {
+  var _useContext2 = useContext(CampContext),
+    auth = _useContext2.auth;
+  if (!auth) {
+    return {};
+  }
+  var prototype = Object.getPrototypeOf(auth);
+  var linkingProps = Object.getOwnPropertyNames(prototype).filter(function (prop) {
+    return prop.startsWith("link") || prop.startsWith("unlink");
+  });
+  var linkingFunctions = linkingProps.reduce(function (acc, prop) {
+    acc[prop] = auth[prop].bind(auth);
+    return acc;
+  }, {});
+  return linkingFunctions;
 };
 
 /**
@@ -2077,8 +2192,8 @@ var useAuth = function useAuth() {
  */
 var useProvider = function useProvider() {
   var _auth$viem, _auth$viem2;
-  var _useContext2 = useContext(CampContext),
-    auth = _useContext2.auth;
+  var _useContext3 = useContext(CampContext),
+    auth = _useContext3.auth;
   var _useState = useState({
       provider: (_auth$viem = auth.viem) === null || _auth$viem === void 0 ? void 0 : _auth$viem.transport,
       info: {
@@ -2110,8 +2225,8 @@ var useProvider = function useProvider() {
  * @returns { { authenticated: boolean, loading: boolean } } The authenticated state and loading state.
  */
 var useAuthState = function useAuthState() {
-  var _useContext3 = useContext(CampContext),
-    auth = _useContext3.auth;
+  var _useContext4 = useContext(CampContext),
+    auth = _useContext4.auth;
   var _useState3 = useState(auth.isAuthenticated),
     _useState4 = _slicedToArray(_useState3, 2),
     authenticated = _useState4[0],
@@ -2137,8 +2252,8 @@ var useAuthState = function useAuthState() {
  * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
  */
 var useConnect = function useConnect() {
-  var _useContext4 = useContext(CampContext),
-    auth = _useContext4.auth;
+  var _useContext5 = useContext(CampContext),
+    auth = _useContext5.auth;
   var connect = auth.connect.bind(auth);
   var disconnect = auth.disconnect.bind(auth);
   return {
@@ -2160,9 +2275,9 @@ var useProviders = function useProviders() {
  * @returns { { isOpen: boolean, openModal: function, closeModal: function } } The modal state and functions to open and close the modal.
  */
 var useModal = function useModal() {
-  var _useContext5 = useContext(ModalContext),
-    isVisible = _useContext5.isVisible,
-    setIsVisible = _useContext5.setIsVisible;
+  var _useContext6 = useContext(ModalContext),
+    isVisible = _useContext6.isVisible,
+    setIsVisible = _useContext6.setIsVisible;
   var handleOpen = function handleOpen() {
     setIsVisible(true);
   };
@@ -2181,8 +2296,8 @@ var useModal = function useModal() {
  * @returns { { data: Array, error: Error, isLoading: boolean } } The socials linked to the user.
  */
 var useSocials = function useSocials() {
-  var _useContext6 = useContext(CampContext),
-    auth = _useContext6.auth;
+  var _useContext7 = useContext(CampContext),
+    auth = _useContext7.auth;
   return useQuery({
     queryKey: ["socials", auth.isAuthenticated],
     queryFn: function queryFn() {
@@ -2191,4 +2306,4 @@ var useSocials = function useSocials() {
   });
 };
 
-export { CampContext, CampModal, CampProvider, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useModal, useProvider, useProviders, useSocials };
+export { CampContext, CampModal, CampProvider, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkSocials, useModal, useProvider, useProviders, useSocials };
