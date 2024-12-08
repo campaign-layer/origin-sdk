@@ -1,4 +1,4 @@
-import { CampModal, useModal, useAuthState } from "@campnetwork/sdk/react/auth";
+import { CampModal, useModal, useAuthState } from "@campnetwork/sdk/react";
 import "./App.css";
 
 function App() {
