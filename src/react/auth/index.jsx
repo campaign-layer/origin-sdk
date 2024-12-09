@@ -5,6 +5,7 @@ import { providerStore } from "../../auth/viem/providers.js";
 import { CampModal, MyCampModal } from "./modals.jsx";
 import { useQuery } from "@tanstack/react-query";
 import { Auth } from "../../auth/index.js";
+import { SocialsContext } from "../context/SocialsContext.jsx";
 
 export { CampModal, MyCampModal };
 
@@ -158,14 +159,59 @@ export const useModal = () => {
   };
 };
 
+export const useLinkModal = () => {
+  const { data: socials } = useSocials();
+  const { isLinkingVisible, setIsLinkingVisible, setCurrentlyLinking } =
+    useContext(ModalContext);
+
+  const handleTwitter = () => {
+    if (socials && !socials.twitter) {
+      setIsLinkingVisible(true);
+      setCurrentlyLinking("twitter");
+    } else {
+      setIsLinkingVisible(false);
+      console.warn("User already linked Twitter");
+    }
+  };
+
+  const handleDiscord = () => {
+    if (socials && !socials.discord) {
+      setIsLinkingVisible(true);
+      setCurrentlyLinking("discord");
+    } else {
+      setIsLinkingVisible(false);
+      console.warn("User already linked Discord");
+    }
+  };
+
+  const handleSpotify = () => {
+    if (socials && !socials.spotify) {
+      setIsLinkingVisible(true);
+      setCurrentlyLinking("spotify");
+    } else {
+      setIsLinkingVisible(false);
+      console.warn("User already linked Spotify");
+    }
+  };
+
+  const handleClose = () => {
+    setIsLinkingVisible(false);
+  };
+
+  return {
+    isLinkingOpen: isLinkingVisible,
+    linkTwitter: handleTwitter,
+    linkDiscord: handleDiscord,
+    linkSpotify: handleSpotify,
+    closeModal: handleClose,
+  };
+};
+
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean } } The socials linked to the user.
+ * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
  */
 export const useSocials = () => {
-  const { auth } = useContext(CampContext);
-  return useQuery({
-    queryKey: ["socials", auth.isAuthenticated],
-    queryFn: () => auth.getLinkedSocials(),
-  });
+  const { query } = useContext(SocialsContext);
+  return query;
 };

@@ -280,7 +280,11 @@ const AuthModal = ({
   const handleConnect = (provider) => {
     if (provider) setProvider(provider);
     // necessary for appkit, as it doesn't seem to support the "eth_requestAccounts" method
-    if (customAccount?.address && provider?.provider?.uid === customProvider?.uid) {
+    if (
+      customAccount?.address &&
+      customProvider?.uid &&
+      provider?.provider?.uid === customProvider?.uid
+    ) {
       auth.setWalletAddress(customAccount?.address);
     }
     connect();
@@ -393,6 +397,7 @@ export const CampModal = ({
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
+  const { isLinkingVisible } = useContext(ModalContext);
   const { provider } = useProvider();
   const providers = useProviders();
   const { wagmiAvailable } = useContext(CampContext);
@@ -416,6 +421,7 @@ export const CampModal = ({
     }
   }, [authenticated]);
 
+  // Cases where the button should be disabled
   useEffect(() => {
     const noProvider = !provider.provider;
     const noWagmiOrAccount = !wagmiAvailable || !customAccount?.isConnected;
@@ -460,6 +466,7 @@ export const CampModal = ({
           />
         )}
         <ReactPortal wrapperId="camp-modal-wrapper">
+          {isLinkingVisible && <LinkingModal />}
           {isVisible && (
             <div
               className={styles.modal}
@@ -485,6 +492,89 @@ export const CampModal = ({
         </ReactPortal>
       </div>
     </ClientOnly>
+  );
+};
+
+const capitalize = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const LinkingModal = () => {
+  const { isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+
+  const handleLink = async () => {
+    if (currentlyLinking === "twitter") {
+      auth.linkTwitter();
+    } else if (currentlyLinking === "discord") {
+      auth.linkDiscord();
+    } else if (currentlyLinking === "spotify") {
+      auth.linkSpotify();
+    }
+  };
+
+  return (
+    <div
+      className={styles.modal}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setIsLinkingVisible(false);
+        }
+      }}
+    >
+      <div className={styles.container}>
+        <div
+          className={styles["close-button"]}
+          onClick={() => setIsLinkingVisible(false)}
+        >
+          <CloseIcon />
+        </div>
+        {isSocialsLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "4rem",
+              marginBottom: "1rem",
+            }}
+          >
+            <div className={styles.spinner} />
+          </div>
+        ) : (
+          <div>
+            <div className={styles.header}>
+              <div className={styles["modal-icon"]}>
+                {currentlyLinking === "twitter" ? (
+                  <TwitterIcon />
+                ) : currentlyLinking === "discord" ? (
+                  <DiscordIcon />
+                ) : currentlyLinking === "spotify" ? (
+                  <SpotifyIcon />
+                ) : null}
+              </div>
+            </div>
+            <div className={styles["linking-text"]}>
+              <b>{window.location.host}</b> is requesting to link your{" "}
+              {capitalize(currentlyLinking)} account.
+            </div>
+            <button className={styles["linking-button"]} onClick={handleLink}>
+              Link
+            </button>
+          </div>
+        )}
+        <a
+          href="https://campnetwork.xyz"
+          className={styles["footer-text"]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginTop: 0 }}
+        >
+          Powered by Camp Network
+        </a>
+      </div>
+    </div>
   );
 };
 
@@ -566,6 +656,11 @@ const ConnectorButton = ({
   );
 };
 
+/**
+ * The MyCampModal component.
+ * @param { { wcProvider: object } } props The props.
+ * @returns { JSX.Element } The MyCampModal component.
+ */
 export const MyCampModal = ({ wcProvider }) => {
   const { auth } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);

@@ -2,6 +2,7 @@ import React, { useState, useContext, createContext } from "react";
 import { Auth } from "../../auth/index.js";
 import { ModalProvider } from "./ModalContext.jsx";
 import { WagmiContext } from "wagmi";
+import { SocialsProvider } from "./SocialsContext.jsx";
 
 /**
  * CampContext
@@ -40,7 +41,9 @@ const CampProvider = ({ clientId, redirectUri, children }) => {
         wagmiAvailable: wagmiContext !== undefined,
       }}
     >
-      <ModalProvider>{children}</ModalProvider>
+      <SocialsProvider>
+        <ModalProvider>{children}</ModalProvider>
+      </SocialsProvider>
     </CampContext.Provider>
   );
 };
