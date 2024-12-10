@@ -208,8 +208,11 @@
   animation: spin 1s linear infinite;
 }
 .spinner {
+  display: flex;
   margin-left: auto;
   margin-right: 0.25rem;
+  align-self: center;
+  justify-content: center;
 }
 
 @keyframes spin {

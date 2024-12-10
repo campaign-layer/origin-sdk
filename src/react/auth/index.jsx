@@ -164,33 +164,28 @@ export const useLinkModal = () => {
   const { isLinkingVisible, setIsLinkingVisible, setCurrentlyLinking } =
     useContext(ModalContext);
 
-  const handleTwitter = () => {
-    if (socials && !socials.twitter) {
+  const handleOpen = (social) => {
+    setCurrentlyLinking(social);
+    setIsLinkingVisible(true);
+  };
+
+  const handleLink = (social) => {
+    if (socials && !socials[social]) {
+      setCurrentlyLinking(social);
       setIsLinkingVisible(true);
-      setCurrentlyLinking("twitter");
     } else {
       setIsLinkingVisible(false);
-      console.warn("User already linked Twitter");
+      console.warn(`User already linked ${social}`);
     }
   };
 
-  const handleDiscord = () => {
-    if (socials && !socials.discord) {
+  const handleUnlink = (social) => {
+    if (socials && socials[social]) {
+      setCurrentlyLinking(social);
       setIsLinkingVisible(true);
-      setCurrentlyLinking("discord");
     } else {
       setIsLinkingVisible(false);
-      console.warn("User already linked Discord");
-    }
-  };
-
-  const handleSpotify = () => {
-    if (socials && !socials.spotify) {
-      setIsLinkingVisible(true);
-      setCurrentlyLinking("spotify");
-    } else {
-      setIsLinkingVisible(false);
-      console.warn("User already linked Spotify");
+      console.warn(`User isn't linked to ${social}`);
     }
   };
 
@@ -200,9 +195,15 @@ export const useLinkModal = () => {
 
   return {
     isLinkingOpen: isLinkingVisible,
-    linkTwitter: handleTwitter,
-    linkDiscord: handleDiscord,
-    linkSpotify: handleSpotify,
+    openTwitterModal: () => handleOpen("twitter"),
+    openDiscordModal: () => handleOpen("discord"),
+    openSpotifyModal: () => handleOpen("spotify"),
+    linkTwitter: () => handleLink("twitter"),
+    linkDiscord: () => handleLink("discord"),
+    linkSpotify: () => handleLink("spotify"),
+    unlinkTwitter: () => handleUnlink("twitter"),
+    unlinkDiscord: () => handleUnlink("discord"),
+    unlinkSpotify: () => handleUnlink("spotify"),
     closeModal: handleClose,
   };
 };

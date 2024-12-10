@@ -500,17 +500,37 @@ const capitalize = (str) => {
 };
 
 const LinkingModal = () => {
-  const { isLoading: isSocialsLoading } = useSocials();
+  const { isLoading: isSocialsLoading, data: socials, refetch } = useSocials();
   const { auth } = useContext(CampContext);
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const [isUnlinking, setIsUnlinking] = useState(false);
 
   const handleLink = async () => {
-    if (currentlyLinking === "twitter") {
-      auth.linkTwitter();
-    } else if (currentlyLinking === "discord") {
-      auth.linkDiscord();
-    } else if (currentlyLinking === "spotify") {
-      auth.linkSpotify();
+    if (isSocialsLoading) return;
+    if (socials[currentlyLinking]) {
+      setIsUnlinking(true);
+      if (currentlyLinking === "twitter") {
+        await auth.unlinkTwitter();
+      } else if (currentlyLinking === "discord") {
+        await auth.unlinkDiscord();
+      } else if (currentlyLinking === "spotify") {
+        await auth.unlinkSpotify();
+      } else {
+        setIsUnlinking(false);
+        setIsLinkingVisible(false);
+        return;
+      }
+      refetch();
+      setIsLinkingVisible(false);
+      setIsUnlinking(false);
+    } else {
+      if (currentlyLinking === "twitter") {
+        auth.linkTwitter();
+      } else if (currentlyLinking === "discord") {
+        auth.linkDiscord();
+      } else if (currentlyLinking === "spotify") {
+        auth.linkSpotify();
+      }
     }
   };
 
@@ -556,11 +576,32 @@ const LinkingModal = () => {
               </div>
             </div>
             <div className={styles["linking-text"]}>
-              <b>{window.location.host}</b> is requesting to link your{" "}
-              {capitalize(currentlyLinking)} account.
+              {socials[currentlyLinking] ? (
+                <div>
+                  Your {capitalize(currentlyLinking)} account is currently
+                  linked.
+                </div>
+              ) : (
+                <div>
+                  <b>{window.location.host}</b> is requesting to link your{" "}
+                  {capitalize(currentlyLinking)} account.
+                </div>
+              )}
             </div>
-            <button className={styles["linking-button"]} onClick={handleLink}>
-              Link
+            <button
+              className={styles["linking-button"]}
+              onClick={handleLink}
+              disabled={isUnlinking}
+            >
+              {!isUnlinking ? (
+                socials[currentlyLinking] ? (
+                  "Unlink"
+                ) : (
+                  "Link"
+                )
+              ) : (
+                <div className={styles.spinner} />
+              )}
             </button>
           </div>
         )}
