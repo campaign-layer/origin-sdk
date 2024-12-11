@@ -3,12 +3,12 @@ import { CampContext, CampProvider } from "../context/CampContext.jsx";
 import { ModalContext } from "../context/ModalContext.jsx";
 import { providerStore } from "../../auth/viem/providers.js";
 import { CampModal, MyCampModal } from "./modals.jsx";
-import { useQuery } from "@tanstack/react-query";
 import { Auth } from "../../auth/index.js";
 import { SocialsContext } from "../context/SocialsContext.jsx";
+import { LinkButton } from "./buttons.jsx";
 
 export { CampModal, MyCampModal };
-
+export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
 /**
  * Returns the instance of the Auth class.

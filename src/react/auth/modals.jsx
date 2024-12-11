@@ -14,7 +14,7 @@ import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
 import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils.js";
 import { CampButton, ProviderButton, ConnectorButton } from "./buttons.jsx";
-import { DiscordIcon, TwitterIcon, SpotifyIcon, CloseIcon } from "./icons.jsx";
+import { DiscordIcon, TwitterIcon, SpotifyIcon, CloseIcon, CampIcon } from "./icons.jsx";
 
 /**
  * The Auth modal component.
@@ -141,11 +141,14 @@ const AuthModal = ({
         <CloseIcon />
       </div>
       <div className={styles.header}>
-        <img
+        {/* <img
           className={styles["modal-icon"]}
           src="https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg"
           alt="Camp Network"
-        />
+        /> */}
+        <div className={styles["modal-icon"]}>
+          <CampIcon />
+        </div>
         <span>Connect with Camp</span>
       </div>
 
@@ -401,7 +404,7 @@ const LinkingModal = () => {
         ) : (
           <div>
             <div className={styles.header}>
-              <div className={styles["modal-icon"]}>
+              <div className={styles["small-modal-icon"]}>
                 {currentlyLinking === "twitter" ? (
                   <TwitterIcon />
                 ) : currentlyLinking === "discord" ? (
@@ -412,7 +415,7 @@ const LinkingModal = () => {
               </div>
             </div>
             <div className={styles["linking-text"]}>
-              {socials[currentlyLinking] ? (
+              {(currentlyLinking && socials[currentlyLinking]) ? (
                 <div>
                   Your {capitalize(currentlyLinking)} account is currently
                   linked.
@@ -430,7 +433,7 @@ const LinkingModal = () => {
               disabled={isUnlinking}
             >
               {!isUnlinking ? (
-                socials[currentlyLinking] ? (
+                (currentlyLinking && socials[currentlyLinking]) ? (
                   "Unlink"
                 ) : (
                   "Link"

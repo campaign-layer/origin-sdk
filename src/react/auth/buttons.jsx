@@ -1,4 +1,8 @@
+import { capitalize } from "../../utils.js";
+import { CampIcon, DiscordIcon, SpotifyIcon, TwitterIcon } from "./icons.jsx";
+import { useAuthState, useLinkModal, useSocials } from "./index.jsx";
 import styles from "./styles/auth.module.css";
+import buttonStyles from "./styles/buttons.module.css";
 import React, { useEffect, useState } from "react";
 
 /**
@@ -9,11 +13,11 @@ import React, { useEffect, useState } from "react";
 export const CampButton = ({ onClick, authenticated, disabled }) => {
   return (
     <button
-      className={styles["connect-button"]}
+      className={buttonStyles["connect-button"]}
       onClick={onClick}
       disabled={disabled}
     >
-      <div className={styles["button-icon"]}>
+      <div className={buttonStyles["button-icon"]}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 571.95 611.12"
@@ -55,7 +59,7 @@ export const ProviderButton = ({ provider, handleConnect, loading, label }) => {
   }, [loading]);
   return (
     <button
-      className={styles["provider-button"]}
+      className={buttonStyles["provider-button"]}
       onClick={handleClick}
       disabled={loading}
     >
@@ -64,7 +68,7 @@ export const ProviderButton = ({ provider, handleConnect, loading, label }) => {
           provider.info.icon ||
           "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23777777' d='M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72M20 9v6h-7V9zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2z'/%3E%3Ccircle cx='16' cy='12' r='1.5' fill='%23777777'/%3E%3C/svg%3E"
         }
-        className={styles["provider-icon"]}
+        className={buttonStyles["provider-icon"]}
         alt={provider.info.name}
       />
       <div
@@ -74,8 +78,12 @@ export const ProviderButton = ({ provider, handleConnect, loading, label }) => {
           alignItems: "flex-start",
         }}
       >
-        <span className={styles["provider-name"]}>{provider.info.name}</span>
-        {label && <span className={styles["provider-label"]}>({label})</span>}
+        <span className={buttonStyles["provider-name"]}>
+          {provider.info.name}
+        </span>
+        {label && (
+          <span className={buttonStyles["provider-label"]}>({label})</span>
+        )}
       </div>
       {isButtonLoading && <div className={styles.spinner} />}
     </button>
@@ -157,5 +165,118 @@ export const ConnectorButton = ({
         </button>
       )}
     </div>
+  );
+};
+
+const IconButton = ({ icon, onClick }) => {
+  return (
+    <button className={buttonStyles["icon-button"]} onClick={onClick}>
+      {icon}
+    </button>
+  );
+};
+
+/**
+ * The LinkButton component.
+ * A button that will open the modal to link or unlink a social account.
+ * @param { { variant: ("default"|"icon"), social: ("twitter"|"spotify"|"discord"), theme: ("default"|"camp") } } props The props.
+ * @returns { JSX.Element } The LinkButton component.
+ */
+export const LinkButton = ({
+  variant = "default",
+  social,
+  theme = "default",
+}) => {
+  const { openTwitterModal, openDiscordModal, openSpotifyModal } =
+    useLinkModal();
+  if (["default", "icon"].indexOf(variant) === -1) {
+    throw new Error("Invalid variant, must be 'default' or 'icon'");
+  }
+
+  if (["twitter", "spotify", "discord"].indexOf(social) === -1) {
+    throw new Error(
+      "Invalid social, must be 'twitter', 'spotify', or 'discord'"
+    );
+  }
+
+  if (["default", "camp"].indexOf(theme) === -1) {
+    throw new Error("Invalid theme, must be 'default' or 'camp'");
+  }
+
+  const { data: socials } = useSocials();
+  const { authenticated } = useAuthState();
+  const isLinked = socials && socials[social];
+  const handleClick = () => {
+    if (social === "twitter") {
+      openTwitterModal();
+    } else if (social === "discord") {
+      openDiscordModal();
+    } else if (social === "spotify") {
+      openSpotifyModal();
+    }
+  };
+  const Icon =
+    social === "twitter"
+      ? TwitterIcon
+      : social === "spotify"
+      ? SpotifyIcon
+      : social === "discord"
+      ? DiscordIcon
+      : null;
+  return (
+    <button
+      disabled={!authenticated}
+      className={`${buttonStyles[`link-button-${variant}`]} 
+        ${theme === "default" ? buttonStyles[social] : ""}
+      `}
+      onClick={handleClick}
+    >
+      {variant === "icon" ? (
+        <div className={buttonStyles["icon-container"]}>
+          <Icon />
+          <div
+            className={`${buttonStyles["camp-logo"]} ${
+              !isLinked ? buttonStyles["not-linked"] : ""
+            }`}
+          >
+            <CampIcon />
+          </div>
+        </div>
+      ) : (
+        <div className={buttonStyles["button-container"]}>
+          <div
+            className={`${buttonStyles["camp-logo"]} ${
+              !isLinked ? buttonStyles["not-linked"] : ""
+            }`}
+          >
+            <CampIcon />
+          </div>
+          <div className={buttonStyles["link-icon"]}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+              />
+            </svg>
+          </div>
+          <div className={buttonStyles["social-icon"]}>
+            {social === "twitter" ? (
+              <TwitterIcon />
+            ) : social === "spotify" ? (
+              <SpotifyIcon />
+            ) : social === "discord" ? (
+              <DiscordIcon />
+            ) : null}
+          </div>
+        </div>
+      )}
+    </button>
   );
 };

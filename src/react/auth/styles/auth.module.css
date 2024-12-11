@@ -64,7 +64,7 @@
   font-weight: bold;
 }
 
-.container .header .modal-icon {
+.container .header .small-modal-icon {
   width: 2rem;
   height: 2rem;
   margin-bottom: 0.5rem;
@@ -146,57 +146,6 @@
   border-radius: 0.25rem;
 }
 
-.provider-button {
-  display: flex;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: #fefefe;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  width: 100%;
-  transition: background-color 0.15s;
-  font-family: inherit;
-}
-
-.provider-button:focus {
-  outline: 1px solid #43b7c4;
-}
-
-.provider-button:hover {
-  border-color: #43b7c4;
-}
-
-.provider-button:hover:not(:disabled) {
-  background-color: #ddd;
-  cursor: pointer;
-}
-
-.provider-button img {
-  width: 2rem;
-  height: 2rem;
-}
-
-.provider-button .provider-icon {
-  border-radius: 0.2rem;
-}
-
-.provider-button span {
-  margin-left: 0.5rem;
-  line-height: 1rem;
-}
-
-.provider-button span.provider-name {
-  color: #333;
-  font-size: 0.875rem;
-}
-
-.provider-button span.provider-label {
-  color: #777;
-  font-size: 0.7rem;
-}
-
 .spinner::after {
   content: "";
   display: block;
@@ -225,8 +174,18 @@
 }
 
 .modal-icon {
-  width: 5rem;
-  height: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+  padding: 0.35rem;
+}
+.modal-icon svg {
+  width: 3.6rem;
+  height: 3.6rem;
 }
 
 .container a.footer-text {
@@ -238,68 +197,6 @@
 
 .container a.footer-text:hover {
   text-decoration: underline;
-}
-
-.connect-button {
-  position: relative;
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  padding-inline: 2.5rem;
-  padding-left: 5rem;
-  height: 2.75rem;
-  line-height: 1.333rem;
-  font-size: 1rem;
-  font-weight: 600;
-  width: 12rem;
-  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-    sans-serif;
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
-  transition: background-color 0.15s;
-}
-
-.connect-button .button-icon {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 3rem;
-  height: 100%;
-  margin-right: 0.5rem;
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset;
-  display: grid;
-  place-items: center;
-  transition: background-color 0.15s;
-  border-radius: 0.75rem 0 0 0.75rem;
-}
-
-.connect-button .button-icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.connect-button:hover {
-  background-color: #cc4e02;
-  cursor: pointer;
-  border-color: #cc4e02;
-}
-
-.connect-button:hover .button-icon {
-  background: rgba(255, 255, 255, 0.675);
-}
-
-.connect-button:focus {
-  outline: none;
-}
-
-.connect-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 
 .disconnect-button {
