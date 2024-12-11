@@ -61,6 +61,10 @@ const formatAddress = (address, n = 8) => {
   return `${address.slice(0, n)}...${address.slice(-n)}`;
 };
 
+const capitalize = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 export {
   fetchData,
   buildQueryString,
@@ -68,4 +72,5 @@ export {
   baseTwitterURL,
   baseSpotifyURL,
   formatAddress,
+  capitalize,
 };

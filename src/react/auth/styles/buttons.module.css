@@ -1,0 +1,557 @@
+.connect-button {
+  position: relative;
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding-inline: 2.5rem;
+  padding-left: 5rem;
+  height: 2.75rem;
+  line-height: 1.333rem;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 12rem;
+  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  transition: background-color 0.15s;
+}
+
+.connect-button .button-icon {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 3rem;
+  height: 100%;
+  margin-right: 0.5rem;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s;
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.connect-button .button-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.connect-button:hover {
+  background-color: #cc4e02;
+  cursor: pointer;
+  border-color: #cc4e02;
+}
+
+.connect-button:hover .button-icon {
+  background: rgba(255, 255, 255, 0.675);
+}
+
+.connect-button:focus {
+  outline: none;
+}
+
+.connect-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.provider-button {
+  display: flex;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  background-color: #fefefe;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  transition: background-color 0.15s;
+  font-family: inherit;
+}
+
+.provider-button:focus {
+  outline: 1px solid #43b7c4;
+}
+
+.provider-button:hover {
+  border-color: #43b7c4;
+}
+
+.provider-button:hover:not(:disabled) {
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.provider-button img {
+  width: 2rem;
+  height: 2rem;
+}
+
+.provider-button .provider-icon {
+  border-radius: 0.2rem;
+}
+
+.provider-button span {
+  margin-left: 0.5rem;
+  line-height: 1rem;
+}
+
+.provider-button span.provider-name {
+  color: #333;
+  font-size: 0.875rem;
+}
+
+.provider-button span.provider-label {
+  color: #777;
+  font-size: 0.7rem;
+}
+/*
+.link-button {
+}
+
+.link-button:hover {
+  cursor: pointer;
+}
+
+.link-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.link-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+   gap: 0.5rem; 
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background-color: transparent;
+  color: #333;
+  background-color: #ff6f00;
+  border: none;
+  transition: all 0.15s;
+  padding: 0.7rem;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  margin: 0.2rem;
+}
+
+.link-button-icon:hover:not(:disabled) {
+  background-color: #cc4e02;
+}
+
+.link-button-icon.twitter:not(:disabled) {
+  background-color: #1da1f2 !important;
+}
+
+.link-button-icon.twitter:not(:disabled):hover {
+  background-color: #0d8bf0 !important;
+}
+
+.link-button-icon.spotify:not(:disabled) {
+  background-color: #1db954 !important;
+}
+
+.link-button-icon.spotify:not(:disabled):hover {
+  background-color: #0d8f4a !important;
+}
+
+.link-button-icon.discord:not(:disabled) {
+  background-color: #7289da !important;
+}
+
+.link-button-icon.discord:not(:disabled):hover {
+  background-color: #5c6f9d !important;
+}
+
+.link-button-icon.link-button-twitter {
+  padding-left: 0.8rem;
+  padding-top: 0.8rem;
+}
+
+.link-button-icon > svg {
+  fill: white !important;
+}
+
+.link-button-icon > svg path {
+  fill: white !important;
+}
+
+.icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  color: #333;
+  transition: all 0.15s;
+  flex: 1 1;
+}
+
+.icon-container > svg {
+  fill: white !important;
+}
+
+.link-button-normal {
+  position: relative;
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding-inline: 2.5rem;
+  padding-left: 3.5rem;
+  height: 2.5rem;
+  line-height: 1.333rem;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 8rem;
+  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  transition: background-color 0.15s;
+}
+
+.link-button-normal:not(:disabled):hover {
+  background-color: #cc4e02;
+  cursor: pointer;
+}
+
+.link-button-normal .button-icon {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 100%;
+  margin-right: 0.5rem;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s;
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.link-button-normal .button-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.link-button-normal:disabled .button-icon {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.link-button-normal:disabled .button-icon svg path {
+  fill: #ccc !important;
+}
+.link-button-normal .button-icon svg path {
+  fill: white !important;
+}
+
+.link-button-normal.twitter:not(:disabled) {
+  background-color: #1da1f2 !important;
+}
+
+.link-button-normal.twitter:not(:disabled):hover {
+  background-color: #0d8bf0 !important;
+}
+
+.link-button-normal.spotify:not(:disabled) {
+  background-color: #1db954 !important;
+}
+
+.link-button-normal.spotify:not(:disabled):hover {
+  background-color: #0d8f4a !important;
+}
+
+.link-button-normal.discord:not(:disabled) {
+  background-color: #7289da !important;
+}
+
+.link-button-normal.discord:not(:disabled):hover {
+  background-color: #5c6f9d !important;
+}
+
+.link-button .camp-logo {
+  position: absolute;
+  display: flex;
+  right: -1.25rem;
+  bottom: -1.25rem;
+  background-color: black;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 1px solid black;
+  justify-content: center;
+  align-items: center;
+}
+
+.link-button .camp-logo svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.normal-button-container {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+*/
+
+/* "default" variant */
+.link-button-default {
+  position: relative;
+  box-sizing: border-box;
+  border: none;
+  width: 7rem;
+  height: 2.6rem;
+  background-color: #ff6f00;
+  border-radius: 0.75rem;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  cursor: pointer;
+}
+
+.link-button-default:disabled {
+  background-color: #b8b8b8;
+  cursor: not-allowed;
+}
+
+.link-button-default::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.75rem;
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 0.15s;
+}
+
+.link-button-default:disabled::after {
+  content: "Not connected";
+  visibility: hidden;
+  position: absolute;
+  top: -2.7rem;
+  left: 0;
+  right: 0;
+  height: 2rem;
+  border-radius: 0.35rem;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem;
+  opacity: 0;
+  transition: all 0.25s;
+  transform: translateY(-0.5rem);
+  user-select: none;
+}
+
+.link-button-default:disabled:hover::after {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.link-button-default:not(:disabled):hover::after {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.link-button-default:not(:disabled).twitter {
+  background-color: #1da1f2;
+}
+
+.link-button-default:not(:disabled).spotify {
+  background-color: #1db954;
+}
+
+.link-button-default:not(:disabled).discord {
+  background-color: #7289da;
+}
+
+.link-button-default .button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.button-container .social-icon {
+  display: flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.button-container .social-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: white !important;
+}
+
+.button-container .social-icon svg path {
+  fill: white !important;
+}
+
+.button-container .link-icon {
+  display: flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.button-container .camp-logo {
+  box-sizing: border-box;
+  display: flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 50%;
+  padding: 0.15rem;
+}
+
+.link-button-default:disabled .button-container .camp-logo svg path {
+  fill: #b8b8b8 !important;
+}
+
+/* "icon" variant */
+.link-button-icon {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 3rem;
+  min-height: 3rem;
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  padding: 0rem;
+  background-color: #ff6f00;
+  border-radius: 0.75rem;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  cursor: pointer;
+}
+
+.link-button-icon:disabled {
+  background-color: #b8b8b8;
+  cursor: not-allowed;
+}
+
+.link-button-icon:disabled::after {
+  content: "Not connected";
+  position: absolute;
+  top: -2.7rem;
+  left: -1rem;
+  right: -1rem;
+  height: 2rem;
+  border-radius: 0.35rem;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  padding: 0.25rem;
+  opacity: 0;
+  transition: all 0.25s;
+  transform: translateY(-0.5rem);
+}
+
+.link-button-icon:disabled:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.link-button-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 0.75rem;
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 0.15s;
+}
+
+.link-button-icon:not(:disabled):hover::after {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.link-button-icon:not(:disabled).twitter {
+  background-color: #1da1f2;
+}
+
+.link-button-icon:not(:disabled).spotify {
+  background-color: #1db954;
+}
+
+.link-button-icon:not(:disabled).discord {
+  background-color: #7289da;
+}
+
+.link-button-icon .icon-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-button-icon .icon-container > svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: white !important;
+}
+
+.link-button-icon .icon-container > svg path {
+  fill: white !important;
+}
+
+.link-button-icon .camp-logo {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  right: -0.5rem;
+  bottom: -0.5rem;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.link-button-icon .camp-logo svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.link-button-icon:disabled .camp-logo svg path {
+  fill: #b8b8b8 !important;
+}
+
+.not-linked svg path {
+  fill: #b8b8b8 !important;
+}

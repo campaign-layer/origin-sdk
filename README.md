@@ -586,7 +586,7 @@ function App() {
 
 Users can be authenticated either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
 
-## Usage with Privy and Appkit
+### Usage with Privy and Appkit
 
 The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. It will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider.
 
@@ -595,6 +595,38 @@ The Camp Modal can be used in conjunction with providers such as Privy and Appki
 [Example usage with Appkit](./examples/client-side/react/appkit-connector/)
 
 After the user has authenticated, you can use the provided hooks to fetch user data and listen for events.
+
+## LinkButton
+
+The **LinkButton** component is a button that can be used to link and unlink social accounts. Under the hood it uses the `useLinkModal` hook to open the Link Socials modal.
+
+The **LinkButton** can take the following props:
+
+- `social` - `string` - The social account to link or unlink. Can be one of: `twitter`, `discord`, `spotify`.
+- `variant` - `string` - The variant of the button. Can be one of: `default`, `icon`. Defaults to `default`.
+- `theme` - `string` - The theme of the button. Can be one of: `default`, `camp`. Defaults to `default`.
+
+**Note: The `<CampModal/>` component must be rendered in the component tree for the buttons to work.**
+
+### Usage
+
+Basic usage of the **LinkButton** component:
+
+```jsx
+import { LinkButton, CampModal } from "@campnetwork/sdk/react";
+
+function App() {
+  return (
+    <div>
+      <CampModal />
+      <LinkButton social="twitter" />
+      <LinkButton social="discord" variant="icon" />
+      <LinkButton social="spotify" theme="camp" />
+    </div>
+  );
+}
+```
+
 
 ## Hooks
 
@@ -741,7 +773,14 @@ The `useLinkSocials` hook returns functions that can be used to link and unlink 
 import { useLinkSocials } from "@campnetwork/sdk/react";
 
 function App() {
-  const { linkTwitter, linkDiscord, linkSpotify, unlinkTwitter, unlinkDiscord, unlinkSpotify } = useLinkSocials();
+  const {
+    linkTwitter,
+    linkDiscord,
+    linkSpotify,
+    unlinkTwitter,
+    unlinkDiscord,
+    unlinkSpotify,
+  } = useLinkSocials();
 
   return (
     <div>
@@ -779,6 +818,45 @@ function App() {
 ```
 
 The state and functions returned by the `useModal` hook can be used to show and hide the Auth and My Camp modals, as well as to check if they are currently open. The modal being controlled is dictated by the user's authentication state.
+
+### useLinkModal
+
+The `useLinkModal` hook returns the state of the Link Socials modal, as well as functions to show and hide it.
+
+**Note: The `<CampModal/>` component must be rendered in the component tree for the modal to be displayed.**
+
+```jsx
+import { useLinkModal, CampModal } from "@campnetwork/sdk/react";
+
+function App() {
+  const { isLinkingOpen, openTwitterModal } = useLinkModal();
+
+  return (
+    <div>
+      <CampModal />
+      <button onClick={openTwitterModal}>Link Twitter</button>
+    </div>
+  );
+}
+```
+
+It returns the following properties and functions:
+
+- `isLinkingOpen` - `boolean` - Whether the Link Socials modal is open or not.
+- `openTwitterModal` - `() => void`
+- `openDiscordModal` - `() => void`
+- `openSpotifyModal` - `() => void`
+- `linkTwitter` - `() => void`
+- `linkDiscord` - `() => void`
+- `linkSpotify` - `() => void`
+- `unlinkTwitter` - `() => void`
+- `unlinkDiscord` - `() => void`
+- `unlinkSpotify` - `() => void`
+- `closeModal` - `() => void`
+
+The difference between the `openXModal` functions and the `linkX / unlinkX` functions is that the former opens the modal regardless of the user's linking state, allowing them to either link or unlink their account, while the latter only opens the specified modal if the user's linking state allows for it.
+
+For example, if the user is linked to Twitter, calling `openTwitterModal` will open the modal to _unlink_ their Twitter account, while calling `linkTwitter` will not do anything, and calling `unlinkTwitter` will open the modal to unlink their Twitter account.
 
 # Contributing
 

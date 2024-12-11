@@ -3,11 +3,12 @@ import { CampContext, CampProvider } from "../context/CampContext.jsx";
 import { ModalContext } from "../context/ModalContext.jsx";
 import { providerStore } from "../../auth/viem/providers.js";
 import { CampModal, MyCampModal } from "./modals.jsx";
-import { useQuery } from "@tanstack/react-query";
 import { Auth } from "../../auth/index.js";
+import { SocialsContext } from "../context/SocialsContext.jsx";
+import { LinkButton } from "./buttons.jsx";
 
 export { CampModal, MyCampModal };
-
+export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
 /**
  * Returns the instance of the Auth class.
@@ -158,14 +159,72 @@ export const useModal = () => {
   };
 };
 
+export const useLinkModal = () => {
+  const { data: socials } = useSocials();
+  const { isLinkingVisible, setIsLinkingVisible, setCurrentlyLinking } =
+    useContext(ModalContext);
+
+  const handleOpen = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
+    setCurrentlyLinking(social);
+    setIsLinkingVisible(true);
+  };
+
+  const handleLink = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
+    if (socials && !socials[social]) {
+      setCurrentlyLinking(social);
+      setIsLinkingVisible(true);
+    } else {
+      setIsLinkingVisible(false);
+      console.warn(`User already linked ${social}`);
+    }
+  };
+
+  const handleUnlink = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
+    if (socials && socials[social]) {
+      setCurrentlyLinking(social);
+      setIsLinkingVisible(true);
+    } else {
+      setIsLinkingVisible(false);
+      console.warn(`User isn't linked to ${social}`);
+    }
+  };
+
+  const handleClose = () => {
+    setIsLinkingVisible(false);
+  };
+
+  return {
+    isLinkingOpen: isLinkingVisible,
+    openTwitterModal: () => handleOpen("twitter"),
+    openDiscordModal: () => handleOpen("discord"),
+    openSpotifyModal: () => handleOpen("spotify"),
+    linkTwitter: () => handleLink("twitter"),
+    linkDiscord: () => handleLink("discord"),
+    linkSpotify: () => handleLink("spotify"),
+    unlinkTwitter: () => handleUnlink("twitter"),
+    unlinkDiscord: () => handleUnlink("discord"),
+    unlinkSpotify: () => handleUnlink("spotify"),
+    closeModal: handleClose,
+  };
+};
+
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean } } The socials linked to the user.
+ * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
  */
 export const useSocials = () => {
-  const { auth } = useContext(CampContext);
-  return useQuery({
-    queryKey: ["socials", auth.isAuthenticated],
-    queryFn: () => auth.getLinkedSocials(),
-  });
+  const { query } = useContext(SocialsContext);
+  return query;
 };
