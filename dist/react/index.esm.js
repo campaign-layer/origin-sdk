@@ -1402,6 +1402,9 @@ var formatAddress = function formatAddress(address) {
   var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 8;
   return "".concat(address.slice(0, n), "...").concat(address.slice(-n));
 };
+var capitalize = function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 var getWalletConnectProvider = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(projectId) {
@@ -1533,7 +1536,6 @@ var ClientOnly = function ClientOnly(_ref2) {
   }
   return /*#__PURE__*/React.createElement("div", delegated, children);
 };
-
 var getIconByConnectorName = function getIconByConnectorName(name) {
   switch (name) {
     case "AppKit Auth":
@@ -1548,6 +1550,161 @@ var getIconByConnectorName = function getIconByConnectorName(name) {
       } else return "";
   }
 };
+
+/**
+ * The injected CampButton component.
+ * @param { { onClick: function, authenticated: boolean } } props The props.
+ * @returns { JSX.Element } The CampButton component.
+ */
+var CampButton = function CampButton(_ref) {
+  var onClick = _ref.onClick,
+    authenticated = _ref.authenticated,
+    disabled = _ref.disabled;
+  return /*#__PURE__*/React.createElement("button", {
+    className: styles["connect-button"],
+    onClick: onClick,
+    disabled: disabled
+  }, /*#__PURE__*/React.createElement("div", {
+    className: styles["button-icon"]
+  }, /*#__PURE__*/React.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    viewBox: "0 0 571.95 611.12",
+    height: "1rem",
+    width: "1rem"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z",
+    fill: "#000",
+    strokeWidth: "0"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z",
+    fill: "#ff6d01",
+    strokeWidth: "0"
+  }))), authenticated ? "My Camp" : "Connect");
+};
+
+/**
+ * The ProviderButton component.
+ * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean, label: string } } props The props.
+ * @returns { JSX.Element } The ProviderButton component.
+ */
+var ProviderButton = function ProviderButton(_ref2) {
+  var provider = _ref2.provider,
+    handleConnect = _ref2.handleConnect,
+    loading = _ref2.loading,
+    label = _ref2.label;
+  var _useState = useState(false),
+    _useState2 = _slicedToArray(_useState, 2),
+    isButtonLoading = _useState2[0],
+    setIsButtonLoading = _useState2[1];
+  var handleClick = function handleClick() {
+    handleConnect(provider);
+    setIsButtonLoading(true);
+  };
+  useEffect(function () {
+    if (!loading) {
+      setIsButtonLoading(false);
+    }
+  }, [loading]);
+  return /*#__PURE__*/React.createElement("button", {
+    className: styles["provider-button"],
+    onClick: handleClick,
+    disabled: loading
+  }, /*#__PURE__*/React.createElement("img", {
+    src: provider.info.icon || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23777777' d='M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72M20 9v6h-7V9zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2z'/%3E%3Ccircle cx='16' cy='12' r='1.5' fill='%23777777'/%3E%3C/svg%3E",
+    className: styles["provider-icon"],
+    alt: provider.info.name
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: styles["provider-name"]
+  }, provider.info.name), label && /*#__PURE__*/React.createElement("span", {
+    className: styles["provider-label"]
+  }, "(", label, ")")), isButtonLoading && /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  }));
+};
+var ConnectorButton = function ConnectorButton(_ref3) {
+  var name = _ref3.name,
+    link = _ref3.link,
+    unlink = _ref3.unlink,
+    icon = _ref3.icon,
+    isConnected = _ref3.isConnected,
+    refetch = _ref3.refetch;
+  var _useState3 = useState(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    isUnlinking = _useState4[0],
+    setIsUnlinking = _useState4[1];
+  var handleClick = function handleClick() {
+    link();
+  };
+  var handleDisconnect = /*#__PURE__*/function () {
+    var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            setIsUnlinking(true);
+            _context.prev = 1;
+            _context.next = 4;
+            return unlink();
+          case 4:
+            _context.next = 6;
+            return refetch();
+          case 6:
+            setIsUnlinking(false);
+            _context.next = 13;
+            break;
+          case 9:
+            _context.prev = 9;
+            _context.t0 = _context["catch"](1);
+            setIsUnlinking(false);
+            console.error(_context.t0);
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee, null, [[1, 9]]);
+    }));
+    return function handleDisconnect() {
+      return _ref4.apply(this, arguments);
+    };
+  }();
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles["connector-container"]
+  }, isConnected ? /*#__PURE__*/React.createElement("div", {
+    className: styles["connector-connected"],
+    "data-connected": isConnected
+  }, icon, /*#__PURE__*/React.createElement("span", null, name), isUnlinking ? /*#__PURE__*/React.createElement("div", {
+    className: styles.loader,
+    style: {
+      alignSelf: "flex-end",
+      position: "absolute",
+      right: "0.375rem"
+    }
+  }) : /*#__PURE__*/React.createElement("button", {
+    className: styles["unlink-connector-button"],
+    onClick: handleDisconnect,
+    disabled: isUnlinking
+  }, /*#__PURE__*/React.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    viewBox: "0 0 24 24",
+    stroke: "currentColor"
+  }, /*#__PURE__*/React.createElement("path", {
+    fill: "none",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2",
+    d: "M17 22v-2m-8-5l6-6m-4-3l.463-.536a5 5 0 0 1 7.071 7.072L18 13m-5 5l-.397.534a5.07 5.07 0 0 1-7.127 0a4.97 4.97 0 0 1 0-7.071L6 11m14 6h2M2 7h2m3-5v2"
+  })), "Unlink")) : /*#__PURE__*/React.createElement("button", {
+    onClick: handleClick,
+    className: styles["connector-button"],
+    disabled: isConnected
+  }, icon, /*#__PURE__*/React.createElement("span", null, name)));
+};
+
 var DiscordIcon = function DiscordIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     className: "w-8 h-8",
@@ -1602,94 +1759,17 @@ var CloseIcon = function CloseIcon() {
 };
 
 /**
- * The ProviderButton component.
- * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean, label: string } } props The props.
- * @returns { JSX.Element } The ProviderButton component.
- */
-var ProviderButton = function ProviderButton(_ref) {
-  var provider = _ref.provider,
-    handleConnect = _ref.handleConnect,
-    loading = _ref.loading,
-    label = _ref.label;
-  var _useState = useState(false),
-    _useState2 = _slicedToArray(_useState, 2),
-    isButtonLoading = _useState2[0],
-    setIsButtonLoading = _useState2[1];
-  var handleClick = function handleClick() {
-    handleConnect(provider);
-    setIsButtonLoading(true);
-  };
-  useEffect(function () {
-    if (!loading) {
-      setIsButtonLoading(false);
-    }
-  }, [loading]);
-  return /*#__PURE__*/React.createElement("button", {
-    className: styles["provider-button"],
-    onClick: handleClick,
-    disabled: loading
-  }, /*#__PURE__*/React.createElement("img", {
-    src: provider.info.icon || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='%23777777' d='M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72M20 9v6h-7V9zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2z'/%3E%3Ccircle cx='16' cy='12' r='1.5' fill='%23777777'/%3E%3C/svg%3E",
-    className: styles["provider-icon"],
-    alt: provider.info.name
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "flex-start"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: styles["provider-name"]
-  }, provider.info.name), label && /*#__PURE__*/React.createElement("span", {
-    className: styles["provider-label"]
-  }, "(", label, ")")), isButtonLoading && /*#__PURE__*/React.createElement("div", {
-    className: styles.spinner
-  }));
-};
-
-/**
- * The injected CampButton component.
- * @param { { onClick: function, authenticated: boolean } } props The props.
- * @returns { JSX.Element } The CampButton component.
- */
-var CampButton = function CampButton(_ref2) {
-  var onClick = _ref2.onClick,
-    authenticated = _ref2.authenticated,
-    disabled = _ref2.disabled;
-  return /*#__PURE__*/React.createElement("button", {
-    className: styles["connect-button"],
-    onClick: onClick,
-    disabled: disabled
-  }, /*#__PURE__*/React.createElement("div", {
-    className: styles["button-icon"]
-  }, /*#__PURE__*/React.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 571.95 611.12",
-    height: "1rem",
-    width: "1rem"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z",
-    fill: "#000",
-    strokeWidth: "0"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z",
-    fill: "#ff6d01",
-    strokeWidth: "0"
-  }))), authenticated ? "My Camp" : "Connect");
-};
-
-/**
  * The Auth modal component.
  * @param { { setIsVisible: function, wcProvider: object, loading: boolean, onlyWagmi: boolean, defaultProvider: object } } props The props.
  * @returns { JSX.Element } The Auth modal component.
  */
-var AuthModal = function AuthModal(_ref3) {
+var AuthModal = function AuthModal(_ref) {
   var _wagmiConnectorClient;
-  var setIsVisible = _ref3.setIsVisible,
-    wcProvider = _ref3.wcProvider,
-    loading = _ref3.loading,
-    onlyWagmi = _ref3.onlyWagmi,
-    defaultProvider = _ref3.defaultProvider;
+  var setIsVisible = _ref.setIsVisible,
+    wcProvider = _ref.wcProvider,
+    loading = _ref.loading,
+    onlyWagmi = _ref.onlyWagmi,
+    defaultProvider = _ref.defaultProvider;
   var _useConnect = useConnect(),
     connect = _useConnect.connect;
   var _useProvider = useProvider(),
@@ -1697,19 +1777,19 @@ var AuthModal = function AuthModal(_ref3) {
   var _useContext = useContext(CampContext),
     auth = _useContext.auth,
     wagmiAvailable = _useContext.wagmiAvailable;
+  var _useState = useState(null),
+    _useState2 = _slicedToArray(_useState, 2),
+    customProvider = _useState2[0],
+    setCustomProvider = _useState2[1];
+  var providers = useProviders();
   var _useState3 = useState(null),
     _useState4 = _slicedToArray(_useState3, 2),
-    customProvider = _useState4[0],
-    setCustomProvider = _useState4[1];
-  var providers = useProviders();
+    customConnector = _useState4[0],
+    setCustomConnector = _useState4[1];
   var _useState5 = useState(null),
     _useState6 = _slicedToArray(_useState5, 2),
-    customConnector = _useState6[0],
-    setCustomConnector = _useState6[1];
-  var _useState7 = useState(null),
-    _useState8 = _slicedToArray(_useState7, 2),
-    customAccount = _useState8[0],
-    setCustomAccount = _useState8[1];
+    customAccount = _useState6[0],
+    setCustomAccount = _useState6[1];
   var wagmiConnectorClient;
   var wagmiAccount;
   if (wagmiAvailable) {
@@ -1717,12 +1797,12 @@ var AuthModal = function AuthModal(_ref3) {
     wagmiAccount = useAccount();
   }
   var handleWalletConnect = /*#__PURE__*/function () {
-    var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref4) {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref2) {
       var provider;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
-            provider = _ref4.provider;
+            provider = _ref2.provider;
             auth.setLoading(true);
             _context.prev = 2;
             if (!provider.connected) {
@@ -1748,7 +1828,7 @@ var AuthModal = function AuthModal(_ref3) {
       }, _callee, null, [[2, 10]]);
     }));
     return function handleWalletConnect(_x) {
-      return _ref5.apply(this, arguments);
+      return _ref3.apply(this, arguments);
     };
   }();
   useEffect(function () {
@@ -1790,7 +1870,7 @@ var AuthModal = function AuthModal(_ref3) {
   }, [customConnector, customConnector === null || customConnector === void 0 ? void 0 : customConnector.data, wagmiAvailable, customProvider]);
   useEffect(function () {
     var doConnect = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var _ref4 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -1807,7 +1887,7 @@ var AuthModal = function AuthModal(_ref3) {
         }, _callee2);
       }));
       return function doConnect() {
-        return _ref6.apply(this, arguments);
+        return _ref4.apply(this, arguments);
       };
     }();
     if (wcProvider) {
@@ -1896,17 +1976,17 @@ var AuthModal = function AuthModal(_ref3) {
  * @param { { injectButton?: boolean, wcProjectId?: string, onlyWagmi?: boolean, defaultProvider?: object } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-var CampModal = function CampModal(_ref7) {
-  var _ref7$injectButton = _ref7.injectButton,
-    injectButton = _ref7$injectButton === void 0 ? true : _ref7$injectButton,
-    wcProjectId = _ref7.wcProjectId,
-    _ref7$onlyWagmi = _ref7.onlyWagmi,
-    onlyWagmi = _ref7$onlyWagmi === void 0 ? false : _ref7$onlyWagmi,
-    defaultProvider = _ref7.defaultProvider;
-  var _useState9 = useState(false),
-    _useState10 = _slicedToArray(_useState9, 2),
-    isButtonDisabled = _useState10[0],
-    setIsButtonDisabled = _useState10[1];
+var CampModal = function CampModal(_ref5) {
+  var _ref5$injectButton = _ref5.injectButton,
+    injectButton = _ref5$injectButton === void 0 ? true : _ref5$injectButton,
+    wcProjectId = _ref5.wcProjectId,
+    _ref5$onlyWagmi = _ref5.onlyWagmi,
+    onlyWagmi = _ref5$onlyWagmi === void 0 ? false : _ref5$onlyWagmi,
+    defaultProvider = _ref5.defaultProvider;
+  var _useState7 = useState(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    isButtonDisabled = _useState8[0],
+    setIsButtonDisabled = _useState8[1];
   var _useAuthState = useAuthState(),
     authenticated = _useAuthState.authenticated,
     loading = _useAuthState.loading;
@@ -1973,9 +2053,6 @@ var CampModal = function CampModal(_ref7) {
     defaultProvider: defaultProvider
   })))));
 };
-var capitalize = function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
 var LinkingModal = function LinkingModal() {
   var _useSocials = useSocials(),
     isSocialsLoading = _useSocials.isLoading,
@@ -1986,12 +2063,12 @@ var LinkingModal = function LinkingModal() {
   var _useContext6 = useContext(ModalContext),
     setIsLinkingVisible = _useContext6.setIsLinkingVisible,
     currentlyLinking = _useContext6.currentlyLinking;
-  var _useState11 = useState(false),
-    _useState12 = _slicedToArray(_useState11, 2),
-    isUnlinking = _useState12[0],
-    setIsUnlinking = _useState12[1];
+  var _useState9 = useState(false),
+    _useState10 = _slicedToArray(_useState9, 2),
+    isUnlinking = _useState10[0],
+    setIsUnlinking = _useState10[1];
   var handleLink = /*#__PURE__*/function () {
-    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+    var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
           case 0:
@@ -2002,65 +2079,48 @@ var LinkingModal = function LinkingModal() {
             return _context3.abrupt("return");
           case 2:
             if (!socials[currentlyLinking]) {
-              _context3.next = 27;
+              _context3.next = 20;
               break;
             }
             setIsUnlinking(true);
-            if (!(currentlyLinking === "twitter")) {
-              _context3.next = 9;
-              break;
-            }
+            _context3.prev = 4;
             _context3.next = 7;
-            return auth.unlinkTwitter();
+            return auth["unlink".concat(capitalize(currentlyLinking))]();
           case 7:
-            _context3.next = 22;
+            _context3.next = 15;
             break;
           case 9:
-            if (!(currentlyLinking === "discord")) {
-              _context3.next = 14;
-              break;
-            }
-            _context3.next = 12;
-            return auth.unlinkDiscord();
-          case 12:
-            _context3.next = 22;
-            break;
-          case 14:
-            if (!(currentlyLinking === "spotify")) {
-              _context3.next = 19;
-              break;
-            }
-            _context3.next = 17;
-            return auth.unlinkSpotify();
-          case 17:
-            _context3.next = 22;
-            break;
-          case 19:
+            _context3.prev = 9;
+            _context3.t0 = _context3["catch"](4);
             setIsUnlinking(false);
             setIsLinkingVisible(false);
+            console.error(_context3.t0);
             return _context3.abrupt("return");
-          case 22:
+          case 15:
             refetch();
             setIsLinkingVisible(false);
             setIsUnlinking(false);
-            _context3.next = 28;
+            _context3.next = 29;
             break;
-          case 27:
-            if (currentlyLinking === "twitter") {
-              auth.linkTwitter();
-            } else if (currentlyLinking === "discord") {
-              auth.linkDiscord();
-            } else if (currentlyLinking === "spotify") {
-              auth.linkSpotify();
-            }
-          case 28:
+          case 20:
+            _context3.prev = 20;
+            auth["link".concat(capitalize(currentlyLinking))]();
+            _context3.next = 29;
+            break;
+          case 24:
+            _context3.prev = 24;
+            _context3.t1 = _context3["catch"](20);
+            setIsLinkingVisible(false);
+            console.error(_context3.t1);
+            return _context3.abrupt("return");
+          case 29:
           case "end":
             return _context3.stop();
         }
-      }, _callee3);
+      }, _callee3, null, [[4, 9], [20, 24]]);
     }));
     return function handleLink() {
-      return _ref8.apply(this, arguments);
+      return _ref6.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", {
@@ -2109,91 +2169,14 @@ var LinkingModal = function LinkingModal() {
     }
   }, "Powered by Camp Network")));
 };
-var ConnectorButton = function ConnectorButton(_ref9) {
-  var name = _ref9.name,
-    link = _ref9.link,
-    unlink = _ref9.unlink,
-    icon = _ref9.icon,
-    isConnected = _ref9.isConnected,
-    refetch = _ref9.refetch;
-  var _useState13 = useState(false),
-    _useState14 = _slicedToArray(_useState13, 2),
-    isUnlinking = _useState14[0],
-    setIsUnlinking = _useState14[1];
-  var handleClick = function handleClick() {
-    link();
-  };
-  var handleDisconnect = /*#__PURE__*/function () {
-    var _ref10 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
-          case 0:
-            setIsUnlinking(true);
-            _context4.prev = 1;
-            _context4.next = 4;
-            return unlink();
-          case 4:
-            _context4.next = 6;
-            return refetch();
-          case 6:
-            setIsUnlinking(false);
-            _context4.next = 13;
-            break;
-          case 9:
-            _context4.prev = 9;
-            _context4.t0 = _context4["catch"](1);
-            setIsUnlinking(false);
-            console.error(_context4.t0);
-          case 13:
-          case "end":
-            return _context4.stop();
-        }
-      }, _callee4, null, [[1, 9]]);
-    }));
-    return function handleDisconnect() {
-      return _ref10.apply(this, arguments);
-    };
-  }();
-  return /*#__PURE__*/React.createElement("div", {
-    className: styles["connector-container"]
-  }, isConnected ? /*#__PURE__*/React.createElement("div", {
-    className: styles["connector-connected"],
-    "data-connected": isConnected
-  }, icon, /*#__PURE__*/React.createElement("span", null, name), isUnlinking ? /*#__PURE__*/React.createElement("div", {
-    className: styles.loader,
-    style: {
-      alignSelf: "flex-end",
-      position: "absolute",
-      right: "0.375rem"
-    }
-  }) : /*#__PURE__*/React.createElement("button", {
-    className: styles["unlink-connector-button"],
-    onClick: handleDisconnect,
-    disabled: isUnlinking
-  }, /*#__PURE__*/React.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor"
-  }, /*#__PURE__*/React.createElement("path", {
-    fill: "none",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    strokeWidth: "2",
-    d: "M17 22v-2m-8-5l6-6m-4-3l.463-.536a5 5 0 0 1 7.071 7.072L18 13m-5 5l-.397.534a5.07 5.07 0 0 1-7.127 0a4.97 4.97 0 0 1 0-7.071L6 11m14 6h2M2 7h2m3-5v2"
-  })), "Unlink")) : /*#__PURE__*/React.createElement("button", {
-    onClick: handleClick,
-    className: styles["connector-button"],
-    disabled: isConnected
-  }, icon, /*#__PURE__*/React.createElement("span", null, name)));
-};
 
 /**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-var MyCampModal = function MyCampModal(_ref11) {
-  var wcProvider = _ref11.wcProvider;
+var MyCampModal = function MyCampModal(_ref7) {
+  var wcProvider = _ref7.wcProvider;
   var _useContext7 = useContext(CampContext),
     auth = _useContext7.auth;
   var _useContext8 = useContext(ModalContext),
@@ -2204,10 +2187,10 @@ var MyCampModal = function MyCampModal(_ref11) {
     socials = _useSocials2.data,
     loading = _useSocials2.loading,
     refetch = _useSocials2.refetch;
-  var _useState15 = useState(true),
-    _useState16 = _slicedToArray(_useState15, 2),
-    isLoadingSocials = _useState16[0],
-    setIsLoadingSocials = _useState16[1];
+  var _useState11 = useState(true),
+    _useState12 = _slicedToArray(_useState11, 2),
+    isLoadingSocials = _useState12[0],
+    setIsLoadingSocials = _useState12[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
