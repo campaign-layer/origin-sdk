@@ -586,6 +586,37 @@ function App() {
 
 Users can be authenticated either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
 
+## LinkButton
+
+The **LinkButton** component is a button that can be used to link and unlink social accounts. Under the hood it uses the `useLinkModal` hook to open the Link Socials modal.
+
+The **LinkButton** can take the following props:
+
+- `social` - `string` - The social account to link or unlink. Can be one of: `twitter`, `discord`, `spotify`.
+- `variant` - `string` - The variant of the button. Can be one of: `default`, `icon`. Defaults to `default`.
+- `theme` - `string` - The theme of the button. Can be one of: `default`, `camp`. Defaults to `default`.
+
+**Note: The `<CampModal/>` component must be rendered in the component tree for the buttons to work.**
+
+### Usage
+
+Basic usage of the **LinkButton** component:
+
+```jsx
+import { LinkButton, CampModal } from "@campnetwork/sdk/react";
+
+function App() {
+  return (
+    <div>
+      <CampModal />
+      <LinkButton social="twitter" />
+      <LinkButton social="discord" variant="icon" />
+      <LinkButton social="spotify" theme="camp" />
+    </div>
+  );
+}
+```
+
 ## Usage with Privy and Appkit
 
 The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. It will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider.
