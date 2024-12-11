@@ -2554,10 +2554,18 @@ var useLinkModal = function useLinkModal() {
     setIsLinkingVisible = _useContext7.setIsLinkingVisible,
     setCurrentlyLinking = _useContext7.setCurrentlyLinking;
   var handleOpen = function handleOpen(social) {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     setCurrentlyLinking(social);
     setIsLinkingVisible(true);
   };
   var handleLink = function handleLink(social) {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     if (socials && !socials[social]) {
       setCurrentlyLinking(social);
       setIsLinkingVisible(true);
@@ -2567,6 +2575,10 @@ var useLinkModal = function useLinkModal() {
     }
   };
   var handleUnlink = function handleUnlink(social) {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     if (socials && socials[social]) {
       setCurrentlyLinking(social);
       setIsLinkingVisible(true);

@@ -165,11 +165,19 @@ export const useLinkModal = () => {
     useContext(ModalContext);
 
   const handleOpen = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     setCurrentlyLinking(social);
     setIsLinkingVisible(true);
   };
 
   const handleLink = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     if (socials && !socials[social]) {
       setCurrentlyLinking(social);
       setIsLinkingVisible(true);
@@ -180,6 +188,10 @@ export const useLinkModal = () => {
   };
 
   const handleUnlink = (social) => {
+    if (!socials) {
+      console.error("User is not authenticated");
+      return;
+    }
     if (socials && socials[social]) {
       setCurrentlyLinking(social);
       setIsLinkingVisible(true);
