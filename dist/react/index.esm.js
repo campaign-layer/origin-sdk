@@ -957,12 +957,12 @@ class Auth {
           case 2:
             _context4.next = 4;
             return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/connect"), {
-              method: 'POST',
-              redirect: 'follow',
+              method: "POST",
+              redirect: "follow",
               headers: {
                 Authorization: "Bearer ".concat(_this5.jwt),
-                'x-client-id': _this5.clientId,
-                'Content-Type': 'application/json'
+                "x-client-id": _this5.clientId,
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({
                 userHandle: handle,
@@ -980,7 +980,7 @@ class Auth {
             }
             return _context4.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || 'Failed to link TikTok account');
+            throw new APIError(data.message || "Failed to link TikTok account");
           case 10:
           case "end":
             return _context4.stop();
@@ -988,9 +988,17 @@ class Auth {
       }, _callee4);
     }))();
   }
-  linkTelegram(phoneNumber) {
+
+  /**
+   * Send an OTP to the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  sendTelegramOTP(phoneNumber) {
     var _this6 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+      var data;
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
@@ -1000,8 +1008,37 @@ class Auth {
             }
             throw new APIError("User needs to be authenticated");
           case 2:
-            return _context5.abrupt("return");
-          case 3:
+            if (phoneNumber) {
+              _context5.next = 4;
+              break;
+            }
+            throw new APIError("Phone number is required");
+          case 4:
+            _context5.next = 6;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/sendOTP"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this6.jwt),
+                "x-client-id": _this6.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                phone: phoneNumber
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 6:
+            data = _context5.sent;
+            if (data.isError) {
+              _context5.next = 11;
+              break;
+            }
+            return _context5.abrupt("return", data.data);
+          case 11:
+            throw new APIError(data.message || "Failed to send Telegram OTP");
+          case 12:
           case "end":
             return _context5.stop();
         }
@@ -1010,9 +1047,14 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Twitter account.
+   * Link the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @param {string} otp The OTP.
+   * @param {string} phoneCodeHash The phone code hash.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
    */
-  unlinkTwitter() {
+  linkTelegram(phoneNumber, otp, phoneCodeHash) {
     var _this7 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
       var data;
@@ -1025,8 +1067,14 @@ class Auth {
             }
             throw new APIError("User needs to be authenticated");
           case 2:
-            _context6.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
+            if (!(!phoneNumber || !otp || !phoneCodeHash)) {
+              _context6.next = 4;
+              break;
+            }
+            throw new APIError("Phone number, OTP, and phone code hash are required");
+          case 4:
+            _context6.next = 6;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/signIn"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1035,21 +1083,25 @@ class Auth {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                id: _this7.userId
+                phone: phoneNumber,
+                code: otp,
+                phone_code_hash: phoneCodeHash,
+                userId: _this7.userId,
+                clientId: _this7.clientId
               })
             }).then(function (res) {
               return res.json();
             });
-          case 4:
+          case 6:
             data = _context6.sent;
             if (data.isError) {
-              _context6.next = 9;
+              _context6.next = 11;
               break;
             }
             return _context6.abrupt("return", data.data);
-          case 9:
-            throw new APIError(data.message || "Failed to unlink Twitter account");
-          case 10:
+          case 11:
+            throw new APIError(data.message || "Failed to link Telegram account");
+          case 12:
           case "end":
             return _context6.stop();
         }
@@ -1058,9 +1110,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Discord account.
+   * Unlink the user's Twitter account.
    */
-  unlinkDiscord() {
+  unlinkTwitter() {
     var _this8 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
       var data;
@@ -1074,7 +1126,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context7.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1096,7 +1148,7 @@ class Auth {
             }
             return _context7.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Discord account");
+            throw new APIError(data.message || "Failed to unlink Twitter account");
           case 10:
           case "end":
             return _context7.stop();
@@ -1106,9 +1158,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Spotify account.
+   * Unlink the user's Discord account.
    */
-  unlinkSpotify() {
+  unlinkDiscord() {
     var _this9 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
       var data;
@@ -1122,7 +1174,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context8.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1144,7 +1196,7 @@ class Auth {
             }
             return _context8.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Spotify account");
+            throw new APIError(data.message || "Failed to unlink Discord account");
           case 10:
           case "end":
             return _context8.stop();
@@ -1152,7 +1204,11 @@ class Auth {
       }, _callee8);
     }))();
   }
-  unlinkTikTok() {
+
+  /**
+   * Unlink the user's Spotify account.
+   */
+  unlinkSpotify() {
     var _this10 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
       var data;
@@ -1166,16 +1222,16 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context9.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
-              method: 'POST',
-              redirect: 'follow',
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
               headers: {
                 Authorization: "Bearer ".concat(_this10.jwt),
-                'x-client-id': _this10.clientId,
-                'Content-Type': 'application/json'
+                "x-client-id": _this10.clientId,
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                userId: _this10.userId
+                id: _this10.userId
               })
             }).then(function (res) {
               return res.json();
@@ -1188,7 +1244,7 @@ class Auth {
             }
             return _context9.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || 'Failed to unlink TikTok account');
+            throw new APIError(data.message || "Failed to unlink Spotify account");
           case 10:
           case "end":
             return _context9.stop();
@@ -1196,7 +1252,7 @@ class Auth {
       }, _callee9);
     }))();
   }
-  unlinkTelegram() {
+  unlinkTikTok() {
     var _this11 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
       var data;
@@ -1210,13 +1266,13 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context10.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/disconnect-sdk"), {
-              method: 'POST',
-              redirect: 'follow',
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
               headers: {
                 Authorization: "Bearer ".concat(_this11.jwt),
-                'x-client-id': _this11.clientId,
-                'Content-Type': 'application/json'
+                "x-client-id": _this11.clientId,
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({
                 userId: _this11.userId
@@ -1232,12 +1288,56 @@ class Auth {
             }
             return _context10.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || 'Failed to unlink Telegram account');
+            throw new APIError(data.message || "Failed to unlink TikTok account");
           case 10:
           case "end":
             return _context10.stop();
         }
       }, _callee10);
+    }))();
+  }
+  unlinkTelegram() {
+    var _this12 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+        while (1) switch (_context11.prev = _context11.next) {
+          case 0:
+            if (_this12.isAuthenticated) {
+              _context11.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context11.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this12.jwt),
+                "x-client-id": _this12.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                userId: _this12.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context11.sent;
+            if (data.isError) {
+              _context11.next = 9;
+              break;
+            }
+            return _context11.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink Telegram account");
+          case 10:
+          case "end":
+            return _context11.stop();
+        }
+      }, _callee11);
     }))();
   }
 }
@@ -1275,29 +1375,29 @@ function _requestAccount() {
   return _requestAccount2.apply(this, arguments);
 }
 function _requestAccount2() {
-  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
     var _yield$this$viem$requ, _yield$this$viem$requ2, account;
-    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
-      while (1) switch (_context11.prev = _context11.next) {
+    return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+      while (1) switch (_context12.prev = _context12.next) {
         case 0:
-          _context11.prev = 0;
-          _context11.next = 3;
+          _context12.prev = 0;
+          _context12.next = 3;
           return this.viem.requestAddresses();
         case 3:
-          _yield$this$viem$requ = _context11.sent;
+          _yield$this$viem$requ = _context12.sent;
           _yield$this$viem$requ2 = _slicedToArray(_yield$this$viem$requ, 1);
           account = _yield$this$viem$requ2[0];
           this.walletAddress = account;
-          return _context11.abrupt("return", account);
+          return _context12.abrupt("return", account);
         case 10:
-          _context11.prev = 10;
-          _context11.t0 = _context11["catch"](0);
-          throw new APIError(_context11.t0);
+          _context12.prev = 10;
+          _context12.t0 = _context12["catch"](0);
+          throw new APIError(_context12.t0);
         case 13:
         case "end":
-          return _context11.stop();
+          return _context12.stop();
       }
-    }, _callee11, this, [[0, 10]]);
+    }, _callee12, this, [[0, 10]]);
   }));
   return _requestAccount2.apply(this, arguments);
 }
@@ -1311,13 +1411,13 @@ function _fetchNonce() {
   return _fetchNonce2.apply(this, arguments);
 }
 function _fetchNonce2() {
-  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
+  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
     var res, data;
-    return _regeneratorRuntime().wrap(function _callee12$(_context12) {
-      while (1) switch (_context12.prev = _context12.next) {
+    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+      while (1) switch (_context13.prev = _context13.next) {
         case 0:
-          _context12.prev = 0;
-          _context12.next = 3;
+          _context13.prev = 0;
+          _context13.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/nonce"), {
             method: "POST",
             headers: {
@@ -1329,27 +1429,27 @@ function _fetchNonce2() {
             })
           });
         case 3:
-          res = _context12.sent;
-          _context12.next = 6;
+          res = _context13.sent;
+          _context13.next = 6;
           return res.json();
         case 6:
-          data = _context12.sent;
+          data = _context13.sent;
           if (!(res.status !== 200)) {
-            _context12.next = 9;
+            _context13.next = 9;
             break;
           }
-          return _context12.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
+          return _context13.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
         case 9:
-          return _context12.abrupt("return", data.data);
+          return _context13.abrupt("return", data.data);
         case 12:
-          _context12.prev = 12;
-          _context12.t0 = _context12["catch"](0);
-          throw new Error(_context12.t0);
+          _context13.prev = 12;
+          _context13.t0 = _context13["catch"](0);
+          throw new Error(_context13.t0);
         case 15:
         case "end":
-          return _context12.stop();
+          return _context13.stop();
       }
-    }, _callee12, this, [[0, 12]]);
+    }, _callee13, this, [[0, 12]]);
   }));
   return _fetchNonce2.apply(this, arguments);
 }
@@ -1365,13 +1465,13 @@ function _verifySignature(_x, _x2) {
   return _verifySignature2.apply(this, arguments);
 }
 function _verifySignature2() {
-  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13(message, signature) {
+  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(message, signature) {
     var res, data, payload, decoded;
-    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
-      while (1) switch (_context13.prev = _context13.next) {
+    return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+      while (1) switch (_context14.prev = _context14.next) {
         case 0:
-          _context13.prev = 0;
-          _context13.next = 3;
+          _context14.prev = 0;
+          _context14.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/verify"), {
             method: "POST",
             headers: {
@@ -1385,27 +1485,27 @@ function _verifySignature2() {
             })
           });
         case 3:
-          res = _context13.sent;
-          _context13.next = 6;
+          res = _context14.sent;
+          _context14.next = 6;
           return res.json();
         case 6:
-          data = _context13.sent;
+          data = _context14.sent;
           payload = data.data.split(".")[1];
           decoded = JSON.parse(atob(payload));
-          return _context13.abrupt("return", {
+          return _context14.abrupt("return", {
             success: !data.isError,
             userId: decoded.id,
             token: data.data
           });
         case 12:
-          _context13.prev = 12;
-          _context13.t0 = _context13["catch"](0);
-          throw new APIError(_context13.t0);
+          _context14.prev = 12;
+          _context14.t0 = _context14["catch"](0);
+          throw new APIError(_context14.t0);
         case 15:
         case "end":
-          return _context13.stop();
+          return _context14.stop();
       }
-    }, _callee13, this, [[0, 12]]);
+    }, _callee14, this, [[0, 12]]);
   }));
   return _verifySignature2.apply(this, arguments);
 }
