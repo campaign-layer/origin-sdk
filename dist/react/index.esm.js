@@ -935,6 +935,13 @@ class Auth {
     }
     window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/spotify/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri["spotify"]);
   }
+
+  /**
+   * Link the user's TikTok account.
+   * @param {string} handle The user's TikTok handle.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
   linkTikTok(handle) {
     var _this5 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
@@ -981,14 +988,9 @@ class Auth {
       }, _callee4);
     }))();
   }
-
-  /**
-   * Unlink the user's Twitter account.
-   */
-  unlinkTwitter() {
+  linkTelegram(phoneNumber) {
     var _this6 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-      var data;
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
@@ -998,31 +1000,8 @@ class Auth {
             }
             throw new APIError("User needs to be authenticated");
           case 2:
-            _context5.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
-              method: "POST",
-              redirect: "follow",
-              headers: {
-                Authorization: "Bearer ".concat(_this6.jwt),
-                "x-client-id": _this6.clientId,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                id: _this6.userId
-              })
-            }).then(function (res) {
-              return res.json();
-            });
-          case 4:
-            data = _context5.sent;
-            if (data.isError) {
-              _context5.next = 9;
-              break;
-            }
-            return _context5.abrupt("return", data.data);
-          case 9:
-            throw new APIError(data.message || "Failed to unlink Twitter account");
-          case 10:
+            return _context5.abrupt("return");
+          case 3:
           case "end":
             return _context5.stop();
         }
@@ -1031,9 +1010,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Discord account.
+   * Unlink the user's Twitter account.
    */
-  unlinkDiscord() {
+  unlinkTwitter() {
     var _this7 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
       var data;
@@ -1047,7 +1026,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context6.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1069,7 +1048,7 @@ class Auth {
             }
             return _context6.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Discord account");
+            throw new APIError(data.message || "Failed to unlink Twitter account");
           case 10:
           case "end":
             return _context6.stop();
@@ -1079,9 +1058,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Spotify account.
+   * Unlink the user's Discord account.
    */
-  unlinkSpotify() {
+  unlinkDiscord() {
     var _this8 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
       var data;
@@ -1095,7 +1074,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context7.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1117,7 +1096,7 @@ class Auth {
             }
             return _context7.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Spotify account");
+            throw new APIError(data.message || "Failed to unlink Discord account");
           case 10:
           case "end":
             return _context7.stop();
@@ -1125,7 +1104,11 @@ class Auth {
       }, _callee7);
     }))();
   }
-  unlinkTikTok() {
+
+  /**
+   * Unlink the user's Spotify account.
+   */
+  unlinkSpotify() {
     var _this9 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
       var data;
@@ -1139,16 +1122,16 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context8.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
-              method: 'POST',
-              redirect: 'follow',
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
               headers: {
                 Authorization: "Bearer ".concat(_this9.jwt),
-                'x-client-id': _this9.clientId,
-                'Content-Type': 'application/json'
+                "x-client-id": _this9.clientId,
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                userId: _this9.userId
+                id: _this9.userId
               })
             }).then(function (res) {
               return res.json();
@@ -1161,12 +1144,100 @@ class Auth {
             }
             return _context8.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || 'Failed to unlink TikTok account');
+            throw new APIError(data.message || "Failed to unlink Spotify account");
           case 10:
           case "end":
             return _context8.stop();
         }
       }, _callee8);
+    }))();
+  }
+  unlinkTikTok() {
+    var _this10 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+        while (1) switch (_context9.prev = _context9.next) {
+          case 0:
+            if (_this10.isAuthenticated) {
+              _context9.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context9.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
+              method: 'POST',
+              redirect: 'follow',
+              headers: {
+                Authorization: "Bearer ".concat(_this10.jwt),
+                'x-client-id': _this10.clientId,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                userId: _this10.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context9.sent;
+            if (data.isError) {
+              _context9.next = 9;
+              break;
+            }
+            return _context9.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || 'Failed to unlink TikTok account');
+          case 10:
+          case "end":
+            return _context9.stop();
+        }
+      }, _callee9);
+    }))();
+  }
+  unlinkTelegram() {
+    var _this11 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+        while (1) switch (_context10.prev = _context10.next) {
+          case 0:
+            if (_this11.isAuthenticated) {
+              _context10.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context10.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/disconnect-sdk"), {
+              method: 'POST',
+              redirect: 'follow',
+              headers: {
+                Authorization: "Bearer ".concat(_this11.jwt),
+                'x-client-id': _this11.clientId,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                userId: _this11.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context10.sent;
+            if (data.isError) {
+              _context10.next = 9;
+              break;
+            }
+            return _context10.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || 'Failed to unlink Telegram account');
+          case 10:
+          case "end":
+            return _context10.stop();
+        }
+      }, _callee10);
     }))();
   }
 }
@@ -1204,29 +1275,29 @@ function _requestAccount() {
   return _requestAccount2.apply(this, arguments);
 }
 function _requestAccount2() {
-  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
     var _yield$this$viem$requ, _yield$this$viem$requ2, account;
-    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
-      while (1) switch (_context9.prev = _context9.next) {
+    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+      while (1) switch (_context11.prev = _context11.next) {
         case 0:
-          _context9.prev = 0;
-          _context9.next = 3;
+          _context11.prev = 0;
+          _context11.next = 3;
           return this.viem.requestAddresses();
         case 3:
-          _yield$this$viem$requ = _context9.sent;
+          _yield$this$viem$requ = _context11.sent;
           _yield$this$viem$requ2 = _slicedToArray(_yield$this$viem$requ, 1);
           account = _yield$this$viem$requ2[0];
           this.walletAddress = account;
-          return _context9.abrupt("return", account);
+          return _context11.abrupt("return", account);
         case 10:
-          _context9.prev = 10;
-          _context9.t0 = _context9["catch"](0);
-          throw new APIError(_context9.t0);
+          _context11.prev = 10;
+          _context11.t0 = _context11["catch"](0);
+          throw new APIError(_context11.t0);
         case 13:
         case "end":
-          return _context9.stop();
+          return _context11.stop();
       }
-    }, _callee9, this, [[0, 10]]);
+    }, _callee11, this, [[0, 10]]);
   }));
   return _requestAccount2.apply(this, arguments);
 }
@@ -1240,13 +1311,13 @@ function _fetchNonce() {
   return _fetchNonce2.apply(this, arguments);
 }
 function _fetchNonce2() {
-  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
     var res, data;
-    return _regeneratorRuntime().wrap(function _callee10$(_context10) {
-      while (1) switch (_context10.prev = _context10.next) {
+    return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+      while (1) switch (_context12.prev = _context12.next) {
         case 0:
-          _context10.prev = 0;
-          _context10.next = 3;
+          _context12.prev = 0;
+          _context12.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/nonce"), {
             method: "POST",
             headers: {
@@ -1258,27 +1329,27 @@ function _fetchNonce2() {
             })
           });
         case 3:
-          res = _context10.sent;
-          _context10.next = 6;
+          res = _context12.sent;
+          _context12.next = 6;
           return res.json();
         case 6:
-          data = _context10.sent;
+          data = _context12.sent;
           if (!(res.status !== 200)) {
-            _context10.next = 9;
+            _context12.next = 9;
             break;
           }
-          return _context10.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
+          return _context12.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
         case 9:
-          return _context10.abrupt("return", data.data);
+          return _context12.abrupt("return", data.data);
         case 12:
-          _context10.prev = 12;
-          _context10.t0 = _context10["catch"](0);
-          throw new Error(_context10.t0);
+          _context12.prev = 12;
+          _context12.t0 = _context12["catch"](0);
+          throw new Error(_context12.t0);
         case 15:
         case "end":
-          return _context10.stop();
+          return _context12.stop();
       }
-    }, _callee10, this, [[0, 12]]);
+    }, _callee12, this, [[0, 12]]);
   }));
   return _fetchNonce2.apply(this, arguments);
 }
@@ -1294,13 +1365,13 @@ function _verifySignature(_x, _x2) {
   return _verifySignature2.apply(this, arguments);
 }
 function _verifySignature2() {
-  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(message, signature) {
+  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13(message, signature) {
     var res, data, payload, decoded;
-    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
-      while (1) switch (_context11.prev = _context11.next) {
+    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+      while (1) switch (_context13.prev = _context13.next) {
         case 0:
-          _context11.prev = 0;
-          _context11.next = 3;
+          _context13.prev = 0;
+          _context13.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/verify"), {
             method: "POST",
             headers: {
@@ -1314,27 +1385,27 @@ function _verifySignature2() {
             })
           });
         case 3:
-          res = _context11.sent;
-          _context11.next = 6;
+          res = _context13.sent;
+          _context13.next = 6;
           return res.json();
         case 6:
-          data = _context11.sent;
+          data = _context13.sent;
           payload = data.data.split(".")[1];
           decoded = JSON.parse(atob(payload));
-          return _context11.abrupt("return", {
+          return _context13.abrupt("return", {
             success: !data.isError,
             userId: decoded.id,
             token: data.data
           });
         case 12:
-          _context11.prev = 12;
-          _context11.t0 = _context11["catch"](0);
-          throw new APIError(_context11.t0);
+          _context13.prev = 12;
+          _context13.t0 = _context13["catch"](0);
+          throw new APIError(_context13.t0);
         case 15:
         case "end":
-          return _context11.stop();
+          return _context13.stop();
       }
-    }, _callee11, this, [[0, 12]]);
+    }, _callee13, this, [[0, 12]]);
   }));
   return _verifySignature2.apply(this, arguments);
 }
@@ -2299,6 +2370,11 @@ var CampModal = function CampModal(_ref5) {
     defaultProvider: defaultProvider
   })))));
 };
+
+/**
+ * The TikTokFlow component. Handles linking and unlinking of TikTok accounts.
+ * @returns { JSX.Element } The TikTokFlow component.
+ */
 var TikTokFlow = function TikTokFlow() {
   var _useContext5 = useContext(ModalContext),
     setIsLinkingVisible = _useContext5.setIsLinkingVisible,
@@ -2402,6 +2478,11 @@ var TikTokFlow = function TikTokFlow() {
     className: styles.spinner
   })));
 };
+
+/**
+ * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
+ * @returns { JSX.Element } The TelegramFlow component.
+ */
 var TelegramFlow = function TelegramFlow() {};
 
 /**
@@ -2488,6 +2569,11 @@ var BasicFlow = function BasicFlow() {
     className: styles.spinner
   })));
 };
+
+/**
+ * The LinkingModal component. Handles the linking and unlinking of socials.
+ * @returns { JSX.Element } The LinkingModal component.
+ */
 var LinkingModal = function LinkingModal() {
   var _useSocials3 = useSocials(),
     isSocialsLoading = _useSocials3.isLoading;
@@ -2514,6 +2600,9 @@ var LinkingModal = function LinkingModal() {
       if (e.target === e.currentTarget) {
         setIsLinkingVisible(false);
       }
+    },
+    style: {
+      zIndex: 86
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: styles.container
@@ -2568,6 +2657,9 @@ var MyCampModal = function MyCampModal(_ref8) {
     _useState18 = _slicedToArray(_useState17, 2),
     isLoadingSocials = _useState18[0],
     setIsLoadingSocials = _useState18[1];
+  var _useLinkModal = useLinkModal(),
+    linkTiktok = _useLinkModal.linkTiktok,
+    linkTelegram = _useLinkModal.linkTelegram;
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
@@ -2594,6 +2686,18 @@ var MyCampModal = function MyCampModal(_ref8) {
     unlink: auth.unlinkSpotify.bind(auth),
     isConnected: socials === null || socials === void 0 ? void 0 : socials.spotify,
     icon: /*#__PURE__*/React.createElement(SpotifyIcon, null)
+  }, {
+    name: "TikTok",
+    link: linkTiktok,
+    unlink: auth.unlinkTikTok.bind(auth),
+    isConnected: socials === null || socials === void 0 ? void 0 : socials.tiktok,
+    icon: /*#__PURE__*/React.createElement(TikTokIcon, null)
+  }, {
+    name: "Telegram",
+    link: linkTelegram,
+    unlink: auth.unlinkTelegram.bind(auth),
+    isConnected: socials === null || socials === void 0 ? void 0 : socials.telegram,
+    icon: /*#__PURE__*/React.createElement(TelegramIcon, null)
   }];
   var connected = connectedSocials.filter(function (social) {
     return social.isConnected;
@@ -2891,6 +2995,12 @@ var useLinkModal = function useLinkModal() {
     openSpotifyModal: function openSpotifyModal() {
       return handleOpen("spotify");
     },
+    openTiktokModal: function openTiktokModal() {
+      return handleOpen("tiktok");
+    },
+    openTelegramModal: function openTelegramModal() {
+      return handleOpen("telegram");
+    },
     linkTwitter: function linkTwitter() {
       return handleLink("twitter");
     },
@@ -2900,6 +3010,12 @@ var useLinkModal = function useLinkModal() {
     linkSpotify: function linkSpotify() {
       return handleLink("spotify");
     },
+    linkTiktok: function linkTiktok() {
+      return handleLink("tiktok");
+    },
+    linkTelegram: function linkTelegram() {
+      return handleLink("telegram");
+    },
     unlinkTwitter: function unlinkTwitter() {
       return handleUnlink("twitter");
     },
@@ -2908,6 +3024,12 @@ var useLinkModal = function useLinkModal() {
     },
     unlinkSpotify: function unlinkSpotify() {
       return handleUnlink("spotify");
+    },
+    unlinkTiktok: function unlinkTiktok() {
+      return handleUnlink("tiktok");
+    },
+    unlinkTelegram: function unlinkTelegram() {
+      return handleUnlink("telegram");
     },
     closeModal: handleClose,
     handleOpen: handleOpen

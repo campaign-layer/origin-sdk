@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   useAuthState,
   useConnect,
+  useLinkModal,
   useProvider,
   useProviders,
   useSocials,
@@ -21,6 +22,8 @@ import {
   CloseIcon,
   CampIcon,
   getIconBySocial,
+  TikTokIcon,
+  TelegramIcon,
 } from "./icons.jsx";
 
 /**
@@ -348,6 +351,10 @@ export const CampModal = ({
   );
 };
 
+/**
+ * The TikTokFlow component. Handles linking and unlinking of TikTok accounts.
+ * @returns { JSX.Element } The TikTokFlow component.
+ */
 const TikTokFlow = () => {
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
   const { data: socials, refetch, isLoading: isSocialsLoading } = useSocials();
@@ -427,6 +434,10 @@ const TikTokFlow = () => {
   );
 };
 
+/**
+ * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
+ * @returns { JSX.Element } The TelegramFlow component.
+ */
 const TelegramFlow = () => {};
 
 /**
@@ -498,6 +509,10 @@ const BasicFlow = () => {
   );
 };
 
+/**
+ * The LinkingModal component. Handles the linking and unlinking of socials.
+ * @returns { JSX.Element } The LinkingModal component.
+ */
 const LinkingModal = () => {
   const { isLoading: isSocialsLoading } = useSocials();
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
@@ -523,6 +538,9 @@ const LinkingModal = () => {
         if (e.target === e.currentTarget) {
           setIsLinkingVisible(false);
         }
+      }}
+      style={{
+        zIndex: 86,
       }}
     >
       <div className={styles.container}>
@@ -581,6 +599,7 @@ export const MyCampModal = ({ wcProvider }) => {
   const { disconnect } = useConnect();
   const { data: socials, loading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
+  const { linkTiktok, linkTelegram } = useLinkModal();
 
   const handleDisconnect = () => {
     wcProvider?.disconnect();
@@ -613,6 +632,20 @@ export const MyCampModal = ({ wcProvider }) => {
       unlink: auth.unlinkSpotify.bind(auth),
       isConnected: socials?.spotify,
       icon: <SpotifyIcon />,
+    },
+    {
+      name: "TikTok",
+      link: linkTiktok,
+      unlink: auth.unlinkTikTok.bind(auth),
+      isConnected: socials?.tiktok,
+      icon: <TikTokIcon />,
+    },
+    {
+      name: "Telegram",
+      link: linkTelegram,
+      unlink: auth.unlinkTelegram.bind(auth),
+      isConnected: socials?.telegram,
+      icon: <TelegramIcon />,
     },
   ];
 

@@ -388,6 +388,12 @@ class Auth {
     window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 
+  /**
+   * Link the user's TikTok account.
+   * @param {string} handle The user's TikTok handle.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
   async linkTikTok(handle) {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
@@ -412,6 +418,13 @@ class Auth {
     } else {
       throw new APIError(data.message || 'Failed to link TikTok account');
     }
+  }
+
+  async linkTelegram(phoneNumber) {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    return;
   }
 
   /**
@@ -522,6 +535,30 @@ class Auth {
       return data.data;
     } else {
       throw new APIError(data.message || 'Failed to unlink TikTok account');
+    }
+  }
+
+  async unlinkTelegram() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        'x-client-id': this.clientId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: this.userId,
+      })
+    }).then(res => res.json())
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || 'Failed to unlink Telegram account');
     }
   }
 }
