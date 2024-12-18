@@ -229,9 +229,13 @@ export const useLinkModal = () => {
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 export const useSocials = () => {
   const { query } = useContext(SocialsContext);
-  return query;
+  const socials = query?.data;
+  return {
+    ...query,
+    socials,
+  };
 };

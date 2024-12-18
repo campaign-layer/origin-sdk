@@ -2480,7 +2480,7 @@ var TikTokFlow = function TikTokFlow() {
     setIsLinkingVisible = _useContext5.setIsLinkingVisible,
     currentlyLinking = _useContext5.currentlyLinking;
   var _useSocials = useSocials(),
-    socials = _useSocials.data,
+    socials = _useSocials.socials,
     refetch = _useSocials.refetch,
     isSocialsLoading = _useSocials.isLoading;
   var _useContext6 = useContext(CampContext),
@@ -2594,7 +2594,7 @@ var BasicFlow = function BasicFlow() {
     setIsLinkingVisible = _useContext7.setIsLinkingVisible,
     currentlyLinking = _useContext7.currentlyLinking;
   var _useSocials2 = useSocials(),
-    socials = _useSocials2.data,
+    socials = _useSocials2.socials,
     refetch = _useSocials2.refetch,
     isSocialsLoading = _useSocials2.isLoading;
   var _useContext8 = useContext(CampContext),
@@ -2750,7 +2750,7 @@ var MyCampModal = function MyCampModal(_ref8) {
   var _useConnect2 = useConnect(),
     disconnect = _useConnect2.disconnect;
   var _useSocials4 = useSocials(),
-    socials = _useSocials4.data,
+    socials = _useSocials4.socials,
     loading = _useSocials4.loading,
     refetch = _useSocials4.refetch;
   var _useState17 = useState(true),
@@ -3138,12 +3138,15 @@ var useLinkModal = function useLinkModal() {
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 var useSocials = function useSocials() {
   var _useContext8 = useContext(SocialsContext),
     query = _useContext8.query;
-  return query;
+  var socials = query === null || query === void 0 ? void 0 : query.data;
+  return _objectSpread2(_objectSpread2({}, query), {}, {
+    socials: socials
+  });
 };
 
 export { CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };

@@ -357,7 +357,7 @@ export const CampModal = ({
  */
 const TikTokFlow = () => {
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
-  const { data: socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
   const { auth } = useContext(CampContext);
   const [IsLoading, setIsLoading] = useState(false);
   const [handleInput, setHandleInput] = useState("");
@@ -446,7 +446,7 @@ const TelegramFlow = () => {};
  */
 const BasicFlow = () => {
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
-  const { data: socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
   const { auth } = useContext(CampContext);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
@@ -597,7 +597,7 @@ export const MyCampModal = ({ wcProvider }) => {
   const { auth } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
-  const { data: socials, loading, refetch } = useSocials();
+  const { socials, loading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
 
