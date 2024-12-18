@@ -1551,6 +1551,22 @@ var getIconByConnectorName = function getIconByConnectorName(name) {
   }
 };
 
+var getIconBySocial = function getIconBySocial(social) {
+  switch (social) {
+    case "twitter":
+      return TwitterIcon;
+    case "spotify":
+      return SpotifyIcon;
+    case "discord":
+      return DiscordIcon;
+    case "tiktok":
+      return TikTokIcon;
+    case "telegram":
+      return TelegramIcon;
+    default:
+      return null;
+  }
+};
 var CampIcon = function CampIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -1569,7 +1585,6 @@ var CampIcon = function CampIcon() {
 };
 var DiscordIcon = function DiscordIcon() {
   return /*#__PURE__*/React.createElement("svg", {
-    className: "w-8 h-8",
     viewBox: "0 0 42 32",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
@@ -1580,7 +1595,6 @@ var DiscordIcon = function DiscordIcon() {
 };
 var TwitterIcon = function TwitterIcon() {
   return /*#__PURE__*/React.createElement("svg", {
-    className: "w-8 h-8",
     viewBox: "0 0 33 27",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
@@ -1598,6 +1612,53 @@ var SpotifyIcon = function SpotifyIcon() {
   }, /*#__PURE__*/React.createElement("path", {
     d: "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"
   }));
+};
+var TikTokIcon = function TikTokIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    role: "img",
+    viewBox: "-2 -2 28 28",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("title", null, "TikTok"), /*#__PURE__*/React.createElement("path", {
+    d: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"
+  }));
+};
+var TelegramIcon = function TelegramIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    viewBox: "35 40 170 170"
+  }, /*#__PURE__*/React.createElement("g", {
+    fill: "black",
+    fillRule: "nonzero",
+    stroke: "none",
+    strokeWidth: "1",
+    strokeLinecap: "butt",
+    strokeLinejoin: "miter",
+    strokeMiterlimit: "10",
+    strokeDasharray: "",
+    strokeDashoffset: "0",
+    fontFamily: "none",
+    fontWeight: "none",
+    fontSize: "none",
+    textAnchor: "none",
+    style: {
+      mixBlendMode: "normal"
+    }
+  }, /*#__PURE__*/React.createElement("g", {
+    transform: "scale(5.33333,5.33333)"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M24,4c-11.04569,0 -20,8.95431 -20,20c0,11.04569 8.95431,20 20,20c11.04569,0 20,-8.95431 20,-20c0,-11.04569 -8.95431,-20 -20,-20z",
+    "fill-opacity": "0",
+    fill: "#0088cc"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M33.95,15l-3.746,19.126c0,0 -0.161,0.874 -1.245,0.874c-0.576,0 -0.873,-0.274 -0.873,-0.274l-8.114,-6.733l-3.97,-2.001l-5.095,-1.355c0,0 -0.907,-0.262 -0.907,-1.012c0,-0.625 0.933,-0.923 0.933,-0.923l21.316,-8.468c-0.001,-0.001 0.651,-0.235 1.126,-0.234c0.292,0 0.625,0.125 0.625,0.5c0,0.25 -0.05,0.5 -0.05,0.5z",
+    fill: "#0088cc"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M23,30.505l-3.426,3.374c0,0 -0.149,0.115 -0.348,0.12c-0.069,0.002 -0.143,-0.009 -0.219,-0.043l0.964,-5.965z",
+    fill: "#0088cc"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M29.897,18.196c-0.169,-0.22 -0.481,-0.26 -0.701,-0.093l-13.196,7.897c0,0 2.106,5.892 2.427,6.912c0.322,1.021 0.58,1.045 0.58,1.045l0.964,-5.965l9.832,-9.096c0.22,-0.167 0.261,-0.48 0.094,-0.7z",
+    fill: "#0088cc"
+  }))));
 };
 var CloseIcon = function CloseIcon() {
   return /*#__PURE__*/React.createElement("svg", {
@@ -1620,8 +1681,8 @@ var CloseIcon = function CloseIcon() {
   }));
 };
 
-var css_248z = ".buttons-module_connect-button__CJhUa{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2 svg{height:1.25rem;width:1.25rem}.buttons-module_connect-button__CJhUa:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.buttons-module_connect-button__CJhUa:hover .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.675)}.buttons-module_connect-button__CJhUa:focus{outline:none}.buttons-module_connect-button__CJhUa:disabled{background-color:#ccc;cursor:not-allowed}.buttons-module_provider-button__6JY7s{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.buttons-module_provider-button__6JY7s:focus{outline:1px solid #43b7c4}.buttons-module_provider-button__6JY7s:hover{border-color:#43b7c4}.buttons-module_provider-button__6JY7s:hover:not(:disabled){background-color:#ddd;cursor:pointer}.buttons-module_provider-button__6JY7s img{height:2rem;width:2rem}.buttons-module_provider-button__6JY7s .buttons-module_provider-icon__MOhr8{border-radius:.2rem}.buttons-module_provider-button__6JY7s span{line-height:1rem;margin-left:.5rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-name__tHWO2{color:#333;font-size:.875rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-label__CEGRr{color:#777;font-size:.7rem}.buttons-module_link-button-default__EcKUT{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:2.6rem;position:relative;width:7rem}.buttons-module_link-button-default__EcKUT:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-default__EcKUT:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-default__EcKUT:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:2rem;left:0;opacity:0;padding:.25rem;place-items:center;position:absolute;right:0;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s;-webkit-user-select:none;-moz-user-select:none;user-select:none;visibility:hidden}.buttons-module_link-button-default__EcKUT:disabled:hover:after{opacity:1;transform:translateY(0);visibility:visible}.buttons-module_link-button-default__EcKUT:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-default__EcKUT .buttons-module_button-container__-oPqd{align-items:center;display:flex;flex-direction:row;gap:.5rem;justify-content:center;padding:.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe{align-items:center;color:#fff;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg path{fill:#fff!important}.buttons-module_button-container__-oPqd .buttons-module_link-icon__8V8FP{align-items:center;color:hsla(0,0%,100%,.8);display:flex;height:1.25rem;justify-content:center;width:1.25rem}.buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;padding:.15rem;width:1.5rem}.buttons-module_link-button-default__EcKUT:disabled .buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0 svg path{fill:#b8b8b8!important}.buttons-module_link-button-icon__llX8m{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:3rem;min-height:3rem;min-width:3rem;padding:0;position:relative;width:3rem}.buttons-module_link-button-icon__llX8m:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-icon__llX8m:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;box-sizing:border-box;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:-moz-fit-content;height:fit-content;left:-1rem;opacity:0;padding:.25rem;place-items:center;position:absolute;right:-1rem;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s}.buttons-module_link-button-icon__llX8m:disabled:hover:after{opacity:1;transform:translateY(0)}.buttons-module_link-button-icon__llX8m:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-icon__llX8m:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1{align-items:center;display:flex;flex:1;height:100%;justify-content:center;position:relative;width:100%}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg path{fill:#fff!important}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;bottom:-.5rem;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;position:absolute;right:-.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0 svg{height:1.1rem;width:1.1rem}.buttons-module_link-button-icon__llX8m:disabled .buttons-module_camp-logo__slNl0 svg path,.buttons-module_not-linked__ua4va svg path{fill:#b8b8b8!important}";
-var buttonStyles = {"connect-button":"buttons-module_connect-button__CJhUa","button-icon":"buttons-module_button-icon__JM4-2","provider-button":"buttons-module_provider-button__6JY7s","provider-icon":"buttons-module_provider-icon__MOhr8","provider-name":"buttons-module_provider-name__tHWO2","provider-label":"buttons-module_provider-label__CEGRr","link-button-default":"buttons-module_link-button-default__EcKUT","twitter":"buttons-module_twitter__9sRaz","spotify":"buttons-module_spotify__-fiKQ","discord":"buttons-module_discord__I-YjZ","button-container":"buttons-module_button-container__-oPqd","social-icon":"buttons-module_social-icon__DPdPe","link-icon":"buttons-module_link-icon__8V8FP","camp-logo":"buttons-module_camp-logo__slNl0","link-button-icon":"buttons-module_link-button-icon__llX8m","icon-container":"buttons-module_icon-container__Q5bI1","not-linked":"buttons-module_not-linked__ua4va"};
+var css_248z = ".buttons-module_connect-button__CJhUa{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2 svg{height:1.25rem;width:1.25rem}.buttons-module_connect-button__CJhUa:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.buttons-module_connect-button__CJhUa:hover .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.675)}.buttons-module_connect-button__CJhUa:focus{outline:none}.buttons-module_connect-button__CJhUa:disabled{background-color:#ccc;cursor:not-allowed}.buttons-module_provider-button__6JY7s{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.buttons-module_provider-button__6JY7s:focus{outline:1px solid #43b7c4}.buttons-module_provider-button__6JY7s:hover{border-color:#43b7c4}.buttons-module_provider-button__6JY7s:hover:not(:disabled){background-color:#ddd;cursor:pointer}.buttons-module_provider-button__6JY7s img{height:2rem;width:2rem}.buttons-module_provider-button__6JY7s .buttons-module_provider-icon__MOhr8{border-radius:.2rem}.buttons-module_provider-button__6JY7s span{line-height:1rem;margin-left:.5rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-name__tHWO2{color:#333;font-size:.875rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-label__CEGRr{color:#777;font-size:.7rem}.buttons-module_link-button-default__EcKUT{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:2.6rem;position:relative;width:7rem}.buttons-module_link-button-default__EcKUT:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-default__EcKUT:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-default__EcKUT:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:2rem;left:0;opacity:0;padding:.25rem;place-items:center;position:absolute;right:0;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s;-webkit-user-select:none;-moz-user-select:none;user-select:none;visibility:hidden}.buttons-module_link-button-default__EcKUT:disabled:hover:after{opacity:1;transform:translateY(0);visibility:visible}.buttons-module_link-button-default__EcKUT:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_tiktok__a80-0{background-color:#000}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_telegram__ExOTS{background-color:#08c}.buttons-module_link-button-default__EcKUT .buttons-module_button-container__-oPqd{align-items:center;display:flex;flex-direction:row;gap:.5rem;justify-content:center;padding:.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe{align-items:center;color:#fff;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg path{fill:#fff!important}.buttons-module_button-container__-oPqd .buttons-module_link-icon__8V8FP{align-items:center;color:hsla(0,0%,100%,.8);display:flex;height:1.25rem;justify-content:center;width:1.25rem}.buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;padding:.15rem;width:1.5rem}.buttons-module_link-button-default__EcKUT:disabled .buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0 svg path{fill:#b8b8b8!important}.buttons-module_link-button-icon__llX8m{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:3rem;min-height:3rem;min-width:3rem;padding:0;position:relative;width:3rem}.buttons-module_link-button-icon__llX8m:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-icon__llX8m:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;box-sizing:border-box;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:-moz-fit-content;height:fit-content;left:-1rem;opacity:0;padding:.25rem;place-items:center;position:absolute;right:-1rem;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s}.buttons-module_link-button-icon__llX8m:disabled:hover:after{opacity:1;transform:translateY(0)}.buttons-module_link-button-icon__llX8m:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-icon__llX8m:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_tiktok__a80-0{background-color:#000}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_telegram__ExOTS{background-color:#08c}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1{align-items:center;display:flex;flex:1;height:100%;justify-content:center;position:relative;width:100%}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg path{fill:#fff!important}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;bottom:-.5rem;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;position:absolute;right:-.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0 svg{height:1.1rem;width:1.1rem}.buttons-module_link-button-icon__llX8m:disabled .buttons-module_camp-logo__slNl0 svg path,.buttons-module_not-linked__ua4va svg path{fill:#b8b8b8!important}";
+var buttonStyles = {"connect-button":"buttons-module_connect-button__CJhUa","button-icon":"buttons-module_button-icon__JM4-2","provider-button":"buttons-module_provider-button__6JY7s","provider-icon":"buttons-module_provider-icon__MOhr8","provider-name":"buttons-module_provider-name__tHWO2","provider-label":"buttons-module_provider-label__CEGRr","link-button-default":"buttons-module_link-button-default__EcKUT","twitter":"buttons-module_twitter__9sRaz","spotify":"buttons-module_spotify__-fiKQ","discord":"buttons-module_discord__I-YjZ","tiktok":"buttons-module_tiktok__a80-0","telegram":"buttons-module_telegram__ExOTS","button-container":"buttons-module_button-container__-oPqd","social-icon":"buttons-module_social-icon__DPdPe","link-icon":"buttons-module_link-icon__8V8FP","camp-logo":"buttons-module_camp-logo__slNl0","link-button-icon":"buttons-module_link-button-icon__llX8m","icon-container":"buttons-module_icon-container__Q5bI1","not-linked":"buttons-module_not-linked__ua4va"};
 styleInject(css_248z);
 
 /**
@@ -1791,14 +1852,12 @@ var LinkButton = function LinkButton(_ref6) {
     _ref6$theme = _ref6.theme,
     theme = _ref6$theme === void 0 ? "default" : _ref6$theme;
   var _useLinkModal = useLinkModal(),
-    openTwitterModal = _useLinkModal.openTwitterModal,
-    openDiscordModal = _useLinkModal.openDiscordModal,
-    openSpotifyModal = _useLinkModal.openSpotifyModal;
+    handleOpen = _useLinkModal.handleOpen;
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
-  if (["twitter", "spotify", "discord"].indexOf(social) === -1) {
-    throw new Error("Invalid social, must be 'twitter', 'spotify', or 'discord'");
+  if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
+    throw new Error("Invalid social, must be 'twitter', 'spotify', 'discord', 'tiktok', or 'telegram'");
   }
   if (["default", "camp"].indexOf(theme) === -1) {
     throw new Error("Invalid theme, must be 'default' or 'camp'");
@@ -1809,15 +1868,9 @@ var LinkButton = function LinkButton(_ref6) {
     authenticated = _useAuthState.authenticated;
   var isLinked = socials && socials[social];
   var handleClick = function handleClick() {
-    if (social === "twitter") {
-      openTwitterModal();
-    } else if (social === "discord") {
-      openDiscordModal();
-    } else if (social === "spotify") {
-      openSpotifyModal();
-    }
+    handleOpen(social);
   };
-  var Icon = social === "twitter" ? TwitterIcon : social === "spotify" ? SpotifyIcon : social === "discord" ? DiscordIcon : null;
+  var Icon = getIconBySocial(social);
   return /*#__PURE__*/React.createElement("button", {
     disabled: !authenticated,
     className: "".concat(buttonStyles["link-button-".concat(variant)], " \n        ").concat(theme === "default" ? buttonStyles[social] : "", "\n      "),
@@ -1844,7 +1897,7 @@ var LinkButton = function LinkButton(_ref6) {
     d: "M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
   }))), /*#__PURE__*/React.createElement("div", {
     className: buttonStyles["social-icon"]
-  }, social === "twitter" ? /*#__PURE__*/React.createElement(TwitterIcon, null) : social === "spotify" ? /*#__PURE__*/React.createElement(SpotifyIcon, null) : social === "discord" ? /*#__PURE__*/React.createElement(DiscordIcon, null) : null)));
+  }, /*#__PURE__*/React.createElement(Icon, null))));
 };
 
 /**
@@ -2140,16 +2193,23 @@ var CampModal = function CampModal(_ref5) {
     defaultProvider: defaultProvider
   })))));
 };
-var LinkingModal = function LinkingModal() {
+var TikTokFlow = function TikTokFlow() {};
+var TelegramFlow = function TelegramFlow() {};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+var BasicFlow = function BasicFlow() {
+  var _useContext5 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext5.setIsLinkingVisible,
+    currentlyLinking = _useContext5.currentlyLinking;
   var _useSocials = useSocials(),
-    isSocialsLoading = _useSocials.isLoading,
     socials = _useSocials.data,
-    refetch = _useSocials.refetch;
-  var _useContext5 = useContext(CampContext),
-    auth = _useContext5.auth;
-  var _useContext6 = useContext(ModalContext),
-    setIsLinkingVisible = _useContext6.setIsLinkingVisible,
-    currentlyLinking = _useContext6.currentlyLinking;
+    refetch = _useSocials.refetch,
+    isSocialsLoading = _useSocials.isLoading;
+  var _useContext6 = useContext(CampContext),
+    auth = _useContext6.auth;
   var _useState9 = useState(false),
     _useState10 = _slicedToArray(_useState9, 2),
     isUnlinking = _useState10[0],
@@ -2210,6 +2270,36 @@ var LinkingModal = function LinkingModal() {
       return _ref6.apply(this, arguments);
     };
   }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.")), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleLink,
+    disabled: isUnlinking
+  }, !isUnlinking ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+var LinkingModal = function LinkingModal() {
+  var _useSocials2 = useSocials(),
+    isSocialsLoading = _useSocials2.isLoading;
+  var _useContext7 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext7.setIsLinkingVisible,
+    currentlyLinking = _useContext7.currentlyLinking;
+  var _useState11 = useState(null),
+    _useState12 = _slicedToArray(_useState11, 2),
+    flow = _useState12[0],
+    setFlow = _useState12[1];
+  useEffect(function () {
+    if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
+      setFlow("basic");
+    } else if (currentlyLinking === "tiktok") {
+      setFlow("tiktok");
+    } else if (currentlyLinking === "telegram") {
+      setFlow("telegram");
+    }
+  }, [currentlyLinking]);
+  var Icon = getIconBySocial(currentlyLinking);
   return /*#__PURE__*/React.createElement("div", {
     className: styles.modal,
     onClick: function onClick(e) {
@@ -2238,15 +2328,7 @@ var LinkingModal = function LinkingModal() {
     className: styles.header
   }, /*#__PURE__*/React.createElement("div", {
     className: styles["small-modal-icon"]
-  }, currentlyLinking === "twitter" ? /*#__PURE__*/React.createElement(TwitterIcon, null) : currentlyLinking === "discord" ? /*#__PURE__*/React.createElement(DiscordIcon, null) : currentlyLinking === "spotify" ? /*#__PURE__*/React.createElement(SpotifyIcon, null) : null)), /*#__PURE__*/React.createElement("div", {
-    className: styles["linking-text"]
-  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.")), /*#__PURE__*/React.createElement("button", {
-    className: styles["linking-button"],
-    onClick: handleLink,
-    disabled: isUnlinking
-  }, !isUnlinking ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
-    className: styles.spinner
-  }))), /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React.createElement(Icon, null))), flow === "basic" && /*#__PURE__*/React.createElement(BasicFlow, null), flow === "tiktok" && /*#__PURE__*/React.createElement(TikTokFlow, null), flow === "telegram" && /*#__PURE__*/React.createElement(TelegramFlow, null)), /*#__PURE__*/React.createElement("a", {
     href: "https://campnetwork.xyz",
     className: styles["footer-text"],
     target: "_blank",
@@ -2264,20 +2346,20 @@ var LinkingModal = function LinkingModal() {
  */
 var MyCampModal = function MyCampModal(_ref7) {
   var wcProvider = _ref7.wcProvider;
-  var _useContext7 = useContext(CampContext),
-    auth = _useContext7.auth;
-  var _useContext8 = useContext(ModalContext),
-    setIsVisible = _useContext8.setIsVisible;
+  var _useContext8 = useContext(CampContext),
+    auth = _useContext8.auth;
+  var _useContext9 = useContext(ModalContext),
+    setIsVisible = _useContext9.setIsVisible;
   var _useConnect2 = useConnect(),
     disconnect = _useConnect2.disconnect;
-  var _useSocials2 = useSocials(),
-    socials = _useSocials2.data,
-    loading = _useSocials2.loading,
-    refetch = _useSocials2.refetch;
-  var _useState11 = useState(true),
-    _useState12 = _slicedToArray(_useState11, 2),
-    isLoadingSocials = _useState12[0],
-    setIsLoadingSocials = _useState12[1];
+  var _useSocials3 = useSocials(),
+    socials = _useSocials3.data,
+    loading = _useSocials3.loading,
+    refetch = _useSocials3.refetch;
+  var _useState13 = useState(true),
+    _useState14 = _slicedToArray(_useState13, 2),
+    isLoadingSocials = _useState14[0],
+    setIsLoadingSocials = _useState14[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
@@ -2619,7 +2701,8 @@ var useLinkModal = function useLinkModal() {
     unlinkSpotify: function unlinkSpotify() {
       return handleUnlink("spotify");
     },
-    closeModal: handleClose
+    closeModal: handleClose,
+    handleOpen: handleOpen
   };
 };
 

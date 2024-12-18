@@ -1,5 +1,5 @@
 import { capitalize } from "../../utils.js";
-import { CampIcon, DiscordIcon, SpotifyIcon, TwitterIcon } from "./icons.jsx";
+import { CampIcon, DiscordIcon, getIconBySocial, SpotifyIcon, TikTokIcon, TwitterIcon } from "./icons.jsx";
 import { useAuthState, useLinkModal, useSocials } from "./index.jsx";
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
@@ -187,15 +187,15 @@ export const LinkButton = ({
   social,
   theme = "default",
 }) => {
-  const { openTwitterModal, openDiscordModal, openSpotifyModal } =
+  const { handleOpen } =
     useLinkModal();
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
 
-  if (["twitter", "spotify", "discord"].indexOf(social) === -1) {
+  if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
     throw new Error(
-      "Invalid social, must be 'twitter', 'spotify', or 'discord'"
+      "Invalid social, must be 'twitter', 'spotify', 'discord', 'tiktok', or 'telegram'"
     );
   }
 
@@ -207,22 +207,9 @@ export const LinkButton = ({
   const { authenticated } = useAuthState();
   const isLinked = socials && socials[social];
   const handleClick = () => {
-    if (social === "twitter") {
-      openTwitterModal();
-    } else if (social === "discord") {
-      openDiscordModal();
-    } else if (social === "spotify") {
-      openSpotifyModal();
-    }
+    handleOpen(social);
   };
-  const Icon =
-    social === "twitter"
-      ? TwitterIcon
-      : social === "spotify"
-      ? SpotifyIcon
-      : social === "discord"
-      ? DiscordIcon
-      : null;
+  const Icon = getIconBySocial(social);
   return (
     <button
       disabled={!authenticated}
@@ -267,13 +254,7 @@ export const LinkButton = ({
             </svg>
           </div>
           <div className={buttonStyles["social-icon"]}>
-            {social === "twitter" ? (
-              <TwitterIcon />
-            ) : social === "spotify" ? (
-              <SpotifyIcon />
-            ) : social === "discord" ? (
-              <DiscordIcon />
-            ) : null}
+            <Icon />
           </div>
         </div>
       )}

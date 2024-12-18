@@ -110,203 +110,6 @@
   color: #777;
   font-size: 0.7rem;
 }
-/*
-.link-button {
-}
-
-.link-button:hover {
-  cursor: pointer;
-}
-
-.link-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.link-button-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-   gap: 0.5rem; 
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
-  background-color: transparent;
-  color: #333;
-  background-color: #ff6f00;
-  border: none;
-  transition: all 0.15s;
-  padding: 0.7rem;
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
-  margin: 0.2rem;
-}
-
-.link-button-icon:hover:not(:disabled) {
-  background-color: #cc4e02;
-}
-
-.link-button-icon.twitter:not(:disabled) {
-  background-color: #1da1f2 !important;
-}
-
-.link-button-icon.twitter:not(:disabled):hover {
-  background-color: #0d8bf0 !important;
-}
-
-.link-button-icon.spotify:not(:disabled) {
-  background-color: #1db954 !important;
-}
-
-.link-button-icon.spotify:not(:disabled):hover {
-  background-color: #0d8f4a !important;
-}
-
-.link-button-icon.discord:not(:disabled) {
-  background-color: #7289da !important;
-}
-
-.link-button-icon.discord:not(:disabled):hover {
-  background-color: #5c6f9d !important;
-}
-
-.link-button-icon.link-button-twitter {
-  padding-left: 0.8rem;
-  padding-top: 0.8rem;
-}
-
-.link-button-icon > svg {
-  fill: white !important;
-}
-
-.link-button-icon > svg path {
-  fill: white !important;
-}
-
-.icon-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  color: #333;
-  transition: all 0.15s;
-  flex: 1 1;
-}
-
-.icon-container > svg {
-  fill: white !important;
-}
-
-.link-button-normal {
-  position: relative;
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  padding-inline: 2.5rem;
-  padding-left: 3.5rem;
-  height: 2.5rem;
-  line-height: 1.333rem;
-  font-size: 1rem;
-  font-weight: 600;
-  width: 8rem;
-  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-    sans-serif;
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
-  transition: background-color 0.15s;
-}
-
-.link-button-normal:not(:disabled):hover {
-  background-color: #cc4e02;
-  cursor: pointer;
-}
-
-.link-button-normal .button-icon {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 2.5rem;
-  height: 100%;
-  margin-right: 0.5rem;
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset;
-  display: grid;
-  place-items: center;
-  transition: background-color 0.15s;
-  border-radius: 0.75rem 0 0 0.75rem;
-}
-
-.link-button-normal .button-icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.link-button-normal:disabled .button-icon {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.link-button-normal:disabled .button-icon svg path {
-  fill: #ccc !important;
-}
-.link-button-normal .button-icon svg path {
-  fill: white !important;
-}
-
-.link-button-normal.twitter:not(:disabled) {
-  background-color: #1da1f2 !important;
-}
-
-.link-button-normal.twitter:not(:disabled):hover {
-  background-color: #0d8bf0 !important;
-}
-
-.link-button-normal.spotify:not(:disabled) {
-  background-color: #1db954 !important;
-}
-
-.link-button-normal.spotify:not(:disabled):hover {
-  background-color: #0d8f4a !important;
-}
-
-.link-button-normal.discord:not(:disabled) {
-  background-color: #7289da !important;
-}
-
-.link-button-normal.discord:not(:disabled):hover {
-  background-color: #5c6f9d !important;
-}
-
-.link-button .camp-logo {
-  position: absolute;
-  display: flex;
-  right: -1.25rem;
-  bottom: -1.25rem;
-  background-color: black;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  border: 1px solid black;
-  justify-content: center;
-  align-items: center;
-}
-
-.link-button .camp-logo svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.normal-button-container {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-*/
 
 /* "default" variant */
 .link-button-default {
@@ -380,6 +183,14 @@
 
 .link-button-default:not(:disabled).discord {
   background-color: #7289da;
+}
+
+.link-button-default:not(:disabled).tiktok {
+  background-color: #000000;
+}
+
+.link-button-default:not(:disabled).telegram {
+  background-color: #0088cc;
 }
 
 .link-button-default .button-container {
@@ -508,6 +319,14 @@
 
 .link-button-icon:not(:disabled).discord {
   background-color: #7289da;
+}
+
+.link-button-icon:not(:disabled).tiktok {
+  background-color: #000000;
+}
+
+.link-button-icon:not(:disabled).telegram {
+  background-color: #0088cc;
 }
 
 .link-button-icon .icon-container {

@@ -217,6 +217,7 @@ export const useLinkModal = () => {
     unlinkDiscord: () => handleUnlink("discord"),
     unlinkSpotify: () => handleUnlink("spotify"),
     closeModal: handleClose,
+    handleOpen,
   };
 };
 

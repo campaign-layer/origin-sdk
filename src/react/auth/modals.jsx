@@ -14,7 +14,14 @@ import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
 import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils.js";
 import { CampButton, ProviderButton, ConnectorButton } from "./buttons.jsx";
-import { DiscordIcon, TwitterIcon, SpotifyIcon, CloseIcon, CampIcon } from "./icons.jsx";
+import {
+  DiscordIcon,
+  TwitterIcon,
+  SpotifyIcon,
+  CloseIcon,
+  CampIcon,
+  getIconBySocial,
+} from "./icons.jsx";
 
 /**
  * The Auth modal component.
@@ -341,10 +348,18 @@ export const CampModal = ({
   );
 };
 
-const LinkingModal = () => {
-  const { isLoading: isSocialsLoading, data: socials, refetch } = useSocials();
-  const { auth } = useContext(CampContext);
+const TikTokFlow = () => {};
+
+const TelegramFlow = () => {};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+const BasicFlow = () => {
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { data: socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
   const handleLink = async () => {
@@ -372,6 +387,57 @@ const LinkingModal = () => {
       }
     }
   };
+
+  return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            <b>{window.location.host}</b> is requesting to link your{" "}
+            {capitalize(currentlyLinking)} account.
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleLink}
+        disabled={isUnlinking}
+      >
+        {!isUnlinking ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : (
+            "Link"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
+
+const LinkingModal = () => {
+  const { isLoading: isSocialsLoading } = useSocials();
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+
+  const [flow, setFlow] = useState(null);
+
+  useEffect(() => {
+    if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
+      setFlow("basic");
+    } else if (currentlyLinking === "tiktok") {
+      setFlow("tiktok");
+    } else if (currentlyLinking === "telegram") {
+      setFlow("telegram");
+    }
+  }, [currentlyLinking]);
+
+  const Icon = getIconBySocial(currentlyLinking);
 
   return (
     <div
@@ -405,43 +471,12 @@ const LinkingModal = () => {
           <div>
             <div className={styles.header}>
               <div className={styles["small-modal-icon"]}>
-                {currentlyLinking === "twitter" ? (
-                  <TwitterIcon />
-                ) : currentlyLinking === "discord" ? (
-                  <DiscordIcon />
-                ) : currentlyLinking === "spotify" ? (
-                  <SpotifyIcon />
-                ) : null}
+                <Icon />
               </div>
             </div>
-            <div className={styles["linking-text"]}>
-              {(currentlyLinking && socials[currentlyLinking]) ? (
-                <div>
-                  Your {capitalize(currentlyLinking)} account is currently
-                  linked.
-                </div>
-              ) : (
-                <div>
-                  <b>{window.location.host}</b> is requesting to link your{" "}
-                  {capitalize(currentlyLinking)} account.
-                </div>
-              )}
-            </div>
-            <button
-              className={styles["linking-button"]}
-              onClick={handleLink}
-              disabled={isUnlinking}
-            >
-              {!isUnlinking ? (
-                (currentlyLinking && socials[currentlyLinking]) ? (
-                  "Unlink"
-                ) : (
-                  "Link"
-                )
-              ) : (
-                <div className={styles.spinner} />
-              )}
-            </button>
+            {flow === "basic" && <BasicFlow />}
+            {flow === "tiktok" && <TikTokFlow />}
+            {flow === "telegram" && <TelegramFlow />}
           </div>
         )}
         <a
