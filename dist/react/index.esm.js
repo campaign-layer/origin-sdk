@@ -2496,6 +2496,7 @@ var TikTokFlow = function TikTokFlow() {
   var resetState = function resetState() {
     setIsLoading(false);
     setIsLinkingVisible(false);
+    setHandleInput("");
   };
   var handleLink = /*#__PURE__*/function () {
     var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
@@ -2583,13 +2584,7 @@ var TikTokFlow = function TikTokFlow() {
  * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
  * @returns { JSX.Element } The TelegramFlow component.
  */
-var TelegramFlow = function TelegramFlow() {};
-
-/**
- * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
- * @returns { JSX.Element } The BasicFlow component.
- */
-var BasicFlow = function BasicFlow() {
+var TelegramFlow = function TelegramFlow() {
   var _useContext7 = useContext(ModalContext),
     setIsLinkingVisible = _useContext7.setIsLinkingVisible,
     currentlyLinking = _useContext7.currentlyLinking;
@@ -2601,9 +2596,34 @@ var BasicFlow = function BasicFlow() {
     auth = _useContext8.auth;
   var _useState13 = useState(false),
     _useState14 = _slicedToArray(_useState13, 2),
-    isUnlinking = _useState14[0],
-    setIsUnlinking = _useState14[1];
-  var handleLink = /*#__PURE__*/function () {
+    IsLoading = _useState14[0],
+    setIsLoading = _useState14[1];
+  var _useState15 = useState(""),
+    _useState16 = _slicedToArray(_useState15, 2),
+    phoneInput = _useState16[0],
+    setPhoneInput = _useState16[1];
+  var _useState17 = useState(""),
+    _useState18 = _slicedToArray(_useState17, 2),
+    otpInput = _useState18[0],
+    setOtpInput = _useState18[1];
+  var _useState19 = useState(""),
+    _useState20 = _slicedToArray(_useState19, 2);
+    _useState20[0];
+    _useState20[1];
+  var _useState21 = useState(false),
+    _useState22 = _slicedToArray(_useState21, 2),
+    isOTPSent = _useState22[0],
+    setIsOTPSent = _useState22[1];
+  var resetState = function resetState() {
+    setIsLoading(false);
+    setPhoneInput("");
+    setOtpInput("");
+  };
+  var verifyPhoneNumber = function verifyPhoneNumber(phone) {
+    var phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+  };
+  var handleAction = /*#__PURE__*/function () {
     var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
@@ -2614,49 +2634,170 @@ var BasicFlow = function BasicFlow() {
             }
             return _context4.abrupt("return");
           case 2:
+            if (!isOTPSent) {
+              _context4.next = 21;
+              break;
+            }
+            if (otpInput) {
+              _context4.next = 5;
+              break;
+            }
+            return _context4.abrupt("return");
+          case 5:
+            setIsLoading(true);
+            _context4.prev = 6;
+            _context4.next = 9;
+            return auth.linkTelegram(otpInput);
+          case 9:
+            refetch();
+            resetState();
+            setIsLinkingVisible(false);
+            _context4.next = 19;
+            break;
+          case 14:
+            _context4.prev = 14;
+            _context4.t0 = _context4["catch"](6);
+            resetState();
+            console.error(_context4.t0);
+            return _context4.abrupt("return");
+          case 19:
+            _context4.next = 34;
+            break;
+          case 21:
+            if (verifyPhoneNumber(phoneInput)) {
+              _context4.next = 24;
+              break;
+            }
+            // TODO: create an alert component
+            alert("Invalid phone number.");
+            return _context4.abrupt("return");
+          case 24:
+            setIsLoading(true);
+            _context4.prev = 25;
+            // const res = await auth.sendTelegramOTP(phoneInput);
+            setTimeout(function () {
+              setIsOTPSent(true);
+              setIsLoading(false);
+            }, 1000);
+            // setIsOTPSent(true);
+            // setPhoneCodeHash(res.phone_code_hash);
+            _context4.next = 34;
+            break;
+          case 29:
+            _context4.prev = 29;
+            _context4.t1 = _context4["catch"](25);
+            resetState();
+            console.error(_context4.t1);
+            return _context4.abrupt("return");
+          case 34:
+          case "end":
+            return _context4.stop();
+        }
+      }, _callee4, null, [[6, 14], [25, 29]]);
+    }));
+    return function handleAction() {
+      return _ref7.apply(this, arguments);
+    };
+  }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    value: otpInput,
+    onChange: function onChange(e) {
+      return setOtpInput(e.target.value);
+    },
+    type: "text",
+    placeholder: "Enter OTP",
+    className: styles["tiktok-input"]
+  }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    value: phoneInput,
+    onChange: function onChange(e) {
+      return setPhoneInput(e.target.value);
+    },
+    type: "tel",
+    placeholder: "Enter your phone number",
+    className: styles["tiktok-input"]
+  }))))), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleAction,
+    disabled: IsLoading
+  }, !IsLoading ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : isOTPSent ? "Link" : "Send OTP" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+var BasicFlow = function BasicFlow() {
+  var _useContext9 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext9.setIsLinkingVisible,
+    currentlyLinking = _useContext9.currentlyLinking;
+  var _useSocials3 = useSocials(),
+    socials = _useSocials3.socials,
+    refetch = _useSocials3.refetch,
+    isSocialsLoading = _useSocials3.isLoading;
+  var _useContext10 = useContext(CampContext),
+    auth = _useContext10.auth;
+  var _useState23 = useState(false),
+    _useState24 = _slicedToArray(_useState23, 2),
+    isUnlinking = _useState24[0],
+    setIsUnlinking = _useState24[1];
+  var handleLink = /*#__PURE__*/function () {
+    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
+          case 0:
+            if (!isSocialsLoading) {
+              _context5.next = 2;
+              break;
+            }
+            return _context5.abrupt("return");
+          case 2:
             if (!socials[currentlyLinking]) {
-              _context4.next = 20;
+              _context5.next = 20;
               break;
             }
             setIsUnlinking(true);
-            _context4.prev = 4;
-            _context4.next = 7;
+            _context5.prev = 4;
+            _context5.next = 7;
             return auth["unlink".concat(capitalize(currentlyLinking))]();
           case 7:
-            _context4.next = 15;
+            _context5.next = 15;
             break;
           case 9:
-            _context4.prev = 9;
-            _context4.t0 = _context4["catch"](4);
+            _context5.prev = 9;
+            _context5.t0 = _context5["catch"](4);
             setIsUnlinking(false);
             setIsLinkingVisible(false);
-            console.error(_context4.t0);
-            return _context4.abrupt("return");
+            console.error(_context5.t0);
+            return _context5.abrupt("return");
           case 15:
             refetch();
             setIsLinkingVisible(false);
             setIsUnlinking(false);
-            _context4.next = 29;
+            _context5.next = 29;
             break;
           case 20:
-            _context4.prev = 20;
+            _context5.prev = 20;
             auth["link".concat(capitalize(currentlyLinking))]();
-            _context4.next = 29;
+            _context5.next = 29;
             break;
           case 24:
-            _context4.prev = 24;
-            _context4.t1 = _context4["catch"](20);
+            _context5.prev = 24;
+            _context5.t1 = _context5["catch"](20);
             setIsLinkingVisible(false);
-            console.error(_context4.t1);
-            return _context4.abrupt("return");
+            console.error(_context5.t1);
+            return _context5.abrupt("return");
           case 29:
           case "end":
-            return _context4.stop();
+            return _context5.stop();
         }
-      }, _callee4, null, [[4, 9], [20, 24]]);
+      }, _callee5, null, [[4, 9], [20, 24]]);
     }));
     return function handleLink() {
-      return _ref7.apply(this, arguments);
+      return _ref8.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -2675,15 +2816,15 @@ var BasicFlow = function BasicFlow() {
  * @returns { JSX.Element } The LinkingModal component.
  */
 var LinkingModal = function LinkingModal() {
-  var _useSocials3 = useSocials(),
-    isSocialsLoading = _useSocials3.isLoading;
-  var _useContext9 = useContext(ModalContext),
-    setIsLinkingVisible = _useContext9.setIsLinkingVisible,
-    currentlyLinking = _useContext9.currentlyLinking;
-  var _useState15 = useState(null),
-    _useState16 = _slicedToArray(_useState15, 2),
-    flow = _useState16[0],
-    setFlow = _useState16[1];
+  var _useSocials4 = useSocials(),
+    isSocialsLoading = _useSocials4.isLoading;
+  var _useContext11 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext11.setIsLinkingVisible,
+    currentlyLinking = _useContext11.currentlyLinking;
+  var _useState25 = useState(null),
+    _useState26 = _slicedToArray(_useState25, 2),
+    flow = _useState26[0],
+    setFlow = _useState26[1];
   useEffect(function () {
     if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
       setFlow("basic");
@@ -2741,22 +2882,22 @@ var LinkingModal = function LinkingModal() {
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-var MyCampModal = function MyCampModal(_ref8) {
-  var wcProvider = _ref8.wcProvider;
-  var _useContext10 = useContext(CampContext),
-    auth = _useContext10.auth;
-  var _useContext11 = useContext(ModalContext),
-    setIsVisible = _useContext11.setIsVisible;
+var MyCampModal = function MyCampModal(_ref9) {
+  var wcProvider = _ref9.wcProvider;
+  var _useContext12 = useContext(CampContext),
+    auth = _useContext12.auth;
+  var _useContext13 = useContext(ModalContext),
+    setIsVisible = _useContext13.setIsVisible;
   var _useConnect2 = useConnect(),
     disconnect = _useConnect2.disconnect;
-  var _useSocials4 = useSocials(),
-    socials = _useSocials4.socials,
-    loading = _useSocials4.loading,
-    refetch = _useSocials4.refetch;
-  var _useState17 = useState(true),
-    _useState18 = _slicedToArray(_useState17, 2),
-    isLoadingSocials = _useState18[0],
-    setIsLoadingSocials = _useState18[1];
+  var _useSocials5 = useSocials(),
+    socials = _useSocials5.socials,
+    loading = _useSocials5.loading,
+    refetch = _useSocials5.refetch;
+  var _useState27 = useState(true),
+    _useState28 = _slicedToArray(_useState27, 2),
+    isLoadingSocials = _useState28[0],
+    setIsLoadingSocials = _useState28[1];
   var _useLinkModal = useLinkModal(),
     linkTiktok = _useLinkModal.linkTiktok,
     linkTelegram = _useLinkModal.linkTelegram;

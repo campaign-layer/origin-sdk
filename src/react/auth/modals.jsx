@@ -365,6 +365,7 @@ const TikTokFlow = () => {
   const resetState = () => {
     setIsLoading(false);
     setIsLinkingVisible(false);
+    setHandleInput("");
   };
 
   const handleLink = async () => {
@@ -438,7 +439,126 @@ const TikTokFlow = () => {
  * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
  * @returns { JSX.Element } The TelegramFlow component.
  */
-const TelegramFlow = () => {};
+const TelegramFlow = () => {
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
+  const [IsLoading, setIsLoading] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [phoneCodeHash, setPhoneCodeHash] = useState("");
+  const [isOTPSent, setIsOTPSent] = useState(false);
+
+  const resetState = () => {
+    setIsLoading(false);
+    setPhoneInput("");
+    setOtpInput("");
+  };
+
+  const verifyPhoneNumber = (phone) => {
+    const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+  };
+
+  const handleAction = async () => {
+    if (isSocialsLoading) return;
+    if (isOTPSent) {
+      if (!otpInput) return;
+      setIsLoading(true);
+      try {
+        await auth.linkTelegram(otpInput);
+        refetch();
+        resetState();
+        setIsLinkingVisible(false);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    } else {
+      if (!verifyPhoneNumber(phoneInput)) {
+        // TODO: create an alert component
+        alert("Invalid phone number.");
+        return;
+      }
+      setIsLoading(true);
+      try {
+        // const res = await auth.sendTelegramOTP(phoneInput);
+        setTimeout(() => {
+          setIsOTPSent(true);
+          setIsLoading(false);
+        }, 1000);
+        // setIsOTPSent(true);
+        // setPhoneCodeHash(res.phone_code_hash);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    }
+  };
+
+  return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            {isOTPSent ? (
+              <div>
+                <span>Enter the OTP sent to your phone number.</span>
+                <div>
+                  {/* TODO: Add OTP input */}
+                  <input
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value)}
+                    type="text"
+                    placeholder="Enter OTP"
+                    className={styles["tiktok-input"]}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <b>{window.location.host}</b> is requesting to link your{" "}
+                {capitalize(currentlyLinking)} account.
+                <div>
+                  <input
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value)}
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    className={styles["tiktok-input"]}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleAction}
+        disabled={IsLoading}
+      >
+        {!IsLoading ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : isOTPSent ? (
+            "Link"
+          ) : (
+            "Send OTP"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
 
 /**
  * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
