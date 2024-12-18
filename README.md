@@ -627,7 +627,6 @@ function App() {
 }
 ```
 
-
 ## Hooks
 
 ### useAuth
@@ -698,19 +697,16 @@ function App() {
 The `useProviders` hook returns the list of providers that have been injected via EIP6963 and that the user or app can select from.
 
 ```jsx
-import { useProviders, useAuth } from "@campnetwork/sdk/react";
+import { useProviders, useProvider } from "@campnetwork/sdk/react";
 
 function App() {
   const providers = useProviders();
-  const auth = useAuth();
+  const { setProvider } = useProvider();
 
   return (
     <div>
       {providers.map((provider) => (
-        <button
-          key={provider.info.name}
-          onClick={() => auth.setProvider(provider)}
-        >
+        <button key={provider.info.name} onClick={() => setProvider(provider)}>
           {provider.info.name}
         </button>
       ))}
