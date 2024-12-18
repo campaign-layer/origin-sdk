@@ -388,6 +388,32 @@ class Auth {
     window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 
+  async linkTikTok(handle) {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/tiktok/connect`, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        'x-client-id': this.clientId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userHandle: handle,
+        clientId: this.clientId,
+        userId: this.userId,
+      })
+    }).then(res => res.json())
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || 'Failed to link TikTok account');
+    }
+  }
+
   /**
    * Unlink the user's Twitter account.
    */
@@ -472,6 +498,30 @@ class Auth {
       return data.data;
     } else {
       throw new APIError(data.message || "Failed to unlink Spotify account");
+    }
+  }
+
+  async unlinkTikTok() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        'x-client-id': this.clientId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: this.userId,
+      })
+    }).then(res => res.json())
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || 'Failed to unlink TikTok account');
     }
   }
 }

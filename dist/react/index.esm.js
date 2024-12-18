@@ -935,11 +935,7 @@ class Auth {
     }
     window.location.href = "".concat(constants.AUTH_HUB_BASE_API, "/spotify/connect?clientId=").concat(this.clientId, "&userId=").concat(this.userId, "&redirect_url=").concat(this.redirectUri["spotify"]);
   }
-
-  /**
-   * Unlink the user's Twitter account.
-   */
-  unlinkTwitter() {
+  linkTikTok(handle) {
     var _this5 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
       var data;
@@ -953,16 +949,18 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context4.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
-              method: "POST",
-              redirect: "follow",
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/connect"), {
+              method: 'POST',
+              redirect: 'follow',
               headers: {
                 Authorization: "Bearer ".concat(_this5.jwt),
-                "x-client-id": _this5.clientId,
-                "Content-Type": "application/json"
+                'x-client-id': _this5.clientId,
+                'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                id: _this5.userId
+                userHandle: handle,
+                clientId: _this5.clientId,
+                userId: _this5.userId
               })
             }).then(function (res) {
               return res.json();
@@ -975,7 +973,7 @@ class Auth {
             }
             return _context4.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Twitter account");
+            throw new APIError(data.message || 'Failed to link TikTok account');
           case 10:
           case "end":
             return _context4.stop();
@@ -985,9 +983,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Discord account.
+   * Unlink the user's Twitter account.
    */
-  unlinkDiscord() {
+  unlinkTwitter() {
     var _this6 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
       var data;
@@ -1001,7 +999,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context5.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1023,7 +1021,7 @@ class Auth {
             }
             return _context5.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Discord account");
+            throw new APIError(data.message || "Failed to unlink Twitter account");
           case 10:
           case "end":
             return _context5.stop();
@@ -1033,9 +1031,9 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Spotify account.
+   * Unlink the user's Discord account.
    */
-  unlinkSpotify() {
+  unlinkDiscord() {
     var _this7 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
       var data;
@@ -1049,7 +1047,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context6.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1071,12 +1069,104 @@ class Auth {
             }
             return _context6.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Spotify account");
+            throw new APIError(data.message || "Failed to unlink Discord account");
           case 10:
           case "end":
             return _context6.stop();
         }
       }, _callee6);
+    }))();
+  }
+
+  /**
+   * Unlink the user's Spotify account.
+   */
+  unlinkSpotify() {
+    var _this8 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+        while (1) switch (_context7.prev = _context7.next) {
+          case 0:
+            if (_this8.isAuthenticated) {
+              _context7.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context7.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this8.jwt),
+                "x-client-id": _this8.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                id: _this8.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context7.sent;
+            if (data.isError) {
+              _context7.next = 9;
+              break;
+            }
+            return _context7.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink Spotify account");
+          case 10:
+          case "end":
+            return _context7.stop();
+        }
+      }, _callee7);
+    }))();
+  }
+  unlinkTikTok() {
+    var _this9 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+        while (1) switch (_context8.prev = _context8.next) {
+          case 0:
+            if (_this9.isAuthenticated) {
+              _context8.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context8.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
+              method: 'POST',
+              redirect: 'follow',
+              headers: {
+                Authorization: "Bearer ".concat(_this9.jwt),
+                'x-client-id': _this9.clientId,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                userId: _this9.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context8.sent;
+            if (data.isError) {
+              _context8.next = 9;
+              break;
+            }
+            return _context8.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || 'Failed to unlink TikTok account');
+          case 10:
+          case "end":
+            return _context8.stop();
+        }
+      }, _callee8);
     }))();
   }
 }
@@ -1114,29 +1204,29 @@ function _requestAccount() {
   return _requestAccount2.apply(this, arguments);
 }
 function _requestAccount2() {
-  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
     var _yield$this$viem$requ, _yield$this$viem$requ2, account;
-    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-      while (1) switch (_context7.prev = _context7.next) {
+    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+      while (1) switch (_context9.prev = _context9.next) {
         case 0:
-          _context7.prev = 0;
-          _context7.next = 3;
+          _context9.prev = 0;
+          _context9.next = 3;
           return this.viem.requestAddresses();
         case 3:
-          _yield$this$viem$requ = _context7.sent;
+          _yield$this$viem$requ = _context9.sent;
           _yield$this$viem$requ2 = _slicedToArray(_yield$this$viem$requ, 1);
           account = _yield$this$viem$requ2[0];
           this.walletAddress = account;
-          return _context7.abrupt("return", account);
+          return _context9.abrupt("return", account);
         case 10:
-          _context7.prev = 10;
-          _context7.t0 = _context7["catch"](0);
-          throw new APIError(_context7.t0);
+          _context9.prev = 10;
+          _context9.t0 = _context9["catch"](0);
+          throw new APIError(_context9.t0);
         case 13:
         case "end":
-          return _context7.stop();
+          return _context9.stop();
       }
-    }, _callee7, this, [[0, 10]]);
+    }, _callee9, this, [[0, 10]]);
   }));
   return _requestAccount2.apply(this, arguments);
 }
@@ -1150,13 +1240,13 @@ function _fetchNonce() {
   return _fetchNonce2.apply(this, arguments);
 }
 function _fetchNonce2() {
-  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
     var res, data;
-    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-      while (1) switch (_context8.prev = _context8.next) {
+    return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+      while (1) switch (_context10.prev = _context10.next) {
         case 0:
-          _context8.prev = 0;
-          _context8.next = 3;
+          _context10.prev = 0;
+          _context10.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/nonce"), {
             method: "POST",
             headers: {
@@ -1168,27 +1258,27 @@ function _fetchNonce2() {
             })
           });
         case 3:
-          res = _context8.sent;
-          _context8.next = 6;
+          res = _context10.sent;
+          _context10.next = 6;
           return res.json();
         case 6:
-          data = _context8.sent;
+          data = _context10.sent;
           if (!(res.status !== 200)) {
-            _context8.next = 9;
+            _context10.next = 9;
             break;
           }
-          return _context8.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
+          return _context10.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
         case 9:
-          return _context8.abrupt("return", data.data);
+          return _context10.abrupt("return", data.data);
         case 12:
-          _context8.prev = 12;
-          _context8.t0 = _context8["catch"](0);
-          throw new Error(_context8.t0);
+          _context10.prev = 12;
+          _context10.t0 = _context10["catch"](0);
+          throw new Error(_context10.t0);
         case 15:
         case "end":
-          return _context8.stop();
+          return _context10.stop();
       }
-    }, _callee8, this, [[0, 12]]);
+    }, _callee10, this, [[0, 12]]);
   }));
   return _fetchNonce2.apply(this, arguments);
 }
@@ -1204,13 +1294,13 @@ function _verifySignature(_x, _x2) {
   return _verifySignature2.apply(this, arguments);
 }
 function _verifySignature2() {
-  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9(message, signature) {
+  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(message, signature) {
     var res, data, payload, decoded;
-    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
-      while (1) switch (_context9.prev = _context9.next) {
+    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+      while (1) switch (_context11.prev = _context11.next) {
         case 0:
-          _context9.prev = 0;
-          _context9.next = 3;
+          _context11.prev = 0;
+          _context11.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/verify"), {
             method: "POST",
             headers: {
@@ -1224,27 +1314,27 @@ function _verifySignature2() {
             })
           });
         case 3:
-          res = _context9.sent;
-          _context9.next = 6;
+          res = _context11.sent;
+          _context11.next = 6;
           return res.json();
         case 6:
-          data = _context9.sent;
+          data = _context11.sent;
           payload = data.data.split(".")[1];
           decoded = JSON.parse(atob(payload));
-          return _context9.abrupt("return", {
+          return _context11.abrupt("return", {
             success: !data.isError,
             userId: decoded.id,
             token: data.data
           });
         case 12:
-          _context9.prev = 12;
-          _context9.t0 = _context9["catch"](0);
-          throw new APIError(_context9.t0);
+          _context11.prev = 12;
+          _context11.t0 = _context11["catch"](0);
+          throw new APIError(_context11.t0);
         case 15:
         case "end":
-          return _context9.stop();
+          return _context11.stop();
       }
-    }, _callee9, this, [[0, 12]]);
+    }, _callee11, this, [[0, 12]]);
   }));
   return _verifySignature2.apply(this, arguments);
 }
@@ -1394,8 +1484,8 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}";
-var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me"};
+var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}";
+var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG"};
 styleInject(css_248z$1);
 
 var formatAddress = function formatAddress(address) {
@@ -2209,14 +2299,7 @@ var CampModal = function CampModal(_ref5) {
     defaultProvider: defaultProvider
   })))));
 };
-var TikTokFlow = function TikTokFlow() {};
-var TelegramFlow = function TelegramFlow() {};
-
-/**
- * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
- * @returns { JSX.Element } The BasicFlow component.
- */
-var BasicFlow = function BasicFlow() {
+var TikTokFlow = function TikTokFlow() {
   var _useContext5 = useContext(ModalContext),
     setIsLinkingVisible = _useContext5.setIsLinkingVisible,
     currentlyLinking = _useContext5.currentlyLinking;
@@ -2228,8 +2311,16 @@ var BasicFlow = function BasicFlow() {
     auth = _useContext6.auth;
   var _useState9 = useState(false),
     _useState10 = _slicedToArray(_useState9, 2),
-    isUnlinking = _useState10[0],
-    setIsUnlinking = _useState10[1];
+    IsLoading = _useState10[0],
+    setIsLoading = _useState10[1];
+  var _useState11 = useState(""),
+    _useState12 = _slicedToArray(_useState11, 2),
+    handleInput = _useState12[0],
+    setHandleInput = _useState12[1];
+  var resetState = function resetState() {
+    setIsLoading(false);
+    setIsLinkingVisible(false);
+  };
   var handleLink = /*#__PURE__*/function () {
     var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
@@ -2241,49 +2332,150 @@ var BasicFlow = function BasicFlow() {
             }
             return _context3.abrupt("return");
           case 2:
+            setIsLoading(true);
             if (!socials[currentlyLinking]) {
-              _context3.next = 20;
+              _context3.next = 16;
               break;
             }
-            setIsUnlinking(true);
             _context3.prev = 4;
             _context3.next = 7;
-            return auth["unlink".concat(capitalize(currentlyLinking))]();
+            return auth.unlinkTikTok();
           case 7:
-            _context3.next = 15;
+            _context3.next = 14;
             break;
           case 9:
             _context3.prev = 9;
             _context3.t0 = _context3["catch"](4);
-            setIsUnlinking(false);
-            setIsLinkingVisible(false);
+            resetState();
             console.error(_context3.t0);
             return _context3.abrupt("return");
+          case 14:
+            _context3.next = 28;
+            break;
+          case 16:
+            if (handleInput) {
+              _context3.next = 18;
+              break;
+            }
+            return _context3.abrupt("return");
+          case 18:
+            _context3.prev = 18;
+            _context3.next = 21;
+            return auth.linkTikTok(handleInput);
+          case 21:
+            _context3.next = 28;
+            break;
+          case 23:
+            _context3.prev = 23;
+            _context3.t1 = _context3["catch"](18);
+            resetState();
+            console.error(_context3.t1);
+            return _context3.abrupt("return");
+          case 28:
+            refetch();
+            resetState();
+          case 30:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3, null, [[4, 9], [18, 23]]);
+    }));
+    return function handleLink() {
+      return _ref6.apply(this, arguments);
+    };
+  }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    value: handleInput,
+    onChange: function onChange(e) {
+      return setHandleInput(e.target.value);
+    },
+    type: "text",
+    placeholder: "Enter your TikTok username",
+    className: styles["tiktok-input"]
+  })))), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleLink,
+    disabled: IsLoading
+  }, !IsLoading ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+var TelegramFlow = function TelegramFlow() {};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+var BasicFlow = function BasicFlow() {
+  var _useContext7 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext7.setIsLinkingVisible,
+    currentlyLinking = _useContext7.currentlyLinking;
+  var _useSocials2 = useSocials(),
+    socials = _useSocials2.data,
+    refetch = _useSocials2.refetch,
+    isSocialsLoading = _useSocials2.isLoading;
+  var _useContext8 = useContext(CampContext),
+    auth = _useContext8.auth;
+  var _useState13 = useState(false),
+    _useState14 = _slicedToArray(_useState13, 2),
+    isUnlinking = _useState14[0],
+    setIsUnlinking = _useState14[1];
+  var handleLink = /*#__PURE__*/function () {
+    var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
+          case 0:
+            if (!isSocialsLoading) {
+              _context4.next = 2;
+              break;
+            }
+            return _context4.abrupt("return");
+          case 2:
+            if (!socials[currentlyLinking]) {
+              _context4.next = 20;
+              break;
+            }
+            setIsUnlinking(true);
+            _context4.prev = 4;
+            _context4.next = 7;
+            return auth["unlink".concat(capitalize(currentlyLinking))]();
+          case 7:
+            _context4.next = 15;
+            break;
+          case 9:
+            _context4.prev = 9;
+            _context4.t0 = _context4["catch"](4);
+            setIsUnlinking(false);
+            setIsLinkingVisible(false);
+            console.error(_context4.t0);
+            return _context4.abrupt("return");
           case 15:
             refetch();
             setIsLinkingVisible(false);
             setIsUnlinking(false);
-            _context3.next = 29;
+            _context4.next = 29;
             break;
           case 20:
-            _context3.prev = 20;
+            _context4.prev = 20;
             auth["link".concat(capitalize(currentlyLinking))]();
-            _context3.next = 29;
+            _context4.next = 29;
             break;
           case 24:
-            _context3.prev = 24;
-            _context3.t1 = _context3["catch"](20);
+            _context4.prev = 24;
+            _context4.t1 = _context4["catch"](20);
             setIsLinkingVisible(false);
-            console.error(_context3.t1);
-            return _context3.abrupt("return");
+            console.error(_context4.t1);
+            return _context4.abrupt("return");
           case 29:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
-      }, _callee3, null, [[4, 9], [20, 24]]);
+      }, _callee4, null, [[4, 9], [20, 24]]);
     }));
     return function handleLink() {
-      return _ref6.apply(this, arguments);
+      return _ref7.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -2297,15 +2489,15 @@ var BasicFlow = function BasicFlow() {
   })));
 };
 var LinkingModal = function LinkingModal() {
-  var _useSocials2 = useSocials(),
-    isSocialsLoading = _useSocials2.isLoading;
-  var _useContext7 = useContext(ModalContext),
-    setIsLinkingVisible = _useContext7.setIsLinkingVisible,
-    currentlyLinking = _useContext7.currentlyLinking;
-  var _useState11 = useState(null),
-    _useState12 = _slicedToArray(_useState11, 2),
-    flow = _useState12[0],
-    setFlow = _useState12[1];
+  var _useSocials3 = useSocials(),
+    isSocialsLoading = _useSocials3.isLoading;
+  var _useContext9 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext9.setIsLinkingVisible,
+    currentlyLinking = _useContext9.currentlyLinking;
+  var _useState15 = useState(null),
+    _useState16 = _slicedToArray(_useState15, 2),
+    flow = _useState16[0],
+    setFlow = _useState16[1];
   useEffect(function () {
     if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
       setFlow("basic");
@@ -2360,22 +2552,22 @@ var LinkingModal = function LinkingModal() {
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-var MyCampModal = function MyCampModal(_ref7) {
-  var wcProvider = _ref7.wcProvider;
-  var _useContext8 = useContext(CampContext),
-    auth = _useContext8.auth;
-  var _useContext9 = useContext(ModalContext),
-    setIsVisible = _useContext9.setIsVisible;
+var MyCampModal = function MyCampModal(_ref8) {
+  var wcProvider = _ref8.wcProvider;
+  var _useContext10 = useContext(CampContext),
+    auth = _useContext10.auth;
+  var _useContext11 = useContext(ModalContext),
+    setIsVisible = _useContext11.setIsVisible;
   var _useConnect2 = useConnect(),
     disconnect = _useConnect2.disconnect;
-  var _useSocials3 = useSocials(),
-    socials = _useSocials3.data,
-    loading = _useSocials3.loading,
-    refetch = _useSocials3.refetch;
-  var _useState13 = useState(true),
-    _useState14 = _slicedToArray(_useState13, 2),
-    isLoadingSocials = _useState14[0],
-    setIsLoadingSocials = _useState14[1];
+  var _useSocials4 = useSocials(),
+    socials = _useSocials4.data,
+    loading = _useSocials4.loading,
+    refetch = _useSocials4.refetch;
+  var _useState17 = useState(true),
+    _useState18 = _slicedToArray(_useState17, 2),
+    isLoadingSocials = _useState18[0],
+    setIsLoadingSocials = _useState18[1];
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();

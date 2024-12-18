@@ -348,7 +348,84 @@ export const CampModal = ({
   );
 };
 
-const TikTokFlow = () => {};
+const TikTokFlow = () => {
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { data: socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
+  const [IsLoading, setIsLoading] = useState(false);
+  const [handleInput, setHandleInput] = useState("");
+
+  const resetState = () => {
+    setIsLoading(false);
+    setIsLinkingVisible(false);
+  };
+
+  const handleLink = async () => {
+    if (isSocialsLoading) return;
+    setIsLoading(true);
+    if (socials[currentlyLinking]) {
+      try {
+        await auth.unlinkTikTok();
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    } else {
+      if (!handleInput) return;
+      try {
+        await auth.linkTikTok(handleInput);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    }
+    refetch();
+    resetState();
+  };
+
+  return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            <b>{window.location.host}</b> is requesting to link your{" "}
+            {capitalize(currentlyLinking)} account.
+            <div>
+              <input
+                value={handleInput}
+                onChange={(e) => setHandleInput(e.target.value)}
+                type="text"
+                placeholder="Enter your TikTok username"
+                className={styles["tiktok-input"]}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleLink}
+        disabled={IsLoading}
+      >
+        {!IsLoading ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : (
+            "Link"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
 
 const TelegramFlow = () => {};
 
