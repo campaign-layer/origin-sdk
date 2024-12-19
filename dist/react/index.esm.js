@@ -956,7 +956,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context4.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/connect"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/connect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -980,8 +980,14 @@ class Auth {
             }
             return _context4.abrupt("return", data.data);
           case 9:
+            if (!(data.message === "Request failed with status code 502")) {
+              _context4.next = 13;
+              break;
+            }
+            throw new APIError("TikTok service is currently unavailable, try again later");
+          case 13:
             throw new APIError(data.message || "Failed to link TikTok account");
-          case 10:
+          case 14:
           case "end":
             return _context4.stop();
         }
@@ -2899,7 +2905,7 @@ var MyCampModal = function MyCampModal(_ref9) {
     isLoadingSocials = _useState28[0],
     setIsLoadingSocials = _useState28[1];
   var _useLinkModal = useLinkModal(),
-    linkTiktok = _useLinkModal.linkTiktok,
+    linkTikTok = _useLinkModal.linkTikTok,
     linkTelegram = _useLinkModal.linkTelegram;
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
@@ -2929,7 +2935,7 @@ var MyCampModal = function MyCampModal(_ref9) {
     icon: /*#__PURE__*/React.createElement(SpotifyIcon, null)
   }, {
     name: "TikTok",
-    link: linkTiktok,
+    link: linkTikTok,
     unlink: auth.unlinkTikTok.bind(auth),
     isConnected: socials === null || socials === void 0 ? void 0 : socials.tiktok,
     icon: /*#__PURE__*/React.createElement(TikTokIcon, null)
@@ -3236,7 +3242,7 @@ var useLinkModal = function useLinkModal() {
     openSpotifyModal: function openSpotifyModal() {
       return handleOpen("spotify");
     },
-    openTiktokModal: function openTiktokModal() {
+    openTikTokModal: function openTikTokModal() {
       return handleOpen("tiktok");
     },
     openTelegramModal: function openTelegramModal() {
@@ -3251,7 +3257,7 @@ var useLinkModal = function useLinkModal() {
     linkSpotify: function linkSpotify() {
       return handleLink("spotify");
     },
-    linkTiktok: function linkTiktok() {
+    linkTikTok: function linkTikTok() {
       return handleLink("tiktok");
     },
     linkTelegram: function linkTelegram() {
@@ -3266,7 +3272,7 @@ var useLinkModal = function useLinkModal() {
     unlinkSpotify: function unlinkSpotify() {
       return handleUnlink("spotify");
     },
-    unlinkTiktok: function unlinkTiktok() {
+    unlinkTikTok: function unlinkTikTok() {
       return handleUnlink("tiktok");
     },
     unlinkTelegram: function unlinkTelegram() {

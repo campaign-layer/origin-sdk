@@ -398,25 +398,34 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/tiktok/connect`, {
-      method: "POST",
-      redirect: "follow",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userHandle: handle,
-        clientId: this.clientId,
-        userId: this.userId,
-      }),
-    }).then((res) => res.json());
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userHandle: handle,
+          clientId: this.clientId,
+          userId: this.userId,
+        }),
+      }
+    ).then((res) => res.json());
 
     if (!data.isError) {
       return data.data;
     } else {
-      throw new APIError(data.message || "Failed to link TikTok account");
+      if (data.message === "Request failed with status code 502") {
+        throw new APIError(
+          "TikTok service is currently unavailable, try again later"
+        );
+      } else {
+        throw new APIError(data.message || "Failed to link TikTok account");
+      }
     }
   }
 
