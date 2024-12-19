@@ -483,13 +483,15 @@ const TelegramFlow = () => {
       }
       setIsLoading(true);
       try {
-        // const res = await auth.sendTelegramOTP(phoneInput);
-        setTimeout(() => {
-          setIsOTPSent(true);
-          setIsLoading(false);
-        }, 1000);
-        // setIsOTPSent(true);
-        // setPhoneCodeHash(res.phone_code_hash);
+        // setTimeout(() => {
+        //   setIsOTPSent(true);
+        //   setIsLoading(false);
+        // }, 1000);
+        const res = await auth.sendTelegramOTP(phoneInput);
+        console.log(res);
+        setIsOTPSent(true);
+        setIsLoading(false);
+        setPhoneCodeHash(res.phone_code_hash);
       } catch (error) {
         resetState();
         console.error(error);

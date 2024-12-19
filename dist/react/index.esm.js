@@ -1021,7 +1021,7 @@ class Auth {
             throw new APIError("Phone number is required");
           case 4:
             _context5.next = 6;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/sendOTP"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/sendOTP-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1080,7 +1080,7 @@ class Auth {
             throw new APIError("Phone number, OTP, and phone code hash are required");
           case 4:
             _context6.next = 6;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/signIn"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/signIn-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -2615,7 +2615,7 @@ var TelegramFlow = function TelegramFlow() {
   var _useState19 = useState(""),
     _useState20 = _slicedToArray(_useState19, 2);
     _useState20[0];
-    _useState20[1];
+    var setPhoneCodeHash = _useState20[1];
   var _useState21 = useState(false),
     _useState22 = _slicedToArray(_useState21, 2),
     isOTPSent = _useState22[0],
@@ -2631,6 +2631,7 @@ var TelegramFlow = function TelegramFlow() {
   };
   var handleAction = /*#__PURE__*/function () {
     var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      var res;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
@@ -2667,7 +2668,7 @@ var TelegramFlow = function TelegramFlow() {
             console.error(_context4.t0);
             return _context4.abrupt("return");
           case 19:
-            _context4.next = 34;
+            _context4.next = 40;
             break;
           case 21:
             if (verifyPhoneNumber(phoneInput)) {
@@ -2680,26 +2681,27 @@ var TelegramFlow = function TelegramFlow() {
           case 24:
             setIsLoading(true);
             _context4.prev = 25;
-            // const res = await auth.sendTelegramOTP(phoneInput);
-            setTimeout(function () {
-              setIsOTPSent(true);
-              setIsLoading(false);
-            }, 1000);
-            // setIsOTPSent(true);
-            // setPhoneCodeHash(res.phone_code_hash);
-            _context4.next = 34;
+            _context4.next = 28;
+            return auth.sendTelegramOTP(phoneInput);
+          case 28:
+            res = _context4.sent;
+            console.log(res);
+            setIsOTPSent(true);
+            setIsLoading(false);
+            setPhoneCodeHash(res.phone_code_hash);
+            _context4.next = 40;
             break;
-          case 29:
-            _context4.prev = 29;
+          case 35:
+            _context4.prev = 35;
             _context4.t1 = _context4["catch"](25);
             resetState();
             console.error(_context4.t1);
             return _context4.abrupt("return");
-          case 34:
+          case 40:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, null, [[6, 14], [25, 29]]);
+      }, _callee4, null, [[6, 14], [25, 35]]);
     }));
     return function handleAction() {
       return _ref7.apply(this, arguments);

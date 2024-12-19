@@ -144,7 +144,7 @@ class{
    * @param {string} phoneNumber The user's phone number.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t)throw new s("Phone number is required");const e=await fetch(`${u}/telegram/sendOTP`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new s(e.message||"Failed to send Telegram OTP");return e.data}
+   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t)throw new s("Phone number is required");const e=await fetch(`${u}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new s(e.message||"Failed to send Telegram OTP");return e.data}
 /**
    * Link the user's Telegram account.
    * @param {string} phoneNumber The user's phone number.
@@ -152,7 +152,7 @@ class{
    * @param {string} phoneCodeHash The phone code hash.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
-   */async linkTelegram(t,e,i){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t||!e||!i)throw new s("Phone number, OTP, and phone code hash are required");const r=await fetch(`${u}/telegram/signIn`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(r.isError)throw new s(r.message||"Failed to link Telegram account");return r.data}
+   */async linkTelegram(t,e,i){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t||!e||!i)throw new s("Phone number, OTP, and phone code hash are required");const r=await fetch(`${u}/telegram/signIn-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(r.isError)throw new s(r.message||"Failed to link Telegram account");return r.data}
 /**
    * Unlink the user's Twitter account.
    */async unlinkTwitter(){if(!this.isAuthenticated)throw new s("User needs to be authenticated");const t=await fetch(`${u}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new s(t.message||"Failed to unlink Twitter account");return t.data}

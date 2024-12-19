@@ -440,7 +440,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     if (!phoneNumber) throw new APIError("Phone number is required");
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/telegram/sendOTP`,
+      `${constants.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -475,7 +475,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     if (!phoneNumber || !otp || !phoneCodeHash)
       throw new APIError("Phone number, OTP, and phone code hash are required");
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/telegram/signIn`, {
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/telegram/signIn-sdk`, {
       method: "POST",
       redirect: "follow",
       headers: {

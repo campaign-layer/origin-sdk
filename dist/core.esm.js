@@ -27,7 +27,7 @@ function a(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encod
  * @class
  * @classdesc The TwitterAPI class is used to interact with the Twitter API.
  */
-class h{
+class d{
 /**
    * Constructor for the TwitterAPI class.
    * @param {object} options - The options object.
@@ -127,7 +127,7 @@ constructor({apiKey:t}){this.apiKey=t}
 /**
  * The SpotifyAPI class.
  * @class
- */class d{
+ */class h{
 /**
    * Constructor for the SpotifyAPI class.
    * @param {object} options - The options object.
@@ -306,7 +306,7 @@ class I{
    * @param {string} phoneNumber The user's phone number.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t)throw new r("Phone number is required");const e=await fetch(`${y}/telegram/sendOTP`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new r(e.message||"Failed to send Telegram OTP");return e.data}
+   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t)throw new r("Phone number is required");const e=await fetch(`${y}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new r(e.message||"Failed to send Telegram OTP");return e.data}
 /**
    * Link the user's Telegram account.
    * @param {string} phoneNumber The user's phone number.
@@ -314,7 +314,7 @@ class I{
    * @param {string} phoneCodeHash The phone code hash.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
-   */async linkTelegram(t,e,i){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t||!e||!i)throw new r("Phone number, OTP, and phone code hash are required");const s=await fetch(`${y}/telegram/signIn`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(s.isError)throw new r(s.message||"Failed to link Telegram account");return s.data}
+   */async linkTelegram(t,e,i){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t||!e||!i)throw new r("Phone number, OTP, and phone code hash are required");const s=await fetch(`${y}/telegram/signIn-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(s.isError)throw new r(s.message||"Failed to link Telegram account");return s.data}
 /**
    * Unlink the user's Twitter account.
    */async unlinkTwitter(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Twitter account");return t.data}
@@ -323,4 +323,4 @@ class I{
    */async unlinkDiscord(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Discord account");return t.data}
 /**
    * Unlink the user's Spotify account.
-   */async unlinkSpotify(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Spotify account");return t.data}async unlinkTikTok(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink TikTok account");return t.data}async unlinkTelegram(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Telegram account");return t.data}}export{I as Auth,d as SpotifyAPI,h as TwitterAPI};
+   */async unlinkSpotify(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Spotify account");return t.data}async unlinkTikTok(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink TikTok account");return t.data}async unlinkTelegram(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Telegram account");return t.data}}export{I as Auth,h as SpotifyAPI,d as TwitterAPI};
