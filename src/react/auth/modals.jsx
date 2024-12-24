@@ -445,6 +445,7 @@ const OTPInput = ({ numInputs, onChange }) => {
   const inputRefs = useRef([]);
 
   const handleChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -493,7 +494,7 @@ const TelegramFlow = () => {
   const [phoneInput, setPhoneInput] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
-  const [isOTPSent, setIsOTPSent] = useState(true);
+  const [isOTPSent, setIsOTPSent] = useState(false);
 
   const resetState = () => {
     setIsLoading(false);
@@ -529,16 +530,15 @@ const TelegramFlow = () => {
       }
       setIsLoading(true);
       try {
-        // await auth.unlinkTelegram();
-        // setTimeout(() => {
-        //   setIsOTPSent(true);
-        //   setIsLoading(false);
-        // }, 1000);
-        const res = await auth.sendTelegramOTP(phoneInput);
-        console.log(res);
-        setIsOTPSent(true);
-        setIsLoading(false);
-        setPhoneCodeHash(res.phone_code_hash);
+        setTimeout(() => {
+          setIsOTPSent(true);
+          setIsLoading(false);
+        }, 1000);
+        // const res = await auth.sendTelegramOTP(phoneInput);
+        // console.log(res);
+        // setIsOTPSent(true);
+        // setIsLoading(false);
+        // setPhoneCodeHash(res.phone_code_hash);
       } catch (error) {
         resetState();
         console.error(error);
@@ -568,7 +568,7 @@ const TelegramFlow = () => {
                     placeholder="Enter OTP"
                     className={styles["tiktok-input"]}
                   /> */}
-                  <OTPInput numInputs={6} onChange={setOtpInput} />
+                  <OTPInput numInputs={5} onChange={setOtpInput} />
                 </div>
               </div>
             ) : (

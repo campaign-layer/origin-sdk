@@ -2603,6 +2603,7 @@ var OTPInput = function OTPInput(_ref7) {
     setOtp = _useState14[1];
   var inputRefs = useRef([]);
   var handleChange = function handleChange(value, index) {
+    if (!/^\d*$/.test(value)) return;
     var newOtp = _toConsumableArray(otp);
     newOtp[index] = value;
     setOtp(newOtp);
@@ -2671,8 +2672,8 @@ var TelegramFlow = function TelegramFlow() {
   var _useState21 = useState(""),
     _useState22 = _slicedToArray(_useState21, 2);
     _useState22[0];
-    var setPhoneCodeHash = _useState22[1];
-  var _useState23 = useState(true),
+    _useState22[1];
+  var _useState23 = useState(false),
     _useState24 = _slicedToArray(_useState23, 2),
     isOTPSent = _useState24[0],
     setIsOTPSent = _useState24[1];
@@ -2687,7 +2688,6 @@ var TelegramFlow = function TelegramFlow() {
   };
   var handleAction = /*#__PURE__*/function () {
     var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-      var res;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
@@ -2724,7 +2724,7 @@ var TelegramFlow = function TelegramFlow() {
             console.error(_context4.t0);
             return _context4.abrupt("return");
           case 19:
-            _context4.next = 40;
+            _context4.next = 34;
             break;
           case 21:
             if (verifyPhoneNumber(phoneInput)) {
@@ -2737,27 +2737,28 @@ var TelegramFlow = function TelegramFlow() {
           case 24:
             setIsLoading(true);
             _context4.prev = 25;
-            _context4.next = 28;
-            return auth.sendTelegramOTP(phoneInput);
-          case 28:
-            res = _context4.sent;
-            console.log(res);
-            setIsOTPSent(true);
-            setIsLoading(false);
-            setPhoneCodeHash(res.phone_code_hash);
-            _context4.next = 40;
+            setTimeout(function () {
+              setIsOTPSent(true);
+              setIsLoading(false);
+            }, 1000);
+            // const res = await auth.sendTelegramOTP(phoneInput);
+            // console.log(res);
+            // setIsOTPSent(true);
+            // setIsLoading(false);
+            // setPhoneCodeHash(res.phone_code_hash);
+            _context4.next = 34;
             break;
-          case 35:
-            _context4.prev = 35;
+          case 29:
+            _context4.prev = 29;
             _context4.t1 = _context4["catch"](25);
             resetState();
             console.error(_context4.t1);
             return _context4.abrupt("return");
-          case 40:
+          case 34:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, null, [[6, 14], [25, 35]]);
+      }, _callee4, null, [[6, 14], [25, 29]]);
     }));
     return function handleAction() {
       return _ref8.apply(this, arguments);
@@ -2766,7 +2767,7 @@ var TelegramFlow = function TelegramFlow() {
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: styles["linking-text"]
   }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(OTPInput, {
-    numInputs: 6,
+    numInputs: 5,
     onChange: setOtpInput
   }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
     value: phoneInput,
