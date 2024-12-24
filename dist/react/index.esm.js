@@ -883,18 +883,17 @@ class Auth {
           case 4:
             connections = _context3.sent;
             if (connections.isError) {
-              _context3.next = 12;
+              _context3.next = 11;
               break;
             }
-            console.log(connections.data.data);
             socials = {};
             Object.keys(connections.data.data).forEach(function (key) {
               socials[key.split("User")[0]] = connections.data.data[key];
             });
             return _context3.abrupt("return", socials);
-          case 12:
+          case 11:
             throw new APIError(connections.message || "Failed to fetch connections");
-          case 13:
+          case 12:
           case "end":
             return _context3.stop();
         }
