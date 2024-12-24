@@ -591,7 +591,8 @@ var getClient = function getClient(provider) {
 
 var constants = {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
-  AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev"
+  AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"]
 };
 
 var providers = [];
@@ -2142,8 +2143,10 @@ var LinkButton = function LinkButton(_ref6) {
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
-  if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
-    throw new Error("Invalid social, must be 'twitter', 'spotify', 'discord', 'tiktok', or 'telegram'");
+
+  // if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
+  if (constants.AVAILABLE_SOCIALS.indexOf(social) === -1) {
+    throw new Error("Invalid social, must be one of ".concat(constants.AVAILABLE_SOCIALS.join(", ")));
   }
   if (["default", "camp"].indexOf(theme) === -1) {
     throw new Error("Invalid theme, must be 'default' or 'camp'");
@@ -3128,7 +3131,7 @@ var useLinkSocials = function useLinkSocials() {
   }
   var prototype = Object.getPrototypeOf(auth);
   var linkingProps = Object.getOwnPropertyNames(prototype).filter(function (prop) {
-    return prop.startsWith("link") || prop.startsWith("unlink");
+    return (prop.startsWith("link") || prop.startsWith("unlink")) && (constants.AVAILABLE_SOCIALS.includes(prop.slice(4).toLowerCase()) || constants.AVAILABLE_SOCIALS.includes(prop.slice(6).toLowerCase()));
   });
   var linkingFunctions = linkingProps.reduce(function (acc, prop) {
     acc[prop] = auth[prop].bind(auth);

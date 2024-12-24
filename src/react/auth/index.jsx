@@ -6,6 +6,7 @@ import { CampModal, MyCampModal } from "./modals.jsx";
 import { Auth } from "../../auth/index.js";
 import { SocialsContext } from "../context/SocialsContext.jsx";
 import { LinkButton } from "./buttons.jsx";
+import constants from "../../constants.js";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
@@ -66,7 +67,10 @@ export const useLinkSocials = () => {
   }
   const prototype = Object.getPrototypeOf(auth);
   const linkingProps = Object.getOwnPropertyNames(prototype).filter(
-    (prop) => prop.startsWith("link") || prop.startsWith("unlink")
+    (prop) =>
+      (prop.startsWith("link") || prop.startsWith("unlink")) &&
+      (constants.AVAILABLE_SOCIALS.includes(prop.slice(4).toLowerCase()) ||
+        constants.AVAILABLE_SOCIALS.includes(prop.slice(6).toLowerCase()))
   );
 
   const linkingFunctions = linkingProps.reduce((acc, prop) => {

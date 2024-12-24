@@ -1,3 +1,4 @@
+import constants from "../../constants.js";
 import { capitalize } from "../../utils.js";
 import { CampIcon, DiscordIcon, getIconBySocial, SpotifyIcon, TikTokIcon, TwitterIcon } from "./icons.jsx";
 import { useAuthState, useLinkModal, useSocials } from "./index.jsx";
@@ -193,9 +194,10 @@ export const LinkButton = ({
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
 
-  if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
+  // if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
+  if(constants.AVAILABLE_SOCIALS.indexOf(social) === -1) {
     throw new Error(
-      "Invalid social, must be 'twitter', 'spotify', 'discord', 'tiktok', or 'telegram'"
+      `Invalid social, must be one of ${constants.AVAILABLE_SOCIALS.join(", ")}`
     );
   }
 
