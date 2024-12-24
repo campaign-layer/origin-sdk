@@ -25,6 +25,7 @@ import {
   TikTokIcon,
   TelegramIcon,
 } from "./icons.jsx";
+import constants from "../../constants.js";
 
 /**
  * The Auth modal component.
@@ -817,7 +818,9 @@ export const MyCampModal = ({ wcProvider }) => {
       isConnected: socials?.telegram,
       icon: <TelegramIcon />,
     },
-  ];
+  ].filter((social) =>
+    constants.AVAILABLE_SOCIALS.includes(social.name.toLowerCase())
+  );
 
   const connected = connectedSocials.filter((social) => social.isConnected);
   const notConnected = connectedSocials.filter((social) => !social.isConnected);

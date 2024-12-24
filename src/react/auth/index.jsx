@@ -208,24 +208,20 @@ export const useLinkModal = () => {
   const handleClose = () => {
     setIsLinkingVisible(false);
   };
+  
+  const obj = {};
+  constants.AVAILABLE_SOCIALS.forEach((social) => {
+    obj[`link${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
+      handleLink(social);
+    obj[`unlink${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
+      handleUnlink(social);
+    obj[`open${social.charAt(0).toUpperCase() + social.slice(1)}Modal`] = () =>
+      handleOpen(social);
+  });
 
   return {
     isLinkingOpen: isLinkingVisible,
-    openTwitterModal: () => handleOpen("twitter"),
-    openDiscordModal: () => handleOpen("discord"),
-    openSpotifyModal: () => handleOpen("spotify"),
-    openTikTokModal: () => handleOpen("tiktok"),
-    openTelegramModal: () => handleOpen("telegram"),
-    linkTwitter: () => handleLink("twitter"),
-    linkDiscord: () => handleLink("discord"),
-    linkSpotify: () => handleLink("spotify"),
-    linkTikTok: () => handleLink("tiktok"),
-    linkTelegram: () => handleLink("telegram"),
-    unlinkTwitter: () => handleUnlink("twitter"),
-    unlinkDiscord: () => handleUnlink("discord"),
-    unlinkSpotify: () => handleUnlink("spotify"),
-    unlinkTikTok: () => handleUnlink("tiktok"),
-    unlinkTelegram: () => handleUnlink("telegram"),
+    ...obj,
     closeModal: handleClose,
     handleOpen,
   };

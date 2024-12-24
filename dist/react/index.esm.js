@@ -592,7 +592,7 @@ var getClient = function getClient(provider) {
 var constants = {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
   AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"]
+  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok"]
 };
 
 var providers = [];
@@ -2143,10 +2143,9 @@ var LinkButton = function LinkButton(_ref6) {
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
-
-  // if (["twitter", "spotify", "discord", "tiktok", "telegram"].indexOf(social) === -1) {
   if (constants.AVAILABLE_SOCIALS.indexOf(social) === -1) {
-    throw new Error("Invalid social, must be one of ".concat(constants.AVAILABLE_SOCIALS.join(", ")));
+    console.error("Invalid LinkButton social, must be one of ".concat(constants.AVAILABLE_SOCIALS.join(", ")));
+    return null;
   }
   if (["default", "camp"].indexOf(theme) === -1) {
     throw new Error("Invalid theme, must be 'default' or 'camp'");
@@ -3002,7 +3001,9 @@ var MyCampModal = function MyCampModal(_ref10) {
     unlink: auth.unlinkTelegram.bind(auth),
     isConnected: socials === null || socials === void 0 ? void 0 : socials.telegram,
     icon: /*#__PURE__*/React.createElement(TelegramIcon, null)
-  }];
+  }].filter(function (social) {
+    return constants.AVAILABLE_SOCIALS.includes(social.name.toLowerCase());
+  });
   var connected = connectedSocials.filter(function (social) {
     return social.isConnected;
   });
@@ -3288,56 +3289,24 @@ var useLinkModal = function useLinkModal() {
   var handleClose = function handleClose() {
     setIsLinkingVisible(false);
   };
-  return {
-    isLinkingOpen: isLinkingVisible,
-    openTwitterModal: function openTwitterModal() {
-      return handleOpen("twitter");
-    },
-    openDiscordModal: function openDiscordModal() {
-      return handleOpen("discord");
-    },
-    openSpotifyModal: function openSpotifyModal() {
-      return handleOpen("spotify");
-    },
-    openTikTokModal: function openTikTokModal() {
-      return handleOpen("tiktok");
-    },
-    openTelegramModal: function openTelegramModal() {
-      return handleOpen("telegram");
-    },
-    linkTwitter: function linkTwitter() {
-      return handleLink("twitter");
-    },
-    linkDiscord: function linkDiscord() {
-      return handleLink("discord");
-    },
-    linkSpotify: function linkSpotify() {
-      return handleLink("spotify");
-    },
-    linkTikTok: function linkTikTok() {
-      return handleLink("tiktok");
-    },
-    linkTelegram: function linkTelegram() {
-      return handleLink("telegram");
-    },
-    unlinkTwitter: function unlinkTwitter() {
-      return handleUnlink("twitter");
-    },
-    unlinkDiscord: function unlinkDiscord() {
-      return handleUnlink("discord");
-    },
-    unlinkSpotify: function unlinkSpotify() {
-      return handleUnlink("spotify");
-    },
-    unlinkTikTok: function unlinkTikTok() {
-      return handleUnlink("tiktok");
-    },
-    unlinkTelegram: function unlinkTelegram() {
-      return handleUnlink("telegram");
-    },
+  var obj = {};
+  constants.AVAILABLE_SOCIALS.forEach(function (social) {
+    obj["link".concat(social.charAt(0).toUpperCase() + social.slice(1))] = function () {
+      return handleLink(social);
+    };
+    obj["unlink".concat(social.charAt(0).toUpperCase() + social.slice(1))] = function () {
+      return handleUnlink(social);
+    };
+    obj["open".concat(social.charAt(0).toUpperCase() + social.slice(1), "Modal")] = function () {
+      return handleOpen(social);
+    };
+  });
+  return _objectSpread2(_objectSpread2({
+    isLinkingOpen: isLinkingVisible
+  }, obj), {}, {
     closeModal: handleClose,
     handleOpen: handleOpen
-  };
+  });
 };
 
 /**
