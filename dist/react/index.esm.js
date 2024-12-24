@@ -592,7 +592,7 @@ var getClient = function getClient(provider) {
 var constants = {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
   AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok"]
+  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"]
 };
 
 var providers = [];
@@ -883,17 +883,18 @@ class Auth {
           case 4:
             connections = _context3.sent;
             if (connections.isError) {
-              _context3.next = 11;
+              _context3.next = 12;
               break;
             }
+            console.log(connections.data.data);
             socials = {};
             Object.keys(connections.data.data).forEach(function (key) {
               socials[key.split("User")[0]] = connections.data.data[key];
             });
             return _context3.abrupt("return", socials);
-          case 11:
-            throw new APIError(connections.message || "Failed to fetch connections");
           case 12:
+            throw new APIError(connections.message || "Failed to fetch connections");
+          case 13:
           case "end":
             return _context3.stop();
         }
@@ -2672,9 +2673,9 @@ var TelegramFlow = function TelegramFlow() {
     otpInput = _useState20[0],
     setOtpInput = _useState20[1];
   var _useState21 = useState(""),
-    _useState22 = _slicedToArray(_useState21, 2);
-    _useState22[0];
-    _useState22[1];
+    _useState22 = _slicedToArray(_useState21, 2),
+    phoneCodeHash = _useState22[0],
+    setPhoneCodeHash = _useState22[1];
   var _useState23 = useState(false),
     _useState24 = _slicedToArray(_useState23, 2),
     isOTPSent = _useState24[0],
@@ -2690,6 +2691,7 @@ var TelegramFlow = function TelegramFlow() {
   };
   var handleAction = /*#__PURE__*/function () {
     var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      var res;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
           case 0:
@@ -2712,7 +2714,7 @@ var TelegramFlow = function TelegramFlow() {
             setIsLoading(true);
             _context4.prev = 6;
             _context4.next = 9;
-            return auth.linkTelegram(otpInput);
+            return auth.linkTelegram(phoneInput, otpInput, phoneCodeHash);
           case 9:
             refetch();
             resetState();
@@ -2726,7 +2728,7 @@ var TelegramFlow = function TelegramFlow() {
             console.error(_context4.t0);
             return _context4.abrupt("return");
           case 19:
-            _context4.next = 34;
+            _context4.next = 40;
             break;
           case 21:
             if (verifyPhoneNumber(phoneInput)) {
@@ -2739,28 +2741,27 @@ var TelegramFlow = function TelegramFlow() {
           case 24:
             setIsLoading(true);
             _context4.prev = 25;
-            setTimeout(function () {
-              setIsOTPSent(true);
-              setIsLoading(false);
-            }, 1000);
-            // const res = await auth.sendTelegramOTP(phoneInput);
-            // console.log(res);
-            // setIsOTPSent(true);
-            // setIsLoading(false);
-            // setPhoneCodeHash(res.phone_code_hash);
-            _context4.next = 34;
+            _context4.next = 28;
+            return auth.sendTelegramOTP(phoneInput);
+          case 28:
+            res = _context4.sent;
+            console.log(res);
+            setIsOTPSent(true);
+            setIsLoading(false);
+            setPhoneCodeHash(res.phone_code_hash);
+            _context4.next = 40;
             break;
-          case 29:
-            _context4.prev = 29;
+          case 35:
+            _context4.prev = 35;
             _context4.t1 = _context4["catch"](25);
             resetState();
             console.error(_context4.t1);
             return _context4.abrupt("return");
-          case 34:
+          case 40:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, null, [[6, 14], [25, 29]]);
+      }, _callee4, null, [[6, 14], [25, 35]]);
     }));
     return function handleAction() {
       return _ref8.apply(this, arguments);

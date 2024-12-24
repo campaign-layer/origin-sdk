@@ -514,7 +514,7 @@ const TelegramFlow = () => {
       if (!otpInput) return;
       setIsLoading(true);
       try {
-        await auth.linkTelegram(otpInput);
+        await auth.linkTelegram(phoneInput, otpInput, phoneCodeHash);
         refetch();
         resetState();
         setIsLinkingVisible(false);
@@ -531,15 +531,15 @@ const TelegramFlow = () => {
       }
       setIsLoading(true);
       try {
-        setTimeout(() => {
-          setIsOTPSent(true);
-          setIsLoading(false);
-        }, 1000);
-        // const res = await auth.sendTelegramOTP(phoneInput);
-        // console.log(res);
-        // setIsOTPSent(true);
-        // setIsLoading(false);
-        // setPhoneCodeHash(res.phone_code_hash);
+        // setTimeout(() => {
+        //   setIsOTPSent(true);
+        //   setIsLoading(false);
+        // }, 1000);
+        const res = await auth.sendTelegramOTP(phoneInput);
+        console.log(res);
+        setIsOTPSent(true);
+        setIsLoading(false);
+        setPhoneCodeHash(res.phone_code_hash);
       } catch (error) {
         resetState();
         console.error(error);

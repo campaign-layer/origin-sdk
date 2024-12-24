@@ -21,7 +21,7 @@
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function a(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return i?`${t}?${i}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let h=null;const d=(t,i="window.ethereum")=>t||h?((!h||h.transport.name!==i&&t)&&(h=e.createWalletClient({chain:c,transport:e.custom(t,{name:i})})),h):(console.warn("Provider is required to create a client."),null);var l="Connect with Camp Network",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,y=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};exports.Auth=
+function a(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return i?`${t}?${i}`:t}const n="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",o="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const c={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let d=null;const h=(t,i="window.ethereum")=>t||d?((!d||d.transport.name!==i&&t)&&(d=e.createWalletClient({chain:c,transport:e.custom(t,{name:i})})),d):(console.warn("Provider is required to create a client."),null);var l="Connect with Camp Network",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let w=[];const f=()=>w,y=t=>{function e(e){w.some((t=>t.info.uuid===e.detail.info.uuid))||(w=[...w,e.detail],t(w))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};exports.Auth=
 /**
  * The Auth class.
  * @class
@@ -35,7 +35,7 @@ class{
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=d(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,i)=>(e[i]=t[i]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,i)=>(e[i]=t,e)),{}):t?void 0:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],y((t=>{this.#e("providers",t)})),this.#i()}
+#t;constructor({clientId:t,redirectUri:e}){if(!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=h(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,i)=>(e[i]=t[i]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,i)=>(e[i]=t,e)),{}):t?void 0:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,this.#t=[],y((t=>{this.#e("providers",t)})),this.#i()}
 /**
    * Subscribe to an event. Possible events are "state", "provider", and "providers".
    * @param {("state"|"provider"|"providers")} event The event.
@@ -63,7 +63,7 @@ class{
    * @param {object} options The options object. Includes the provider and the provider info.
    * @returns {void}
    * @throws {APIError} - Throws an error if the provider is not provided.
-   */setProvider({provider:t,info:e}){if(!t)throw new s("provider is required");this.viem=d(t,e.name),this.#e("provider",{provider:t,info:e})}
+   */setProvider({provider:t,info:e}){if(!t)throw new s("provider is required");this.viem=h(t,e.name),this.#e("provider",{provider:t,info:e})}
 /**
    * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
    * @param {string} walletAddress The wallet address.
@@ -117,7 +117,7 @@ class{
    * const auth = new Auth({ clientId: "your-client-id" });
    * const socials = await auth.getLinkedSocials();
    * console.log(socials);
-   */async getLinkedSocials(){if(!this.isAuthenticated)throw new s("User needs to be authenticated");const t=await fetch(`${u}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new s(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((i=>{e[i.split("User")[0]]=t.data.data[i]})),e}}
+   */async getLinkedSocials(){if(!this.isAuthenticated)throw new s("User needs to be authenticated");const t=await fetch(`${u}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new s(t.message||"Failed to fetch connections");{console.log(t.data.data);const e={};return Object.keys(t.data.data).forEach((i=>{e[i.split("User")[0]]=t.data.data[i]})),e}}
 /**
    * Link the user's Twitter account.
    * @returns {void}

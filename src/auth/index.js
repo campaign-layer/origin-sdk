@@ -342,6 +342,7 @@ class Auth {
       }
     ).then((res) => res.json());
     if (!connections.isError) {
+      console.log(connections.data.data);
       const socials = {};
       Object.keys(connections.data.data).forEach((key) => {
         socials[key.split("User")[0]] = connections.data.data[key];
