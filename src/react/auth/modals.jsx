@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   useAuthState,
   useConnect,
@@ -436,6 +436,52 @@ const TikTokFlow = () => {
 };
 
 /**
+ * The OTPInput component. Handles OTP input with customizable number of inputs.
+ * @param { { numInputs: number, onChange: function } } props The props.
+ * @returns { JSX.Element } The OTPInput component.
+ */
+const OTPInput = ({ numInputs, onChange }) => {
+  const [otp, setOtp] = useState(Array(numInputs).fill(""));
+  const inputRefs = useRef([]);
+
+  const handleChange = (value, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    onChange(newOtp.join(""));
+    if (value && index < numInputs - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handleFocus = (e) => e.target.select();
+
+  return (
+    <div className={styles["otp-input-container"]}>
+      {otp.map((_, index) => (
+        <input
+          key={index}
+          ref={(el) => (inputRefs.current[index] = el)}
+          type="text"
+          maxLength="1"
+          value={otp[index]}
+          onChange={(e) => handleChange(e.target.value, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          onFocus={handleFocus}
+          className={styles["otp-input"]}
+        />
+      ))}
+    </div>
+  );
+};
+
+/**
  * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
  * @returns { JSX.Element } The TelegramFlow component.
  */
@@ -447,7 +493,7 @@ const TelegramFlow = () => {
   const [phoneInput, setPhoneInput] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
-  const [isOTPSent, setIsOTPSent] = useState(false);
+  const [isOTPSent, setIsOTPSent] = useState(true);
 
   const resetState = () => {
     setIsLoading(false);
@@ -483,6 +529,7 @@ const TelegramFlow = () => {
       }
       setIsLoading(true);
       try {
+        // await auth.unlinkTelegram();
         // setTimeout(() => {
         //   setIsOTPSent(true);
         //   setIsLoading(false);
@@ -514,13 +561,14 @@ const TelegramFlow = () => {
                 <span>Enter the OTP sent to your phone number.</span>
                 <div>
                   {/* TODO: Add OTP input */}
-                  <input
+                  {/* <input
                     value={otpInput}
                     onChange={(e) => setOtpInput(e.target.value)}
                     type="text"
                     placeholder="Enter OTP"
                     className={styles["tiktok-input"]}
-                  />
+                  /> */}
+                  <OTPInput numInputs={6} onChange={setOtpInput} />
                 </div>
               </div>
             ) : (

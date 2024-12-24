@@ -27,7 +27,7 @@ function a(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encod
  * @class
  * @classdesc The TwitterAPI class is used to interact with the Twitter API.
  */
-class d{
+class h{
 /**
    * Constructor for the TwitterAPI class.
    * @param {object} options - The options object.
@@ -127,7 +127,7 @@ constructor({apiKey:t}){this.apiKey=t}
 /**
  * The SpotifyAPI class.
  * @class
- */class h{
+ */class d{
 /**
    * Constructor for the SpotifyAPI class.
    * @param {object} options - The options object.
@@ -183,7 +183,7 @@ constructor({apiKey:t}){this.apiKey=t}
    * @param {string} url - The URL to fetch.
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
-   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new r("API key is required for fetching data",401);try{return await n(t,{"x-api-key":this.apiKey})}catch(t){throw new r(t.message,t.statusCode)}}}const l={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let u=null;const w=(t,s="window.ethereum")=>t||u?((!u||u.transport.name!==s&&t)&&(u=e({chain:l,transport:i(t,{name:s})})),u):(console.warn("Provider is required to create a client."),null);var f="Connect with Camp Network",y="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let p=[];const m=()=>p,g=t=>{function e(e){p.some((t=>t.info.uuid===e.detail.info.uuid))||(p=[...p,e.detail],t(p))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};
+   */async _fetchDataWithAuth(t){if(!this.apiKey)throw new r("API key is required for fetching data",401);try{return await n(t,{"x-api-key":this.apiKey})}catch(t){throw new r(t.message,t.statusCode)}}}const l={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};let u=null;const w=(t,s="window.ethereum")=>t||u?((!u||u.transport.name!==s&&t)&&(u=e({chain:l,transport:i(t,{name:s})})),u):(console.warn("Provider is required to create a client."),null);var f="Connect with Camp Network",y="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev";let m=[];const p=()=>m,g=t=>{function e(e){m.some((t=>t.info.uuid===e.detail.info.uuid))||(m=[...m,e.detail],t(m))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};
 /**
  * The Auth class.
  * @class
@@ -207,7 +207,7 @@ class I{
    * auth.on("state", (state) => {
    *  console.log(state);
    * });
-   */on(t,e){this.#t[t]||(this.#t[t]=[]),this.#t[t].push(e),"providers"===t&&e(m())}
+   */on(t,e){this.#t[t]||(this.#t[t]=[]),this.#t[t].push(e),"providers"===t&&e(p())}
 /**
    * Trigger an event.
    * @private
@@ -306,7 +306,7 @@ class I{
    * @param {string} phoneNumber The user's phone number.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t)throw new r("Phone number is required");const e=await fetch(`${y}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new r(e.message||"Failed to send Telegram OTP");return e.data}
+   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new r("User needs to be authenticated");if(!t)throw new r("Phone number is required");await this.unlinkTelegram();const e=await fetch(`${y}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new r(e.message||"Failed to send Telegram OTP");return e.data}
 /**
    * Link the user's Telegram account.
    * @param {string} phoneNumber The user's phone number.
@@ -323,4 +323,4 @@ class I{
    */async unlinkDiscord(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Discord account");return t.data}
 /**
    * Unlink the user's Spotify account.
-   */async unlinkSpotify(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Spotify account");return t.data}async unlinkTikTok(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink TikTok account");return t.data}async unlinkTelegram(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Telegram account");return t.data}}export{I as Auth,h as SpotifyAPI,d as TwitterAPI};
+   */async unlinkSpotify(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Spotify account");return t.data}async unlinkTikTok(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink TikTok account");return t.data}async unlinkTelegram(){if(!this.isAuthenticated)throw new r("User needs to be authenticated");const t=await fetch(`${y}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new r(t.message||"Failed to unlink Telegram account");return t.data}}export{I as Auth,d as SpotifyAPI,h as TwitterAPI};

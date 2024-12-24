@@ -449,3 +449,25 @@ input.tiktok-input {
   margin-top: 1rem;
   width: 100%;
 }
+
+.otp-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.otp-input {
+  width: 2rem;
+  height: 2.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.otp-input:focus {
+  border-color: #ff6f00;
+}

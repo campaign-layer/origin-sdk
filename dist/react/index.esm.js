@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
+import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
@@ -1021,6 +1021,9 @@ class Auth {
             throw new APIError("Phone number is required");
           case 4:
             _context5.next = 6;
+            return _this6.unlinkTelegram();
+          case 6:
+            _context5.next = 8;
             return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/sendOTP-sdk"), {
               method: "POST",
               redirect: "follow",
@@ -1035,16 +1038,16 @@ class Auth {
             }).then(function (res) {
               return res.json();
             });
-          case 6:
+          case 8:
             data = _context5.sent;
             if (data.isError) {
-              _context5.next = 11;
+              _context5.next = 13;
               break;
             }
             return _context5.abrupt("return", data.data);
-          case 11:
+          case 13:
             throw new APIError(data.message || "Failed to send Telegram OTP");
-          case 12:
+          case 14:
           case "end":
             return _context5.stop();
         }
@@ -1661,8 +1664,8 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}";
-var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG"};
+var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}.auth-module_otp-input-container__B2NH6{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}.auth-module_otp-input__vjImt{border:1px solid #ccc;border-radius:.5rem;font-size:1.5rem;height:2.5rem;outline:none;text-align:center;transition:border-color .2s;width:2rem}.auth-module_otp-input__vjImt:focus{border-color:#ff6f00}";
+var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG","otp-input-container":"auth-module_otp-input-container__B2NH6","otp-input":"auth-module_otp-input__vjImt"};
 styleInject(css_248z$1);
 
 var formatAddress = function formatAddress(address) {
@@ -2587,6 +2590,59 @@ var TikTokFlow = function TikTokFlow() {
 };
 
 /**
+ * The OTPInput component. Handles OTP input with customizable number of inputs.
+ * @param { { numInputs: number, onChange: function } } props The props.
+ * @returns { JSX.Element } The OTPInput component.
+ */
+var OTPInput = function OTPInput(_ref7) {
+  var numInputs = _ref7.numInputs,
+    onChange = _ref7.onChange;
+  var _useState13 = useState(Array(numInputs).fill("")),
+    _useState14 = _slicedToArray(_useState13, 2),
+    otp = _useState14[0],
+    setOtp = _useState14[1];
+  var inputRefs = useRef([]);
+  var handleChange = function handleChange(value, index) {
+    var newOtp = _toConsumableArray(otp);
+    newOtp[index] = value;
+    setOtp(newOtp);
+    onChange(newOtp.join(""));
+    if (value && index < numInputs - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+  var handleKeyDown = function handleKeyDown(e, index) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+  var handleFocus = function handleFocus(e) {
+    return e.target.select();
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles["otp-input-container"]
+  }, otp.map(function (_, index) {
+    return /*#__PURE__*/React.createElement("input", {
+      key: index,
+      ref: function ref(el) {
+        return inputRefs.current[index] = el;
+      },
+      type: "text",
+      maxLength: "1",
+      value: otp[index],
+      onChange: function onChange(e) {
+        return handleChange(e.target.value, index);
+      },
+      onKeyDown: function onKeyDown(e) {
+        return handleKeyDown(e, index);
+      },
+      onFocus: handleFocus,
+      className: styles["otp-input"]
+    });
+  }));
+};
+
+/**
  * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
  * @returns { JSX.Element } The TelegramFlow component.
  */
@@ -2600,26 +2656,26 @@ var TelegramFlow = function TelegramFlow() {
     isSocialsLoading = _useSocials2.isLoading;
   var _useContext8 = useContext(CampContext),
     auth = _useContext8.auth;
-  var _useState13 = useState(false),
-    _useState14 = _slicedToArray(_useState13, 2),
-    IsLoading = _useState14[0],
-    setIsLoading = _useState14[1];
-  var _useState15 = useState(""),
+  var _useState15 = useState(false),
     _useState16 = _slicedToArray(_useState15, 2),
-    phoneInput = _useState16[0],
-    setPhoneInput = _useState16[1];
+    IsLoading = _useState16[0],
+    setIsLoading = _useState16[1];
   var _useState17 = useState(""),
     _useState18 = _slicedToArray(_useState17, 2),
-    otpInput = _useState18[0],
-    setOtpInput = _useState18[1];
+    phoneInput = _useState18[0],
+    setPhoneInput = _useState18[1];
   var _useState19 = useState(""),
-    _useState20 = _slicedToArray(_useState19, 2);
-    _useState20[0];
-    var setPhoneCodeHash = _useState20[1];
-  var _useState21 = useState(false),
-    _useState22 = _slicedToArray(_useState21, 2),
-    isOTPSent = _useState22[0],
-    setIsOTPSent = _useState22[1];
+    _useState20 = _slicedToArray(_useState19, 2),
+    otpInput = _useState20[0],
+    setOtpInput = _useState20[1];
+  var _useState21 = useState(""),
+    _useState22 = _slicedToArray(_useState21, 2);
+    _useState22[0];
+    var setPhoneCodeHash = _useState22[1];
+  var _useState23 = useState(true),
+    _useState24 = _slicedToArray(_useState23, 2),
+    isOTPSent = _useState24[0],
+    setIsOTPSent = _useState24[1];
   var resetState = function resetState() {
     setIsLoading(false);
     setPhoneInput("");
@@ -2630,7 +2686,7 @@ var TelegramFlow = function TelegramFlow() {
     return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
   };
   var handleAction = /*#__PURE__*/function () {
-    var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
       var res;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
@@ -2704,19 +2760,14 @@ var TelegramFlow = function TelegramFlow() {
       }, _callee4, null, [[6, 14], [25, 35]]);
     }));
     return function handleAction() {
-      return _ref7.apply(this, arguments);
+      return _ref8.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: styles["linking-text"]
-  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    value: otpInput,
-    onChange: function onChange(e) {
-      return setOtpInput(e.target.value);
-    },
-    type: "text",
-    placeholder: "Enter OTP",
-    className: styles["tiktok-input"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(OTPInput, {
+    numInputs: 6,
+    onChange: setOtpInput
   }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
     value: phoneInput,
     onChange: function onChange(e) {
@@ -2748,12 +2799,12 @@ var BasicFlow = function BasicFlow() {
     isSocialsLoading = _useSocials3.isLoading;
   var _useContext10 = useContext(CampContext),
     auth = _useContext10.auth;
-  var _useState23 = useState(false),
-    _useState24 = _slicedToArray(_useState23, 2),
-    isUnlinking = _useState24[0],
-    setIsUnlinking = _useState24[1];
+  var _useState25 = useState(false),
+    _useState26 = _slicedToArray(_useState25, 2),
+    isUnlinking = _useState26[0],
+    setIsUnlinking = _useState26[1];
   var handleLink = /*#__PURE__*/function () {
-    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+    var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
       return _regeneratorRuntime().wrap(function _callee5$(_context5) {
         while (1) switch (_context5.prev = _context5.next) {
           case 0:
@@ -2805,7 +2856,7 @@ var BasicFlow = function BasicFlow() {
       }, _callee5, null, [[4, 9], [20, 24]]);
     }));
     return function handleLink() {
-      return _ref8.apply(this, arguments);
+      return _ref9.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -2829,10 +2880,10 @@ var LinkingModal = function LinkingModal() {
   var _useContext11 = useContext(ModalContext),
     setIsLinkingVisible = _useContext11.setIsLinkingVisible,
     currentlyLinking = _useContext11.currentlyLinking;
-  var _useState25 = useState(null),
-    _useState26 = _slicedToArray(_useState25, 2),
-    flow = _useState26[0],
-    setFlow = _useState26[1];
+  var _useState27 = useState(null),
+    _useState28 = _slicedToArray(_useState27, 2),
+    flow = _useState28[0],
+    setFlow = _useState28[1];
   useEffect(function () {
     if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
       setFlow("basic");
@@ -2890,8 +2941,8 @@ var LinkingModal = function LinkingModal() {
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-var MyCampModal = function MyCampModal(_ref9) {
-  var wcProvider = _ref9.wcProvider;
+var MyCampModal = function MyCampModal(_ref10) {
+  var wcProvider = _ref10.wcProvider;
   var _useContext12 = useContext(CampContext),
     auth = _useContext12.auth;
   var _useContext13 = useContext(ModalContext),
@@ -2902,10 +2953,10 @@ var MyCampModal = function MyCampModal(_ref9) {
     socials = _useSocials5.socials,
     loading = _useSocials5.loading,
     refetch = _useSocials5.refetch;
-  var _useState27 = useState(true),
-    _useState28 = _slicedToArray(_useState27, 2),
-    isLoadingSocials = _useState28[0],
-    setIsLoadingSocials = _useState28[1];
+  var _useState29 = useState(true),
+    _useState30 = _slicedToArray(_useState29, 2),
+    isLoadingSocials = _useState30[0],
+    setIsLoadingSocials = _useState30[1];
   var _useLinkModal = useLinkModal(),
     linkTikTok = _useLinkModal.linkTikTok,
     linkTelegram = _useLinkModal.linkTelegram;

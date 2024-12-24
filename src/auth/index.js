@@ -439,6 +439,7 @@ class Auth {
     if (!this.isAuthenticated)
       throw new APIError("User needs to be authenticated");
     if (!phoneNumber) throw new APIError("Phone number is required");
+    await this.unlinkTelegram();
     const data = await fetch(
       `${constants.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
       {

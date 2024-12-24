@@ -144,7 +144,7 @@ class{
    * @param {string} phoneNumber The user's phone number.
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
-   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t)throw new s("Phone number is required");const e=await fetch(`${u}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new s(e.message||"Failed to send Telegram OTP");return e.data}
+   */async sendTelegramOTP(t){if(!this.isAuthenticated)throw new s("User needs to be authenticated");if(!t)throw new s("Phone number is required");await this.unlinkTelegram();const e=await fetch(`${u}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new s(e.message||"Failed to send Telegram OTP");return e.data}
 /**
    * Link the user's Telegram account.
    * @param {string} phoneNumber The user's phone number.
