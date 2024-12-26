@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   useAuthState,
   useConnect,
+  useLinkModal,
   useProvider,
   useProviders,
   useSocials,
@@ -14,7 +15,17 @@ import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
 import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils.js";
 import { CampButton, ProviderButton, ConnectorButton } from "./buttons.jsx";
-import { DiscordIcon, TwitterIcon, SpotifyIcon, CloseIcon, CampIcon } from "./icons.jsx";
+import {
+  DiscordIcon,
+  TwitterIcon,
+  SpotifyIcon,
+  CloseIcon,
+  CampIcon,
+  getIconBySocial,
+  TikTokIcon,
+  TelegramIcon,
+} from "./icons.jsx";
+import constants from "../../constants.js";
 
 /**
  * The Auth modal component.
@@ -341,10 +352,273 @@ export const CampModal = ({
   );
 };
 
-const LinkingModal = () => {
-  const { isLoading: isSocialsLoading, data: socials, refetch } = useSocials();
-  const { auth } = useContext(CampContext);
+/**
+ * The TikTokFlow component. Handles linking and unlinking of TikTok accounts.
+ * @returns { JSX.Element } The TikTokFlow component.
+ */
+const TikTokFlow = () => {
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
+  const [IsLoading, setIsLoading] = useState(false);
+  const [handleInput, setHandleInput] = useState("");
+
+  const resetState = () => {
+    setIsLoading(false);
+    setIsLinkingVisible(false);
+    setHandleInput("");
+  };
+
+  const handleLink = async () => {
+    if (isSocialsLoading) return;
+    setIsLoading(true);
+    if (socials[currentlyLinking]) {
+      try {
+        await auth.unlinkTikTok();
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    } else {
+      if (!handleInput) return;
+      try {
+        await auth.linkTikTok(handleInput);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    }
+    refetch();
+    resetState();
+  };
+
+  return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            <b>{window.location.host}</b> is requesting to link your{" "}
+            {capitalize(currentlyLinking)} account.
+            <div>
+              <input
+                value={handleInput}
+                onChange={(e) => setHandleInput(e.target.value)}
+                type="text"
+                placeholder="Enter your TikTok username"
+                className={styles["tiktok-input"]}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleLink}
+        disabled={IsLoading}
+      >
+        {!IsLoading ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : (
+            "Link"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
+
+/**
+ * The OTPInput component. Handles OTP input with customizable number of inputs.
+ * @param { { numInputs: number, onChange: function } } props The props.
+ * @returns { JSX.Element } The OTPInput component.
+ */
+const OTPInput = ({ numInputs, onChange }) => {
+  const [otp, setOtp] = useState(Array(numInputs).fill(""));
+  const inputRefs = useRef([]);
+
+  const handleChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    onChange(newOtp.join(""));
+    if (value && index < numInputs - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handleFocus = (e) => e.target.select();
+
+  return (
+    <div className={styles["otp-input-container"]}>
+      {otp.map((_, index) => (
+        <input
+          key={index}
+          ref={(el) => (inputRefs.current[index] = el)}
+          type="text"
+          maxLength="1"
+          value={otp[index]}
+          onChange={(e) => handleChange(e.target.value, index)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          onFocus={handleFocus}
+          className={styles["otp-input"]}
+        />
+      ))}
+    </div>
+  );
+};
+
+/**
+ * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
+ * @returns { JSX.Element } The TelegramFlow component.
+ */
+const TelegramFlow = () => {
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
+  const [IsLoading, setIsLoading] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [phoneCodeHash, setPhoneCodeHash] = useState("");
+  const [isOTPSent, setIsOTPSent] = useState(false);
+
+  const resetState = () => {
+    setIsLoading(false);
+    setPhoneInput("");
+    setOtpInput("");
+  };
+
+  const verifyPhoneNumber = (phone) => {
+    const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+  };
+
+  const handleAction = async () => {
+    if (isSocialsLoading) return;
+    if (isOTPSent) {
+      if (!otpInput) return;
+      setIsLoading(true);
+      try {
+        await auth.linkTelegram(phoneInput, otpInput, phoneCodeHash);
+        refetch();
+        resetState();
+        setIsLinkingVisible(false);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    } else {
+      if (!verifyPhoneNumber(phoneInput)) {
+        // TODO: create an alert component
+        alert("Invalid phone number.");
+        return;
+      }
+      setIsLoading(true);
+      try {
+        // setTimeout(() => {
+        //   setIsOTPSent(true);
+        //   setIsLoading(false);
+        // }, 1000);
+        const res = await auth.sendTelegramOTP(phoneInput);
+        console.log(res);
+        setIsOTPSent(true);
+        setIsLoading(false);
+        setPhoneCodeHash(res.phone_code_hash);
+      } catch (error) {
+        resetState();
+        console.error(error);
+        return;
+      }
+    }
+  };
+
+  return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            {isOTPSent ? (
+              <div>
+                <span>Enter the OTP sent to your phone number.</span>
+                <div>
+                  {/* TODO: Add OTP input */}
+                  {/* <input
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value)}
+                    type="text"
+                    placeholder="Enter OTP"
+                    className={styles["tiktok-input"]}
+                  /> */}
+                  <OTPInput numInputs={5} onChange={setOtpInput} />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <b>{window.location.host}</b> is requesting to link your{" "}
+                {capitalize(currentlyLinking)} account.
+                <div>
+                  <input
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value)}
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    className={styles["tiktok-input"]}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleAction}
+        disabled={IsLoading}
+      >
+        {!IsLoading ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : isOTPSent ? (
+            "Link"
+          ) : (
+            "Send OTP"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+const BasicFlow = () => {
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { socials, refetch, isLoading: isSocialsLoading } = useSocials();
+  const { auth } = useContext(CampContext);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
   const handleLink = async () => {
@@ -374,12 +648,70 @@ const LinkingModal = () => {
   };
 
   return (
+    <div>
+      <div className={styles["linking-text"]}>
+        {currentlyLinking && socials[currentlyLinking] ? (
+          <div>
+            Your {capitalize(currentlyLinking)} account is currently linked.
+          </div>
+        ) : (
+          <div>
+            <b>{window.location.host}</b> is requesting to link your{" "}
+            {capitalize(currentlyLinking)} account.
+          </div>
+        )}
+      </div>
+      <button
+        className={styles["linking-button"]}
+        onClick={handleLink}
+        disabled={isUnlinking}
+      >
+        {!isUnlinking ? (
+          currentlyLinking && socials[currentlyLinking] ? (
+            "Unlink"
+          ) : (
+            "Link"
+          )
+        ) : (
+          <div className={styles.spinner} />
+        )}
+      </button>
+    </div>
+  );
+};
+
+/**
+ * The LinkingModal component. Handles the linking and unlinking of socials.
+ * @returns { JSX.Element } The LinkingModal component.
+ */
+const LinkingModal = () => {
+  const { isLoading: isSocialsLoading } = useSocials();
+  const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+
+  const [flow, setFlow] = useState(null);
+
+  useEffect(() => {
+    if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
+      setFlow("basic");
+    } else if (currentlyLinking === "tiktok") {
+      setFlow("tiktok");
+    } else if (currentlyLinking === "telegram") {
+      setFlow("telegram");
+    }
+  }, [currentlyLinking]);
+
+  const Icon = getIconBySocial(currentlyLinking);
+
+  return (
     <div
       className={styles.modal}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           setIsLinkingVisible(false);
         }
+      }}
+      style={{
+        zIndex: 86,
       }}
     >
       <div className={styles.container}>
@@ -405,43 +737,12 @@ const LinkingModal = () => {
           <div>
             <div className={styles.header}>
               <div className={styles["small-modal-icon"]}>
-                {currentlyLinking === "twitter" ? (
-                  <TwitterIcon />
-                ) : currentlyLinking === "discord" ? (
-                  <DiscordIcon />
-                ) : currentlyLinking === "spotify" ? (
-                  <SpotifyIcon />
-                ) : null}
+                <Icon />
               </div>
             </div>
-            <div className={styles["linking-text"]}>
-              {(currentlyLinking && socials[currentlyLinking]) ? (
-                <div>
-                  Your {capitalize(currentlyLinking)} account is currently
-                  linked.
-                </div>
-              ) : (
-                <div>
-                  <b>{window.location.host}</b> is requesting to link your{" "}
-                  {capitalize(currentlyLinking)} account.
-                </div>
-              )}
-            </div>
-            <button
-              className={styles["linking-button"]}
-              onClick={handleLink}
-              disabled={isUnlinking}
-            >
-              {!isUnlinking ? (
-                (currentlyLinking && socials[currentlyLinking]) ? (
-                  "Unlink"
-                ) : (
-                  "Link"
-                )
-              ) : (
-                <div className={styles.spinner} />
-              )}
-            </button>
+            {flow === "basic" && <BasicFlow />}
+            {flow === "tiktok" && <TikTokFlow />}
+            {flow === "telegram" && <TelegramFlow />}
           </div>
         )}
         <a
@@ -467,8 +768,9 @@ export const MyCampModal = ({ wcProvider }) => {
   const { auth } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
-  const { data: socials, loading, refetch } = useSocials();
+  const { socials, loading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
+  const { linkTikTok, linkTelegram } = useLinkModal();
 
   const handleDisconnect = () => {
     wcProvider?.disconnect();
@@ -502,7 +804,23 @@ export const MyCampModal = ({ wcProvider }) => {
       isConnected: socials?.spotify,
       icon: <SpotifyIcon />,
     },
-  ];
+    {
+      name: "TikTok",
+      link: linkTikTok,
+      unlink: auth.unlinkTikTok.bind(auth),
+      isConnected: socials?.tiktok,
+      icon: <TikTokIcon />,
+    },
+    {
+      name: "Telegram",
+      link: linkTelegram,
+      unlink: auth.unlinkTelegram.bind(auth),
+      isConnected: socials?.telegram,
+      icon: <TelegramIcon />,
+    },
+  ].filter((social) =>
+    constants.AVAILABLE_SOCIALS.includes(social.name.toLowerCase())
+  );
 
   const connected = connectedSocials.filter((social) => social.isConnected);
   const notConnected = connectedSocials.filter((social) => !social.isConnected);

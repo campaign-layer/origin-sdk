@@ -6,6 +6,7 @@ import { CampModal, MyCampModal } from "./modals.jsx";
 import { Auth } from "../../auth/index.js";
 import { SocialsContext } from "../context/SocialsContext.jsx";
 import { LinkButton } from "./buttons.jsx";
+import constants from "../../constants.js";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
@@ -66,7 +67,10 @@ export const useLinkSocials = () => {
   }
   const prototype = Object.getPrototypeOf(auth);
   const linkingProps = Object.getOwnPropertyNames(prototype).filter(
-    (prop) => prop.startsWith("link") || prop.startsWith("unlink")
+    (prop) =>
+      (prop.startsWith("link") || prop.startsWith("unlink")) &&
+      (constants.AVAILABLE_SOCIALS.includes(prop.slice(4).toLowerCase()) ||
+        constants.AVAILABLE_SOCIALS.includes(prop.slice(6).toLowerCase()))
   );
 
   const linkingFunctions = linkingProps.reduce((acc, prop) => {
@@ -204,27 +208,34 @@ export const useLinkModal = () => {
   const handleClose = () => {
     setIsLinkingVisible(false);
   };
+  
+  const obj = {};
+  constants.AVAILABLE_SOCIALS.forEach((social) => {
+    obj[`link${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
+      handleLink(social);
+    obj[`unlink${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
+      handleUnlink(social);
+    obj[`open${social.charAt(0).toUpperCase() + social.slice(1)}Modal`] = () =>
+      handleOpen(social);
+  });
 
   return {
     isLinkingOpen: isLinkingVisible,
-    openTwitterModal: () => handleOpen("twitter"),
-    openDiscordModal: () => handleOpen("discord"),
-    openSpotifyModal: () => handleOpen("spotify"),
-    linkTwitter: () => handleLink("twitter"),
-    linkDiscord: () => handleLink("discord"),
-    linkSpotify: () => handleLink("spotify"),
-    unlinkTwitter: () => handleUnlink("twitter"),
-    unlinkDiscord: () => handleUnlink("discord"),
-    unlinkSpotify: () => handleUnlink("spotify"),
+    ...obj,
     closeModal: handleClose,
+    handleOpen,
   };
 };
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 export const useSocials = () => {
   const { query } = useContext(SocialsContext);
-  return query;
+  const socials = query?.data;
+  return {
+    ...query,
+    socials,
+  };
 };

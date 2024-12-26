@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
+import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
@@ -591,7 +591,8 @@ var getClient = function getClient(provider) {
 
 var constants = {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
-  AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev"
+  AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"]
 };
 
 var providers = [];
@@ -937,9 +938,12 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Twitter account.
+   * Link the user's TikTok account.
+   * @param {string} handle The user's TikTok handle.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  unlinkTwitter() {
+  linkTikTok(handle) {
     var _this5 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
       var data;
@@ -953,7 +957,7 @@ class Auth {
             throw new APIError("User needs to be authenticated");
           case 2:
             _context4.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/connect-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -962,7 +966,9 @@ class Auth {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                id: _this5.userId
+                userHandle: handle,
+                clientId: _this5.clientId,
+                userId: _this5.userId
               })
             }).then(function (res) {
               return res.json();
@@ -975,8 +981,14 @@ class Auth {
             }
             return _context4.abrupt("return", data.data);
           case 9:
-            throw new APIError(data.message || "Failed to unlink Twitter account");
-          case 10:
+            if (!(data.message === "Request failed with status code 502")) {
+              _context4.next = 13;
+              break;
+            }
+            throw new APIError("TikTok service is currently unavailable, try again later");
+          case 13:
+            throw new APIError(data.message || "Failed to link TikTok account");
+          case 14:
           case "end":
             return _context4.stop();
         }
@@ -985,9 +997,12 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Discord account.
+   * Send an OTP to the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  unlinkDiscord() {
+  sendTelegramOTP(phoneNumber) {
     var _this6 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
       var data;
@@ -1000,8 +1015,17 @@ class Auth {
             }
             throw new APIError("User needs to be authenticated");
           case 2:
-            _context5.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
+            if (phoneNumber) {
+              _context5.next = 4;
+              break;
+            }
+            throw new APIError("Phone number is required");
+          case 4:
+            _context5.next = 6;
+            return _this6.unlinkTelegram();
+          case 6:
+            _context5.next = 8;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/sendOTP-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1010,21 +1034,21 @@ class Auth {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                id: _this6.userId
+                phone: phoneNumber
               })
             }).then(function (res) {
               return res.json();
             });
-          case 4:
+          case 8:
             data = _context5.sent;
             if (data.isError) {
-              _context5.next = 9;
+              _context5.next = 13;
               break;
             }
             return _context5.abrupt("return", data.data);
-          case 9:
-            throw new APIError(data.message || "Failed to unlink Discord account");
-          case 10:
+          case 13:
+            throw new APIError(data.message || "Failed to send Telegram OTP");
+          case 14:
           case "end":
             return _context5.stop();
         }
@@ -1033,9 +1057,14 @@ class Auth {
   }
 
   /**
-   * Unlink the user's Spotify account.
+   * Link the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @param {string} otp The OTP.
+   * @param {string} phoneCodeHash The phone code hash.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
    */
-  unlinkSpotify() {
+  linkTelegram(phoneNumber, otp, phoneCodeHash) {
     var _this7 = this;
     return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
       var data;
@@ -1048,8 +1077,14 @@ class Auth {
             }
             throw new APIError("User needs to be authenticated");
           case 2:
-            _context6.next = 4;
-            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+            if (!(!phoneNumber || !otp || !phoneCodeHash)) {
+              _context6.next = 4;
+              break;
+            }
+            throw new APIError("Phone number, OTP, and phone code hash are required");
+          case 4:
+            _context6.next = 6;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/signIn-sdk"), {
               method: "POST",
               redirect: "follow",
               headers: {
@@ -1058,25 +1093,261 @@ class Auth {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify({
-                id: _this7.userId
+                phone: phoneNumber,
+                code: otp,
+                phone_code_hash: phoneCodeHash,
+                userId: _this7.userId,
+                clientId: _this7.clientId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 6:
+            data = _context6.sent;
+            if (data.isError) {
+              _context6.next = 11;
+              break;
+            }
+            return _context6.abrupt("return", data.data);
+          case 11:
+            throw new APIError(data.message || "Failed to link Telegram account");
+          case 12:
+          case "end":
+            return _context6.stop();
+        }
+      }, _callee6);
+    }))();
+  }
+
+  /**
+   * Unlink the user's Twitter account.
+   */
+  unlinkTwitter() {
+    var _this8 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+        while (1) switch (_context7.prev = _context7.next) {
+          case 0:
+            if (_this8.isAuthenticated) {
+              _context7.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context7.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/twitter/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this8.jwt),
+                "x-client-id": _this8.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                id: _this8.userId
               })
             }).then(function (res) {
               return res.json();
             });
           case 4:
-            data = _context6.sent;
+            data = _context7.sent;
             if (data.isError) {
-              _context6.next = 9;
+              _context7.next = 9;
               break;
             }
-            return _context6.abrupt("return", data.data);
+            return _context7.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink Twitter account");
+          case 10:
+          case "end":
+            return _context7.stop();
+        }
+      }, _callee7);
+    }))();
+  }
+
+  /**
+   * Unlink the user's Discord account.
+   */
+  unlinkDiscord() {
+    var _this9 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+        while (1) switch (_context8.prev = _context8.next) {
+          case 0:
+            if (_this9.isAuthenticated) {
+              _context8.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context8.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/discord/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this9.jwt),
+                "x-client-id": _this9.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                id: _this9.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context8.sent;
+            if (data.isError) {
+              _context8.next = 9;
+              break;
+            }
+            return _context8.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink Discord account");
+          case 10:
+          case "end":
+            return _context8.stop();
+        }
+      }, _callee8);
+    }))();
+  }
+
+  /**
+   * Unlink the user's Spotify account.
+   */
+  unlinkSpotify() {
+    var _this10 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+        while (1) switch (_context9.prev = _context9.next) {
+          case 0:
+            if (_this10.isAuthenticated) {
+              _context9.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context9.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/spotify/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this10.jwt),
+                "x-client-id": _this10.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                id: _this10.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context9.sent;
+            if (data.isError) {
+              _context9.next = 9;
+              break;
+            }
+            return _context9.abrupt("return", data.data);
           case 9:
             throw new APIError(data.message || "Failed to unlink Spotify account");
           case 10:
           case "end":
-            return _context6.stop();
+            return _context9.stop();
         }
-      }, _callee6);
+      }, _callee9);
+    }))();
+  }
+  unlinkTikTok() {
+    var _this11 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+        while (1) switch (_context10.prev = _context10.next) {
+          case 0:
+            if (_this11.isAuthenticated) {
+              _context10.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context10.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/tiktok/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this11.jwt),
+                "x-client-id": _this11.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                userId: _this11.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context10.sent;
+            if (data.isError) {
+              _context10.next = 9;
+              break;
+            }
+            return _context10.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink TikTok account");
+          case 10:
+          case "end":
+            return _context10.stop();
+        }
+      }, _callee10);
+    }))();
+  }
+  unlinkTelegram() {
+    var _this12 = this;
+    return _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+      var data;
+      return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+        while (1) switch (_context11.prev = _context11.next) {
+          case 0:
+            if (_this12.isAuthenticated) {
+              _context11.next = 2;
+              break;
+            }
+            throw new APIError("User needs to be authenticated");
+          case 2:
+            _context11.next = 4;
+            return fetch("".concat(constants.AUTH_HUB_BASE_API, "/telegram/disconnect-sdk"), {
+              method: "POST",
+              redirect: "follow",
+              headers: {
+                Authorization: "Bearer ".concat(_this12.jwt),
+                "x-client-id": _this12.clientId,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                userId: _this12.userId
+              })
+            }).then(function (res) {
+              return res.json();
+            });
+          case 4:
+            data = _context11.sent;
+            if (data.isError) {
+              _context11.next = 9;
+              break;
+            }
+            return _context11.abrupt("return", data.data);
+          case 9:
+            throw new APIError(data.message || "Failed to unlink Telegram account");
+          case 10:
+          case "end":
+            return _context11.stop();
+        }
+      }, _callee11);
     }))();
   }
 }
@@ -1114,29 +1385,29 @@ function _requestAccount() {
   return _requestAccount2.apply(this, arguments);
 }
 function _requestAccount2() {
-  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+  _requestAccount2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
     var _yield$this$viem$requ, _yield$this$viem$requ2, account;
-    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-      while (1) switch (_context7.prev = _context7.next) {
+    return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+      while (1) switch (_context12.prev = _context12.next) {
         case 0:
-          _context7.prev = 0;
-          _context7.next = 3;
+          _context12.prev = 0;
+          _context12.next = 3;
           return this.viem.requestAddresses();
         case 3:
-          _yield$this$viem$requ = _context7.sent;
+          _yield$this$viem$requ = _context12.sent;
           _yield$this$viem$requ2 = _slicedToArray(_yield$this$viem$requ, 1);
           account = _yield$this$viem$requ2[0];
           this.walletAddress = account;
-          return _context7.abrupt("return", account);
+          return _context12.abrupt("return", account);
         case 10:
-          _context7.prev = 10;
-          _context7.t0 = _context7["catch"](0);
-          throw new APIError(_context7.t0);
+          _context12.prev = 10;
+          _context12.t0 = _context12["catch"](0);
+          throw new APIError(_context12.t0);
         case 13:
         case "end":
-          return _context7.stop();
+          return _context12.stop();
       }
-    }, _callee7, this, [[0, 10]]);
+    }, _callee12, this, [[0, 10]]);
   }));
   return _requestAccount2.apply(this, arguments);
 }
@@ -1150,13 +1421,13 @@ function _fetchNonce() {
   return _fetchNonce2.apply(this, arguments);
 }
 function _fetchNonce2() {
-  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+  _fetchNonce2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
     var res, data;
-    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-      while (1) switch (_context8.prev = _context8.next) {
+    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+      while (1) switch (_context13.prev = _context13.next) {
         case 0:
-          _context8.prev = 0;
-          _context8.next = 3;
+          _context13.prev = 0;
+          _context13.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/nonce"), {
             method: "POST",
             headers: {
@@ -1168,27 +1439,27 @@ function _fetchNonce2() {
             })
           });
         case 3:
-          res = _context8.sent;
-          _context8.next = 6;
+          res = _context13.sent;
+          _context13.next = 6;
           return res.json();
         case 6:
-          data = _context8.sent;
+          data = _context13.sent;
           if (!(res.status !== 200)) {
-            _context8.next = 9;
+            _context13.next = 9;
             break;
           }
-          return _context8.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
+          return _context13.abrupt("return", Promise.reject(data.message || "Failed to fetch nonce"));
         case 9:
-          return _context8.abrupt("return", data.data);
+          return _context13.abrupt("return", data.data);
         case 12:
-          _context8.prev = 12;
-          _context8.t0 = _context8["catch"](0);
-          throw new Error(_context8.t0);
+          _context13.prev = 12;
+          _context13.t0 = _context13["catch"](0);
+          throw new Error(_context13.t0);
         case 15:
         case "end":
-          return _context8.stop();
+          return _context13.stop();
       }
-    }, _callee8, this, [[0, 12]]);
+    }, _callee13, this, [[0, 12]]);
   }));
   return _fetchNonce2.apply(this, arguments);
 }
@@ -1204,13 +1475,13 @@ function _verifySignature(_x, _x2) {
   return _verifySignature2.apply(this, arguments);
 }
 function _verifySignature2() {
-  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9(message, signature) {
+  _verifySignature2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(message, signature) {
     var res, data, payload, decoded;
-    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
-      while (1) switch (_context9.prev = _context9.next) {
+    return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+      while (1) switch (_context14.prev = _context14.next) {
         case 0:
-          _context9.prev = 0;
-          _context9.next = 3;
+          _context14.prev = 0;
+          _context14.next = 3;
           return fetch("".concat(constants.AUTH_HUB_BASE_API, "/auth/client-user/verify"), {
             method: "POST",
             headers: {
@@ -1224,27 +1495,27 @@ function _verifySignature2() {
             })
           });
         case 3:
-          res = _context9.sent;
-          _context9.next = 6;
+          res = _context14.sent;
+          _context14.next = 6;
           return res.json();
         case 6:
-          data = _context9.sent;
+          data = _context14.sent;
           payload = data.data.split(".")[1];
           decoded = JSON.parse(atob(payload));
-          return _context9.abrupt("return", {
+          return _context14.abrupt("return", {
             success: !data.isError,
             userId: decoded.id,
             token: data.data
           });
         case 12:
-          _context9.prev = 12;
-          _context9.t0 = _context9["catch"](0);
-          throw new APIError(_context9.t0);
+          _context14.prev = 12;
+          _context14.t0 = _context14["catch"](0);
+          throw new APIError(_context14.t0);
         case 15:
         case "end":
-          return _context9.stop();
+          return _context14.stop();
       }
-    }, _callee9, this, [[0, 12]]);
+    }, _callee14, this, [[0, 12]]);
   }));
   return _verifySignature2.apply(this, arguments);
 }
@@ -1394,8 +1665,8 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}";
-var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me"};
+var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}.auth-module_otp-input-container__B2NH6{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}.auth-module_otp-input__vjImt{border:1px solid #ccc;border-radius:.5rem;font-size:1.5rem;height:2.5rem;outline:none;text-align:center;transition:border-color .2s;width:2rem}.auth-module_otp-input__vjImt:focus{border-color:#ff6f00}";
+var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG","otp-input-container":"auth-module_otp-input-container__B2NH6","otp-input":"auth-module_otp-input__vjImt"};
 styleInject(css_248z$1);
 
 var formatAddress = function formatAddress(address) {
@@ -1551,6 +1822,22 @@ var getIconByConnectorName = function getIconByConnectorName(name) {
   }
 };
 
+var getIconBySocial = function getIconBySocial(social) {
+  switch (social) {
+    case "twitter":
+      return TwitterIcon;
+    case "spotify":
+      return SpotifyIcon;
+    case "discord":
+      return DiscordIcon;
+    case "tiktok":
+      return TikTokIcon;
+    case "telegram":
+      return TelegramIcon;
+    default:
+      return null;
+  }
+};
 var CampIcon = function CampIcon() {
   return /*#__PURE__*/React.createElement("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -1569,7 +1856,6 @@ var CampIcon = function CampIcon() {
 };
 var DiscordIcon = function DiscordIcon() {
   return /*#__PURE__*/React.createElement("svg", {
-    className: "w-8 h-8",
     viewBox: "0 0 42 32",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
@@ -1580,7 +1866,6 @@ var DiscordIcon = function DiscordIcon() {
 };
 var TwitterIcon = function TwitterIcon() {
   return /*#__PURE__*/React.createElement("svg", {
-    className: "w-8 h-8",
     viewBox: "0 0 33 27",
     fill: "none",
     xmlns: "http://www.w3.org/2000/svg"
@@ -1597,6 +1882,69 @@ var SpotifyIcon = function SpotifyIcon() {
     fill: "#1DB954"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"
+  }));
+};
+var TikTokIcon = function TikTokIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    role: "img",
+    viewBox: "-2 -2 28 28",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("title", null, "TikTok"), /*#__PURE__*/React.createElement("path", {
+    d: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"
+  }));
+};
+
+// export const TelegramIcon = () => (
+//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="35 40 170 170">
+//     <g
+//       fill="black"
+//       fillRule="nonzero"
+//       stroke="none"
+//       strokeWidth="1"
+//       strokeLinecap="butt"
+//       strokeLinejoin="miter"
+//       strokeMiterlimit="10"
+//       strokeDasharray=""
+//       strokeDashoffset="0"
+//       fontFamily="none"
+//       fontWeight="none"
+//       fontSize="none"
+//       textAnchor="none"
+//       style={{
+//         mixBlendMode: "normal",
+//       }}
+//     >
+//       <g transform="scale(5.33333,5.33333)">
+//         <path
+//           d="M24,4c-11.04569,0 -20,8.95431 -20,20c0,11.04569 8.95431,20 20,20c11.04569,0 20,-8.95431 20,-20c0,-11.04569 -8.95431,-20 -20,-20z"
+//           fill-opacity="0"
+//           fill="#0088cc"
+//         ></path>
+//         <path
+//           d="M33.95,15l-3.746,19.126c0,0 -0.161,0.874 -1.245,0.874c-0.576,0 -0.873,-0.274 -0.873,-0.274l-8.114,-6.733l-3.97,-2.001l-5.095,-1.355c0,0 -0.907,-0.262 -0.907,-1.012c0,-0.625 0.933,-0.923 0.933,-0.923l21.316,-8.468c-0.001,-0.001 0.651,-0.235 1.126,-0.234c0.292,0 0.625,0.125 0.625,0.5c0,0.25 -0.05,0.5 -0.05,0.5z"
+//           fill="#0088cc"
+//         ></path>
+//         <path
+//           d="M23,30.505l-3.426,3.374c0,0 -0.149,0.115 -0.348,0.12c-0.069,0.002 -0.143,-0.009 -0.219,-0.043l0.964,-5.965z"
+//           fill="#0088cc"
+//         ></path>
+//         <path
+//           d="M29.897,18.196c-0.169,-0.22 -0.481,-0.26 -0.701,-0.093l-13.196,7.897c0,0 2.106,5.892 2.427,6.912c0.322,1.021 0.58,1.045 0.58,1.045l0.964,-5.965l9.832,-9.096c0.22,-0.167 0.261,-0.48 0.094,-0.7z"
+//           fill="#0088cc"
+//         ></path>
+//       </g>
+//     </g>
+//   </svg>
+// );
+
+var TelegramIcon = function TelegramIcon() {
+  return /*#__PURE__*/React.createElement("svg", {
+    role: "img",
+    viewBox: "0 0 24 24",
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "#0088cc"
+  }, /*#__PURE__*/React.createElement("title", null, "Telegram"), /*#__PURE__*/React.createElement("path", {
+    d: "M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"
   }));
 };
 var CloseIcon = function CloseIcon() {
@@ -1620,8 +1968,8 @@ var CloseIcon = function CloseIcon() {
   }));
 };
 
-var css_248z = ".buttons-module_connect-button__CJhUa{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2 svg{height:1.25rem;width:1.25rem}.buttons-module_connect-button__CJhUa:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.buttons-module_connect-button__CJhUa:hover .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.675)}.buttons-module_connect-button__CJhUa:focus{outline:none}.buttons-module_connect-button__CJhUa:disabled{background-color:#ccc;cursor:not-allowed}.buttons-module_provider-button__6JY7s{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.buttons-module_provider-button__6JY7s:focus{outline:1px solid #43b7c4}.buttons-module_provider-button__6JY7s:hover{border-color:#43b7c4}.buttons-module_provider-button__6JY7s:hover:not(:disabled){background-color:#ddd;cursor:pointer}.buttons-module_provider-button__6JY7s img{height:2rem;width:2rem}.buttons-module_provider-button__6JY7s .buttons-module_provider-icon__MOhr8{border-radius:.2rem}.buttons-module_provider-button__6JY7s span{line-height:1rem;margin-left:.5rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-name__tHWO2{color:#333;font-size:.875rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-label__CEGRr{color:#777;font-size:.7rem}.buttons-module_link-button-default__EcKUT{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:2.6rem;position:relative;width:7rem}.buttons-module_link-button-default__EcKUT:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-default__EcKUT:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-default__EcKUT:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:2rem;left:0;opacity:0;padding:.25rem;place-items:center;position:absolute;right:0;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s;-webkit-user-select:none;-moz-user-select:none;user-select:none;visibility:hidden}.buttons-module_link-button-default__EcKUT:disabled:hover:after{opacity:1;transform:translateY(0);visibility:visible}.buttons-module_link-button-default__EcKUT:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-default__EcKUT .buttons-module_button-container__-oPqd{align-items:center;display:flex;flex-direction:row;gap:.5rem;justify-content:center;padding:.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe{align-items:center;color:#fff;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg path{fill:#fff!important}.buttons-module_button-container__-oPqd .buttons-module_link-icon__8V8FP{align-items:center;color:hsla(0,0%,100%,.8);display:flex;height:1.25rem;justify-content:center;width:1.25rem}.buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;padding:.15rem;width:1.5rem}.buttons-module_link-button-default__EcKUT:disabled .buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0 svg path{fill:#b8b8b8!important}.buttons-module_link-button-icon__llX8m{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:3rem;min-height:3rem;min-width:3rem;padding:0;position:relative;width:3rem}.buttons-module_link-button-icon__llX8m:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-icon__llX8m:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;box-sizing:border-box;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:-moz-fit-content;height:fit-content;left:-1rem;opacity:0;padding:.25rem;place-items:center;position:absolute;right:-1rem;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s}.buttons-module_link-button-icon__llX8m:disabled:hover:after{opacity:1;transform:translateY(0)}.buttons-module_link-button-icon__llX8m:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-icon__llX8m:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1{align-items:center;display:flex;flex:1;height:100%;justify-content:center;position:relative;width:100%}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg path{fill:#fff!important}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;bottom:-.5rem;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;position:absolute;right:-.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0 svg{height:1.1rem;width:1.1rem}.buttons-module_link-button-icon__llX8m:disabled .buttons-module_camp-logo__slNl0 svg path,.buttons-module_not-linked__ua4va svg path{fill:#b8b8b8!important}";
-var buttonStyles = {"connect-button":"buttons-module_connect-button__CJhUa","button-icon":"buttons-module_button-icon__JM4-2","provider-button":"buttons-module_provider-button__6JY7s","provider-icon":"buttons-module_provider-icon__MOhr8","provider-name":"buttons-module_provider-name__tHWO2","provider-label":"buttons-module_provider-label__CEGRr","link-button-default":"buttons-module_link-button-default__EcKUT","twitter":"buttons-module_twitter__9sRaz","spotify":"buttons-module_spotify__-fiKQ","discord":"buttons-module_discord__I-YjZ","button-container":"buttons-module_button-container__-oPqd","social-icon":"buttons-module_social-icon__DPdPe","link-icon":"buttons-module_link-icon__8V8FP","camp-logo":"buttons-module_camp-logo__slNl0","link-button-icon":"buttons-module_link-button-icon__llX8m","icon-container":"buttons-module_icon-container__Q5bI1","not-linked":"buttons-module_not-linked__ua4va"};
+var css_248z = ".buttons-module_connect-button__CJhUa{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;padding-inline:2.5rem;padding-left:5rem;position:relative;transition:background-color .15s;width:12rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.75);border-radius:.75rem 0 0 .75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05);display:grid;height:100%;left:0;margin-right:.5rem;place-items:center;position:absolute;top:50%;transform:translateY(-50%);transition:background-color .15s;width:3rem}.buttons-module_connect-button__CJhUa .buttons-module_button-icon__JM4-2 svg{height:1.25rem;width:1.25rem}.buttons-module_connect-button__CJhUa:hover{background-color:#cc4e02;border-color:#cc4e02;cursor:pointer}.buttons-module_connect-button__CJhUa:hover .buttons-module_button-icon__JM4-2{background:hsla(0,0%,100%,.675)}.buttons-module_connect-button__CJhUa:focus{outline:none}.buttons-module_connect-button__CJhUa:disabled{background-color:#ccc;cursor:not-allowed}.buttons-module_provider-button__6JY7s{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.5rem;display:flex;font-family:inherit;gap:.5rem;justify-content:flex-start;padding:.5rem;transition:background-color .15s;width:100%}.buttons-module_provider-button__6JY7s:focus{outline:1px solid #43b7c4}.buttons-module_provider-button__6JY7s:hover{border-color:#43b7c4}.buttons-module_provider-button__6JY7s:hover:not(:disabled){background-color:#ddd;cursor:pointer}.buttons-module_provider-button__6JY7s img{height:2rem;width:2rem}.buttons-module_provider-button__6JY7s .buttons-module_provider-icon__MOhr8{border-radius:.2rem}.buttons-module_provider-button__6JY7s span{line-height:1rem;margin-left:.5rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-name__tHWO2{color:#333;font-size:.875rem}.buttons-module_provider-button__6JY7s span.buttons-module_provider-label__CEGRr{color:#777;font-size:.7rem}.buttons-module_link-button-default__EcKUT{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:2.6rem;position:relative;width:7rem}.buttons-module_link-button-default__EcKUT:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-default__EcKUT:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-default__EcKUT:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:2rem;left:0;opacity:0;padding:.25rem;place-items:center;position:absolute;right:0;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s;-webkit-user-select:none;-moz-user-select:none;user-select:none;visibility:hidden}.buttons-module_link-button-default__EcKUT:disabled:hover:after{opacity:1;transform:translateY(0);visibility:visible}.buttons-module_link-button-default__EcKUT:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_tiktok__a80-0{background-color:#000}.buttons-module_link-button-default__EcKUT:not(:disabled).buttons-module_telegram__ExOTS{background-color:#08c}.buttons-module_link-button-default__EcKUT .buttons-module_button-container__-oPqd{align-items:center;display:flex;flex-direction:row;gap:.5rem;justify-content:center;padding:.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe{align-items:center;color:#fff;display:flex;height:1.5rem;justify-content:center;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_button-container__-oPqd .buttons-module_social-icon__DPdPe svg path{fill:#fff!important}.buttons-module_button-container__-oPqd .buttons-module_link-icon__8V8FP{align-items:center;color:hsla(0,0%,100%,.8);display:flex;height:1.25rem;justify-content:center;width:1.25rem}.buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;padding:.15rem;width:1.5rem}.buttons-module_link-button-default__EcKUT:disabled .buttons-module_button-container__-oPqd .buttons-module_camp-logo__slNl0 svg path{fill:#b8b8b8!important}.buttons-module_link-button-icon__llX8m{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);box-sizing:border-box;cursor:pointer;height:3rem;min-height:3rem;min-width:3rem;padding:0;position:relative;width:3rem}.buttons-module_link-button-icon__llX8m:disabled{background-color:#b8b8b8;cursor:not-allowed}.buttons-module_link-button-icon__llX8m:disabled:after{background-color:rgba(0,0,0,.35);border-radius:.35rem;box-sizing:border-box;color:#fff;content:\"Not connected\";display:grid;font-size:.75rem;height:-moz-fit-content;height:fit-content;left:-1rem;opacity:0;padding:.25rem;place-items:center;position:absolute;right:-1rem;top:-2.7rem;transform:translateY(-.5rem);transition:all .25s}.buttons-module_link-button-icon__llX8m:disabled:hover:after{opacity:1;transform:translateY(0)}.buttons-module_link-button-icon__llX8m:after{background-color:transparent;border-radius:.75rem;bottom:0;content:\"\";left:0;position:absolute;right:0;top:0;transition:background-color .15s}.buttons-module_link-button-icon__llX8m:not(:disabled):hover:after{background-color:rgba(0,0,0,.1)}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_twitter__9sRaz{background-color:#1da1f2}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_spotify__-fiKQ{background-color:#1db954}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_discord__I-YjZ{background-color:#7289da}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_tiktok__a80-0{background-color:#000}.buttons-module_link-button-icon__llX8m:not(:disabled).buttons-module_telegram__ExOTS{background-color:#08c}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1{align-items:center;display:flex;flex:1;height:100%;justify-content:center;position:relative;width:100%}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg{fill:#fff!important;height:1.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_icon-container__Q5bI1>svg path{fill:#fff!important}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0{align-items:center;background-color:#fff;border-radius:50%;bottom:-.5rem;box-sizing:border-box;display:flex;height:1.5rem;justify-content:center;position:absolute;right:-.5rem;width:1.5rem}.buttons-module_link-button-icon__llX8m .buttons-module_camp-logo__slNl0 svg{height:1.1rem;width:1.1rem}.buttons-module_link-button-icon__llX8m:disabled .buttons-module_camp-logo__slNl0 svg path,.buttons-module_not-linked__ua4va svg path{fill:#b8b8b8!important}";
+var buttonStyles = {"connect-button":"buttons-module_connect-button__CJhUa","button-icon":"buttons-module_button-icon__JM4-2","provider-button":"buttons-module_provider-button__6JY7s","provider-icon":"buttons-module_provider-icon__MOhr8","provider-name":"buttons-module_provider-name__tHWO2","provider-label":"buttons-module_provider-label__CEGRr","link-button-default":"buttons-module_link-button-default__EcKUT","twitter":"buttons-module_twitter__9sRaz","spotify":"buttons-module_spotify__-fiKQ","discord":"buttons-module_discord__I-YjZ","tiktok":"buttons-module_tiktok__a80-0","telegram":"buttons-module_telegram__ExOTS","button-container":"buttons-module_button-container__-oPqd","social-icon":"buttons-module_social-icon__DPdPe","link-icon":"buttons-module_link-icon__8V8FP","camp-logo":"buttons-module_camp-logo__slNl0","link-button-icon":"buttons-module_link-button-icon__llX8m","icon-container":"buttons-module_icon-container__Q5bI1","not-linked":"buttons-module_not-linked__ua4va"};
 styleInject(css_248z);
 
 /**
@@ -1791,14 +2139,13 @@ var LinkButton = function LinkButton(_ref6) {
     _ref6$theme = _ref6.theme,
     theme = _ref6$theme === void 0 ? "default" : _ref6$theme;
   var _useLinkModal = useLinkModal(),
-    openTwitterModal = _useLinkModal.openTwitterModal,
-    openDiscordModal = _useLinkModal.openDiscordModal,
-    openSpotifyModal = _useLinkModal.openSpotifyModal;
+    handleOpen = _useLinkModal.handleOpen;
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
   }
-  if (["twitter", "spotify", "discord"].indexOf(social) === -1) {
-    throw new Error("Invalid social, must be 'twitter', 'spotify', or 'discord'");
+  if (constants.AVAILABLE_SOCIALS.indexOf(social) === -1) {
+    console.error("Invalid LinkButton social, must be one of ".concat(constants.AVAILABLE_SOCIALS.join(", ")));
+    return null;
   }
   if (["default", "camp"].indexOf(theme) === -1) {
     throw new Error("Invalid theme, must be 'default' or 'camp'");
@@ -1809,15 +2156,9 @@ var LinkButton = function LinkButton(_ref6) {
     authenticated = _useAuthState.authenticated;
   var isLinked = socials && socials[social];
   var handleClick = function handleClick() {
-    if (social === "twitter") {
-      openTwitterModal();
-    } else if (social === "discord") {
-      openDiscordModal();
-    } else if (social === "spotify") {
-      openSpotifyModal();
-    }
+    handleOpen(social);
   };
-  var Icon = social === "twitter" ? TwitterIcon : social === "spotify" ? SpotifyIcon : social === "discord" ? DiscordIcon : null;
+  var Icon = getIconBySocial(social);
   return /*#__PURE__*/React.createElement("button", {
     disabled: !authenticated,
     className: "".concat(buttonStyles["link-button-".concat(variant)], " \n        ").concat(theme === "default" ? buttonStyles[social] : "", "\n      "),
@@ -1844,7 +2185,7 @@ var LinkButton = function LinkButton(_ref6) {
     d: "M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
   }))), /*#__PURE__*/React.createElement("div", {
     className: buttonStyles["social-icon"]
-  }, social === "twitter" ? /*#__PURE__*/React.createElement(TwitterIcon, null) : social === "spotify" ? /*#__PURE__*/React.createElement(SpotifyIcon, null) : social === "discord" ? /*#__PURE__*/React.createElement(DiscordIcon, null) : null)));
+  }, /*#__PURE__*/React.createElement(Icon, null))));
 };
 
 /**
@@ -2140,20 +2481,34 @@ var CampModal = function CampModal(_ref5) {
     defaultProvider: defaultProvider
   })))));
 };
-var LinkingModal = function LinkingModal() {
+
+/**
+ * The TikTokFlow component. Handles linking and unlinking of TikTok accounts.
+ * @returns { JSX.Element } The TikTokFlow component.
+ */
+var TikTokFlow = function TikTokFlow() {
+  var _useContext5 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext5.setIsLinkingVisible,
+    currentlyLinking = _useContext5.currentlyLinking;
   var _useSocials = useSocials(),
-    isSocialsLoading = _useSocials.isLoading,
-    socials = _useSocials.data,
-    refetch = _useSocials.refetch;
-  var _useContext5 = useContext(CampContext),
-    auth = _useContext5.auth;
-  var _useContext6 = useContext(ModalContext),
-    setIsLinkingVisible = _useContext6.setIsLinkingVisible,
-    currentlyLinking = _useContext6.currentlyLinking;
+    socials = _useSocials.socials,
+    refetch = _useSocials.refetch,
+    isSocialsLoading = _useSocials.isLoading;
+  var _useContext6 = useContext(CampContext),
+    auth = _useContext6.auth;
   var _useState9 = useState(false),
     _useState10 = _slicedToArray(_useState9, 2),
-    isUnlinking = _useState10[0],
-    setIsUnlinking = _useState10[1];
+    IsLoading = _useState10[0],
+    setIsLoading = _useState10[1];
+  var _useState11 = useState(""),
+    _useState12 = _slicedToArray(_useState11, 2),
+    handleInput = _useState12[0],
+    setHandleInput = _useState12[1];
+  var resetState = function resetState() {
+    setIsLoading(false);
+    setIsLinkingVisible(false);
+    setHandleInput("");
+  };
   var handleLink = /*#__PURE__*/function () {
     var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
@@ -2165,57 +2520,392 @@ var LinkingModal = function LinkingModal() {
             }
             return _context3.abrupt("return");
           case 2:
+            setIsLoading(true);
             if (!socials[currentlyLinking]) {
-              _context3.next = 20;
+              _context3.next = 16;
               break;
             }
-            setIsUnlinking(true);
             _context3.prev = 4;
             _context3.next = 7;
-            return auth["unlink".concat(capitalize(currentlyLinking))]();
+            return auth.unlinkTikTok();
           case 7:
-            _context3.next = 15;
+            _context3.next = 14;
             break;
           case 9:
             _context3.prev = 9;
             _context3.t0 = _context3["catch"](4);
-            setIsUnlinking(false);
-            setIsLinkingVisible(false);
+            resetState();
             console.error(_context3.t0);
             return _context3.abrupt("return");
-          case 15:
-            refetch();
-            setIsLinkingVisible(false);
-            setIsUnlinking(false);
-            _context3.next = 29;
+          case 14:
+            _context3.next = 28;
             break;
-          case 20:
-            _context3.prev = 20;
-            auth["link".concat(capitalize(currentlyLinking))]();
-            _context3.next = 29;
+          case 16:
+            if (handleInput) {
+              _context3.next = 18;
+              break;
+            }
+            return _context3.abrupt("return");
+          case 18:
+            _context3.prev = 18;
+            _context3.next = 21;
+            return auth.linkTikTok(handleInput);
+          case 21:
+            _context3.next = 28;
             break;
-          case 24:
-            _context3.prev = 24;
-            _context3.t1 = _context3["catch"](20);
-            setIsLinkingVisible(false);
+          case 23:
+            _context3.prev = 23;
+            _context3.t1 = _context3["catch"](18);
+            resetState();
             console.error(_context3.t1);
             return _context3.abrupt("return");
-          case 29:
+          case 28:
+            refetch();
+            resetState();
+          case 30:
           case "end":
             return _context3.stop();
         }
-      }, _callee3, null, [[4, 9], [20, 24]]);
+      }, _callee3, null, [[4, 9], [18, 23]]);
     }));
     return function handleLink() {
       return _ref6.apply(this, arguments);
     };
   }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    value: handleInput,
+    onChange: function onChange(e) {
+      return setHandleInput(e.target.value);
+    },
+    type: "text",
+    placeholder: "Enter your TikTok username",
+    className: styles["tiktok-input"]
+  })))), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleLink,
+    disabled: IsLoading
+  }, !IsLoading ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+
+/**
+ * The OTPInput component. Handles OTP input with customizable number of inputs.
+ * @param { { numInputs: number, onChange: function } } props The props.
+ * @returns { JSX.Element } The OTPInput component.
+ */
+var OTPInput = function OTPInput(_ref7) {
+  var numInputs = _ref7.numInputs,
+    onChange = _ref7.onChange;
+  var _useState13 = useState(Array(numInputs).fill("")),
+    _useState14 = _slicedToArray(_useState13, 2),
+    otp = _useState14[0],
+    setOtp = _useState14[1];
+  var inputRefs = useRef([]);
+  var handleChange = function handleChange(value, index) {
+    if (!/^\d*$/.test(value)) return;
+    var newOtp = _toConsumableArray(otp);
+    newOtp[index] = value;
+    setOtp(newOtp);
+    onChange(newOtp.join(""));
+    if (value && index < numInputs - 1) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+  var handleKeyDown = function handleKeyDown(e, index) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+  var handleFocus = function handleFocus(e) {
+    return e.target.select();
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: styles["otp-input-container"]
+  }, otp.map(function (_, index) {
+    return /*#__PURE__*/React.createElement("input", {
+      key: index,
+      ref: function ref(el) {
+        return inputRefs.current[index] = el;
+      },
+      type: "text",
+      maxLength: "1",
+      value: otp[index],
+      onChange: function onChange(e) {
+        return handleChange(e.target.value, index);
+      },
+      onKeyDown: function onKeyDown(e) {
+        return handleKeyDown(e, index);
+      },
+      onFocus: handleFocus,
+      className: styles["otp-input"]
+    });
+  }));
+};
+
+/**
+ * The TelegramFlow component. Handles linking and unlinking of Telegram accounts.
+ * @returns { JSX.Element } The TelegramFlow component.
+ */
+var TelegramFlow = function TelegramFlow() {
+  var _useContext7 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext7.setIsLinkingVisible,
+    currentlyLinking = _useContext7.currentlyLinking;
+  var _useSocials2 = useSocials(),
+    socials = _useSocials2.socials,
+    refetch = _useSocials2.refetch,
+    isSocialsLoading = _useSocials2.isLoading;
+  var _useContext8 = useContext(CampContext),
+    auth = _useContext8.auth;
+  var _useState15 = useState(false),
+    _useState16 = _slicedToArray(_useState15, 2),
+    IsLoading = _useState16[0],
+    setIsLoading = _useState16[1];
+  var _useState17 = useState(""),
+    _useState18 = _slicedToArray(_useState17, 2),
+    phoneInput = _useState18[0],
+    setPhoneInput = _useState18[1];
+  var _useState19 = useState(""),
+    _useState20 = _slicedToArray(_useState19, 2),
+    otpInput = _useState20[0],
+    setOtpInput = _useState20[1];
+  var _useState21 = useState(""),
+    _useState22 = _slicedToArray(_useState21, 2),
+    phoneCodeHash = _useState22[0],
+    setPhoneCodeHash = _useState22[1];
+  var _useState23 = useState(false),
+    _useState24 = _slicedToArray(_useState23, 2),
+    isOTPSent = _useState24[0],
+    setIsOTPSent = _useState24[1];
+  var resetState = function resetState() {
+    setIsLoading(false);
+    setPhoneInput("");
+    setOtpInput("");
+  };
+  var verifyPhoneNumber = function verifyPhoneNumber(phone) {
+    var phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+  };
+  var handleAction = /*#__PURE__*/function () {
+    var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      var res;
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
+          case 0:
+            if (!isSocialsLoading) {
+              _context4.next = 2;
+              break;
+            }
+            return _context4.abrupt("return");
+          case 2:
+            if (!isOTPSent) {
+              _context4.next = 21;
+              break;
+            }
+            if (otpInput) {
+              _context4.next = 5;
+              break;
+            }
+            return _context4.abrupt("return");
+          case 5:
+            setIsLoading(true);
+            _context4.prev = 6;
+            _context4.next = 9;
+            return auth.linkTelegram(phoneInput, otpInput, phoneCodeHash);
+          case 9:
+            refetch();
+            resetState();
+            setIsLinkingVisible(false);
+            _context4.next = 19;
+            break;
+          case 14:
+            _context4.prev = 14;
+            _context4.t0 = _context4["catch"](6);
+            resetState();
+            console.error(_context4.t0);
+            return _context4.abrupt("return");
+          case 19:
+            _context4.next = 40;
+            break;
+          case 21:
+            if (verifyPhoneNumber(phoneInput)) {
+              _context4.next = 24;
+              break;
+            }
+            // TODO: create an alert component
+            alert("Invalid phone number.");
+            return _context4.abrupt("return");
+          case 24:
+            setIsLoading(true);
+            _context4.prev = 25;
+            _context4.next = 28;
+            return auth.sendTelegramOTP(phoneInput);
+          case 28:
+            res = _context4.sent;
+            console.log(res);
+            setIsOTPSent(true);
+            setIsLoading(false);
+            setPhoneCodeHash(res.phone_code_hash);
+            _context4.next = 40;
+            break;
+          case 35:
+            _context4.prev = 35;
+            _context4.t1 = _context4["catch"](25);
+            resetState();
+            console.error(_context4.t1);
+            return _context4.abrupt("return");
+          case 40:
+          case "end":
+            return _context4.stop();
+        }
+      }, _callee4, null, [[6, 14], [25, 35]]);
+    }));
+    return function handleAction() {
+      return _ref8.apply(this, arguments);
+    };
+  }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(OTPInput, {
+    numInputs: 5,
+    onChange: setOtpInput
+  }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    value: phoneInput,
+    onChange: function onChange(e) {
+      return setPhoneInput(e.target.value);
+    },
+    type: "tel",
+    placeholder: "Enter your phone number",
+    className: styles["tiktok-input"]
+  }))))), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleAction,
+    disabled: IsLoading
+  }, !IsLoading ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : isOTPSent ? "Link" : "Send OTP" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+
+/**
+ * The BasicFlow component. Handles linking and unlinking of socials through redirecting to the appropriate OAuth flow.
+ * @returns { JSX.Element } The BasicFlow component.
+ */
+var BasicFlow = function BasicFlow() {
+  var _useContext9 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext9.setIsLinkingVisible,
+    currentlyLinking = _useContext9.currentlyLinking;
+  var _useSocials3 = useSocials(),
+    socials = _useSocials3.socials,
+    refetch = _useSocials3.refetch,
+    isSocialsLoading = _useSocials3.isLoading;
+  var _useContext10 = useContext(CampContext),
+    auth = _useContext10.auth;
+  var _useState25 = useState(false),
+    _useState26 = _slicedToArray(_useState25, 2),
+    isUnlinking = _useState26[0],
+    setIsUnlinking = _useState26[1];
+  var handleLink = /*#__PURE__*/function () {
+    var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
+          case 0:
+            if (!isSocialsLoading) {
+              _context5.next = 2;
+              break;
+            }
+            return _context5.abrupt("return");
+          case 2:
+            if (!socials[currentlyLinking]) {
+              _context5.next = 20;
+              break;
+            }
+            setIsUnlinking(true);
+            _context5.prev = 4;
+            _context5.next = 7;
+            return auth["unlink".concat(capitalize(currentlyLinking))]();
+          case 7:
+            _context5.next = 15;
+            break;
+          case 9:
+            _context5.prev = 9;
+            _context5.t0 = _context5["catch"](4);
+            setIsUnlinking(false);
+            setIsLinkingVisible(false);
+            console.error(_context5.t0);
+            return _context5.abrupt("return");
+          case 15:
+            refetch();
+            setIsLinkingVisible(false);
+            setIsUnlinking(false);
+            _context5.next = 29;
+            break;
+          case 20:
+            _context5.prev = 20;
+            auth["link".concat(capitalize(currentlyLinking))]();
+            _context5.next = 29;
+            break;
+          case 24:
+            _context5.prev = 24;
+            _context5.t1 = _context5["catch"](20);
+            setIsLinkingVisible(false);
+            console.error(_context5.t1);
+            return _context5.abrupt("return");
+          case 29:
+          case "end":
+            return _context5.stop();
+        }
+      }, _callee5, null, [[4, 9], [20, 24]]);
+    }));
+    return function handleLink() {
+      return _ref9.apply(this, arguments);
+    };
+  }();
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: styles["linking-text"]
+  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.")), /*#__PURE__*/React.createElement("button", {
+    className: styles["linking-button"],
+    onClick: handleLink,
+    disabled: isUnlinking
+  }, !isUnlinking ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
+    className: styles.spinner
+  })));
+};
+
+/**
+ * The LinkingModal component. Handles the linking and unlinking of socials.
+ * @returns { JSX.Element } The LinkingModal component.
+ */
+var LinkingModal = function LinkingModal() {
+  var _useSocials4 = useSocials(),
+    isSocialsLoading = _useSocials4.isLoading;
+  var _useContext11 = useContext(ModalContext),
+    setIsLinkingVisible = _useContext11.setIsLinkingVisible,
+    currentlyLinking = _useContext11.currentlyLinking;
+  var _useState27 = useState(null),
+    _useState28 = _slicedToArray(_useState27, 2),
+    flow = _useState28[0],
+    setFlow = _useState28[1];
+  useEffect(function () {
+    if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
+      setFlow("basic");
+    } else if (currentlyLinking === "tiktok") {
+      setFlow("tiktok");
+    } else if (currentlyLinking === "telegram") {
+      setFlow("telegram");
+    }
+  }, [currentlyLinking]);
+  var Icon = getIconBySocial(currentlyLinking);
   return /*#__PURE__*/React.createElement("div", {
     className: styles.modal,
     onClick: function onClick(e) {
       if (e.target === e.currentTarget) {
         setIsLinkingVisible(false);
       }
+    },
+    style: {
+      zIndex: 86
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: styles.container
@@ -2238,15 +2928,7 @@ var LinkingModal = function LinkingModal() {
     className: styles.header
   }, /*#__PURE__*/React.createElement("div", {
     className: styles["small-modal-icon"]
-  }, currentlyLinking === "twitter" ? /*#__PURE__*/React.createElement(TwitterIcon, null) : currentlyLinking === "discord" ? /*#__PURE__*/React.createElement(DiscordIcon, null) : currentlyLinking === "spotify" ? /*#__PURE__*/React.createElement(SpotifyIcon, null) : null)), /*#__PURE__*/React.createElement("div", {
-    className: styles["linking-text"]
-  }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.")), /*#__PURE__*/React.createElement("button", {
-    className: styles["linking-button"],
-    onClick: handleLink,
-    disabled: isUnlinking
-  }, !isUnlinking ? currentlyLinking && socials[currentlyLinking] ? "Unlink" : "Link" : /*#__PURE__*/React.createElement("div", {
-    className: styles.spinner
-  }))), /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React.createElement(Icon, null))), flow === "basic" && /*#__PURE__*/React.createElement(BasicFlow, null), flow === "tiktok" && /*#__PURE__*/React.createElement(TikTokFlow, null), flow === "telegram" && /*#__PURE__*/React.createElement(TelegramFlow, null)), /*#__PURE__*/React.createElement("a", {
     href: "https://campnetwork.xyz",
     className: styles["footer-text"],
     target: "_blank",
@@ -2262,22 +2944,25 @@ var LinkingModal = function LinkingModal() {
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-var MyCampModal = function MyCampModal(_ref7) {
-  var wcProvider = _ref7.wcProvider;
-  var _useContext7 = useContext(CampContext),
-    auth = _useContext7.auth;
-  var _useContext8 = useContext(ModalContext),
-    setIsVisible = _useContext8.setIsVisible;
+var MyCampModal = function MyCampModal(_ref10) {
+  var wcProvider = _ref10.wcProvider;
+  var _useContext12 = useContext(CampContext),
+    auth = _useContext12.auth;
+  var _useContext13 = useContext(ModalContext),
+    setIsVisible = _useContext13.setIsVisible;
   var _useConnect2 = useConnect(),
     disconnect = _useConnect2.disconnect;
-  var _useSocials2 = useSocials(),
-    socials = _useSocials2.data,
-    loading = _useSocials2.loading,
-    refetch = _useSocials2.refetch;
-  var _useState11 = useState(true),
-    _useState12 = _slicedToArray(_useState11, 2),
-    isLoadingSocials = _useState12[0],
-    setIsLoadingSocials = _useState12[1];
+  var _useSocials5 = useSocials(),
+    socials = _useSocials5.socials,
+    loading = _useSocials5.loading,
+    refetch = _useSocials5.refetch;
+  var _useState29 = useState(true),
+    _useState30 = _slicedToArray(_useState29, 2),
+    isLoadingSocials = _useState30[0],
+    setIsLoadingSocials = _useState30[1];
+  var _useLinkModal = useLinkModal(),
+    linkTikTok = _useLinkModal.linkTikTok,
+    linkTelegram = _useLinkModal.linkTelegram;
   var handleDisconnect = function handleDisconnect() {
     wcProvider === null || wcProvider === void 0 || wcProvider.disconnect();
     disconnect();
@@ -2304,7 +2989,21 @@ var MyCampModal = function MyCampModal(_ref7) {
     unlink: auth.unlinkSpotify.bind(auth),
     isConnected: socials === null || socials === void 0 ? void 0 : socials.spotify,
     icon: /*#__PURE__*/React.createElement(SpotifyIcon, null)
-  }];
+  }, {
+    name: "TikTok",
+    link: linkTikTok,
+    unlink: auth.unlinkTikTok.bind(auth),
+    isConnected: socials === null || socials === void 0 ? void 0 : socials.tiktok,
+    icon: /*#__PURE__*/React.createElement(TikTokIcon, null)
+  }, {
+    name: "Telegram",
+    link: linkTelegram,
+    unlink: auth.unlinkTelegram.bind(auth),
+    isConnected: socials === null || socials === void 0 ? void 0 : socials.telegram,
+    icon: /*#__PURE__*/React.createElement(TelegramIcon, null)
+  }].filter(function (social) {
+    return constants.AVAILABLE_SOCIALS.includes(social.name.toLowerCase());
+  });
   var connected = connectedSocials.filter(function (social) {
     return social.isConnected;
   });
@@ -2433,7 +3132,7 @@ var useLinkSocials = function useLinkSocials() {
   }
   var prototype = Object.getPrototypeOf(auth);
   var linkingProps = Object.getOwnPropertyNames(prototype).filter(function (prop) {
-    return prop.startsWith("link") || prop.startsWith("unlink");
+    return (prop.startsWith("link") || prop.startsWith("unlink")) && (constants.AVAILABLE_SOCIALS.includes(prop.slice(4).toLowerCase()) || constants.AVAILABLE_SOCIALS.includes(prop.slice(6).toLowerCase()));
   });
   var linkingFunctions = linkingProps.reduce(function (acc, prop) {
     acc[prop] = auth[prop].bind(auth);
@@ -2590,47 +3289,37 @@ var useLinkModal = function useLinkModal() {
   var handleClose = function handleClose() {
     setIsLinkingVisible(false);
   };
-  return {
-    isLinkingOpen: isLinkingVisible,
-    openTwitterModal: function openTwitterModal() {
-      return handleOpen("twitter");
-    },
-    openDiscordModal: function openDiscordModal() {
-      return handleOpen("discord");
-    },
-    openSpotifyModal: function openSpotifyModal() {
-      return handleOpen("spotify");
-    },
-    linkTwitter: function linkTwitter() {
-      return handleLink("twitter");
-    },
-    linkDiscord: function linkDiscord() {
-      return handleLink("discord");
-    },
-    linkSpotify: function linkSpotify() {
-      return handleLink("spotify");
-    },
-    unlinkTwitter: function unlinkTwitter() {
-      return handleUnlink("twitter");
-    },
-    unlinkDiscord: function unlinkDiscord() {
-      return handleUnlink("discord");
-    },
-    unlinkSpotify: function unlinkSpotify() {
-      return handleUnlink("spotify");
-    },
-    closeModal: handleClose
-  };
+  var obj = {};
+  constants.AVAILABLE_SOCIALS.forEach(function (social) {
+    obj["link".concat(social.charAt(0).toUpperCase() + social.slice(1))] = function () {
+      return handleLink(social);
+    };
+    obj["unlink".concat(social.charAt(0).toUpperCase() + social.slice(1))] = function () {
+      return handleUnlink(social);
+    };
+    obj["open".concat(social.charAt(0).toUpperCase() + social.slice(1), "Modal")] = function () {
+      return handleOpen(social);
+    };
+  });
+  return _objectSpread2(_objectSpread2({
+    isLinkingOpen: isLinkingVisible
+  }, obj), {}, {
+    closeModal: handleClose,
+    handleOpen: handleOpen
+  });
 };
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } The socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 var useSocials = function useSocials() {
   var _useContext8 = useContext(SocialsContext),
     query = _useContext8.query;
-  return query;
+  var socials = query === null || query === void 0 ? void 0 : query.data;
+  return _objectSpread2(_objectSpread2({}, query), {}, {
+    socials: socials
+  });
 };
 
 export { CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };

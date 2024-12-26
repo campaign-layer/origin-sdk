@@ -389,6 +389,118 @@ class Auth {
   }
 
   /**
+   * Link the user's TikTok account.
+   * @param {string} handle The user's TikTok handle.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  async linkTikTok(handle) {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userHandle: handle,
+          clientId: this.clientId,
+          userId: this.userId,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      if (data.message === "Request failed with status code 502") {
+        throw new APIError(
+          "TikTok service is currently unavailable, try again later"
+        );
+      } else {
+        throw new APIError(data.message || "Failed to link TikTok account");
+      }
+    }
+  }
+
+  /**
+   * Send an OTP to the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated.
+   */
+  async sendTelegramOTP(phoneNumber) {
+    if (!this.isAuthenticated)
+      throw new APIError("User needs to be authenticated");
+    if (!phoneNumber) throw new APIError("Phone number is required");
+    await this.unlinkTelegram();
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to send Telegram OTP");
+    }
+  }
+
+  /**
+   * Link the user's Telegram account.
+   * @param {string} phoneNumber The user's phone number.
+   * @param {string} otp The OTP.
+   * @param {string} phoneCodeHash The phone code hash.
+   * @returns {void}
+   * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
+   */
+  async linkTelegram(phoneNumber, otp, phoneCodeHash) {
+    if (!this.isAuthenticated)
+      throw new APIError("User needs to be authenticated");
+    if (!phoneNumber || !otp || !phoneCodeHash)
+      throw new APIError("Phone number, OTP, and phone code hash are required");
+    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/telegram/signIn-sdk`, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+        "x-client-id": this.clientId,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phone: phoneNumber,
+        code: otp,
+        phone_code_hash: phoneCodeHash,
+        userId: this.userId,
+        clientId: this.clientId,
+      }),
+    }).then((res) => res.json());
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to link Telegram account");
+    }
+  }
+
+  /**
    * Unlink the user's Twitter account.
    */
   async unlinkTwitter() {
@@ -472,6 +584,60 @@ class Auth {
       return data.data;
     } else {
       throw new APIError(data.message || "Failed to unlink Spotify account");
+    }
+  }
+
+  async unlinkTikTok() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: this.userId,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to unlink TikTok account");
+    }
+  }
+
+  async unlinkTelegram() {
+    if (!this.isAuthenticated) {
+      throw new APIError("User needs to be authenticated");
+    }
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: this.userId,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return data.data;
+    } else {
+      throw new APIError(data.message || "Failed to unlink Telegram account");
     }
   }
 }
