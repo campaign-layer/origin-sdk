@@ -1,5 +1,5 @@
-import { fetchData, buildURL, baseSpotifyURL as baseURL } from "./utils";
-import { APIError } from "./errors";
+import { fetchData, buildURL, baseSpotifyURL as baseURL } from "../utils";
+import { APIError } from "../errors";
 
 /**
  * The SpotifyAPI class.

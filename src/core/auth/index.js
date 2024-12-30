@@ -1,7 +1,7 @@
-import { APIError } from "../errors";
+import { APIError } from "../../errors";
 import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
-import constants from "../constants";
+import constants from "../../constants";
 import { providerStore } from "./viem/providers";
 
 const createRedirectUriObject = (redirectUri) => {

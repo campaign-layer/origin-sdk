@@ -11,7 +11,7 @@ import { ModalContext } from "../context/ModalContext.jsx";
 import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext.jsx";
 import { formatAddress, capitalize } from "../../utils.js";
-import { useWalletConnectProvider } from "../../auth/viem/walletconnect.js";
+import { useWalletConnectProvider } from "../../core/auth/viem/walletconnect.js";
 import { useAccount, useConnectorClient } from "wagmi";
 import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils.js";
 import { CampButton, ProviderButton, ConnectorButton } from "./buttons.jsx";

@@ -1,5 +1,5 @@
-import { fetchData, buildURL, baseTwitterURL as baseURL } from "./utils";
-import { APIError } from "./errors";
+import { fetchData, buildURL, baseTwitterURL as baseURL } from "../utils";
+import { APIError } from "../errors";
 
 /**
  * The TwitterAPI class.

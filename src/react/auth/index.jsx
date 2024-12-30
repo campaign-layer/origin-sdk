@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState, useSyncExternalStore } from "react";
 import { CampContext, CampProvider } from "../context/CampContext.jsx";
 import { ModalContext } from "../context/ModalContext.jsx";
-import { providerStore } from "../../auth/viem/providers.js";
+import { providerStore } from "../../core/auth/viem/providers.js";
 import { CampModal, MyCampModal } from "./modals.jsx";
-import { Auth } from "../../auth/index.js";
+import { Auth } from "../../core/auth/index.js";
 import { SocialsContext } from "../context/SocialsContext.jsx";
 import { LinkButton } from "./buttons.jsx";
 import constants from "../../constants.js";

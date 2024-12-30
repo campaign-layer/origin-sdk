@@ -1,5 +1,5 @@
 import React, { useState, useContext, createContext } from "react";
-import { Auth } from "../../auth/index.js";
+import { Auth } from "../../core/auth/index.js";
 import { ModalProvider } from "./ModalContext.jsx";
 import { WagmiContext } from "wagmi";
 import { SocialsProvider } from "./SocialsContext.jsx";
