@@ -3136,7 +3136,9 @@ var useLinkSocials = function useLinkSocials() {
   var linkingFunctions = linkingProps.reduce(function (acc, prop) {
     acc[prop] = auth[prop].bind(auth);
     return acc;
-  }, {});
+  }, {
+    sendTelegramOTP: auth.sendTelegramOTP.bind(auth)
+  });
   return linkingFunctions;
 };
 

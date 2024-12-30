@@ -73,10 +73,15 @@ export const useLinkSocials = () => {
         constants.AVAILABLE_SOCIALS.includes(prop.slice(6).toLowerCase()))
   );
 
-  const linkingFunctions = linkingProps.reduce((acc, prop) => {
-    acc[prop] = auth[prop].bind(auth);
-    return acc;
-  }, {});
+  const linkingFunctions = linkingProps.reduce(
+    (acc, prop) => {
+      acc[prop] = auth[prop].bind(auth);
+      return acc;
+    },
+    {
+      sendTelegramOTP: auth.sendTelegramOTP.bind(auth),
+    }
+  );
 
   return linkingFunctions;
 };
@@ -208,7 +213,7 @@ export const useLinkModal = () => {
   const handleClose = () => {
     setIsLinkingVisible(false);
   };
-  
+
   const obj = {};
   constants.AVAILABLE_SOCIALS.forEach((social) => {
     obj[`link${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
