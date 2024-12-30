@@ -219,6 +219,40 @@ const tracks = await spotify.fetchTracksInPlaylist("1234567890", "1234567890");
 const user = await spotify.fetchUserByWalletAddress("0x1234567890");
 ```
 
+### TikTokAPI
+
+The TikTokAPI class is the entry point for fetching user TikTok data from the Auth Hub. It requires an API key to be instantiated.
+
+**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Camp SDK.**
+
+#### Constructor
+
+`apiKey` - The API key of your app.
+
+```js
+const tiktok = new TikTokAPI({
+  apiKey: string,
+});
+```
+
+#### Methods
+
+##### fetchUserByUsername
+
+`fetchUserByUsername(tiktokUserName: string)`
+
+```js
+const user = await tiktok.fetchUserByUsername("jack");
+```
+
+##### fetchVideoById
+
+`fetchVideoById(userHandle: string, videoId: string)`
+
+```js
+const video = await tiktok.fetchVideo("jack", "1234567890");
+```
+
 ## Auth
 
 The Auth class is the entry point for authenticating users with the Camp SDK. It requires a clientId to be instantiated.
@@ -622,6 +656,8 @@ function App() {
       <LinkButton social="twitter" />
       <LinkButton social="discord" variant="icon" />
       <LinkButton social="spotify" theme="camp" />
+      <LinkButton social="tiktok" variant="icon" theme="camp" />
+      <LinkButton social="telegram" />
     </div>
   );
 }
@@ -842,12 +878,18 @@ It returns the following properties and functions:
 - `openTwitterModal` - `() => void`
 - `openDiscordModal` - `() => void`
 - `openSpotifyModal` - `() => void`
+- `openTiktokModal` - `() => void`
+- `openTelegramModal` - `() => void`
 - `linkTwitter` - `() => void`
 - `linkDiscord` - `() => void`
 - `linkSpotify` - `() => void`
+- `linkTiktok` - `() => void`
+- `linkTelegram` - `() => void`
 - `unlinkTwitter` - `() => void`
 - `unlinkDiscord` - `() => void`
 - `unlinkSpotify` - `() => void`
+- `unlinkTiktok` - `() => void`
+- `unlinkTelegram` - `() => void`
 - `closeModal` - `() => void`
 
 The difference between the `openXModal` functions and the `linkX / unlinkX` functions is that the former opens the modal regardless of the user's linking state, allowing them to either link or unlink their account, while the latter only opens the specified modal if the user's linking state allows for it.
