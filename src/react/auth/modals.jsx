@@ -531,12 +531,7 @@ const TelegramFlow = () => {
       }
       setIsLoading(true);
       try {
-        // setTimeout(() => {
-        //   setIsOTPSent(true);
-        //   setIsLoading(false);
-        // }, 1000);
         const res = await auth.sendTelegramOTP(phoneInput);
-        console.log(res);
         setIsOTPSent(true);
         setIsLoading(false);
         setPhoneCodeHash(res.phone_code_hash);
@@ -561,21 +556,14 @@ const TelegramFlow = () => {
               <div>
                 <span>Enter the OTP sent to your phone number.</span>
                 <div>
-                  {/* TODO: Add OTP input */}
-                  {/* <input
-                    value={otpInput}
-                    onChange={(e) => setOtpInput(e.target.value)}
-                    type="text"
-                    placeholder="Enter OTP"
-                    className={styles["tiktok-input"]}
-                  /> */}
                   <OTPInput numInputs={5} onChange={setOtpInput} />
                 </div>
               </div>
             ) : (
               <div>
                 <b>{window.location.host}</b> is requesting to link your{" "}
-                {capitalize(currentlyLinking)} account.
+                {capitalize(currentlyLinking)} account. <br/>
+                <span>This will only work if you have 2FA disabled on your Telegram account.</span>
                 <div>
                   <input
                     value={phoneInput}

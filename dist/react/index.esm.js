@@ -2727,7 +2727,7 @@ var TelegramFlow = function TelegramFlow() {
             console.error(_context4.t0);
             return _context4.abrupt("return");
           case 19:
-            _context4.next = 40;
+            _context4.next = 39;
             break;
           case 21:
             if (verifyPhoneNumber(phoneInput)) {
@@ -2744,23 +2744,22 @@ var TelegramFlow = function TelegramFlow() {
             return auth.sendTelegramOTP(phoneInput);
           case 28:
             res = _context4.sent;
-            console.log(res);
             setIsOTPSent(true);
             setIsLoading(false);
             setPhoneCodeHash(res.phone_code_hash);
-            _context4.next = 40;
+            _context4.next = 39;
             break;
-          case 35:
-            _context4.prev = 35;
+          case 34:
+            _context4.prev = 34;
             _context4.t1 = _context4["catch"](25);
             resetState();
             console.error(_context4.t1);
             return _context4.abrupt("return");
-          case 40:
+          case 39:
           case "end":
             return _context4.stop();
         }
-      }, _callee4, null, [[6, 14], [25, 35]]);
+      }, _callee4, null, [[6, 14], [25, 34]]);
     }));
     return function handleAction() {
       return _ref8.apply(this, arguments);
@@ -2771,7 +2770,7 @@ var TelegramFlow = function TelegramFlow() {
   }, currentlyLinking && socials[currentlyLinking] ? /*#__PURE__*/React.createElement("div", null, "Your ", capitalize(currentlyLinking), " account is currently linked.") : /*#__PURE__*/React.createElement("div", null, isOTPSent ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", null, "Enter the OTP sent to your phone number."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(OTPInput, {
     numInputs: 5,
     onChange: setOtpInput
-  }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account.", /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+  }))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, window.location.host), " is requesting to link your", " ", capitalize(currentlyLinking), " account. ", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "This will only work if you have 2FA disabled on your Telegram account."), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
     value: phoneInput,
     onChange: function onChange(e) {
       return setPhoneInput(e.target.value);
