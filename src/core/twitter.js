@@ -206,6 +206,4 @@ class TwitterAPI {
   }
 }
 
-// module.exports = TwitterAPI;
-
 export { TwitterAPI };

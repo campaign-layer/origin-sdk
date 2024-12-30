@@ -55,3 +55,5 @@ class TikTokAPI {
     }
   }
 }
+
+export { TikTokAPI };
