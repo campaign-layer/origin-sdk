@@ -446,6 +446,35 @@ The `linkSpotify` method redirects the user to the Spotify OAuth flow to link th
 auth.linkSpotify();
 ```
 
+#### linkTikTok
+
+`linkTikTok(handle: string) => Promise<void>`
+
+The `linkTikTok` method links the provided TikTok handle to the Auth Hub.
+
+```js
+auth.linkTikTok("tiktokhandle");
+```
+
+#### sendTelegramOTP
+
+`sendTelegramOTP(phoneNumber: string) => Promise<void>`
+The `sendTelegramOTP` method sends an OTP to the provided phone number via Telegram. The OTP can be used via the `linkTelegram` method to link the user's Telegram account to the Auth Hub.
+
+```js
+const { phone_code_hash } = await auth.sendTelegramOTP("+1234567890");
+```
+
+#### linkTelegram
+
+`linkTelegram(phoneNumber: string, otp: string, phoneCodeHash: string) => Promise<void>`
+
+The `linkTelegram` method links the provided phone number to the Auth Hub using the OTP and phone code hash received from the `sendTelegramOTP` method.
+
+```js
+await auth.linkTelegram("+1234567890", "123456", "abc123");
+```
+---
 #### unlinkTwitter
 
 `unlinkTwitter() => Promise<void>`
@@ -475,6 +504,26 @@ The `unlinkSpotify` method unlinks the user's Spotify account from the Auth Hub.
 ```js
 await auth.unlinkSpotify();
 ```
+
+#### unlinkTikTok
+
+`unlinkTikTok() => Promise<void>`
+
+The `unlinkTikTok` method unlinks the user's TikTok account from the Auth Hub.
+
+```js
+await auth.unlinkTikTok();
+```
+
+#### unlinkTelegram
+
+`unlinkTelegram() => Promise<void>`
+The `unlinkTelegram` method unlinks the user's Telegram account from the Auth Hub.
+
+```js
+await auth.unlinkTelegram();
+```
+
 
 # React
 
@@ -809,9 +858,14 @@ function App() {
     linkTwitter,
     linkDiscord,
     linkSpotify,
+    linkTiktok,
+    linkTelegram,
+    sendTelegramOTP,
     unlinkTwitter,
     unlinkDiscord,
     unlinkSpotify,
+    unlinkTiktok,
+    unlinkTelegram,
   } = useLinkSocials();
 
   return (
@@ -819,9 +873,14 @@ function App() {
       <button onClick={linkTwitter}>Link Twitter</button>
       <button onClick={linkDiscord}>Link Discord</button>
       <button onClick={linkSpotify}>Link Spotify</button>
+      <button onClick={() => linkTiktok("tiktokhandle")}>Link TikTok</button>
+      <button onClick={() => sendTelegramOTP("+1234567890")}>Send Telegram OTP</button>
+      <button onClick={() => linkTelegram("+1234567890", "123456", "abc123")}>Link Telegram</button>
       <button onClick={unlinkTwitter}>Unlink Twitter</button>
       <button onClick={unlinkDiscord}>Unlink Discord</button>
       <button onClick={unlinkSpotify}>Unlink Spotify</button>
+      <button onClick={unlinkTiktok}>Unlink TikTok</button>
+      <button onClick={unlinkTelegram}>Unlink Telegram</button>
     </div>
   );
 }
