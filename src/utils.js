@@ -56,6 +56,8 @@ const baseTwitterURL =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
 const baseSpotifyURL =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
+const baseTikTokURL =
+  "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/tiktok";
 
 const formatAddress = (address, n = 8) => {
   return `${address.slice(0, n)}...${address.slice(-n)}`;
@@ -71,6 +73,7 @@ export {
   buildURL,
   baseTwitterURL,
   baseSpotifyURL,
+  baseTikTokURL,
   formatAddress,
   capitalize,
 };
