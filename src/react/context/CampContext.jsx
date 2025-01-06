@@ -3,6 +3,7 @@ import { Auth } from "../../core/auth/index.js";
 import { ModalProvider } from "./ModalContext.jsx";
 import { WagmiContext } from "wagmi";
 import { SocialsProvider } from "./SocialsContext.jsx";
+import { ToastProvider } from "../toasts.jsx";
 
 /**
  * CampContext
@@ -42,7 +43,9 @@ const CampProvider = ({ clientId, redirectUri, children }) => {
       }}
     >
       <SocialsProvider>
-        <ModalProvider>{children}</ModalProvider>
+        <ToastProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </ToastProvider>
       </SocialsProvider>
     </CampContext.Provider>
   );

@@ -26,6 +26,7 @@ import {
   TelegramIcon,
 } from "./icons.jsx";
 import constants from "../../constants.js";
+import { useToast } from "../toasts.jsx";
 
 /**
  * The Auth modal component.
@@ -496,6 +497,7 @@ const TelegramFlow = () => {
   const [otpInput, setOtpInput] = useState("");
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
   const [isOTPSent, setIsOTPSent] = useState(false);
+  const toast = useToast();
 
   const resetState = () => {
     setIsLoading(false);
@@ -525,8 +527,7 @@ const TelegramFlow = () => {
       }
     } else {
       if (!verifyPhoneNumber(phoneInput)) {
-        // TODO: create an alert component
-        alert("Invalid phone number.");
+        toast("Invalid phone number, it should be in the format +1234567890", "warning", 5000);
         return;
       }
       setIsLoading(true);

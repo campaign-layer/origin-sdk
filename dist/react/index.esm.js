@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
+import React, { createContext, useState, useContext, useRef, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
@@ -1593,6 +1593,127 @@ var SocialsProvider = function SocialsProvider(_ref) {
   }, children);
 };
 
+function styleInject(css, ref) {
+  if ( ref === void 0 ) ref = {};
+  var insertAt = ref.insertAt;
+
+  if (!css || typeof document === 'undefined') { return; }
+
+  var head = document.head || document.getElementsByTagName('head')[0];
+  var style = document.createElement('style');
+  style.type = 'text/css';
+
+  if (insertAt === 'top') {
+    if (head.firstChild) {
+      head.insertBefore(style, head.firstChild);
+    } else {
+      head.appendChild(style);
+    }
+  } else {
+    head.appendChild(style);
+  }
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css;
+  } else {
+    style.appendChild(document.createTextNode(css));
+  }
+}
+
+var css_248z$2 = ".toasts-module_toast-container__Bhoiq{bottom:10px;display:flex;flex-direction:column-reverse;gap:10px;position:fixed;right:10px;z-index:1000}.toasts-module_toast__C-fnX{word-wrap:break-word;border-radius:5px;box-shadow:0 2px 10px rgba(0,0,0,.1);color:#fff;cursor:pointer;font-size:14px;max-width:300px;opacity:.9;padding:10px 20px;position:relative}.toasts-module_toast-info__ho5FH{background-color:#007bff}.toasts-module_toast-warning__KTUFG{background-color:#cc4e02}.toasts-module_toast-error__-y03G{background-color:#dc3545}.toasts-module_toast-success__qgwDJ{background-color:#28a745}.toasts-module_toast-enter__Gduwi{animation:toasts-module_toast-in__uFYoe .3s forwards}.toasts-module_toast-exit__obsng{animation:toasts-module_toast-out__-c3s6 .3s forwards}@keyframes toasts-module_toast-in__uFYoe{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes toasts-module_toast-out__-c3s6{0%{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(20px)}}";
+var styles$1 = {"toast-container":"toasts-module_toast-container__Bhoiq","toast":"toasts-module_toast__C-fnX","toast-info":"toasts-module_toast-info__ho5FH","toast-warning":"toasts-module_toast-warning__KTUFG","toast-error":"toasts-module_toast-error__-y03G","toast-success":"toasts-module_toast-success__qgwDJ","toast-enter":"toasts-module_toast-enter__Gduwi","toast-in":"toasts-module_toast-in__uFYoe","toast-exit":"toasts-module_toast-exit__obsng","toast-out":"toasts-module_toast-out__-c3s6"};
+styleInject(css_248z$2);
+
+var ToastContext = /*#__PURE__*/React.createContext();
+var ToastProvider = function ToastProvider(_ref) {
+  var children = _ref.children;
+  var _useState = useState([]),
+    _useState2 = _slicedToArray(_useState, 2),
+    toasts = _useState2[0],
+    setToasts = _useState2[1];
+  var timers = useRef({});
+  var remainingTimes = useRef({});
+  var startTimes = useRef({});
+  var isHovering = useRef(false);
+  var addToast = function addToast(message) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "info";
+    var duration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3000;
+    var id = Date.now();
+    setToasts(function (prevToasts) {
+      return [].concat(_toConsumableArray(prevToasts), [{
+        id: id,
+        message: message,
+        type: type,
+        isVisible: true
+      }]);
+    });
+    remainingTimes.current[id] = duration;
+    startTimes.current[id] = Date.now();
+    timers.current[id] = setTimeout(function () {
+      return removeToast(id);
+    }, duration);
+  };
+  var removeToast = function removeToast(id) {
+    setToasts(function (prevToasts) {
+      return prevToasts.map(function (toast) {
+        return toast.id === Number(id) ? _objectSpread2(_objectSpread2({}, toast), {}, {
+          isVisible: false
+        }) : toast;
+      });
+    });
+    setTimeout(function () {
+      setToasts(function (prevToasts) {
+        return prevToasts.filter(function (toast) {
+          return toast.id !== Number(id);
+        });
+      });
+      delete timers.current[id];
+      delete remainingTimes.current[id];
+      delete startTimes.current[id];
+    }, 300);
+  };
+  var handleMouseEnter = function handleMouseEnter() {
+    isHovering.current = true;
+    Object.keys(timers.current).forEach(function (id) {
+      clearTimeout(timers.current[id]);
+      remainingTimes.current[id] -= Date.now() - startTimes.current[id];
+    });
+  };
+  var handleMouseLeave = function handleMouseLeave() {
+    isHovering.current = false;
+    Object.keys(remainingTimes.current).forEach(function (id) {
+      if (remainingTimes.current[id] > 0) {
+        startTimes.current[id] = Date.now();
+        timers.current[id] = setTimeout(function () {
+          return removeToast(id);
+        }, remainingTimes.current[id]);
+      }
+    });
+  };
+  return /*#__PURE__*/React.createElement(ToastContext.Provider, {
+    value: addToast
+  }, children, /*#__PURE__*/createPortal(/*#__PURE__*/React.createElement("div", {
+    className: styles$1["toast-container"],
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave
+  }, toasts.map(function (toast) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: toast.id,
+      className: "".concat(styles$1.toast, " ").concat(styles$1["toast-".concat(toast.type)], " ").concat(toast.isVisible ? styles$1["toast-enter"] : styles$1["toast-exit"]),
+      onClick: function onClick() {
+        return removeToast(toast.id);
+      }
+    }, toast.message);
+  })), document.body));
+};
+var useToast = function useToast() {
+  var context = React.useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+};
+
 /**
  * CampContext
  * @type {React.Context}
@@ -1635,35 +1756,8 @@ var CampProvider = function CampProvider(_ref) {
       setAuth: setAuth,
       wagmiAvailable: wagmiContext !== undefined
     }
-  }, /*#__PURE__*/React.createElement(SocialsProvider, null, /*#__PURE__*/React.createElement(ModalProvider, null, children)));
+  }, /*#__PURE__*/React.createElement(SocialsProvider, null, /*#__PURE__*/React.createElement(ToastProvider, null, /*#__PURE__*/React.createElement(ModalProvider, null, children))));
 };
-
-function styleInject(css, ref) {
-  if ( ref === void 0 ) ref = {};
-  var insertAt = ref.insertAt;
-
-  if (!css || typeof document === 'undefined') { return; }
-
-  var head = document.head || document.getElementsByTagName('head')[0];
-  var style = document.createElement('style');
-  style.type = 'text/css';
-
-  if (insertAt === 'top') {
-    if (head.firstChild) {
-      head.insertBefore(style, head.firstChild);
-    } else {
-      head.appendChild(style);
-    }
-  } else {
-    head.appendChild(style);
-  }
-
-  if (style.styleSheet) {
-    style.styleSheet.cssText = css;
-  } else {
-    style.appendChild(document.createTextNode(css));
-  }
-}
 
 var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}.auth-module_otp-input-container__B2NH6{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}.auth-module_otp-input__vjImt{border:1px solid #ccc;border-radius:.5rem;font-size:1.5rem;height:2.5rem;outline:none;text-align:center;transition:border-color .2s;width:2rem}.auth-module_otp-input__vjImt:focus{border-color:#ff6f00}";
 var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG","otp-input-container":"auth-module_otp-input-container__B2NH6","otp-input":"auth-module_otp-input__vjImt"};
@@ -2679,6 +2773,7 @@ var TelegramFlow = function TelegramFlow() {
     _useState24 = _slicedToArray(_useState23, 2),
     isOTPSent = _useState24[0],
     setIsOTPSent = _useState24[1];
+  var toast = useToast();
   var resetState = function resetState() {
     setIsLoading(false);
     setPhoneInput("");
@@ -2734,8 +2829,7 @@ var TelegramFlow = function TelegramFlow() {
               _context4.next = 24;
               break;
             }
-            // TODO: create an alert component
-            alert("Invalid phone number.");
+            toast("Invalid phone number, it should be in the format +1234567890", "warning", 5000);
             return _context4.abrupt("return");
           case 24:
             setIsLoading(true);
