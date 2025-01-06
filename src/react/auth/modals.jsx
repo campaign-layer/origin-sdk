@@ -497,12 +497,18 @@ const TelegramFlow = () => {
   const [otpInput, setOtpInput] = useState("");
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
   const [isOTPSent, setIsOTPSent] = useState(false);
+  const [isPhoneValid, setIsPhoneValid] = useState(true);
   const toast = useToast();
 
   const resetState = () => {
     setIsLoading(false);
     setPhoneInput("");
     setOtpInput("");
+  };
+
+  const handlePhoneInput = (e) => {
+    setPhoneInput(e.target.value);
+    setIsPhoneValid(verifyPhoneNumber(e.target.value) || !e.target.value);
   };
 
   const verifyPhoneNumber = (phone) => {
@@ -527,7 +533,11 @@ const TelegramFlow = () => {
       }
     } else {
       if (!verifyPhoneNumber(phoneInput)) {
-        toast("Invalid phone number, it should be in the format +1234567890", "warning", 5000);
+        toast(
+          "Invalid phone number, it should be in the format +1234567890",
+          "warning",
+          5000
+        );
         return;
       }
       setIsLoading(true);
@@ -563,15 +573,20 @@ const TelegramFlow = () => {
             ) : (
               <div>
                 <b>{window.location.host}</b> is requesting to link your{" "}
-                {capitalize(currentlyLinking)} account. <br/>
-                <span>This will only work if you have 2FA disabled on your Telegram account.</span>
+                {capitalize(currentlyLinking)} account. <br />
+                <span>
+                  This will only work if you have 2FA disabled on your Telegram
+                  account.
+                </span>
                 <div>
                   <input
                     value={phoneInput}
-                    onChange={(e) => setPhoneInput(e.target.value)}
+                    onChange={handlePhoneInput}
                     type="tel"
                     placeholder="Enter your phone number"
-                    className={styles["tiktok-input"]}
+                    className={`${styles["tiktok-input"]} ${
+                      !isPhoneValid ? styles["invalid"] : ""
+                    }`}
                   />
                 </div>
               </div>
@@ -582,7 +597,12 @@ const TelegramFlow = () => {
       <button
         className={styles["linking-button"]}
         onClick={handleAction}
-        disabled={IsLoading}
+        disabled={
+          IsLoading ||
+          (!isPhoneValid && !isOTPSent) ||
+          (!phoneInput && !isOTPSent) ||
+          (isOTPSent && otpInput.length < 5)
+        }
       >
         {!IsLoading ? (
           currentlyLinking && socials[currentlyLinking] ? (

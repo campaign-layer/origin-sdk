@@ -450,6 +450,11 @@ input.tiktok-input {
   width: 100%;
 }
 
+input.tiktok-input.invalid {
+  border-color: #dc3545;
+  outline-color: #dc3545;
+}
+
 .otp-input-container {
   display: flex;
   justify-content: center;
