@@ -2789,7 +2789,7 @@ var TelegramFlow = function TelegramFlow() {
   };
   var verifyPhoneNumber = function verifyPhoneNumber(phone) {
     var phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
-    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/[-()]/g, ""));
   };
   var handleAction = /*#__PURE__*/function () {
     var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {

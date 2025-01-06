@@ -513,7 +513,7 @@ const TelegramFlow = () => {
 
   const verifyPhoneNumber = (phone) => {
     const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
-    return phoneRegex.test(phone.replace(/\s/g, "").replace(/-/g, ""));
+    return phoneRegex.test(phone.replace(/\s/g, "").replace(/[-()]/g, ""));
   };
 
   const handleAction = async () => {
