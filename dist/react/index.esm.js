@@ -3171,11 +3171,6 @@ var MyCampModal = function MyCampModal(_ref10) {
   }, "Powered by Camp Network"));
 };
 
-/**
- * Returns the instance of the Auth class.
- * @returns { Auth } The instance of the Auth class.
- * @example
- */
 var getAuthProperties = function getAuthProperties(auth) {
   var prototype = Object.getPrototypeOf(auth);
   var properties = Object.getOwnPropertyNames(prototype);
@@ -3205,15 +3200,34 @@ var getAuthVariables = function getAuthVariables(auth) {
   }
   return object;
 };
+
+/**
+ * Returns the Auth instance provided by the context.
+ * @returns { Auth } The Auth instance provided by the context.
+ * @example
+ * const auth = useAuth();
+ * auth.connect();
+ */
 var useAuth = function useAuth() {
   var _useContext = useContext(CampContext),
     auth = _useContext.auth;
-  if (!auth) {
-    return null;
-  }
-  var properties = getAuthProperties(auth);
-  var variables = getAuthVariables(auth);
-  return _objectSpread2(_objectSpread2({}, variables), properties);
+  var _useState = useState(getAuthProperties(auth)),
+    _useState2 = _slicedToArray(_useState, 2),
+    authProperties = _useState2[0],
+    setAuthProperties = _useState2[1];
+  var _useState3 = useState(getAuthVariables(auth)),
+    _useState4 = _slicedToArray(_useState3, 2),
+    authVariables = _useState4[0],
+    setAuthVariables = _useState4[1];
+  var updateAuth = function updateAuth() {
+    setAuthVariables(getAuthVariables(auth));
+    setAuthProperties(getAuthProperties(auth));
+  };
+  useEffect(function () {
+    auth.on("state", updateAuth);
+    auth.on("provider", updateAuth);
+  }, [auth]);
+  return _objectSpread2(_objectSpread2({}, authVariables), authProperties);
 };
 
 /**
@@ -3250,15 +3264,15 @@ var useProvider = function useProvider() {
   var _auth$viem, _auth$viem2;
   var _useContext3 = useContext(CampContext),
     auth = _useContext3.auth;
-  var _useState = useState({
+  var _useState5 = useState({
       provider: (_auth$viem = auth.viem) === null || _auth$viem === void 0 ? void 0 : _auth$viem.transport,
       info: {
         name: (_auth$viem2 = auth.viem) === null || _auth$viem2 === void 0 || (_auth$viem2 = _auth$viem2.transport) === null || _auth$viem2 === void 0 ? void 0 : _auth$viem2.name
       }
     }),
-    _useState2 = _slicedToArray(_useState, 2),
-    provider = _useState2[0],
-    setProvider = _useState2[1];
+    _useState6 = _slicedToArray(_useState5, 2),
+    provider = _useState6[0],
+    setProvider = _useState6[1];
   useEffect(function () {
     auth.on("provider", function (_ref) {
       var provider = _ref.provider,
@@ -3283,14 +3297,14 @@ var useProvider = function useProvider() {
 var useAuthState = function useAuthState() {
   var _useContext4 = useContext(CampContext),
     auth = _useContext4.auth;
-  var _useState3 = useState(auth.isAuthenticated),
-    _useState4 = _slicedToArray(_useState3, 2),
-    authenticated = _useState4[0],
-    setAuthenticated = _useState4[1];
-  var _useState5 = useState(false),
-    _useState6 = _slicedToArray(_useState5, 2),
-    loading = _useState6[0],
-    setLoading = _useState6[1];
+  var _useState7 = useState(auth.isAuthenticated),
+    _useState8 = _slicedToArray(_useState7, 2),
+    authenticated = _useState8[0],
+    setAuthenticated = _useState8[1];
+  var _useState9 = useState(false),
+    _useState10 = _slicedToArray(_useState9, 2),
+    loading = _useState10[0],
+    setLoading = _useState10[1];
   useEffect(function () {
     auth.on("state", function (state) {
       setAuthenticated(state === "authenticated");

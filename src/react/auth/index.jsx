@@ -11,11 +11,7 @@ import constants from "../../constants.js";
 export { CampModal, MyCampModal };
 export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
-/**
- * Returns the instance of the Auth class.
- * @returns { Auth } The instance of the Auth class.
- * @example
- */
+
 const getAuthProperties = (auth) => {
   const prototype = Object.getPrototypeOf(auth);
   const properties = Object.getOwnPropertyNames(prototype);
@@ -41,16 +37,30 @@ const getAuthVariables = (auth) => {
   return object;
 };
 
+/**
+ * Returns the Auth instance provided by the context.
+ * @returns { Auth } The Auth instance provided by the context.
+ * @example
+ * const auth = useAuth();
+ * auth.connect();
+ */
 export const useAuth = () => {
   const { auth } = useContext(CampContext);
-  if (!auth) {
-    return null;
-  }
 
-  const properties = getAuthProperties(auth);
-  const variables = getAuthVariables(auth);
+  const [authProperties, setAuthProperties] = useState(getAuthProperties(auth));
+  const [authVariables, setAuthVariables] = useState(getAuthVariables(auth));
 
-  return { ...variables, ...properties };
+  const updateAuth = () => {
+    setAuthVariables(getAuthVariables(auth));
+    setAuthProperties(getAuthProperties(auth));
+  };
+
+  useEffect(() => {
+    auth.on("state", updateAuth);
+    auth.on("provider", updateAuth);
+  }, [auth]);
+
+  return { ...authVariables, ...authProperties };
 };
 
 /**
