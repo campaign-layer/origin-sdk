@@ -11,7 +11,7 @@ function App() {
   const {
     data: socials,
     error: socialsError,
-    loading: socialsLoading,
+    isLoading: socialsLoading,
     refetch: refetchSocials,
   } = useSocials();
 
@@ -19,11 +19,11 @@ function App() {
   const handleUnlinkTwitter = async () => {
     try {
       await unlinkTwitter();
-      await refetchSocials();
+      refetchSocials();
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   return (
     <div>
       <CampModal />

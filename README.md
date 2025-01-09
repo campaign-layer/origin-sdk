@@ -831,7 +831,7 @@ The `useSocials` hook returns the state of the user's linked social accounts.
 import { useSocials } from "@campnetwork/sdk/react";
 
 function App() {
-  const { data, error, loading } = useSocials();
+  const { data, error, isLoading } = useSocials();
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
