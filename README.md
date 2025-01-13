@@ -669,13 +669,15 @@ function App() {
 
 Users can be authenticated either via the Camp Modal as outlined above or programmatically by calling the `connect` method on the Auth instance.
 
-### Usage with Privy and Appkit
+### Usage with third party providers (Privy, Appkit, Magic, etc.)
 
-The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. It will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider.
+The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. When using wagmi, it will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider. Otherwise, you can set up the default provider to be whatever provider you are using.
 
 [Example usage with Privy](./examples/client-side/react/privy-connector/)
 
 [Example usage with Appkit](./examples/client-side/react/appkit-connector/)
+
+[Example usage with magic.link](./examples/client-side/react/magic-link-connector/)
 
 After the user has authenticated, you can use the provided hooks to fetch user data and listen for events.
 
