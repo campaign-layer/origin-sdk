@@ -7,7 +7,6 @@
       "import": "./dist/core.esm.js",
       "require": "./dist/core.cjs"
     },
-    "./react/auth": "./dist/react/index.esm.js",
     "./react": "./dist/react/index.esm.js"
   },
   "scripts": {
