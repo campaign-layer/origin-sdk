@@ -1,17 +1,32 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import styles from "./toasts.module.css";
 
-const ToastContext = React.createContext();
+interface Toast {
+  id: number;
+  message: string;
+  type: "info" | "success" | "error" | "warning";
+  isVisible: boolean;
+}
 
-export const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
-  const timers = useRef({});
-  const remainingTimes = useRef({});
-  const startTimes = useRef({});
-  const isHovering = useRef(false);
+interface ToastContextProps {
+  addToast: (message: string, type?: "info" | "success" | "error" | "warning", duration?: number) => void;
+}
 
-  const addToast = (message, type = "info", duration = 3000) => {
+const ToastContext = React.createContext<ToastContextProps | undefined>(undefined);
+
+interface ToastProviderProps {
+  children: ReactNode;
+}
+
+export const ToastProvider = ({ children }: ToastProviderProps) => {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const timers = useRef<Record<number, NodeJS.Timeout>>({});
+  const remainingTimes = useRef<Record<number, number>>({});
+  const startTimes = useRef<Record<number, number>>({});
+  const isHovering = useRef<boolean>(false);
+
+  const addToast = (message: string, type: "info" | "success" | "error" | "warning" = "info", duration: number = 3000) => {
     const id = Date.now();
     setToasts((prevToasts) => [
       ...prevToasts,
@@ -22,15 +37,15 @@ export const ToastProvider = ({ children }) => {
     timers.current[id] = setTimeout(() => removeToast(id), duration);
   };
 
-  const removeToast = (id) => {
+  const removeToast = (id: number) => {
     setToasts((prevToasts) =>
       prevToasts.map((toast) =>
-        toast.id === Number(id) ? { ...toast, isVisible: false } : toast
+        toast.id === id ? { ...toast, isVisible: false } : toast
       )
     );
     setTimeout(() => {
       setToasts((prevToasts) =>
-        prevToasts.filter((toast) => toast.id !== Number(id))
+        prevToasts.filter((toast) => toast.id !== id)
       );
       delete timers.current[id];
       delete remainingTimes.current[id];
@@ -41,26 +56,26 @@ export const ToastProvider = ({ children }) => {
   const handleMouseEnter = () => {
     isHovering.current = true;
     Object.keys(timers.current).forEach((id) => {
-      clearTimeout(timers.current[id]);
-      remainingTimes.current[id] -= Date.now() - startTimes.current[id];
+      clearTimeout(timers.current[Number(id)]);
+      remainingTimes.current[Number(id)] -= Date.now() - startTimes.current[Number(id)];
     });
   };
 
   const handleMouseLeave = () => {
     isHovering.current = false;
     Object.keys(remainingTimes.current).forEach((id) => {
-      if (remainingTimes.current[id] > 0) {
-        startTimes.current[id] = Date.now();
-        timers.current[id] = setTimeout(
-          () => removeToast(id),
-          remainingTimes.current[id]
+      if (remainingTimes.current[Number(id)] > 0) {
+        startTimes.current[Number(id)] = Date.now();
+        timers.current[Number(id)] = setTimeout(
+          () => removeToast(Number(id)),
+          remainingTimes.current[Number(id)]
         );
       }
     });
   };
 
   return (
-    <ToastContext.Provider value={addToast}>
+    <ToastContext.Provider value={{ addToast }}>
       {children}
       {createPortal(
         <div
@@ -86,7 +101,7 @@ export const ToastProvider = ({ children }) => {
   );
 };
 
-export const useToast = () => {
+export const useToast = (): ToastContextProps => {
   const context = React.useContext(ToastContext);
   if (context === undefined) {
     throw new Error("useToast must be used within a ToastProvider");

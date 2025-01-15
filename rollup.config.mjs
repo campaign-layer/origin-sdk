@@ -4,10 +4,12 @@ import nodePolyfills from "rollup-plugin-polyfill-node";
 import postcss from "rollup-plugin-postcss";
 import autoprefixer from "autoprefixer";
 import terser from "@rollup/plugin-terser";
+import typescript from "@rollup/plugin-typescript";
+import dts from "rollup-plugin-dts";
 
 const config = [
   {
-    input: "src/index.js",
+    input: "src/index.ts",
     output: [
       {
         file: "dist/core.cjs",
@@ -23,6 +25,11 @@ const config = [
       },
     ],
     plugins: [
+      typescript({
+        tsconfig: "./tsconfig.json",
+        declaration: true,
+        rootDir: "src",
+      }),
       resolve({
         preferBuiltins: false,
         browser: true,
@@ -38,7 +45,7 @@ const config = [
     external: ["axios", "viem", "viem/siwe"],
   },
   {
-    input: "src/react/auth/index.jsx",
+    input: "src/react/auth/index.tsx",
     output: {
       file: "dist/react/index.esm.js",
       format: "esm",
@@ -46,8 +53,14 @@ const config = [
       inlineDynamicImports: true,
       banner: "'use client';",
     },
-
     plugins: [
+      typescript({
+        tsconfig: "./tsconfig.json",
+        declaration: false,
+        // exclude: ["**/*.d.ts"],
+        rootDir: "src",
+        // include: ["src/global.d.ts"],
+      }),
       resolve({
         preferBuiltins: false,
         browser: true,
@@ -58,9 +71,12 @@ const config = [
         babelHelpers: "bundled",
         presets: [
           ["@babel/preset-react", { runtime: "classic" }],
-          ["@babel/preset-env", {
-            exclude: ["@babel/plugin-transform-classes"]
-          }],
+          [
+            "@babel/preset-env",
+            {
+              exclude: ["@babel/plugin-transform-classes"],
+            },
+          ],
         ],
       }),
       nodePolyfills(),
@@ -69,6 +85,7 @@ const config = [
         modules: true,
         extract: false,
         minimize: true,
+        sourceMap: true,
       }),
     ],
     external: [
@@ -82,6 +99,14 @@ const config = [
       "@tanstack/react-query",
     ],
   },
+  // {
+  //   input: "src/react/auth/index.tsx",
+  //   output: {
+  //     file: "dist/react/index.d.ts",
+  //     format: "esm",
+  //   },
+  //   plugins: [dts()],
+  // },
 ];
 
 export default config;

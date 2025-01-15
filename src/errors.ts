@@ -1,12 +1,13 @@
 class APIError extends Error {
-  constructor(message, statusCode) {
+  statusCode: string | number;
+  constructor(message: string, statusCode?: string | number) {
     super(message);
     this.name = "APIError";
-    this.statusCode = statusCode;
+    this.statusCode = statusCode || 500;
     Error.captureStackTrace(this, this.constructor);
   }
 
-  toJSON() {
+  toJSON(): { error: string; message: string; statusCode?: string | number } {
     return {
       error: this.name,
       message: this.message,
@@ -16,13 +17,13 @@ class APIError extends Error {
 }
 
 class ValidationError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = "ValidationError";
     Error.captureStackTrace(this, this.constructor);
   }
 
-  toJSON() {
+  toJSON(): { error: string; message: string; statusCode: number } {
     return {
       error: this.name,
       message: this.message,
@@ -30,10 +31,5 @@ class ValidationError extends Error {
     };
   }
 }
-
-// module.exports = {
-//   APIError,
-//   ValidationError,
-// };
 
 export { APIError, ValidationError };

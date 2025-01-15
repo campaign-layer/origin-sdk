@@ -1,7 +1,9 @@
 import React from "react";
 import styles from "./styles/auth.module.css";
 
-export const getIconBySocial = (social) => {
+type Social = "twitter" | "spotify" | "discord" | "tiktok" | "telegram";
+
+export const getIconBySocial = (social: Social) => {
   switch (social) {
     case "twitter":
       return TwitterIcon;
@@ -14,7 +16,7 @@ export const getIconBySocial = (social) => {
     case "telegram":
       return TelegramIcon;
     default:
-      return null;
+      return () => <></>;
   }
 };
 
@@ -72,49 +74,6 @@ export const TikTokIcon = () => (
     <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
   </svg>
 );
-
-// export const TelegramIcon = () => (
-//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="35 40 170 170">
-//     <g
-//       fill="black"
-//       fillRule="nonzero"
-//       stroke="none"
-//       strokeWidth="1"
-//       strokeLinecap="butt"
-//       strokeLinejoin="miter"
-//       strokeMiterlimit="10"
-//       strokeDasharray=""
-//       strokeDashoffset="0"
-//       fontFamily="none"
-//       fontWeight="none"
-//       fontSize="none"
-//       textAnchor="none"
-//       style={{
-//         mixBlendMode: "normal",
-//       }}
-//     >
-//       <g transform="scale(5.33333,5.33333)">
-//         <path
-//           d="M24,4c-11.04569,0 -20,8.95431 -20,20c0,11.04569 8.95431,20 20,20c11.04569,0 20,-8.95431 20,-20c0,-11.04569 -8.95431,-20 -20,-20z"
-//           fill-opacity="0"
-//           fill="#0088cc"
-//         ></path>
-//         <path
-//           d="M33.95,15l-3.746,19.126c0,0 -0.161,0.874 -1.245,0.874c-0.576,0 -0.873,-0.274 -0.873,-0.274l-8.114,-6.733l-3.97,-2.001l-5.095,-1.355c0,0 -0.907,-0.262 -0.907,-1.012c0,-0.625 0.933,-0.923 0.933,-0.923l21.316,-8.468c-0.001,-0.001 0.651,-0.235 1.126,-0.234c0.292,0 0.625,0.125 0.625,0.5c0,0.25 -0.05,0.5 -0.05,0.5z"
-//           fill="#0088cc"
-//         ></path>
-//         <path
-//           d="M23,30.505l-3.426,3.374c0,0 -0.149,0.115 -0.348,0.12c-0.069,0.002 -0.143,-0.009 -0.219,-0.043l0.964,-5.965z"
-//           fill="#0088cc"
-//         ></path>
-//         <path
-//           d="M29.897,18.196c-0.169,-0.22 -0.481,-0.26 -0.701,-0.093l-13.196,7.897c0,0 2.106,5.892 2.427,6.912c0.322,1.021 0.58,1.045 0.58,1.045l0.964,-5.965l9.832,-9.096c0.22,-0.167 0.261,-0.48 0.094,-0.7z"
-//           fill="#0088cc"
-//         ></path>
-//       </g>
-//     </g>
-//   </svg>
-// );
 
 export const TelegramIcon = () => (
   <svg

@@ -1,5 +1,5 @@
-import constants from "../../constants.js";
-import { capitalize } from "../../utils.js";
+import constants from "../../constants";
+import { capitalize } from "../../utils";
 import {
   CampIcon,
   DiscordIcon,
@@ -7,18 +7,24 @@ import {
   SpotifyIcon,
   TikTokIcon,
   TwitterIcon,
-} from "./icons.jsx";
-import { useAuthState, useLinkModal, useSocials } from "./index.jsx";
+} from "./icons";
+import { useAuthState, useLinkModal, useSocials } from "./index";
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
-import React, { useEffect, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
+
+interface CampButtonProps {
+  onClick: () => void;
+  authenticated: boolean;
+  disabled?: boolean;
+}
 
 /**
  * The injected CampButton component.
  * @param { { onClick: function, authenticated: boolean } } props The props.
  * @returns { JSX.Element } The CampButton component.
  */
-export const CampButton = ({ onClick, authenticated, disabled }) => {
+export const CampButton = ({ onClick, authenticated, disabled }: CampButtonProps) => {
   return (
     <button
       className={buttonStyles["connect-button"]}
@@ -49,12 +55,19 @@ export const CampButton = ({ onClick, authenticated, disabled }) => {
   );
 };
 
+interface ProviderButtonProps {
+  provider: { provider: string; info: Record<string, string> };
+  handleConnect: (provider: any) => void;
+  loading?: boolean;
+  label?: string;
+}
+
 /**
  * The ProviderButton component.
  * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean, label: string } } props The props.
  * @returns { JSX.Element } The ProviderButton component.
  */
-export const ProviderButton = ({ provider, handleConnect, loading, label }) => {
+export const ProviderButton = ({ provider, handleConnect, loading, label }: ProviderButtonProps) => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const handleClick = () => {
     handleConnect(provider);
@@ -98,6 +111,15 @@ export const ProviderButton = ({ provider, handleConnect, loading, label }) => {
   );
 };
 
+interface ConnectorButtonProps {
+  name: string;
+  link: Function,
+  unlink: () => Promise<void>;
+  icon: JSX.Element;
+  isConnected: boolean;
+  refetch: Function;
+}
+
 export const ConnectorButton = ({
   name,
   link,
@@ -105,7 +127,7 @@ export const ConnectorButton = ({
   icon,
   isConnected,
   refetch,
-}) => {
+}: ConnectorButtonProps) => {
   const [isUnlinking, setIsUnlinking] = useState(false);
   const handleClick = () => {
     link();
@@ -176,13 +198,24 @@ export const ConnectorButton = ({
   );
 };
 
-const IconButton = ({ icon, onClick }) => {
+interface IconButtonProps {
+  icon: JSX.Element;
+  onClick: () => void;
+}
+
+const IconButton = ({ icon, onClick }: IconButtonProps) => {
   return (
     <button className={buttonStyles["icon-button"]} onClick={onClick}>
       {icon}
     </button>
   );
 };
+
+interface LinkButtonProps {
+  variant?: "default" | "icon";
+  social: "twitter" | "spotify" | "discord" | "tiktok" | "telegram";
+  theme?: "default" | "camp";
+}
 
 /**
  * The LinkButton component.
@@ -194,7 +227,7 @@ export const LinkButton = ({
   variant = "default",
   social,
   theme = "default",
-}) => {
+}: LinkButtonProps) => {
   const { handleOpen } = useLinkModal();
   if (["default", "icon"].indexOf(variant) === -1) {
     throw new Error("Invalid variant, must be 'default' or 'icon'");
@@ -213,7 +246,7 @@ export const LinkButton = ({
     throw new Error("Invalid theme, must be 'default' or 'camp'");
   }
 
-  const { data: socials } = useSocials();
+  const { socials } = useSocials();
   const { authenticated } = useAuthState();
   const isLinked = socials && socials[social];
   const handleClick = () => {

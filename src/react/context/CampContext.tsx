@@ -1,9 +1,10 @@
 import React, { useState, useContext, createContext } from "react";
-import { Auth } from "../../core/auth/index.js";
-import { ModalProvider } from "./ModalContext.jsx";
+import { Auth } from "../../core/auth/index";
+import { ModalProvider } from "./ModalContext";
+// @ts-ignore
 import { WagmiContext } from "wagmi";
-import { SocialsProvider } from "./SocialsContext.jsx";
-import { ToastProvider } from "../toasts.jsx";
+import { SocialsProvider } from "./SocialsContext";
+import { ToastProvider } from "../toasts";
 
 /**
  * CampContext
@@ -13,7 +14,14 @@ import { ToastProvider } from "../toasts.jsx";
  * @property {function} setAuth The function to set the Camp Auth instance
  * @property {boolean} wagmiAvailable Whether Wagmi is available
  */
-const CampContext = createContext({
+interface CampContextType {
+  clientId: string | null;
+  auth: Auth | null;
+  setAuth: React.Dispatch<React.SetStateAction<Auth>>;
+  wagmiAvailable: boolean;
+}
+
+const CampContext = createContext<CampContextType>({
   clientId: null,
   auth: null,
   setAuth: () => {},
@@ -28,7 +36,15 @@ const CampContext = createContext({
  * @param {React.ReactNode} props.children The children components
  * @returns {JSX.Element} The CampProvider component
  */
-const CampProvider = ({ clientId, redirectUri, children }) => {
+const CampProvider = ({
+  clientId,
+  redirectUri,
+  children,
+}: {
+  clientId: string;
+  redirectUri: string;
+  children: React.ReactNode;
+}) => {
   const [auth, setAuth] = useState(new Auth({ clientId, redirectUri }));
 
   const wagmiContext = useContext(WagmiContext);

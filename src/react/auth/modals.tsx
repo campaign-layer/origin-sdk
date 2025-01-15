@@ -6,15 +6,15 @@ import {
   useProvider,
   useProviders,
   useSocials,
-} from "./index.jsx";
-import { ModalContext } from "../context/ModalContext.jsx";
+} from "./index";
+import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
-import { CampContext } from "../context/CampContext.jsx";
-import { formatAddress, capitalize } from "../../utils.js";
-import { useWalletConnectProvider } from "../../core/auth/viem/walletconnect.js";
+import { CampContext } from "../context/CampContext";
+import { formatAddress, capitalize } from "../../utils";
+import { useWalletConnectProvider } from "../../core/auth/viem/walletconnect";
 import { useAccount, useConnectorClient } from "wagmi";
-import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils.js";
-import { CampButton, ProviderButton, ConnectorButton } from "./buttons.jsx";
+import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils";
+import { CampButton, ProviderButton, ConnectorButton } from "./buttons";
 import {
   DiscordIcon,
   TwitterIcon,
@@ -24,9 +24,17 @@ import {
   getIconBySocial,
   TikTokIcon,
   TelegramIcon,
-} from "./icons.jsx";
+} from "./icons.js";
 import constants from "../../constants.js";
-import { useToast } from "../toasts.jsx";
+import { useToast } from "../toasts.js";
+
+interface AuthModalProps {
+  setIsVisible: (isVisible: boolean) => void;
+  wcProvider: any;
+  loading: boolean;
+  onlyWagmi: boolean;
+  defaultProvider: any;
+}
 
 /**
  * The Auth modal component.
@@ -39,22 +47,28 @@ const AuthModal = ({
   loading,
   onlyWagmi,
   defaultProvider,
-}) => {
+}: AuthModalProps) => {
   const { connect } = useConnect();
   const { setProvider } = useProvider();
   const { auth, wagmiAvailable } = useContext(CampContext);
-  const [customProvider, setCustomProvider] = useState(null);
+  const [customProvider, setCustomProvider] = useState<any>(null);
   const providers = useProviders();
-  const [customConnector, setCustomConnector] = useState(null);
-  const [customAccount, setCustomAccount] = useState(null);
-  let wagmiConnectorClient;
-  let wagmiAccount;
+  const [customConnector, setCustomConnector] = useState<any>(null);
+  const [customAccount, setCustomAccount] = useState<any>(null);
+  let wagmiConnectorClient: ReturnType<typeof useConnectorClient> | undefined;
+  let wagmiAccount: ReturnType<typeof useAccount> | undefined;
   if (wagmiAvailable) {
     wagmiConnectorClient = useConnectorClient();
     wagmiAccount = useAccount();
   }
 
-  const handleWalletConnect = async ({ provider }) => {
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
+  const handleWalletConnect = async ({ provider }: { provider: any }) => {
     auth.setLoading(true);
     try {
       if (provider.connected) await provider.disconnect();
@@ -93,7 +107,7 @@ const AuthModal = ({
           .request({
             method: "eth_requestAccounts",
           })
-          .then((accounts) => {
+          .then((accounts: string[]) => {
             setCustomAccount({
               ...acc,
               address: accounts[0],
@@ -132,7 +146,7 @@ const AuthModal = ({
     };
   }, [wcProvider]);
 
-  const handleConnect = (provider) => {
+  const handleConnect = (provider: any) => {
     if (provider) setProvider(provider);
     // necessary for appkit, as it doesn't seem to support the "eth_requestAccounts" method
     if (
@@ -153,11 +167,6 @@ const AuthModal = ({
         <CloseIcon />
       </div>
       <div className={styles.header}>
-        {/* <img
-          className={styles["modal-icon"]}
-          src="https://cdn.harbor.gg/project/15/0e836c2dc9302eea702c398012a8e5c114108e32e8e0cbedcd348ce4773f642f.jpg"
-          alt="Camp Network"
-        /> */}
         <div className={styles["modal-icon"]}>
           <CampIcon />
         </div>
@@ -241,6 +250,13 @@ const AuthModal = ({
   );
 };
 
+interface CampModalProps {
+  injectButton?: boolean;
+  wcProjectId?: string;
+  onlyWagmi?: boolean;
+  defaultProvider?: any;
+}
+
 /**
  * The CampModal component.
  * @param { { injectButton?: boolean, wcProjectId?: string, onlyWagmi?: boolean, defaultProvider?: object } } props The props.
@@ -251,7 +267,7 @@ export const CampModal = ({
   wcProjectId,
   onlyWagmi = false,
   defaultProvider,
-}) => {
+}: CampModalProps) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible } = useContext(ModalContext);
@@ -259,7 +275,7 @@ export const CampModal = ({
   const { provider } = useProvider();
   const providers = useProviders();
   const { wagmiAvailable } = useContext(CampContext);
-  let customAccount;
+  let customAccount: ReturnType<typeof useAccount> | undefined;
   if (wagmiAvailable) {
     customAccount = useAccount();
   }
@@ -364,6 +380,12 @@ const TikTokFlow = () => {
   const [IsLoading, setIsLoading] = useState(false);
   const [handleInput, setHandleInput] = useState("");
 
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
   const resetState = () => {
     setIsLoading(false);
     setIsLinkingVisible(false);
@@ -437,16 +459,21 @@ const TikTokFlow = () => {
   );
 };
 
+interface OTPInputProps {
+  numInputs: number;
+  onChange: (otp: string) => void;
+}
+
 /**
  * The OTPInput component. Handles OTP input with customizable number of inputs.
  * @param { { numInputs: number, onChange: function } } props The props.
  * @returns { JSX.Element } The OTPInput component.
  */
-const OTPInput = ({ numInputs, onChange }) => {
+const OTPInput = ({ numInputs, onChange }: OTPInputProps) => {
   const [otp, setOtp] = useState(Array(numInputs).fill(""));
-  const inputRefs = useRef([]);
+  const inputRefs = useRef<HTMLInputElement[]>([]);
 
-  const handleChange = (value, index) => {
+  const handleChange = (value: string, index: number) => {
     if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -457,22 +484,28 @@ const OTPInput = ({ numInputs, onChange }) => {
     }
   };
 
-  const handleKeyDown = (e, index) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  const handleFocus = (e) => e.target.select();
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) =>
+    e.target.select();
 
   return (
     <div className={styles["otp-input-container"]}>
       {otp.map((_, index) => (
         <input
           key={index}
-          ref={(el) => (inputRefs.current[index] = el)}
+          ref={(el) => {
+            inputRefs.current[index] = el!;
+          }}
           type="text"
-          maxLength="1"
+          maxLength={1}
           value={otp[index]}
           onChange={(e) => handleChange(e.target.value, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
@@ -498,7 +531,13 @@ const TelegramFlow = () => {
   const [phoneCodeHash, setPhoneCodeHash] = useState("");
   const [isOTPSent, setIsOTPSent] = useState(false);
   const [isPhoneValid, setIsPhoneValid] = useState(true);
-  const toast = useToast();
+  const { addToast: toast } = useToast();
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
 
   const resetState = () => {
     setIsLoading(false);
@@ -506,12 +545,12 @@ const TelegramFlow = () => {
     setOtpInput("");
   };
 
-  const handlePhoneInput = (e) => {
+  const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoneInput(e.target.value);
     setIsPhoneValid(verifyPhoneNumber(e.target.value) || !e.target.value);
   };
 
-  const verifyPhoneNumber = (phone) => {
+  const verifyPhoneNumber = (phone: string) => {
     const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
     return phoneRegex.test(phone.replace(/\s/g, "").replace(/[-()]/g, ""));
   };
@@ -630,12 +669,18 @@ const BasicFlow = () => {
   const { auth } = useContext(CampContext);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
   const handleLink = async () => {
     if (isSocialsLoading) return;
     if (socials[currentlyLinking]) {
       setIsUnlinking(true);
       try {
-        await auth[`unlink${capitalize(currentlyLinking)}`]();
+        await (auth as any)[`unlink${capitalize(currentlyLinking)}`]();
       } catch (error) {
         setIsUnlinking(false);
         setIsLinkingVisible(false);
@@ -647,7 +692,7 @@ const BasicFlow = () => {
       setIsUnlinking(false);
     } else {
       try {
-        auth[`link${capitalize(currentlyLinking)}`]();
+        (auth as any)[`link${capitalize(currentlyLinking)}`]();
       } catch (error) {
         setIsLinkingVisible(false);
         console.error(error);
@@ -697,7 +742,7 @@ const LinkingModal = () => {
   const { isLoading: isSocialsLoading } = useSocials();
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
 
-  const [flow, setFlow] = useState(null);
+  const [flow, setFlow] = useState<"basic" | "tiktok" | "telegram">("basic");
 
   useEffect(() => {
     if (["twitter", "discord", "spotify"].includes(currentlyLinking)) {
@@ -773,13 +818,19 @@ const LinkingModal = () => {
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-export const MyCampModal = ({ wcProvider }) => {
+export const MyCampModal = ({ wcProvider }: { wcProvider: any }) => {
   const { auth } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
-  const { socials, loading, refetch } = useSocials();
+  const { socials, isLoading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTikTok, linkTelegram } = useLinkModal();
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
 
   const handleDisconnect = () => {
     wcProvider?.disconnect();
@@ -845,11 +896,11 @@ export const MyCampModal = ({ wcProvider }) => {
       <div className={styles.header}>
         <span>My Camp</span>
         <span className={styles["wallet-address"]}>
-          {formatAddress(auth.walletAddress)}
+          {formatAddress(auth.walletAddress as string)}
         </span>
       </div>
       <div className={styles["socials-wrapper"]}>
-        {loading || isLoadingSocials ? (
+        {isLoading || isLoadingSocials ? (
           <div
             className={styles.spinner}
             style={{ margin: "auto", marginTop: "6rem", marginBottom: "6rem" }}
@@ -862,9 +913,9 @@ export const MyCampModal = ({ wcProvider }) => {
                 <ConnectorButton
                   key={social.name}
                   name={social.name}
-                  link={social.link}
+                  link={social.link as Function}
                   unlink={social.unlink}
-                  isConnected={social.isConnected}
+                  isConnected={!!social.isConnected}
                   refetch={refetch}
                   icon={social.icon}
                 />
@@ -881,9 +932,9 @@ export const MyCampModal = ({ wcProvider }) => {
                 <ConnectorButton
                   key={social.name}
                   name={social.name}
-                  link={social.link}
+                  link={social.link as Function}
                   unlink={social.unlink}
-                  isConnected={social.isConnected}
+                  isConnected={!!social.isConnected}
                   refetch={refetch}
                   icon={social.icon}
                 />

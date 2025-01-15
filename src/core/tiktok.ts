@@ -6,12 +6,13 @@ import { APIError } from "../errors";
  * @class
  */
 class TikTokAPI {
+  apiKey: string;
   /**
    * Constructor for the TikTokAPI class.
    * @param {object} options - The options object.
    * @param {string} options.apiKey - The Camp API key.
    */
-  constructor({ apiKey }) {
+  constructor({ apiKey }: { apiKey: string }) {
     this.apiKey = apiKey;
   }
 
@@ -21,7 +22,7 @@ class TikTokAPI {
    * @returns {Promise<object>} - The user details.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchUserByUsername(tiktokUserName) {
+  async fetchUserByUsername(tiktokUserName: string): Promise<object> {
     const url = `${baseURL}/user/${tiktokUserName}`;
     return this._fetchDataWithAuth(url);
   }
@@ -33,7 +34,7 @@ class TikTokAPI {
    * @returns {Promise<object>} - The video details.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchVideoById(userHandle, videoId) {
+  async fetchVideoById(userHandle: string, videoId: string): Promise<object> {
     const url = `${baseURL}/video/${userHandle}/${videoId}`;
     return this._fetchDataWithAuth(url);
   }
@@ -44,13 +45,13 @@ class TikTokAPI {
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async _fetchDataWithAuth(url) {
+  async _fetchDataWithAuth(url: string): Promise<object> {
     if (!this.apiKey) {
       throw new APIError("API key is required for fetching data", 401);
     }
     try {
       return await fetchData(url, { "x-api-key": this.apiKey });
-    } catch (error) {
+    } catch (error: any) {
       throw new APIError(error.message, error.statusCode);
     }
   }

@@ -1,37 +1,38 @@
 import { useContext, useEffect, useState, useSyncExternalStore } from "react";
-import { CampContext, CampProvider } from "../context/CampContext.jsx";
-import { ModalContext } from "../context/ModalContext.jsx";
-import { providerStore } from "../../core/auth/viem/providers.js";
-import { CampModal, MyCampModal } from "./modals.jsx";
-import { Auth } from "../../core/auth/index.js";
-import { SocialsContext } from "../context/SocialsContext.jsx";
-import { LinkButton } from "./buttons.jsx";
-import constants from "../../constants.js";
+import { CampContext, CampProvider } from "../context/CampContext";
+import { ModalContext } from "../context/ModalContext";
+import { providerStore, Provider } from "../../core/auth/viem/providers";
+import { CampModal, MyCampModal } from "./modals";
+import { Auth } from "../../core/auth";
+import { SocialsContext } from "../context/SocialsContext";
+import { LinkButton } from "./buttons";
+import constants from "../../constants";
+import { type UseQueryResult } from "@tanstack/react-query";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
 
-const getAuthProperties = (auth) => {
+const getAuthProperties = (auth: Auth) => {
   const prototype = Object.getPrototypeOf(auth);
   const properties = Object.getOwnPropertyNames(prototype);
-  const object = {};
+  const object: Record<string, any> = {};
 
   for (const property of properties) {
-    if (typeof auth[property] === "function") {
-      object[property] = auth[property].bind(auth);
+    if (typeof (auth as any)[property] === "function") {
+      object[property] = (auth as any)[property].bind(auth);
     }
   }
 
   return object;
 };
 
-const getAuthVariables = (auth) => {
+const getAuthVariables = (auth: Auth) => {
   const variables = Object.keys(auth);
-  const object = {};
+  const object: Record<string, any> = {};
 
   for (const variable of variables) {
-    object[variable] = auth[variable];
+    object[variable] = (auth as any)[variable];
   }
 
   return object;
@@ -44,8 +45,14 @@ const getAuthVariables = (auth) => {
  * const auth = useAuth();
  * auth.connect();
  */
-export const useAuth = () => {
+export const useAuth = (): Auth => {
   const { auth } = useContext(CampContext);
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
 
   const [authProperties, setAuthProperties] = useState(getAuthProperties(auth));
   const [authVariables, setAuthVariables] = useState(getAuthVariables(auth));
@@ -60,7 +67,7 @@ export const useAuth = () => {
     auth.on("provider", updateAuth);
   }, [auth]);
 
-  return { ...authVariables, ...authProperties };
+  return { ...authVariables, ...authProperties } as Auth;
 };
 
 /**
@@ -70,8 +77,9 @@ export const useAuth = () => {
  * const { linkTwitter, unlinkTwitter, linkDiscord, unlinkDiscord, linkSpotify, unlinkSpotify } = useLinkSocials();
  * linkTwitter();
  */
-export const useLinkSocials = () => {
+export const useLinkSocials = (): Record<string, Function> => {
   const { auth } = useContext(CampContext);
+
   if (!auth) {
     return {};
   }
@@ -85,12 +93,12 @@ export const useLinkSocials = () => {
 
   const linkingFunctions = linkingProps.reduce(
     (acc, prop) => {
-      acc[prop] = auth[prop].bind(auth);
+      acc[prop] = (auth as any)[prop].bind(auth);
       return acc;
     },
     {
       sendTelegramOTP: auth.sendTelegramOTP.bind(auth),
-    }
+    } as Record<string, Function>
   );
 
   return linkingFunctions;
@@ -100,14 +108,24 @@ export const useLinkSocials = () => {
  * Fetches the provider from the context and sets the provider in the auth instance.
  * @returns { { provider: { provider: string, info: { name: string } }, setProvider: function } } The provider and a function to set the provider.
  */
-export const useProvider = () => {
+export const useProvider = (): {
+  provider: { provider: any; info: { name: string } };
+  setProvider: (provider: any, info?: any) => void;
+} => {
   const { auth } = useContext(CampContext);
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
   const [provider, setProvider] = useState({
     provider: auth.viem?.transport,
     info: { name: auth.viem?.transport?.name },
   });
   useEffect(() => {
-    auth.on("provider", ({ provider, info }) => {
+    auth.on("provider", ({ provider, info }: { provider: any; info: any }) => {
       setProvider({ provider, info });
     });
   }, [auth]);
@@ -121,12 +139,22 @@ export const useProvider = () => {
  * Returns the authenticated state and loading state.
  * @returns { { authenticated: boolean, loading: boolean } } The authenticated state and loading state.
  */
-export const useAuthState = () => {
+export const useAuthState = (): {
+  authenticated: boolean;
+  loading: boolean;
+} => {
   const { auth } = useContext(CampContext);
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
   const [authenticated, setAuthenticated] = useState(auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
-    auth.on("state", (state) => {
+    auth.on("state", (state: string) => {
       setAuthenticated(state === "authenticated");
       setLoading(state === "loading");
     });
@@ -138,8 +166,22 @@ export const useAuthState = () => {
  * Connects and disconnects the user.
  * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
  */
-export const useConnect = () => {
+export const useConnect = (): {
+  connect: () => Promise<{
+    success: boolean;
+    message: string;
+    walletAddress: string;
+  }>;
+  disconnect: () => Promise<void>;
+} => {
   const { auth } = useContext(CampContext);
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
   const connect = auth.connect.bind(auth);
   const disconnect = auth.disconnect.bind(auth);
   return { connect, disconnect };
@@ -149,9 +191,9 @@ export const useConnect = () => {
  * Returns the array of providers.
  * @returns { Array } The array of providers and the loading state.
  */
-export const useProviders = () =>
+export const useProviders = (): Provider[] =>
   useSyncExternalStore(
-    providerStore.subscribe,
+    providerStore.subscribe as any,
     providerStore.value,
     providerStore.value
   );
@@ -160,7 +202,11 @@ export const useProviders = () =>
  * Returns the modal state and functions to open and close the modal.
  * @returns { { isOpen: boolean, openModal: function, closeModal: function } } The modal state and functions to open and close the modal.
  */
-export const useModal = () => {
+export const useModal = (): {
+  isOpen: boolean;
+  openModal: () => void;
+  closeModal: () => void;
+} => {
   const { isVisible, setIsVisible } = useContext(ModalContext);
 
   const handleOpen = () => {
@@ -178,12 +224,16 @@ export const useModal = () => {
   };
 };
 
-export const useLinkModal = () => {
-  const { data: socials } = useSocials();
+export const useLinkModal = (): Record<string, Function | boolean> & {
+  isLinkingOpen: boolean;
+  closeModal: () => void;
+  handleOpen: (social: string) => void;
+} => {
+  const { socials } = useSocials();
   const { isLinkingVisible, setIsLinkingVisible, setCurrentlyLinking } =
     useContext(ModalContext);
 
-  const handleOpen = (social) => {
+  const handleOpen = (social: string) => {
     if (!socials) {
       console.error("User is not authenticated");
       return;
@@ -192,7 +242,7 @@ export const useLinkModal = () => {
     setIsLinkingVisible(true);
   };
 
-  const handleLink = (social) => {
+  const handleLink = (social: string) => {
     if (!socials) {
       console.error("User is not authenticated");
       return;
@@ -206,7 +256,7 @@ export const useLinkModal = () => {
     }
   };
 
-  const handleUnlink = (social) => {
+  const handleUnlink = (social: string) => {
     if (!socials) {
       console.error("User is not authenticated");
       return;
@@ -224,7 +274,7 @@ export const useLinkModal = () => {
     setIsLinkingVisible(false);
   };
 
-  const obj = {};
+  const obj: Record<string, Function> = {};
   constants.AVAILABLE_SOCIALS.forEach((social) => {
     obj[`link${social.charAt(0).toUpperCase() + social.slice(1)}`] = () =>
       handleLink(social);
@@ -246,8 +296,18 @@ export const useLinkModal = () => {
  * Fetches the socials linked to the user.
  * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
-export const useSocials = () => {
-  const { query } = useContext(SocialsContext);
+
+type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<
+  TData,
+  TError
+> & {
+  socials: Record<string, string>;
+};
+
+export const useSocials = (): UseSocialsResult => {
+  const { query } = useContext(SocialsContext) as {
+    query: UseQueryResult<any, Error>;
+  };
   const socials = query?.data;
   return {
     ...query,

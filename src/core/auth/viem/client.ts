@@ -1,8 +1,9 @@
+// @ts-ignore
 import { createWalletClient, custom } from "viem";
 import { testnet } from "./chains";
-let client = null;
+let client: any = null;
 
-const getClient = (provider, name = "window.ethereum") => {
+const getClient = (provider: any, name: string = "window.ethereum"): any => {
   if (!provider && !client) {
     console.warn("Provider is required to create a client.");
     return null;
