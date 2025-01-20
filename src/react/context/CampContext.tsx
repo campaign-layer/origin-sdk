@@ -42,10 +42,12 @@ const CampProvider = ({
   children,
 }: {
   clientId: string;
-  redirectUri: string;
+  redirectUri?: string;
   children: React.ReactNode;
 }) => {
-  const [auth, setAuth] = useState(new Auth({ clientId, redirectUri }));
+  const [auth, setAuth] = useState(
+    new Auth({ clientId, redirectUri: redirectUri || window.location.href })
+  );
 
   const wagmiContext = useContext(WagmiContext);
 

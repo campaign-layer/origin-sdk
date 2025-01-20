@@ -6,8 +6,34 @@ import autoprefixer from "autoprefixer";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
+import fs from "fs";
+import path from "path";
+
+const cleanupDtsPlugin = () => {
+  return {
+    name: "cleanup-dts",
+    buildEnd: async () => {
+      fs.rmSync(path.resolve("./dist/core"), { recursive: true });
+      fs.rmSync(path.resolve("./dist/react/auth"), { recursive: true });
+      fs.rmSync(path.resolve("./dist/react/context"), { recursive: true });
+
+      fs.readdirSync(path.resolve("./dist")).forEach((file) => {
+        if (file.endsWith(".d.ts") && file !== "core.d.ts") {
+          fs.unlinkSync(path.resolve("./dist", file));
+        }
+      });
+
+      fs.readdirSync(path.resolve("./dist/react")).forEach((file) => {
+        if (file.endsWith(".d.ts") && file !== "index.esm.d.ts") {
+          fs.unlinkSync(path.resolve("./dist/react", file));
+        }
+      });
+    },
+  };
+};
 
 const config = [
+  // Core
   {
     input: "src/index.ts",
     output: [
@@ -44,6 +70,7 @@ const config = [
     ],
     external: ["axios", "viem", "viem/siwe"],
   },
+  // React
   {
     input: "src/react/auth/index.tsx",
     output: {
@@ -57,9 +84,7 @@ const config = [
       typescript({
         tsconfig: "./tsconfig.json",
         declaration: false,
-        // exclude: ["**/*.d.ts"],
         rootDir: "src",
-        // include: ["src/global.d.ts"],
       }),
       resolve({
         preferBuiltins: false,
@@ -99,14 +124,24 @@ const config = [
       "@tanstack/react-query",
     ],
   },
-  // {
-  //   input: "src/react/auth/index.tsx",
-  //   output: {
-  //     file: "dist/react/index.d.ts",
-  //     format: "esm",
-  //   },
-  //   plugins: [dts()],
-  // },
+  // Core types
+  {
+    input: "dist/index.d.ts",
+    output: {
+      file: "dist/core.d.ts",
+      format: "esm",
+    },
+    plugins: [dts()],
+  },
+  // React types
+  {
+    input: "dist/react/auth/index.d.ts",
+    output: {
+      file: "dist/react/index.esm.d.ts",
+      format: "esm",
+    },
+    plugins: [dts(), cleanupDtsPlugin()],
+  },
 ];
 
 export default config;

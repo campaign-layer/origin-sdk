@@ -861,7 +861,7 @@ const CampContext = createContext({
  * @returns {JSX.Element} The CampProvider component
  */
 const CampProvider = ({ clientId, redirectUri, children, }) => {
-    const [auth, setAuth] = useState(new Auth({ clientId, redirectUri }));
+    const [auth, setAuth] = useState(new Auth({ clientId, redirectUri: redirectUri || window.location.href }));
     const wagmiContext = useContext(WagmiContext);
     return (React.createElement(CampContext.Provider, { value: {
             clientId,
