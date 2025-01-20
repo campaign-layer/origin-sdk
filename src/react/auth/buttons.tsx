@@ -1,12 +1,7 @@
 import constants from "../../constants";
-import { capitalize } from "../../utils";
 import {
   CampIcon,
-  DiscordIcon,
   getIconBySocial,
-  SpotifyIcon,
-  TikTokIcon,
-  TwitterIcon,
 } from "./icons";
 import { useAuthState, useLinkModal, useSocials } from "./index";
 import styles from "./styles/auth.module.css";
