@@ -28,6 +28,11 @@ const cleanupDtsPlugin = () => {
           fs.unlinkSync(path.resolve("./dist/react", file));
         }
       });
+
+      fs.copyFileSync(
+        path.resolve("./dist/core.d.ts"),
+        path.resolve("./dist/core.esm.d.ts")
+      );
     },
   };
 };
