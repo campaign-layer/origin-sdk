@@ -24,7 +24,11 @@ interface CampButtonProps {
  * @param { { onClick: function, authenticated: boolean } } props The props.
  * @returns { JSX.Element } The CampButton component.
  */
-export const CampButton = ({ onClick, authenticated, disabled }: CampButtonProps) => {
+export const CampButton = ({
+  onClick,
+  authenticated,
+  disabled,
+}: CampButtonProps) => {
   return (
     <button
       className={buttonStyles["connect-button"]}
@@ -67,7 +71,12 @@ interface ProviderButtonProps {
  * @param { { provider: { provider: string, info: { name: string, icon: string } }, handleConnect: function, loading: boolean, label: string } } props The props.
  * @returns { JSX.Element } The ProviderButton component.
  */
-export const ProviderButton = ({ provider, handleConnect, loading, label }: ProviderButtonProps) => {
+export const ProviderButton = ({
+  provider,
+  handleConnect,
+  loading,
+  label,
+}: ProviderButtonProps) => {
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const handleClick = () => {
     handleConnect(provider);
@@ -113,7 +122,7 @@ export const ProviderButton = ({ provider, handleConnect, loading, label }: Prov
 
 interface ConnectorButtonProps {
   name: string;
-  link: Function,
+  link: Function;
   unlink: () => Promise<void>;
   icon: JSX.Element;
   isConnected: boolean;

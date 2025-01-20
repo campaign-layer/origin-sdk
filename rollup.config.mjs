@@ -126,7 +126,7 @@ const config = [
   },
   // Core types
   {
-    input: "dist/index.d.ts",
+    input: "src/index.ts",
     output: {
       file: "dist/core.d.ts",
       format: "esm",

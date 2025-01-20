@@ -10,10 +10,16 @@ interface Toast {
 }
 
 interface ToastContextProps {
-  addToast: (message: string, type?: "info" | "success" | "error" | "warning", duration?: number) => void;
+  addToast: (
+    message: string,
+    type?: "info" | "success" | "error" | "warning",
+    duration?: number
+  ) => void;
 }
 
-const ToastContext = React.createContext<ToastContextProps | undefined>(undefined);
+const ToastContext = React.createContext<ToastContextProps | undefined>(
+  undefined
+);
 
 interface ToastProviderProps {
   children: ReactNode;
@@ -26,7 +32,11 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   const startTimes = useRef<Record<number, number>>({});
   const isHovering = useRef<boolean>(false);
 
-  const addToast = (message: string, type: "info" | "success" | "error" | "warning" = "info", duration: number = 3000) => {
+  const addToast = (
+    message: string,
+    type: "info" | "success" | "error" | "warning" = "info",
+    duration: number = 3000
+  ) => {
     const id = Date.now();
     setToasts((prevToasts) => [
       ...prevToasts,
@@ -44,9 +54,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
       )
     );
     setTimeout(() => {
-      setToasts((prevToasts) =>
-        prevToasts.filter((toast) => toast.id !== id)
-      );
+      setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
       delete timers.current[id];
       delete remainingTimes.current[id];
       delete startTimes.current[id];
@@ -57,7 +65,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     isHovering.current = true;
     Object.keys(timers.current).forEach((id) => {
       clearTimeout(timers.current[Number(id)]);
-      remainingTimes.current[Number(id)] -= Date.now() - startTimes.current[Number(id)];
+      remainingTimes.current[Number(id)] -=
+        Date.now() - startTimes.current[Number(id)];
     });
   };
 

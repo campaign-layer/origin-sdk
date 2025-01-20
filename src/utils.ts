@@ -10,7 +10,10 @@ import { APIError } from "./errors";
  * @returns {Promise<object>} - The response data.
  * @throws {APIError} - Throws an error if the request fails.
  */
-async function fetchData(url: string, headers: Record<string, string> = {}): Promise<object> {
+async function fetchData(
+  url: string,
+  headers: Record<string, string> = {}
+): Promise<object> {
   try {
     const response = await axios.get(url, { headers });
     return response.data;

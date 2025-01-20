@@ -1,12 +1,20 @@
 import { createPortal } from "react-dom";
-import React, { useLayoutEffect, useState, useEffect, ReactNode, JSX } from "react";
+import React, {
+  useLayoutEffect,
+  useState,
+  useEffect,
+  ReactNode,
+  JSX,
+} from "react";
 
 /**
  * Creates a wrapper element and appends it to the body.
  * @param { string } wrapperId The wrapper ID.
  * @returns { HTMLElement } The wrapper element.
  */
-export const createWrapperAndAppendToBody = (wrapperId: string): HTMLElement => {
+export const createWrapperAndAppendToBody = (
+  wrapperId: string
+): HTMLElement => {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
   document.body.appendChild(wrapperElement);
@@ -27,7 +35,9 @@ export const ReactPortal = ({
   children,
   wrapperId = "react-portal-wrapper",
 }: ReactPortalProps): JSX.Element | null => {
-  const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(null);
+  const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(
+    null
+  );
   useLayoutEffect(() => {
     let element = document.getElementById(wrapperId);
     let systemCreated = false;
@@ -59,7 +69,10 @@ interface ClientOnlyProps {
  * @param { { children: JSX.Element } } props The props.
  * @returns { JSX.Element } The ClientOnly component.
  */
-export const ClientOnly = ({ children, ...delegated }: ClientOnlyProps): JSX.Element | null => {
+export const ClientOnly = ({
+  children,
+  ...delegated
+}: ClientOnlyProps): JSX.Element | null => {
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
