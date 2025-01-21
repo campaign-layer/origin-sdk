@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { testnet } from "./chains";
 
-const getWalletConnectProvider = async (projectId) => {
+const getWalletConnectProvider = async (projectId: string): Promise<any> => {
   const provider = await EthereumProvider.init({
     optionalChains: [testnet.id],
     projectId,
@@ -12,8 +12,8 @@ const getWalletConnectProvider = async (projectId) => {
   return provider;
 };
 
-export const useWalletConnectProvider = (projectId) => {
-  const [walletConnectProvider, setWalletConnectProvider] = useState(null);
+export const useWalletConnectProvider = (projectId: string): any | null => {
+  const [walletConnectProvider, setWalletConnectProvider] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchWalletConnectProvider = async () => {
@@ -26,7 +26,7 @@ export const useWalletConnectProvider = (projectId) => {
     };
 
     fetchWalletConnectProvider();
-  }, []);
+  }, [projectId]);
 
   return walletConnectProvider;
 };

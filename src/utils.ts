@@ -1,6 +1,5 @@
-// const axios = require("axios");
+// @ts-ignore-line
 import axios from "axios";
-// const { APIError } = require("./errors");
 import { APIError } from "./errors";
 
 /**
@@ -11,11 +10,14 @@ import { APIError } from "./errors";
  * @returns {Promise<object>} - The response data.
  * @throws {APIError} - Throws an error if the request fails.
  */
-async function fetchData(url, headers = {}) {
+async function fetchData(
+  url: string,
+  headers: Record<string, string> = {}
+): Promise<object> {
   try {
     const response = await axios.get(url, { headers });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     if (error.response) {
       throw new APIError(
         error.response.data.message || "API request failed",
@@ -32,7 +34,7 @@ async function fetchData(url, headers = {}) {
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The encoded query string.
  */
-function buildQueryString(params = {}) {
+function buildQueryString(params: Record<string, any> = {}): string {
   return Object.keys(params)
     .map(
       (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
@@ -47,23 +49,23 @@ function buildQueryString(params = {}) {
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function buildURL(baseURL, params = {}) {
+function buildURL(baseURL: string, params: Record<string, any> = {}): string {
   const queryString = buildQueryString(params);
   return queryString ? `${baseURL}?${queryString}` : baseURL;
 }
 
-const baseTwitterURL =
+const baseTwitterURL: string =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
-const baseSpotifyURL =
+const baseSpotifyURL: string =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
-const baseTikTokURL =
+const baseTikTokURL: string =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/tiktok";
 
-const formatAddress = (address, n = 8) => {
+const formatAddress = (address: string, n: number = 8): string => {
   return `${address.slice(0, n)}...${address.slice(-n)}`;
 };
 
-const capitalize = (str) => {
+const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 

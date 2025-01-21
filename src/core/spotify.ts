@@ -1,18 +1,26 @@
 import { fetchData, buildURL, baseSpotifyURL as baseURL } from "../utils";
 import { APIError } from "../errors";
 
+interface SpotifyAPIOptions {
+  apiKey: string;
+}
+
 /**
  * The SpotifyAPI class.
  * @class
  */
 class SpotifyAPI {
+  apiKey: string;
+
   /**
    * Constructor for the SpotifyAPI class.
-   * @param {object} options - The options object.
-   * @param {string} options.apiKey - The Camp API key.
+   * @constructor
+   * @param {SpotifyAPIOptions} options - The Spotify API options.
+   * @param {string} options.apiKey - The Spotify API key.
+   * @throws {Error} - Throws an error if the API key is not provided.
    */
-  constructor({ apiKey }) {
-    this.apiKey = apiKey;
+  constructor(options: SpotifyAPIOptions) {
+    this.apiKey = options.apiKey;
   }
 
   /**
@@ -21,7 +29,7 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The saved tracks.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchSavedTracksById(spotifyId) {
+  async fetchSavedTracksById(spotifyId: string): Promise<object> {
     const url = buildURL(`${baseURL}/save-tracks`, {
       spotifyId,
     });
@@ -34,7 +42,7 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The played tracks.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchPlayedTracksById(spotifyId) {
+  async fetchPlayedTracksById(spotifyId: string): Promise<object> {
     const url = buildURL(`${baseURL}/played-tracks`, {
       spotifyId,
     });
@@ -47,7 +55,7 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The saved albums.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchSavedAlbumsById(spotifyId) {
+  async fetchSavedAlbumsById(spotifyId: string): Promise<object> {
     const url = buildURL(`${baseURL}/saved-albums`, {
       spotifyId,
     });
@@ -60,7 +68,7 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The saved playlists.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchSavedPlaylistsById(spotifyId) {
+  async fetchSavedPlaylistsById(spotifyId: string): Promise<object> {
     const url = buildURL(`${baseURL}/saved-playlists`, {
       spotifyId,
     });
@@ -74,7 +82,10 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The tracks in the album.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchTracksInAlbum(spotifyId, albumId) {
+  async fetchTracksInAlbum(
+    spotifyId: string,
+    albumId: string
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/album/tracks`, {
       spotifyId,
       albumId,
@@ -89,7 +100,10 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The tracks in the playlist.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchTracksInPlaylist(spotifyId, playlistId) {
+  async fetchTracksInPlaylist(
+    spotifyId: string,
+    playlistId: string
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/playlist/tracks`, {
       spotifyId,
       playlistId,
@@ -103,7 +117,7 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The user's Spotify data.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchUserByWalletAddress(walletAddress) {
+  async fetchUserByWalletAddress(walletAddress: string): Promise<object> {
     const url = buildURL(`${baseURL}/wallet-spotify-data`, { walletAddress });
     return this._fetchDataWithAuth(url);
   }
@@ -114,13 +128,13 @@ class SpotifyAPI {
    * @returns {Promise<object>} - The response data.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async _fetchDataWithAuth(url) {
+  async _fetchDataWithAuth(url: string): Promise<object> {
     if (!this.apiKey) {
       throw new APIError("API key is required for fetching data", 401);
     }
     try {
       return await fetchData(url, { "x-api-key": this.apiKey });
-    } catch (error) {
+    } catch (error: any) {
       throw new APIError(error.message, error.statusCode);
     }
   }

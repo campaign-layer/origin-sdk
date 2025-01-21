@@ -1,17 +1,30 @@
 import { createPortal } from "react-dom";
-import React, { useLayoutEffect, useState, useEffect } from "react";
+import React, {
+  useLayoutEffect,
+  useState,
+  useEffect,
+  ReactNode,
+  JSX,
+} from "react";
 
 /**
  * Creates a wrapper element and appends it to the body.
  * @param { string } wrapperId The wrapper ID.
  * @returns { HTMLElement } The wrapper element.
  */
-export const createWrapperAndAppendToBody = (wrapperId) => {
+export const createWrapperAndAppendToBody = (
+  wrapperId: string
+): HTMLElement => {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
   document.body.appendChild(wrapperElement);
   return wrapperElement;
 };
+
+interface ReactPortalProps {
+  children: ReactNode;
+  wrapperId: string;
+}
 
 /**
  * The ReactPortal component. Renders children in a portal.
@@ -21,8 +34,10 @@ export const createWrapperAndAppendToBody = (wrapperId) => {
 export const ReactPortal = ({
   children,
   wrapperId = "react-portal-wrapper",
-}) => {
-  const [wrapperElement, setWrapperElement] = useState(null);
+}: ReactPortalProps): JSX.Element | null => {
+  const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(
+    null
+  );
   useLayoutEffect(() => {
     let element = document.getElementById(wrapperId);
     let systemCreated = false;
@@ -34,7 +49,7 @@ export const ReactPortal = ({
     setWrapperElement(element);
 
     return () => {
-      if (systemCreated && element.parentNode) {
+      if (systemCreated && element?.parentNode) {
         element.parentNode.removeChild(element);
       }
     };
@@ -45,12 +60,19 @@ export const ReactPortal = ({
   return createPortal(children, wrapperElement);
 };
 
+interface ClientOnlyProps {
+  children: ReactNode;
+}
+
 /**
  * The ClientOnly component. Renders children only on the client. Needed for Next.js.
  * @param { { children: JSX.Element } } props The props.
  * @returns { JSX.Element } The ClientOnly component.
  */
-export const ClientOnly = ({ children, ...delegated }) => {
+export const ClientOnly = ({
+  children,
+  ...delegated
+}: ClientOnlyProps): JSX.Element | null => {
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -64,7 +86,7 @@ export const ClientOnly = ({ children, ...delegated }) => {
   return <div {...delegated}>{children}</div>;
 };
 
-export const getIconByConnectorName = (name) => {
+export const getIconByConnectorName = (name: string): string => {
   switch (name) {
     case "AppKit Auth":
       return "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='56' height='56' rx='16.3333' fill='%23FF573B'/%3E%3Cpath d='M11.6667 33.8333H44.3334V38.5C44.3334 39.7886 43.2501 40.8333 41.9137 40.8333H14.0865C12.7501 40.8333 11.6667 39.7886 11.6667 38.5V33.8333Z' fill='%23202020'/%3E%3Cpath d='M11.6667 24.5H44.3334V31.5H11.6667V24.5Z' fill='%23202020'/%3E%3Cpath d='M11.6667 17.5C11.6667 16.2113 12.7501 15.1666 14.0865 15.1666H41.9137C43.2501 15.1666 44.3334 16.2113 44.3334 17.5V22.1666H11.6667V17.5Z' fill='%23202020'/%3E%3C/svg%3E";

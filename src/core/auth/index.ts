@@ -1,10 +1,19 @@
 import { APIError } from "../../errors";
 import { getClient } from "./viem/client";
+// @ts-ignore
 import { createSiweMessage } from "viem/siwe";
 import constants from "../../constants";
-import { providerStore } from "./viem/providers";
+import { Provider, providerStore } from "./viem/providers";
 
-const createRedirectUriObject = (redirectUri) => {
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
+const createRedirectUriObject = (
+  redirectUri: string | Record<string, string>
+): Record<string, string> => {
   const keys = ["twitter", "discord", "spotify"];
 
   if (typeof redirectUri === "object") {
@@ -13,18 +22,19 @@ const createRedirectUriObject = (redirectUri) => {
         redirectUri[key] ||
         (typeof window !== "undefined" ? window.location.href : "");
       return object;
-    }, {});
+    }, {} as Record<string, string>);
   } else if (typeof redirectUri === "string") {
     return keys.reduce((object, key) => {
       object[key] = redirectUri;
       return object;
-    }, {});
+    }, {} as Record<string, string>);
   } else if (!redirectUri) {
     return keys.reduce((object, key) => {
       object[key] = typeof window !== "undefined" ? window.location.href : "";
       return object;
-    }, {});
+    }, {} as Record<string, string>);
   }
+  return {};
 };
 
 /**
@@ -33,6 +43,15 @@ const createRedirectUriObject = (redirectUri) => {
  * @classdesc The Auth class is used to authenticate the user.
  */
 class Auth {
+  redirectUri: Record<string, string>;
+  clientId: string;
+  isAuthenticated: boolean;
+  jwt: string | null;
+  walletAddress: string | null;
+  userId: string | null;
+  viem: any;
+  #triggers: Record<string, Function[]>;
+
   /**
    * Constructor for the Auth class.
    * @param {object} options The options object.
@@ -40,8 +59,13 @@ class Auth {
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
-  #triggers;
-  constructor({ clientId, redirectUri }) {
+  constructor({
+    clientId,
+    redirectUri,
+  }: {
+    clientId: string;
+    redirectUri: string | Record<string, string>;
+  }) {
     if (!clientId) {
       throw new Error("clientId is required");
     }
@@ -58,8 +82,8 @@ class Auth {
     this.jwt = null;
     this.walletAddress = null;
     this.userId = null;
-    this.#triggers = [];
-    providerStore.subscribe((providers) => {
+    this.#triggers = {};
+    providerStore.subscribe((providers: Provider[]) => {
       this.#trigger("providers", providers);
     });
     this.#loadAuthStatusFromStorage();
@@ -75,7 +99,7 @@ class Auth {
    *  console.log(state);
    * });
    */
-  on(event, callback) {
+  on(event: "state" | "provider" | "providers", callback: Function): void {
     if (!this.#triggers[event]) {
       this.#triggers[event] = [];
     }
@@ -89,10 +113,10 @@ class Auth {
    * Trigger an event.
    * @private
    * @param {string} event The event.
-   * @param {object} data The data.
+   * @param {object | string} data The data to pass to the callback.
    * @returns {void}
    */
-  #trigger(event, data) {
+  #trigger(event: string, data: object | string): void {
     if (this.#triggers[event]) {
       this.#triggers[event].forEach((callback) => callback(data));
     }
@@ -103,7 +127,7 @@ class Auth {
    * @param {boolean} loading The loading state.
    * @returns {void}
    */
-  setLoading(loading) {
+  setLoading(loading: boolean): void {
     this.#trigger(
       "state",
       loading
@@ -120,7 +144,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the provider is not provided.
    */
-  setProvider({ provider, info }) {
+  setProvider({ provider, info }: { provider: any; info: any }): void {
     if (!provider) {
       throw new APIError("provider is required");
     }
@@ -133,7 +157,7 @@ class Auth {
    * @param {string} walletAddress The wallet address.
    * @returns {void}
    */
-  setWalletAddress(walletAddress) {
+  setWalletAddress(walletAddress: string): void {
     this.walletAddress = walletAddress;
   }
 
@@ -142,7 +166,7 @@ class Auth {
    * @private
    * @returns {void}
    */
-  #loadAuthStatusFromStorage() {
+  #loadAuthStatusFromStorage(): void {
     if (typeof localStorage === "undefined") {
       return;
     }
@@ -165,12 +189,12 @@ class Auth {
    * @returns {Promise<void>} A promise that resolves when the user connects their wallet.
    * @throws {APIError} - Throws an error if the user does not connect their wallet.
    */
-  async #requestAccount() {
+  async #requestAccount(): Promise<string> {
     try {
       const [account] = await this.viem.requestAddresses();
       this.walletAddress = account;
       return account;
-    } catch (e) {
+    } catch (e: any) {
       throw new APIError(e);
     }
   }
@@ -181,7 +205,7 @@ class Auth {
    * @returns {Promise<string>} A promise that resolves with the nonce.
    * @throws {APIError} - Throws an error if the nonce cannot be fetched.
    */
-  async #fetchNonce() {
+  async #fetchNonce(): Promise<string> {
     try {
       const res = await fetch(
         `${constants.AUTH_HUB_BASE_API}/auth/client-user/nonce`,
@@ -199,7 +223,7 @@ class Auth {
         return Promise.reject(data.message || "Failed to fetch nonce");
       }
       return data.data;
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(e);
     }
   }
@@ -212,7 +236,10 @@ class Auth {
    * @returns {Promise<object>} A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
    */
-  async #verifySignature(message, signature) {
+  async #verifySignature(
+    message: string,
+    signature: string
+  ): Promise<{ success: boolean; userId: string; token: string }> {
     try {
       const res = await fetch(
         `${constants.AUTH_HUB_BASE_API}/auth/client-user/verify`,
@@ -237,7 +264,7 @@ class Auth {
         userId: decoded.id,
         token: data.data,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new APIError(e);
     }
   }
@@ -248,10 +275,10 @@ class Auth {
    * @param {string} nonce The nonce.
    * @returns {string} The EIP-4361 formatted message.
    */
-  #createMessage(nonce) {
+  #createMessage(nonce: string): string {
     return createSiweMessage({
       domain: window.location.host,
-      address: this.walletAddress,
+      address: this.walletAddress as any,
       statement: constants.SIWE_MESSAGE_STATEMENT,
       uri: window.location.origin,
       version: "1",
@@ -264,7 +291,7 @@ class Auth {
    * Disconnect the user.
    * @returns {void}
    */
-  async disconnect() {
+  async disconnect(): Promise<void> {
     this.isAuthenticated = false;
     this.walletAddress = null;
     this.userId = null;
@@ -280,7 +307,11 @@ class Auth {
    * @returns {Promise<object>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
-  async connect() {
+  async connect(): Promise<{
+    success: boolean;
+    message: string;
+    walletAddress: string;
+  }> {
     this.#trigger("state", "loading");
     try {
       if (!this.walletAddress) {
@@ -292,26 +323,29 @@ class Auth {
         account: this.walletAddress,
         message: message,
       });
-      const res = await this.#verifySignature(message, signature, nonce);
+      const res = await this.#verifySignature(message, signature);
       if (res.success) {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
         localStorage.setItem("camp-sdk:jwt", this.jwt);
-        localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
+        localStorage.setItem(
+          "camp-sdk:wallet-address",
+          this.walletAddress as string
+        );
         localStorage.setItem("camp-sdk:user-id", this.userId);
         this.#trigger("state", "authenticated");
         return {
           success: true,
           message: "Successfully authenticated",
-          walletAddress: this.walletAddress,
+          walletAddress: this.walletAddress as string,
         };
       } else {
         this.isAuthenticated = false;
         this.#trigger("state", "unauthenticated");
         throw new APIError("Failed to authenticate");
       }
-    } catch (e) {
+    } catch (e: any) {
       this.isAuthenticated = false;
       this.#trigger("state", "unauthenticated");
       throw new APIError(e);
@@ -327,7 +361,7 @@ class Auth {
    * const socials = await auth.getLinkedSocials();
    * console.log(socials);
    */
-  async getLinkedSocials() {
+  async getLinkedSocials(): Promise<Record<string, any>> {
     if (!this.isAuthenticated)
       throw new APIError("User needs to be authenticated");
     const connections = await fetch(
@@ -342,7 +376,7 @@ class Auth {
       }
     ).then((res) => res.json());
     if (!connections.isError) {
-      const socials = {};
+      const socials: Record<string, any> = {};
       Object.keys(connections.data.data).forEach((key) => {
         socials[key.split("User")[0]] = connections.data.data[key];
       });
@@ -357,7 +391,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkTwitter() {
+  linkTwitter(): void {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -369,7 +403,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkDiscord() {
+  linkDiscord(): void {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -381,7 +415,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkSpotify() {
+  linkSpotify(): void {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -394,7 +428,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  async linkTikTok(handle) {
+  async linkTikTok(handle: string): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -435,7 +469,7 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  async sendTelegramOTP(phoneNumber) {
+  async sendTelegramOTP(phoneNumber: string): Promise<any> {
     if (!this.isAuthenticated)
       throw new APIError("User needs to be authenticated");
     if (!phoneNumber) throw new APIError("Phone number is required");
@@ -471,27 +505,34 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
    */
-  async linkTelegram(phoneNumber, otp, phoneCodeHash) {
+  async linkTelegram(
+    phoneNumber: string,
+    otp: string,
+    phoneCodeHash: string
+  ): Promise<any> {
     if (!this.isAuthenticated)
       throw new APIError("User needs to be authenticated");
     if (!phoneNumber || !otp || !phoneCodeHash)
       throw new APIError("Phone number, OTP, and phone code hash are required");
-    const data = await fetch(`${constants.AUTH_HUB_BASE_API}/telegram/signIn-sdk`, {
-      method: "POST",
-      redirect: "follow",
-      headers: {
-        Authorization: `Bearer ${this.jwt}`,
-        "x-client-id": this.clientId,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        phone: phoneNumber,
-        code: otp,
-        phone_code_hash: phoneCodeHash,
-        userId: this.userId,
-        clientId: this.clientId,
-      }),
-    }).then((res) => res.json());
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/telegram/signIn-sdk`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          code: otp,
+          phone_code_hash: phoneCodeHash,
+          userId: this.userId,
+          clientId: this.clientId,
+        }),
+      }
+    ).then((res) => res.json());
 
     if (!data.isError) {
       return data.data;
@@ -503,7 +544,7 @@ class Auth {
   /**
    * Unlink the user's Twitter account.
    */
-  async unlinkTwitter() {
+  async unlinkTwitter(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -532,7 +573,7 @@ class Auth {
   /**
    * Unlink the user's Discord account.
    */
-  async unlinkDiscord() {
+  async unlinkDiscord(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -561,7 +602,7 @@ class Auth {
   /**
    * Unlink the user's Spotify account.
    */
-  async unlinkSpotify() {
+  async unlinkSpotify(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -587,7 +628,7 @@ class Auth {
     }
   }
 
-  async unlinkTikTok() {
+  async unlinkTikTok(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
@@ -614,7 +655,7 @@ class Auth {
     }
   }
 
-  async unlinkTelegram() {
+  async unlinkTelegram(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
