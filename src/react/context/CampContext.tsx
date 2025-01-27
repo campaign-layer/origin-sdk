@@ -40,6 +40,7 @@ const CampContext = createContext<CampContextType>({
  * @param {string} props.clientId The Camp client ID
  * @param {string} props.redirectUri The redirect URI to use after social oauths
  * @param {React.ReactNode} props.children The children components
+ * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
  * @returns {JSX.Element} The CampProvider component
  */
 const CampProvider = ({

@@ -257,6 +257,8 @@ class K{
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
+     * @param {boolean} options.allowAnalytics Whether to allow analytics to be sent.
+     * @param {object} options.ackeeInstance The Ackee instance.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
 constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(U.add(this),N.set(this,void 0),C.set(this,void 0),!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=m(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,i)=>(e[i]=t[i]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,i)=>(e[i]=t,e)),{}):t?{}:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),n&&o(this,C,n,"f"),i&&!s(this,C,"f")&&o(this,C,O(I,{detailed:!1,ignoreLocalhost:!1,ignoreOwnVisits:!1}),"f"),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,o(this,N,{},"f"),T((t=>{s(this,U,"m",_).call(this,"providers",t)})),s(this,U,"m",P).call(this)}
