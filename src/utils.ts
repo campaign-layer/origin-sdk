@@ -69,6 +69,36 @@ const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const sendAnalyticsEvent = async (
+  ackee: any,
+  event: string,
+  key: string,
+  value: number
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && ackee !== null) {
+      console.log("Sending analytics event", event, value);
+      try {
+        ackee.action(
+          event,
+          {
+            key: key,
+            value: value,
+          },
+          (res: string) => {
+            resolve(res);
+          }
+        );
+      } catch (error) {
+        console.error(error);
+        reject(error);
+      }
+    } else {
+      reject(new Error("Ackee is not available or window is undefined"));
+    }
+  });
+};
+
 export {
   fetchData,
   buildQueryString,

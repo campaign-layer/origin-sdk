@@ -220,9 +220,11 @@ declare class Auth {
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, }: {
+    constructor({ clientId, redirectUri, allowAnalytics, ackeeInstance, }: {
         clientId: string;
         redirectUri: string | Record<string, string>;
+        allowAnalytics?: boolean;
+        ackeeInstance?: any;
     });
     /**
      * Subscribe to an event. Possible events are "state", "provider", and "providers".
@@ -287,19 +289,19 @@ declare class Auth {
      * @returns {void}
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
-    linkTwitter(): void;
+    linkTwitter(): Promise<void>;
     /**
      * Link the user's Discord account.
      * @returns {void}
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
-    linkDiscord(): void;
+    linkDiscord(): Promise<void>;
     /**
      * Link the user's Spotify account.
      * @returns {void}
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
-    linkSpotify(): void;
+    linkSpotify(): Promise<void>;
     /**
      * Link the user's TikTok account.
      * @param {string} handle The user's TikTok handle.

@@ -824,7 +824,7 @@ export const MyCampModal = ({ wcProvider }: { wcProvider: any }) => {
   const { disconnect } = useConnect();
   const { socials, isLoading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
-  const { linkTikTok, linkTelegram } = useLinkModal();
+  const { linkTiktok, linkTelegram } = useLinkModal();
 
   if (!auth) {
     throw new Error(
@@ -866,7 +866,7 @@ export const MyCampModal = ({ wcProvider }: { wcProvider: any }) => {
     },
     {
       name: "TikTok",
-      link: linkTikTok,
+      link: linkTiktok,
       unlink: auth.unlinkTikTok.bind(auth),
       isConnected: socials?.tiktok,
       icon: <TikTokIcon />,

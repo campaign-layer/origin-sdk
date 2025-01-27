@@ -4,6 +4,8 @@ import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
+import * as ackeeTracker from "../../ackeeUtil";
+import { sendAnalyticsEvent } from "../../utils";
 
 declare global {
   interface Window {
@@ -51,6 +53,7 @@ class Auth {
   userId: string | null;
   viem: any;
   #triggers: Record<string, Function[]>;
+  #ackeeInstance: any;
 
   /**
    * Constructor for the Auth class.
@@ -62,9 +65,13 @@ class Auth {
   constructor({
     clientId,
     redirectUri,
+    allowAnalytics = true,
+    ackeeInstance,
   }: {
     clientId: string;
     redirectUri: string | Record<string, string>;
+    allowAnalytics?: boolean;
+    ackeeInstance?: any;
   }) {
     if (!clientId) {
       throw new Error("clientId is required");
@@ -76,6 +83,15 @@ class Auth {
       if (window.ethereum) this.viem = getClient(window.ethereum);
     }
     this.redirectUri = createRedirectUriObject(redirectUri);
+
+    if (ackeeInstance) this.#ackeeInstance = ackeeInstance;
+    if (allowAnalytics && !this.#ackeeInstance) {
+      this.#ackeeInstance = ackeeTracker.create(constants.ACKEE_INSTANCE, {
+        detailed: false,
+        ignoreLocalhost: false,
+        ignoreOwnVisits: false,
+      });
+    }
 
     this.clientId = clientId;
     this.isAuthenticated = false;
@@ -287,6 +303,10 @@ class Auth {
     });
   }
 
+  async #sendAnalyticsEvent(event: string, message: string, count: number = 1) {
+    await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
+  }
+
   /**
    * Disconnect the user.
    * @returns {void}
@@ -300,6 +320,10 @@ class Auth {
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
     this.#trigger("state", "unauthenticated");
+    await this.#sendAnalyticsEvent(
+      constants.ACKEE_EVENTS.USER_DISCONNECTED,
+      "User Disconnected"
+    );
   }
 
   /**
@@ -335,6 +359,10 @@ class Auth {
         );
         localStorage.setItem("camp-sdk:user-id", this.userId);
         this.#trigger("state", "authenticated");
+        await this.#sendAnalyticsEvent(
+          constants.ACKEE_EVENTS.USER_CONNECTED,
+          "User Connected"
+        );
         return {
           success: true,
           message: "Successfully authenticated",
@@ -391,10 +419,14 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkTwitter(): void {
+  async linkTwitter(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
+    await this.#sendAnalyticsEvent(
+      constants.ACKEE_EVENTS.TWITTER_LINKED,
+      "Twitter Linked"
+    );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
 
@@ -403,10 +435,14 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkDiscord(): void {
+  async linkDiscord(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
+    await this.#sendAnalyticsEvent(
+      constants.ACKEE_EVENTS.DISCORD_LINKED,
+      "Discord Linked"
+    );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
 
@@ -415,10 +451,14 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the user is not authenticated.
    */
-  linkSpotify(): void {
+  async linkSpotify(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
     }
+    await this.#sendAnalyticsEvent(
+      constants.ACKEE_EVENTS.SPOTIFY_LINKED,
+      "Spotify Linked"
+    );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 
@@ -451,6 +491,10 @@ class Auth {
     ).then((res) => res.json());
 
     if (!data.isError) {
+      this.#sendAnalyticsEvent(
+        constants.ACKEE_EVENTS.TIKTOK_LINKED,
+        "TikTok Linked"
+      );
       return data.data;
     } else {
       if (data.message === "Request failed with status code 502") {
@@ -535,6 +579,10 @@ class Auth {
     ).then((res) => res.json());
 
     if (!data.isError) {
+      this.#sendAnalyticsEvent(
+        constants.ACKEE_EVENTS.TELEGRAM_LINKED,
+        "Telegram Linked"
+      );
       return data.data;
     } else {
       throw new APIError(data.message || "Failed to link Telegram account");

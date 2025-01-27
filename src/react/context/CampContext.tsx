@@ -3,8 +3,10 @@ import { Auth } from "../../core/auth/index";
 import { ModalProvider } from "./ModalContext";
 // @ts-ignore
 import { WagmiContext } from "wagmi";
+import * as ackeeTracker from "../../ackeeUtil";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../toasts";
+import constants from "../../constants";
 
 /**
  * CampContext
@@ -19,6 +21,8 @@ interface CampContextType {
   auth: Auth | null;
   setAuth: React.Dispatch<React.SetStateAction<Auth>>;
   wagmiAvailable: boolean;
+  ackee: any;
+  setAckee: any;
 }
 
 const CampContext = createContext<CampContextType>({
@@ -26,6 +30,8 @@ const CampContext = createContext<CampContextType>({
   auth: null,
   setAuth: () => {},
   wagmiAvailable: false,
+  ackee: null,
+  setAckee: () => {},
 });
 
 /**
@@ -40,13 +46,28 @@ const CampProvider = ({
   clientId,
   redirectUri,
   children,
+  allowAnalytics = true,
 }: {
   clientId: string;
   redirectUri?: string;
   children: React.ReactNode;
+  allowAnalytics?: boolean;
 }) => {
+  const ackeeInstance = allowAnalytics
+    ? ackeeTracker.create(constants.ACKEE_INSTANCE, {
+        detailed: false,
+        ignoreLocalhost: false,
+        ignoreOwnVisits: false,
+      })
+    : null;
+  const [ackee, setAckee] = useState(ackeeInstance);
+
   const [auth, setAuth] = useState(
-    new Auth({ clientId, redirectUri: redirectUri || window.location.href })
+    new Auth({
+      clientId,
+      redirectUri: redirectUri || window.location.href,
+      ackeeInstance,
+    })
   );
 
   const wagmiContext = useContext(WagmiContext);
@@ -58,6 +79,8 @@ const CampProvider = ({
         auth,
         setAuth,
         wagmiAvailable: wagmiContext !== undefined,
+        ackee,
+        setAckee,
       }}
     >
       <SocialsProvider>
