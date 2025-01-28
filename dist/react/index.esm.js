@@ -2,8 +2,8 @@
 import React, { createContext, useState, useContext, useRef, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 import { createWalletClient, custom } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
-import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
 import 'axios';
+import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
 import { EthereumProvider } from '@walletconnect/ethereum-provider';
 import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -124,6 +124,16 @@ var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
     AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
     AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
+    ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
+    ACKEE_EVENTS: {
+        USER_CONNECTED: "ed42542d-b676-4112-b6d9-6db98048b2e0",
+        USER_DISCONNECTED: "20af31ac-e602-442e-9e0e-b589f4dd4016",
+        TWITTER_LINKED: "7fbea086-90ef-4679-ba69-f47f9255b34c",
+        DISCORD_LINKED: "d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",
+        SPOTIFY_LINKED: "fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",
+        TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
+        TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
+    },
 };
 
 let providers = [];
@@ -144,7 +154,391 @@ const providerStore = {
     },
 };
 
-var _Auth_instances, _Auth_triggers, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage;
+/**
+The MIT License (MIT)
+
+Copyright (c) Tobias Reich
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+const isBrowser = typeof window !== "undefined";
+/**
+ * Validates options and sets defaults for undefined properties.
+ * @param {?Object} opts
+ * @returns {Object} opts - Validated options.
+ */
+const validate = function (opts = {}) {
+    // Create new object to avoid changes by reference
+    const _opts = {};
+    // Defaults to false
+    _opts.detailed = opts.detailed === true;
+    // Defaults to true
+    _opts.ignoreLocalhost = opts.ignoreLocalhost !== false;
+    // Defaults to true
+    _opts.ignoreOwnVisits = opts.ignoreOwnVisits !== false;
+    return _opts;
+};
+/**
+ * Determines if a host is a localhost.
+ * @param {String} hostname - Hostname that should be tested.
+ * @returns {Boolean} isLocalhost
+ */
+const isLocalhost = function (hostname) {
+    return (hostname === "" ||
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "::1");
+};
+/**
+ * Determines if user agent is a bot. Approach is to get most bots, assuming other bots don't run JS.
+ * Source: https://stackoverflow.com/questions/20084513/detect-search-crawlers-via-javascript/20084661
+ * @param {String} userAgent - User agent that should be tested.
+ * @returns {Boolean} isBot
+ */
+const isBot = function (userAgent) {
+    return /bot|crawler|spider|crawling/i.test(userAgent);
+};
+/**
+ * Checks if an id is a fake id. This is the case when Ackee ignores you because of the `ackee_ignore` cookie.
+ * @param {String} id - Id that should be tested.
+ * @returns {Boolean} isFakeId
+ */
+const isFakeId = function (id) {
+    return id === "88888888-8888-8888-8888-888888888888";
+};
+/**
+ * Checks if the website is in background (e.g. user has minimzed or switched tabs).
+ * @returns {boolean}
+ */
+const isInBackground = function () {
+    return document.visibilityState === "hidden";
+};
+/**
+ * Get the optional source parameter.
+ * @returns {String} source
+ */
+const source = function () {
+    const source = (location.search.split(`source=`)[1] || "").split("&")[0];
+    return source === "" ? undefined : source;
+};
+/**
+ * Gathers all platform-, screen- and user-related information.
+ * @param {Boolean} detailed - Include personal data.
+ * @returns {Object} attributes - User-related information.
+ */
+const attributes = function (detailed = false) {
+    const defaultData = {
+        siteLocation: window.location.href,
+        siteReferrer: document.referrer,
+        source: source(),
+    };
+    const detailedData = {
+        siteLanguage: (navigator.language || navigator.language).substr(0, 2),
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        screenColorDepth: screen.colorDepth,
+        browserWidth: window.outerWidth,
+        browserHeight: window.outerHeight,
+    };
+    return Object.assign(Object.assign({}, defaultData), (detailed === true ? detailedData : {}));
+};
+/**
+ * Creates an object with a query and variables property to create a record on the server.
+ * @param {String} domainId - Id of the domain.
+ * @param {Object} input - Data that should be transferred to the server.
+ * @returns {Object} Create record body.
+ */
+const createRecordBody = function (domainId, input) {
+    return {
+        query: `
+			mutation createRecord($domainId: ID!, $input: CreateRecordInput!) {
+				createRecord(domainId: $domainId, input: $input) {
+					payload {
+						id
+					}
+				}
+			}
+		`,
+        variables: {
+            domainId,
+            input,
+        },
+    };
+};
+/**
+ * Creates an object with a query and variables property to update a record on the server.
+ * @param {String} recordId - Id of the record.
+ * @returns {Object} Update record body.
+ */
+const updateRecordBody = function (recordId) {
+    return {
+        query: `
+			mutation updateRecord($recordId: ID!) {
+				updateRecord(id: $recordId) {
+					success
+				}
+			}
+		`,
+        variables: {
+            recordId,
+        },
+    };
+};
+/**
+ * Creates an object with a query and variables property to create an action on the server.
+ * @param {String} eventId - Id of the event.
+ * @param {Object} input - Data that should be transferred to the server.
+ * @returns {Object} Create action body.
+ */
+const createActionBody = function (eventId, input) {
+    return {
+        query: `
+			mutation createAction($eventId: ID!, $input: CreateActionInput!) {
+				createAction(eventId: $eventId, input: $input) {
+					payload {
+						id
+					}
+				}
+			}
+		`,
+        variables: {
+            eventId,
+            input,
+        },
+    };
+};
+/**
+ * Creates an object with a query and variables property to update an action on the server.
+ * @param {String} actionId - Id of the action.
+ * @param {Object} input - Data that should be transferred to the server.
+ * @returns {Object} Update action body.
+ */
+const updateActionBody = function (actionId, input) {
+    return {
+        query: `
+			mutation updateAction($actionId: ID!, $input: UpdateActionInput!) {
+				updateAction(id: $actionId, input: $input) {
+					success
+				}
+			}
+		`,
+        variables: {
+            actionId,
+            input,
+        },
+    };
+};
+/**
+ * Construct URL to the GraphQL endpoint of Ackee.
+ * @param {String} server - URL of the Ackee server.
+ * @returns {String} endpoint - URL to the GraphQL endpoint of the Ackee server.
+ */
+const endpoint = function (server) {
+    const hasTrailingSlash = server.substr(-1) === "/";
+    return server + (hasTrailingSlash === true ? "" : "/") + "api";
+};
+/**
+ * Sends a request to a specified URL.
+ * Won't catch all errors as some are already logged by the browser.
+ * In this case the callback won't fire.
+ * @param {String} url - URL to the GraphQL endpoint of the Ackee server.
+ * @param {Object} body - JSON which will be send to the server.
+ * @param {Object} opts - Options.
+ * @param {?Function} next - The callback that handles the response. Receives the following properties: json.
+ */
+const send = function (url, body, opts, next) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.onload = () => {
+        if (xhr.status !== 200) {
+            throw new Error("Server returned with an unhandled status");
+        }
+        let json = null;
+        try {
+            json = JSON.parse(xhr.responseText);
+        }
+        catch (e) {
+            throw new Error("Failed to parse response from server");
+        }
+        if (json.errors != null) {
+            throw new Error(json.errors[0].message);
+        }
+        if (typeof next === "function") {
+            return next(json);
+        }
+    };
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    //   xhr.withCredentials = opts.ignoreOwnVisits ?? false;
+    xhr.withCredentials = false;
+    xhr.send(JSON.stringify(body));
+};
+/**
+ * Looks for an element with Ackee attributes and executes Ackee with the given attributes.
+ * Fails silently.
+ */
+const detect = function () {
+    const elem = document.querySelector("[data-ackee-domain-id]");
+    if (elem == null)
+        return;
+    const server = elem.getAttribute("data-ackee-server") || "";
+    const domainId = elem.getAttribute("data-ackee-domain-id") || "";
+    const opts = elem.getAttribute("data-ackee-opts") || "{}";
+    create(server, JSON.parse(opts)).record(domainId);
+};
+/**
+ * Creates a new instance.
+ * @param {String} server - URL of the Ackee server.
+ * @param {?Object} opts
+ * @returns {Object} instance
+ */
+const create = function (server, opts) {
+    opts = validate(opts);
+    const url = endpoint(server);
+    const noop = () => { };
+    // Fake instance when Ackee ignores you
+    const fakeInstance = {
+        record: () => ({ stop: noop }),
+        updateRecord: () => ({ stop: noop }),
+        action: noop,
+        updateAction: noop,
+    };
+    if (opts.ignoreLocalhost === true &&
+        isLocalhost(location.hostname) === true) {
+        console.warn("Ackee ignores you because you are on localhost");
+        return fakeInstance;
+    }
+    if (isBot(navigator.userAgent) === true) {
+        console.warn("Ackee ignores you because you are a bot");
+        return fakeInstance;
+    }
+    // Creates a new record on the server and updates the record
+    // very x seconds to track the duration of the visit. Tries to use
+    // the default attributes when there're no custom attributes defined.
+    const _record = (domainId, attrs = attributes(opts.detailed), next) => {
+        // Function to stop updating the record
+        let isStopped = false;
+        const stop = () => {
+            isStopped = true;
+        };
+        send(url, createRecordBody(domainId, attrs), opts, (json) => {
+            const recordId = json.data.createRecord.payload.id;
+            if (isFakeId(recordId) === true) {
+                return console.warn("Ackee ignores you because this is your own site");
+            }
+            const interval = setInterval(() => {
+                if (isStopped === true) {
+                    clearInterval(interval);
+                    return;
+                }
+                if (isInBackground() === true)
+                    return;
+                send(url, updateRecordBody(recordId), opts);
+            }, 15000);
+            if (typeof next === "function") {
+                return next(recordId);
+            }
+        });
+        return { stop };
+    };
+    // Updates a record very x seconds to track the duration of the visit
+    const _updateRecord = (recordId) => {
+        // Function to stop updating the record
+        let isStopped = false;
+        const stop = () => {
+            isStopped = true;
+        };
+        if (isFakeId(recordId) === true) {
+            console.warn("Ackee ignores you because this is your own site");
+            return { stop };
+        }
+        const interval = setInterval(() => {
+            if (isStopped === true) {
+                clearInterval(interval);
+                return;
+            }
+            if (isInBackground() === true)
+                return;
+            send(url, updateRecordBody(recordId));
+        }, 15000);
+        return { stop };
+    };
+    // Creates a new action on the server
+    const _action = (eventId, attrs, next) => {
+        send(url, createActionBody(eventId, attrs), opts, (json) => {
+            const actionId = json.data.createAction.payload.id;
+            if (isFakeId(actionId) === true) {
+                return console.warn("Ackee ignores you because this is your own site");
+            }
+            if (typeof next === "function") {
+                return next(actionId);
+            }
+        });
+    };
+    // Updates an action
+    const _updateAction = (actionId, attrs) => {
+        if (isFakeId(actionId) === true) {
+            return console.warn("Ackee ignores you because this is your own site");
+        }
+        send(url, updateActionBody(actionId, attrs));
+    };
+    // Return the real instance
+    return {
+        record: _record,
+        updateRecord: _updateRecord,
+        action: _action,
+        updateAction: _updateAction,
+    };
+};
+// Only run Ackee automatically when executed in a browser environment
+if (isBrowser === true) {
+    detect();
+}
+
+const formatAddress = (address, n = 8) => {
+    return `${address.slice(0, n)}...${address.slice(-n)}`;
+};
+const capitalize = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        if (typeof window !== "undefined" && ackee !== null) {
+            try {
+                ackee.action(event, {
+                    key: key,
+                    value: value,
+                }, (res) => {
+                    resolve(res);
+                });
+            }
+            catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        }
+        else {
+            reject(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."));
+        }
+    });
+});
+
+var _Auth_instances, _Auth_triggers, _Auth_ackeeInstance, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage, _Auth_sendAnalyticsEvent;
 const createRedirectUriObject = (redirectUri) => {
     const keys = ["twitter", "discord", "spotify"];
     if (typeof redirectUri === "object") {
@@ -180,11 +574,14 @@ class Auth {
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
+     * @param {boolean} options.allowAnalytics Whether to allow analytics to be sent.
+     * @param {object} options.ackeeInstance The Ackee instance.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, }) {
+    constructor({ clientId, redirectUri, allowAnalytics = true, ackeeInstance, }) {
         _Auth_instances.add(this);
         _Auth_triggers.set(this, void 0);
+        _Auth_ackeeInstance.set(this, void 0);
         if (!clientId) {
             throw new Error("clientId is required");
         }
@@ -194,6 +591,15 @@ class Auth {
                 this.viem = getClient(window.ethereum);
         }
         this.redirectUri = createRedirectUriObject(redirectUri);
+        if (ackeeInstance)
+            __classPrivateFieldSet(this, _Auth_ackeeInstance, ackeeInstance, "f");
+        if (allowAnalytics && !__classPrivateFieldGet(this, _Auth_ackeeInstance, "f")) {
+            __classPrivateFieldSet(this, _Auth_ackeeInstance, create(constants.ACKEE_INSTANCE, {
+                detailed: false,
+                ignoreLocalhost: false,
+                ignoreOwnVisits: false,
+            }), "f");
+        }
         this.clientId = clientId;
         this.isAuthenticated = false;
         this.jwt = null;
@@ -271,6 +677,7 @@ class Auth {
             localStorage.removeItem("camp-sdk:user-id");
             localStorage.removeItem("camp-sdk:jwt");
             __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
+            yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.USER_DISCONNECTED, "User Disconnected");
         });
     }
     /**
@@ -300,6 +707,7 @@ class Auth {
                     localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
                     localStorage.setItem("camp-sdk:user-id", this.userId);
                     __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "authenticated");
+                    yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.USER_CONNECTED, "User Connected");
                     return {
                         success: true,
                         message: "Successfully authenticated",
@@ -358,10 +766,13 @@ class Auth {
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
     linkTwitter() {
-        if (!this.isAuthenticated) {
-            throw new APIError("User needs to be authenticated");
-        }
-        window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isAuthenticated) {
+                throw new APIError("User needs to be authenticated");
+            }
+            yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.TWITTER_LINKED, "Twitter Linked");
+            window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
+        });
     }
     /**
      * Link the user's Discord account.
@@ -369,10 +780,13 @@ class Auth {
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
     linkDiscord() {
-        if (!this.isAuthenticated) {
-            throw new APIError("User needs to be authenticated");
-        }
-        window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isAuthenticated) {
+                throw new APIError("User needs to be authenticated");
+            }
+            yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.DISCORD_LINKED, "Discord Linked");
+            window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
+        });
     }
     /**
      * Link the user's Spotify account.
@@ -380,10 +794,13 @@ class Auth {
      * @throws {APIError} - Throws an error if the user is not authenticated.
      */
     linkSpotify() {
-        if (!this.isAuthenticated) {
-            throw new APIError("User needs to be authenticated");
-        }
-        window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isAuthenticated) {
+                throw new APIError("User needs to be authenticated");
+            }
+            yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.SPOTIFY_LINKED, "Spotify Linked");
+            window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
+        });
     }
     /**
      * Link the user's TikTok account.
@@ -411,6 +828,7 @@ class Auth {
                 }),
             }).then((res) => res.json());
             if (!data.isError) {
+                __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.TIKTOK_LINKED, "TikTok Linked");
                 return data.data;
             }
             else {
@@ -487,6 +905,7 @@ class Auth {
                 }),
             }).then((res) => res.json());
             if (!data.isError) {
+                __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.TELEGRAM_LINKED, "Telegram Linked");
                 return data.data;
             }
             else {
@@ -629,7 +1048,7 @@ class Auth {
         });
     }
 }
-_Auth_triggers = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger = function _Auth_trigger(event, data) {
+_Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger = function _Auth_trigger(event, data) {
     if (__classPrivateFieldGet(this, _Auth_triggers, "f")[event]) {
         __classPrivateFieldGet(this, _Auth_triggers, "f")[event].forEach((callback) => callback(data));
     }
@@ -718,6 +1137,10 @@ _Auth_triggers = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger =
         version: "1",
         chainId: this.viem.chain.id,
         nonce: nonce,
+    });
+}, _Auth_sendAnalyticsEvent = function _Auth_sendAnalyticsEvent(event_1, message_1) {
+    return __awaiter(this, arguments, void 0, function* (event, message, count = 1) {
+        yield sendAnalyticsEvent(__classPrivateFieldGet(this, _Auth_ackeeInstance, "f"), event, message, count);
     });
 };
 
@@ -852,6 +1275,8 @@ const CampContext = createContext({
     auth: null,
     setAuth: () => { },
     wagmiAvailable: false,
+    ackee: null,
+    setAckee: () => { },
 });
 /**
  * CampProvider
@@ -859,16 +1284,31 @@ const CampContext = createContext({
  * @param {string} props.clientId The Camp client ID
  * @param {string} props.redirectUri The redirect URI to use after social oauths
  * @param {React.ReactNode} props.children The children components
+ * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
  * @returns {JSX.Element} The CampProvider component
  */
-const CampProvider = ({ clientId, redirectUri, children, }) => {
-    const [auth, setAuth] = useState(new Auth({ clientId, redirectUri: redirectUri || window.location.href }));
+const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, }) => {
+    const ackeeInstance = allowAnalytics
+        ? create(constants.ACKEE_INSTANCE, {
+            detailed: false,
+            ignoreLocalhost: false,
+            ignoreOwnVisits: false,
+        })
+        : null;
+    const [ackee, setAckee] = useState(ackeeInstance);
+    const [auth, setAuth] = useState(new Auth({
+        clientId,
+        redirectUri: redirectUri || window.location.href,
+        ackeeInstance,
+    }));
     const wagmiContext = useContext(WagmiContext);
     return (React.createElement(CampContext.Provider, { value: {
             clientId,
             auth,
             setAuth,
             wagmiAvailable: wagmiContext !== undefined,
+            ackee,
+            setAckee,
         } },
         React.createElement(SocialsProvider, null,
             React.createElement(ToastProvider, null,
@@ -878,13 +1318,6 @@ const CampProvider = ({ clientId, redirectUri, children, }) => {
 var css_248z$1 = "@import url(\"https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap\");.auth-module_modal__yyg5L{-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);background-color:#000;background-color:rgba(0,0,0,.4);height:100%;left:0;overflow:auto;position:fixed;top:0;transition:all .3s;width:100%;z-index:85}.auth-module_modal__yyg5L .auth-module_container__7utns{align-items:center;background-color:#fefefe;border:1px solid #888;border-radius:1.5rem;box-sizing:border-box;display:flex;flex-direction:column;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;justify-content:center;left:50%;padding:1.5rem 1.5rem 1rem;position:absolute;top:50%;transform:translate(-50%,-50%);width:300px;@media screen and (max-width:440px){border-bottom-left-radius:0;border-bottom-right-radius:0;bottom:0;top:auto;transform:translate(-50%);width:100%}}.auth-module_container__7utns h2{font-size:1.25rem;margin-bottom:1rem;margin-top:0}.auth-module_container__7utns .auth-module_header__pX9nM{align-items:center;color:#333;display:flex;flex-direction:column;font-size:1.2rem;font-weight:700;justify-content:center;margin-bottom:1rem;text-align:center;width:100%}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_small-modal-icon__YayD1{height:2rem;margin-bottom:.5rem;margin-top:.5rem;width:2rem}.auth-module_container__7utns .auth-module_header__pX9nM .auth-module_wallet-address__AVVA5{color:#777;font-size:.75rem;font-weight:400;margin-top:.5rem}.auth-module_container__7utns .auth-module_close-button__uZrho{background-color:#fff;border:2px solid #ddd;border-radius:100%;color:#aaa;font-size:1.5rem;height:1.25rem;position:absolute;right:1rem;top:1rem;transition:color .15s;width:1.25rem}.auth-module_close-button__uZrho>.auth-module_close-icon__SSCni{display:block;height:1rem;padding:.15rem;position:relative;width:1rem}.auth-module_container__7utns .auth-module_close-button__uZrho:hover{background-color:#ddd;color:#888;cursor:pointer}.auth-module_container__7utns .auth-module_linking-text__uz3ud{color:#777;font-size:1rem;text-align:center}.auth-module_provider-list__6vISy{box-sizing:border-box;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;max-height:17.9rem;overflow-y:auto;padding-left:.5rem;padding-right:.5rem;scrollbar-color:#ccc #f1f1f1;scrollbar-width:thin;width:100%}.auth-module_provider-list__6vISy.auth-module_big__jQxvN{max-height:16rem}.auth-module_provider-list__6vISy::-webkit-scrollbar{border-radius:.25rem;width:.5rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-thumb{background-color:#ccc;border-radius:.25rem}.auth-module_provider-list__6vISy::-webkit-scrollbar-track{background-color:#f1f1f1;border-radius:.25rem}.auth-module_spinner__hfzlH:after{animation:auth-module_spin__tm9l6 1s linear infinite;border:.25rem solid #f3f3f3;border-radius:50%;border-top-color:#ff6f00;content:\"\";display:block;height:1rem;width:1rem}.auth-module_spinner__hfzlH{align-self:center;display:flex;justify-content:center;margin-left:auto;margin-right:.25rem}@keyframes auth-module_spin__tm9l6{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.auth-module_modal-icon__CV7ah{align-items:center;display:flex;height:4rem;justify-content:center;margin-bottom:.25rem;margin-top:.5rem;padding:.35rem;width:4rem}.auth-module_modal-icon__CV7ah svg{height:3.6rem;width:3.6rem}.auth-module_container__7utns a.auth-module_footer-text__CQnh6{color:#bbb;font-size:.75rem;text-decoration:none}.auth-module_container__7utns a.auth-module_footer-text__CQnh6:hover{text-decoration:underline}.auth-module_disconnect-button__bsu-3{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_disconnect-button__bsu-3:hover{background-color:#cc4e02;cursor:pointer}.auth-module_disconnect-button__bsu-3:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_linking-button__g1GlL{background-color:#ff6f00;border:none;border-radius:.75rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;font-size:1rem;height:2.5rem;margin-bottom:.75rem;margin-top:1rem;padding:1rem;padding-block:0;width:100%}.auth-module_linking-button__g1GlL:hover{background-color:#cc4e02;cursor:pointer}.auth-module_linking-button__g1GlL:disabled{background-color:#ccc;cursor:not-allowed}.auth-module_socials-wrapper__PshV3{display:flex;flex-direction:column;gap:1rem;margin-block:.5rem;width:100%}.auth-module_socials-container__iDzfJ{display:flex;flex-direction:column;gap:.5rem;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-container__4wn11{align-items:center;display:flex;gap:.25rem;justify-content:flex-start;position:relative}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA{align-items:center;background-color:#fefefe;border:1px solid #ddd;border-radius:.75rem;color:#333;display:flex;font-size:.875rem;gap:.25rem;height:2.5rem;padding:.75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:hover{background-color:#ddd;cursor:pointer}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA:disabled{background-color:#fefefe;cursor:default}.auth-module_socials-container__iDzfJ .auth-module_connector-button__j79HA svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb{align-items:center;background-color:#eee;border:1px solid #ddd;border-radius:.25rem;color:#333;display:flex;flex:1;font-size:.875rem;gap:.25rem;padding:.5rem .75rem;position:relative;width:100%}.auth-module_socials-container__iDzfJ .auth-module_connector-connected__JvDQb svg{color:#333;height:1.5rem;margin-right:.5rem;width:1.5rem}.auth-module_socials-container__iDzfJ h3{color:#333;margin:0}.auth-module_connector-button__j79HA .auth-module_connector-checkmark__ZS6zU{height:1rem!important;position:absolute;right:-.5rem;top:-.5rem;width:1rem!important}.auth-module_unlink-connector-button__6Fwkp{align-items:center;background-color:#999;border:none;border-radius:.5rem;box-shadow:inset 0 2px 0 hsla(0,0%,100%,.15),inset 0 -2px 4px rgba(0,0,0,.05),0 1px 1px rgba(46,54,80,.075);color:#fff;display:flex;font-size:.75rem;gap:.25rem;padding:.25rem .675rem .25rem .5rem;position:absolute;right:.375rem;text-align:center;transition:background-color .15s}.auth-module_unlink-connector-button__6Fwkp svg{stroke:#fff!important;height:.875rem!important;margin-right:0!important;width:.875rem!important}.auth-module_unlink-connector-button__6Fwkp:hover{background-color:#888;cursor:pointer}.auth-module_unlink-connector-button__6Fwkp:disabled{background-color:#ccc;cursor:not-allowed}@keyframes auth-module_loader__gH3ZC{0%{transform:translateX(0)}50%{transform:translateX(100%)}to{transform:translateX(0)}}.auth-module_loader__gH3ZC{background-color:#ddd;border-radius:.125rem;height:.4rem;margin-bottom:.5rem;margin-top:.5rem;position:relative;width:4rem}.auth-module_loader__gH3ZC:before{animation:auth-module_loader__gH3ZC 1.5s ease-in-out infinite;background-color:#ff6f00;border-radius:.125rem;content:\"\";display:block;height:.4rem;left:0;position:absolute;width:2rem}.auth-module_no-socials__wEx0t{color:#777;font-size:.875rem;margin-top:.5rem;text-align:center}.auth-module_divider__z65Me{align-items:center;display:flex;gap:.5rem;margin-bottom:.5rem;margin-top:.5rem}.auth-module_divider__z65Me:after,.auth-module_divider__z65Me:before{border-bottom:1px solid #ddd;content:\"\";flex:1}input.auth-module_tiktok-input__FeqdG{border:1px solid gray;border-radius:.75rem;color:#000;font-family:Satoshi,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;font-size:1rem;font-weight:600;height:2.75rem;line-height:1.333rem;margin-top:1rem;padding-inline:1rem;width:100%}input.auth-module_tiktok-input__FeqdG.auth-module_invalid__qqgK6{border-color:#dc3545;outline-color:#dc3545}.auth-module_otp-input-container__B2NH6{display:flex;gap:.5rem;justify-content:center;margin-top:1rem}.auth-module_otp-input__vjImt{border:1px solid #ccc;border-radius:.5rem;font-size:1.5rem;height:2.5rem;outline:none;text-align:center;transition:border-color .2s;width:2rem}.auth-module_otp-input__vjImt:focus{border-color:#ff6f00}\n/*# sourceMappingURL=data:application/json;base64,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QixDQURoQixtQkFBb0IsQ0FFcEIsVUFDRixDQUVBLGlFQUNFLG9CQUFxQixDQUNyQixxQkFDRixDQUVBLHdDQUNFLFlBQWEsQ0FFYixTQUFXLENBRFgsc0JBQXVCLENBRXZCLGVBQ0YsQ0FFQSw4QkFLRSxxQkFBc0IsQ0FDdEIsbUJBQXFCLENBRnJCLGdCQUFpQixDQUZqQixhQUFjLENBS2QsWUFBYSxDQUpiLGlCQUFrQixDQUtsQiwyQkFBNkIsQ0FQN0IsVUFRRixDQUVBLG9DQUNFLG9CQUNGIiwiZmlsZSI6ImF1dGgubW9kdWxlLmNzcyIsInNvdXJjZXNDb250ZW50IjpbIkBpbXBvcnQgdXJsKFwiaHR0cHM6Ly9hcGkuZm9udHNoYXJlLmNvbS92Mi9jc3M/ZltdPXNhdG9zaGlAMSZkaXNwbGF5PXN3YXBcIik7XHJcblxyXG4ubW9kYWwge1xyXG4gIHBvc2l0aW9uOiBmaXhlZDtcclxuICB6LWluZGV4OiA4NTtcclxuICBsZWZ0OiAwO1xyXG4gIHRvcDogMDtcclxuICB3aWR0aDogMTAwJTtcclxuICBoZWlnaHQ6IDEwMCU7XHJcbiAgb3ZlcmZsb3c6IGF1dG87XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogcmdiKDAsIDAsIDApO1xyXG4gIGJhY2tncm91bmQtY29sb3I6IHJnYmEoMCwgMCwgMCwgMC40KTtcclxuICBiYWNrZHJvcC1maWx0ZXI6IGJsdXIoMnB4KTtcclxuICB0cmFuc2l0aW9uOiBhbGwgMC4zcztcclxufVxyXG5cclxuLm1vZGFsIC5jb250YWluZXIge1xyXG4gIGJveC1zaXppbmc6IGJvcmRlci1ib3g7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogI2ZlZmVmZTtcclxuICBwYWRkaW5nOiAxLjVyZW07XHJcbiAgcGFkZGluZy1ib3R0b206IDFyZW07XHJcbiAgYm9yZGVyOiAxcHggc29saWQgIzg4ODtcclxuICB3aWR0aDogMzAwcHg7IC8qIHRlbXBvcmFyeSAqL1xyXG4gIGJvcmRlci1yYWRpdXM6IDEuNXJlbTtcclxuICBmb250LWZhbWlseTogXCJTYXRvc2hpXCIsIHN5c3RlbS11aSwgLWFwcGxlLXN5c3RlbSwgQmxpbmtNYWNTeXN0ZW1Gb250LFxyXG4gICAgXCJTZWdvZSBVSVwiLCBSb2JvdG8sIE94eWdlbiwgVWJ1bnR1LCBDYW50YXJlbGwsIFwiT3BlbiBTYW5zXCIsIFwiSGVsdmV0aWNhIE5ldWVcIixcclxuICAgIHNhbnMtc2VyaWY7XHJcbiAgZGlzcGxheTogZmxleDtcclxuICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAgcG9zaXRpb246IGFic29sdXRlO1xyXG4gIHRvcDogNTAlO1xyXG4gIGxlZnQ6IDUwJTtcclxuICB0cmFuc2Zvcm06IHRyYW5zbGF0ZSgtNTAlLCAtNTAlKTtcclxuXHJcbiAgLyogZGlhbG9nIG9uIG1vYmlsZSAqL1xyXG4gIEBtZWRpYSBzY3JlZW4gYW5kIChtYXgtd2lkdGg6IDQ0MHB4KSB7XHJcbiAgICB3aWR0aDogMTAwJTtcclxuICAgIGJvcmRlci1ib3R0b20tbGVmdC1yYWRpdXM6IDA7XHJcbiAgICBib3JkZXItYm90dG9tLXJpZ2h0LXJhZGl1czogMDtcclxuICAgIGJvdHRvbTogMDtcclxuICAgIHRvcDogYXV0bztcclxuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlKC01MCUsIDApO1xyXG4gIH1cclxufVxyXG5cclxuLmNvbnRhaW5lciBoMiB7XHJcbiAgbWFyZ2luLXRvcDogMDtcclxuICBtYXJnaW4tYm90dG9tOiAxcmVtO1xyXG4gIGZvbnQtc2l6ZTogMS4yNXJlbTtcclxufVxyXG5cclxuLmNvbnRhaW5lciAuaGVhZGVyIHtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICBjb2xvcjogIzMzMztcclxuICB3aWR0aDogMTAwJTtcclxuICB0ZXh0LWFsaWduOiBjZW50ZXI7XHJcbiAgbWFyZ2luLWJvdHRvbTogMXJlbTtcclxuICBmb250LXNpemU6IDEuMnJlbTtcclxuICBmb250LXdlaWdodDogYm9sZDtcclxufVxyXG5cclxuLmNvbnRhaW5lciAuaGVhZGVyIC5zbWFsbC1tb2RhbC1pY29uIHtcclxuICB3aWR0aDogMnJlbTtcclxuICBoZWlnaHQ6IDJyZW07XHJcbiAgbWFyZ2luLWJvdHRvbTogMC41cmVtO1xyXG4gIG1hcmdpbi10b3A6IDAuNXJlbTtcclxufVxyXG5cclxuLmNvbnRhaW5lciAuaGVhZGVyIC53YWxsZXQtYWRkcmVzcyB7XHJcbiAgZm9udC1zaXplOiAwLjc1cmVtO1xyXG4gIGNvbG9yOiAjNzc3O1xyXG4gIGZvbnQtd2VpZ2h0OiBub3JtYWw7XHJcbiAgbWFyZ2luLXRvcDogMC41cmVtO1xyXG59XHJcblxyXG4uY29udGFpbmVyIC5jbG9zZS1idXR0b24ge1xyXG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcclxuICB0b3A6IDFyZW07XHJcbiAgcmlnaHQ6IDFyZW07XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7XHJcbiAgYm9yZGVyOiAycHggc29saWQgI2RkZDtcclxuICBib3JkZXItcmFkaXVzOiAxMDAlO1xyXG4gIGZvbnQtc2l6ZTogMS41cmVtO1xyXG4gIGNvbG9yOiAjYWFhO1xyXG4gIHdpZHRoOiAxLjI1cmVtO1xyXG4gIGhlaWdodDogMS4yNXJlbTtcclxuICB0cmFuc2l0aW9uOiBjb2xvciAwLjE1cztcclxufVxyXG5cclxuLmNsb3NlLWJ1dHRvbiA+IC5jbG9zZS1pY29uIHtcclxuICBwb3NpdGlvbjogcmVsYXRpdmU7XHJcbiAgZGlzcGxheTogYmxvY2s7XHJcbiAgd2lkdGg6IDFyZW07XHJcbiAgaGVpZ2h0OiAxcmVtO1xyXG4gIHBhZGRpbmc6IDAuMTVyZW07XHJcbn1cclxuXHJcbi5jb250YWluZXIgLmNsb3NlLWJ1dHRvbjpob3ZlciB7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogI2RkZDtcclxuICBjb2xvcjogIzg4ODtcclxuICBjdXJzb3I6IHBvaW50ZXI7XHJcbn1cclxuXHJcbi5jb250YWluZXIgLmxpbmtpbmctdGV4dCB7XHJcbiAgY29sb3I6ICM3Nzc7XHJcbiAgZm9udC1zaXplOiAxcmVtO1xyXG4gIHRleHQtYWxpZ246IGNlbnRlcjtcclxuICAvKiBtYXJnaW4tdG9wOiAwOyAqL1xyXG4gIC8qIG1hcmdpbi1ib3R0b206IDJyZW07ICovXHJcbn1cclxuXHJcbi5wcm92aWRlci1saXN0IHtcclxuICBib3gtc2l6aW5nOiBib3JkZXItYm94O1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAgZmxleC1kaXJlY3Rpb246IGNvbHVtbjtcclxuICBnYXA6IDAuNXJlbTtcclxuICB3aWR0aDogMTAwJTtcclxuICBtYXJnaW4tYm90dG9tOiAwLjc1cmVtO1xyXG4gIG1heC1oZWlnaHQ6IDE3LjlyZW07XHJcbiAgb3ZlcmZsb3cteTogYXV0bztcclxuICBwYWRkaW5nLXJpZ2h0OiAwLjVyZW07XHJcbiAgcGFkZGluZy1sZWZ0OiAwLjVyZW07XHJcbiAgc2Nyb2xsYmFyLXdpZHRoOiB0aGluO1xyXG4gIHNjcm9sbGJhci1jb2xvcjogI2NjYyAjZjFmMWYxO1xyXG59XHJcblxyXG4ucHJvdmlkZXItbGlzdC5iaWcge1xyXG4gIG1heC1oZWlnaHQ6IDE2cmVtO1xyXG59XHJcblxyXG4ucHJvdmlkZXItbGlzdDo6LXdlYmtpdC1zY3JvbGxiYXIge1xyXG4gIHdpZHRoOiAwLjVyZW07XHJcbiAgYm9yZGVyLXJhZGl1czogMC4yNXJlbTtcclxufVxyXG4ucHJvdmlkZXItbGlzdDo6LXdlYmtpdC1zY3JvbGxiYXItdGh1bWIge1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNjY2M7XHJcbiAgYm9yZGVyLXJhZGl1czogMC4yNXJlbTtcclxufVxyXG4ucHJvdmlkZXItbGlzdDo6LXdlYmtpdC1zY3JvbGxiYXItdHJhY2sge1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmMWYxZjE7XHJcbiAgYm9yZGVyLXJhZGl1czogMC4yNXJlbTtcclxufVxyXG5cclxuLnNwaW5uZXI6OmFmdGVyIHtcclxuICBjb250ZW50OiBcIlwiO1xyXG4gIGRpc3BsYXk6IGJsb2NrO1xyXG4gIHdpZHRoOiAxcmVtO1xyXG4gIGhlaWdodDogMXJlbTtcclxuICBib3JkZXI6IDAuMjVyZW0gc29saWQgI2YzZjNmMztcclxuICBib3JkZXItdG9wOiAwLjI1cmVtIHNvbGlkICNmZjZmMDA7XHJcbiAgYm9yZGVyLXJhZGl1czogNTAlO1xyXG4gIGFuaW1hdGlvbjogc3BpbiAxcyBsaW5lYXIgaW5maW5pdGU7XHJcbn1cclxuLnNwaW5uZXIge1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAgbWFyZ2luLWxlZnQ6IGF1dG87XHJcbiAgbWFyZ2luLXJpZ2h0OiAwLjI1cmVtO1xyXG4gIGFsaWduLXNlbGY6IGNlbnRlcjtcclxuICBqdXN0aWZ5LWNvbnRlbnQ6IGNlbnRlcjtcclxufVxyXG5cclxuQGtleWZyYW1lcyBzcGluIHtcclxuICAwJSB7XHJcbiAgICB0cmFuc2Zvcm06IHJvdGF0ZSgwZGVnKTtcclxuICB9XHJcbiAgMTAwJSB7XHJcbiAgICB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpO1xyXG4gIH1cclxufVxyXG5cclxuLm1vZGFsLWljb24ge1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XHJcbiAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICB3aWR0aDogNHJlbTtcclxuICBoZWlnaHQ6IDRyZW07XHJcbiAgbWFyZ2luLXRvcDogMC41cmVtO1xyXG4gIG1hcmdpbi1ib3R0b206IDAuMjVyZW07XHJcbiAgcGFkZGluZzogMC4zNXJlbTtcclxufVxyXG4ubW9kYWwtaWNvbiBzdmcge1xyXG4gIHdpZHRoOiAzLjZyZW07XHJcbiAgaGVpZ2h0OiAzLjZyZW07XHJcbn1cclxuXHJcbi5jb250YWluZXIgYS5mb290ZXItdGV4dCB7XHJcbiAgLyogbWFyZ2luLXRvcDogMXJlbTsgKi9cclxuICBmb250LXNpemU6IDAuNzVyZW07XHJcbiAgY29sb3I6ICNiYmJiYmI7XHJcbiAgdGV4dC1kZWNvcmF0aW9uOiBub25lO1xyXG59XHJcblxyXG4uY29udGFpbmVyIGEuZm9vdGVyLXRleHQ6aG92ZXIge1xyXG4gIHRleHQtZGVjb3JhdGlvbjogdW5kZXJsaW5lO1xyXG59XHJcblxyXG4uZGlzY29ubmVjdC1idXR0b24ge1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZjZmMDA7XHJcbiAgY29sb3I6IHdoaXRlO1xyXG4gIGJvcmRlcjogbm9uZTtcclxuICBib3JkZXItcmFkaXVzOiAwLjc1cmVtO1xyXG4gIHBhZGRpbmc6IDFyZW07XHJcbiAgcGFkZGluZy1ibG9jazogMDtcclxuICBmb250LXNpemU6IDFyZW07XHJcbiAgd2lkdGg6IDEwMCU7XHJcbiAgbWFyZ2luLWJvdHRvbTogMC43NXJlbTtcclxuICBtYXJnaW4tdG9wOiAxcmVtO1xyXG4gIGhlaWdodDogMi41cmVtO1xyXG4gIGJveC1zaGFkb3c6IGhzbGEoMCwgMCUsIDEwMCUsIDAuMTUpIDAgMnB4IDAgaW5zZXQsXHJcbiAgICByZ2JhKDAsIDAsIDAsIDAuMDUpIDAgLTJweCA0cHggaW5zZXQsIHJnYmEoNDYsIDU0LCA4MCwgMC4wNzUpIDAgMXB4IDFweDtcclxufVxyXG5cclxuLmRpc2Nvbm5lY3QtYnV0dG9uOmhvdmVyIHtcclxuICBiYWNrZ3JvdW5kLWNvbG9yOiAjY2M0ZTAyO1xyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxufVxyXG5cclxuLmRpc2Nvbm5lY3QtYnV0dG9uOmRpc2FibGVkIHtcclxuICBiYWNrZ3JvdW5kLWNvbG9yOiAjY2NjO1xyXG4gIGN1cnNvcjogbm90LWFsbG93ZWQ7XHJcbn1cclxuXHJcbi5saW5raW5nLWJ1dHRvbiB7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogI2ZmNmYwMDtcclxuICBjb2xvcjogd2hpdGU7XHJcbiAgYm9yZGVyOiBub25lO1xyXG4gIGJvcmRlci1yYWRpdXM6IDAuNzVyZW07XHJcbiAgcGFkZGluZzogMXJlbTtcclxuICBwYWRkaW5nLWJsb2NrOiAwO1xyXG4gIGZvbnQtc2l6ZTogMXJlbTtcclxuICB3aWR0aDogMTAwJTtcclxuICBtYXJnaW4tYm90dG9tOiAwLjc1cmVtO1xyXG4gIG1hcmdpbi10b3A6IDFyZW07XHJcbiAgaGVpZ2h0OiAyLjVyZW07XHJcbiAgYm94LXNoYWRvdzogaHNsYSgwLCAwJSwgMTAwJSwgMC4xNSkgMCAycHggMCBpbnNldCxcclxuICAgIHJnYmEoMCwgMCwgMCwgMC4wNSkgMCAtMnB4IDRweCBpbnNldCwgcmdiYSg0NiwgNTQsIDgwLCAwLjA3NSkgMCAxcHggMXB4O1xyXG59XHJcblxyXG4ubGlua2luZy1idXR0b246aG92ZXIge1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNjYzRlMDI7XHJcbiAgY3Vyc29yOiBwb2ludGVyO1xyXG59XHJcblxyXG4ubGlua2luZy1idXR0b246ZGlzYWJsZWQge1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNjY2M7XHJcbiAgY3Vyc29yOiBub3QtYWxsb3dlZDtcclxufVxyXG5cclxuLnNvY2lhbHMtd3JhcHBlciB7XHJcbiAgZGlzcGxheTogZmxleDtcclxuICBmbGV4LWRpcmVjdGlvbjogY29sdW1uO1xyXG4gIGdhcDogMXJlbTtcclxuICBtYXJnaW4tYmxvY2s6IDAuNXJlbTtcclxuICB3aWR0aDogMTAwJTtcclxufVxyXG5cclxuLnNvY2lhbHMtY29udGFpbmVyIHtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XHJcbiAgZ2FwOiAwLjVyZW07XHJcbiAgd2lkdGg6IDEwMCU7XHJcbn1cclxuXHJcbi5zb2NpYWxzLWNvbnRhaW5lciAuY29ubmVjdG9yLWNvbnRhaW5lciB7XHJcbiAgcG9zaXRpb246IHJlbGF0aXZlO1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAganVzdGlmeS1jb250ZW50OiBmbGV4LXN0YXJ0O1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAgZ2FwOiAwLjI1cmVtO1xyXG59XHJcblxyXG4uc29jaWFscy1jb250YWluZXIgLmNvbm5lY3Rvci1idXR0b24ge1xyXG4gIHBvc2l0aW9uOiByZWxhdGl2ZTtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGFsaWduLWl0ZW1zOiBjZW50ZXI7XHJcbiAgZ2FwOiAwLjI1cmVtO1xyXG4gIHBhZGRpbmc6IDAuNzVyZW07XHJcbiAgYm9yZGVyLXJhZGl1czogMC43NXJlbTtcclxuICBmb250LXNpemU6IDAuODc1cmVtO1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZWZlZmU7XHJcbiAgY29sb3I6ICMzMzM7XHJcbiAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcclxuICB3aWR0aDogMTAwJTtcclxuICBoZWlnaHQ6IDIuNXJlbTtcclxufVxyXG5cclxuLnNvY2lhbHMtY29udGFpbmVyIC5jb25uZWN0b3ItYnV0dG9uOmhvdmVyIHtcclxuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZGRkO1xyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxufVxyXG5cclxuLnNvY2lhbHMtY29udGFpbmVyIC5jb25uZWN0b3ItYnV0dG9uOmRpc2FibGVkIHtcclxuICBjdXJzb3I6IGRlZmF1bHQ7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogI2ZlZmVmZTtcclxufVxyXG5cclxuLnNvY2lhbHMtY29udGFpbmVyIC5jb25uZWN0b3ItYnV0dG9uIHN2ZyB7XHJcbiAgd2lkdGg6IDEuNXJlbTtcclxuICBoZWlnaHQ6IDEuNXJlbTtcclxuICBjb2xvcjogIzMzMztcclxuICBtYXJnaW4tcmlnaHQ6IDAuNXJlbTtcclxufVxyXG5cclxuLnNvY2lhbHMtY29udGFpbmVyIC5jb25uZWN0b3ItY29ubmVjdGVkIHtcclxuICBwb3NpdGlvbjogcmVsYXRpdmU7XHJcbiAgZGlzcGxheTogZmxleDtcclxuICBhbGlnbi1pdGVtczogY2VudGVyO1xyXG4gIGdhcDogMC4yNXJlbTtcclxuICBwYWRkaW5nOiAwLjc1cmVtO1xyXG4gIHBhZGRpbmctdG9wOiAwLjVyZW07XHJcbiAgcGFkZGluZy1ib3R0b206IDAuNXJlbTtcclxuICBmb250LXNpemU6IDAuODc1cmVtO1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNlZWU7XHJcbiAgYm9yZGVyLXJhZGl1czogMC4yNXJlbTtcclxuICBjb2xvcjogIzMzMztcclxuICBib3JkZXI6IDFweCBzb2xpZCAjZGRkO1xyXG4gIHdpZHRoOiAxMDAlO1xyXG4gIGZsZXg6IDE7XHJcbn1cclxuXHJcbi5zb2NpYWxzLWNvbnRhaW5lciAuY29ubmVjdG9yLWNvbm5lY3RlZCBzdmcge1xyXG4gIHdpZHRoOiAxLjVyZW07XHJcbiAgaGVpZ2h0OiAxLjVyZW07XHJcbiAgY29sb3I6ICMzMzM7XHJcbiAgbWFyZ2luLXJpZ2h0OiAwLjVyZW07XHJcbn1cclxuXHJcbi5zb2NpYWxzLWNvbnRhaW5lciBoMyB7XHJcbiAgY29sb3I6ICMzMzM7XHJcbiAgbWFyZ2luOiAwO1xyXG59XHJcblxyXG4uY29ubmVjdG9yLWJ1dHRvbiAuY29ubmVjdG9yLWNoZWNrbWFyayB7XHJcbiAgcG9zaXRpb246IGFic29sdXRlO1xyXG4gIHRvcDogLTAuNXJlbTtcclxuICByaWdodDogLTAuNXJlbTtcclxuICB3aWR0aDogMXJlbSAhaW1wb3J0YW50O1xyXG4gIGhlaWdodDogMXJlbSAhaW1wb3J0YW50O1xyXG59XHJcblxyXG4udW5saW5rLWNvbm5lY3Rvci1idXR0b24ge1xyXG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcclxuICByaWdodDogMC4zNzVyZW07XHJcbiAgYm9yZGVyOiBub25lO1xyXG4gIGZvbnQtc2l6ZTogMC43NXJlbTtcclxuICBwYWRkaW5nOiAwLjI1cmVtIDAuNXJlbTtcclxuICBwYWRkaW5nLXJpZ2h0OiAwLjY3NXJlbTtcclxuICBib3JkZXItcmFkaXVzOiAwLjVyZW07XHJcbiAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICM5OTk7XHJcbiAgY29sb3I6IHdoaXRlO1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICBnYXA6IDAuMjVyZW07XHJcbiAgYm94LXNoYWRvdzogaHNsYSgwLCAwJSwgMTAwJSwgMC4xNSkgMCAycHggMCBpbnNldCxcclxuICAgIHJnYmEoMCwgMCwgMCwgMC4wNSkgMCAtMnB4IDRweCBpbnNldCwgcmdiYSg0NiwgNTQsIDgwLCAwLjA3NSkgMCAxcHggMXB4O1xyXG4gIHRyYW5zaXRpb246IGJhY2tncm91bmQtY29sb3IgMC4xNXM7XHJcbn1cclxuXHJcbi51bmxpbmstY29ubmVjdG9yLWJ1dHRvbiBzdmcge1xyXG4gIHN0cm9rZTogd2hpdGUgIWltcG9ydGFudDtcclxuICB3aWR0aDogMC44NzVyZW0gIWltcG9ydGFudDtcclxuICBoZWlnaHQ6IDAuODc1cmVtICFpbXBvcnRhbnQ7XHJcbiAgbWFyZ2luLXJpZ2h0OiAwICFpbXBvcnRhbnQ7XHJcbn1cclxuXHJcbi51bmxpbmstY29ubmVjdG9yLWJ1dHRvbjpob3ZlciB7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogIzg4ODtcclxuICBjdXJzb3I6IHBvaW50ZXI7XHJcbn1cclxuXHJcbi51bmxpbmstY29ubmVjdG9yLWJ1dHRvbjpkaXNhYmxlZCB7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogI2NjYztcclxuICBjdXJzb3I6IG5vdC1hbGxvd2VkO1xyXG59XHJcblxyXG5Aa2V5ZnJhbWVzIGxvYWRlciB7XHJcbiAgMCUge1xyXG4gICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVYKDAlKTtcclxuICB9XHJcbiAgNTAlIHtcclxuICAgIHRyYW5zZm9ybTogdHJhbnNsYXRlWCgxMDAlKTtcclxuICB9XHJcbiAgMTAwJSB7XHJcbiAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZVgoMCUpO1xyXG4gIH1cclxufVxyXG5cclxuLmxvYWRlciB7XHJcbiAgcG9zaXRpb246IHJlbGF0aXZlO1xyXG4gIHdpZHRoOiA0cmVtO1xyXG4gIGhlaWdodDogMC40cmVtO1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNkZGQ7XHJcbiAgbWFyZ2luLXRvcDogMC41cmVtO1xyXG4gIG1hcmdpbi1ib3R0b206IDAuNXJlbTtcclxuICBib3JkZXItcmFkaXVzOiAwLjEyNXJlbTtcclxufVxyXG5cclxuLmxvYWRlcjo6YmVmb3JlIHtcclxuICBjb250ZW50OiBcIlwiO1xyXG4gIGRpc3BsYXk6IGJsb2NrO1xyXG4gIHdpZHRoOiAycmVtO1xyXG4gIGhlaWdodDogMC40cmVtO1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZjZmMDA7XHJcbiAgcG9zaXRpb246IGFic29sdXRlO1xyXG4gIGxlZnQ6IDA7XHJcbiAgYW5pbWF0aW9uOiBsb2FkZXIgMS41cyBlYXNlLWluLW91dCBpbmZpbml0ZTtcclxuICBib3JkZXItcmFkaXVzOiAwLjEyNXJlbTtcclxufVxyXG5cclxuLm5vLXNvY2lhbHMge1xyXG4gIGNvbG9yOiAjNzc3O1xyXG4gIGZvbnQtc2l6ZTogMC44NzVyZW07XHJcbiAgdGV4dC1hbGlnbjogY2VudGVyO1xyXG4gIG1hcmdpbi10b3A6IDAuNXJlbTtcclxufVxyXG5cclxuLmRpdmlkZXIge1xyXG4gIGRpc3BsYXk6IGZsZXg7XHJcbiAgYWxpZ24taXRlbXM6IGNlbnRlcjtcclxuICBnYXA6IDAuNXJlbTtcclxuICBtYXJnaW4tdG9wOiAwLjVyZW07XHJcbiAgbWFyZ2luLWJvdHRvbTogMC41cmVtO1xyXG59XHJcblxyXG4uZGl2aWRlcjo6YmVmb3JlLFxyXG4uZGl2aWRlcjo6YWZ0ZXIge1xyXG4gIGNvbnRlbnQ6IFwiXCI7XHJcbiAgZmxleDogMTtcclxuICBib3JkZXItYm90dG9tOiAxcHggc29saWQgI2RkZDtcclxufVxyXG5cclxuaW5wdXQudGlrdG9rLWlucHV0IHtcclxuICBib3JkZXI6IDFweCBzb2xpZCBncmF5O1xyXG4gIGJvcmRlci1yYWRpdXM6IDAuNzVyZW07XHJcbiAgY29sb3I6IGJsYWNrO1xyXG4gIGZvbnQtZmFtaWx5OiBTYXRvc2hpLCBzeXN0ZW0tdWksIC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgU2Vnb2UgVUksXHJcbiAgICBSb2JvdG8sIE94eWdlbiwgVWJ1bnR1LCBDYW50YXJlbGwsIE9wZW4gU2FucywgSGVsdmV0aWNhIE5ldWUsIHNhbnMtc2VyaWY7XHJcbiAgZm9udC1zaXplOiAxcmVtO1xyXG4gIGZvbnQtd2VpZ2h0OiA2MDA7XHJcbiAgaGVpZ2h0OiAyLjc1cmVtO1xyXG4gIGxpbmUtaGVpZ2h0OiAxLjMzM3JlbTtcclxuICBwYWRkaW5nLWlubGluZTogMXJlbTtcclxuICBtYXJnaW4tdG9wOiAxcmVtO1xyXG4gIHdpZHRoOiAxMDAlO1xyXG59XHJcblxyXG5pbnB1dC50aWt0b2staW5wdXQuaW52YWxpZCB7XHJcbiAgYm9yZGVyLWNvbG9yOiAjZGMzNTQ1O1xyXG4gIG91dGxpbmUtY29sb3I6ICNkYzM1NDU7XHJcbn1cclxuXHJcbi5vdHAtaW5wdXQtY29udGFpbmVyIHtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGp1c3RpZnktY29udGVudDogY2VudGVyO1xyXG4gIGdhcDogMC41cmVtO1xyXG4gIG1hcmdpbi10b3A6IDFyZW07XHJcbn1cclxuXHJcbi5vdHAtaW5wdXQge1xyXG4gIHdpZHRoOiAycmVtO1xyXG4gIGhlaWdodDogMi41cmVtO1xyXG4gIHRleHQtYWxpZ246IGNlbnRlcjtcclxuICBmb250LXNpemU6IDEuNXJlbTtcclxuICBib3JkZXI6IDFweCBzb2xpZCAjY2NjO1xyXG4gIGJvcmRlci1yYWRpdXM6IDAuNXJlbTtcclxuICBvdXRsaW5lOiBub25lO1xyXG4gIHRyYW5zaXRpb246IGJvcmRlci1jb2xvciAwLjJzO1xyXG59XHJcblxyXG4ub3RwLWlucHV0OmZvY3VzIHtcclxuICBib3JkZXItY29sb3I6ICNmZjZmMDA7XHJcbn1cclxuIl19 */";
 var styles = {"modal":"auth-module_modal__yyg5L","container":"auth-module_container__7utns","header":"auth-module_header__pX9nM","small-modal-icon":"auth-module_small-modal-icon__YayD1","wallet-address":"auth-module_wallet-address__AVVA5","close-button":"auth-module_close-button__uZrho","close-icon":"auth-module_close-icon__SSCni","linking-text":"auth-module_linking-text__uz3ud","provider-list":"auth-module_provider-list__6vISy","big":"auth-module_big__jQxvN","spinner":"auth-module_spinner__hfzlH","spin":"auth-module_spin__tm9l6","modal-icon":"auth-module_modal-icon__CV7ah","footer-text":"auth-module_footer-text__CQnh6","disconnect-button":"auth-module_disconnect-button__bsu-3","linking-button":"auth-module_linking-button__g1GlL","socials-wrapper":"auth-module_socials-wrapper__PshV3","socials-container":"auth-module_socials-container__iDzfJ","connector-container":"auth-module_connector-container__4wn11","connector-button":"auth-module_connector-button__j79HA","connector-connected":"auth-module_connector-connected__JvDQb","connector-checkmark":"auth-module_connector-checkmark__ZS6zU","unlink-connector-button":"auth-module_unlink-connector-button__6Fwkp","loader":"auth-module_loader__gH3ZC","no-socials":"auth-module_no-socials__wEx0t","divider":"auth-module_divider__z65Me","tiktok-input":"auth-module_tiktok-input__FeqdG","invalid":"auth-module_invalid__qqgK6","otp-input-container":"auth-module_otp-input-container__B2NH6","otp-input":"auth-module_otp-input__vjImt"};
 styleInject(css_248z$1);
-
-const formatAddress = (address, n = 8) => {
-    return `${address.slice(0, n)}...${address.slice(-n)}`;
-};
-const capitalize = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
 
 const getWalletConnectProvider = (projectId) => __awaiter(void 0, void 0, void 0, function* () {
     const provider = yield EthereumProvider.init({
@@ -1637,7 +2070,7 @@ const MyCampModal = ({ wcProvider }) => {
     const { disconnect } = useConnect();
     const { socials, isLoading, refetch } = useSocials();
     const [isLoadingSocials, setIsLoadingSocials] = useState(true);
-    const { linkTikTok, linkTelegram } = useLinkModal();
+    const { linkTiktok, linkTelegram } = useLinkModal();
     if (!auth) {
         throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
     }
@@ -1674,7 +2107,7 @@ const MyCampModal = ({ wcProvider }) => {
         },
         {
             name: "TikTok",
-            link: linkTikTok,
+            link: linkTiktok,
             unlink: auth.unlinkTikTok.bind(auth),
             isConnected: socials === null || socials === void 0 ? void 0 : socials.tiktok,
             icon: React.createElement(TikTokIcon, null),
