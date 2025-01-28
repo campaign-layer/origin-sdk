@@ -60,8 +60,8 @@ class Auth {
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-   * @param {boolean} options.allowAnalytics Whether to allow analytics to be sent.
-   * @param {object} options.ackeeInstance The Ackee instance.
+   * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
+   * @param {object} [options.ackeeInstance] The Ackee instance.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   constructor({
@@ -204,7 +204,7 @@ class Auth {
   /**
    * Request the user to connect their wallet.
    * @private
-   * @returns {Promise<void>} A promise that resolves when the user connects their wallet.
+   * @returns {Promise<string>} A promise that resolves with the wallet address.
    * @throws {APIError} - Throws an error if the user does not connect their wallet.
    */
   async #requestAccount(): Promise<string> {
@@ -251,7 +251,7 @@ class Auth {
    * @private
    * @param {string} message The message.
    * @param {string} signature The signature.
-   * @returns {Promise<object>} A promise that resolves with the verification result.
+   * @returns {Promise<{ success: boolean; userId: string; token: string }>} A promise that resolves with the verification result.
    * @throws {APIError} - Throws an error if the signature cannot be verified.
    */
   async #verifySignature(
@@ -305,15 +305,30 @@ class Auth {
     });
   }
 
-  async #sendAnalyticsEvent(event: string, message: string, count: number = 1) {
+  /**
+   * Send an analytics event.
+   * @private
+   * @param {string} event The event name.
+   * @param {string} message The event message.
+   * @param {number} [count=1] The event count.
+   * @returns {Promise<void>}
+   */
+  async #sendAnalyticsEvent(
+    event: string,
+    message: string,
+    count: number = 1
+  ): Promise<void> {
     await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
   }
 
   /**
    * Disconnect the user.
-   * @returns {void}
+   * @returns {Promise<void>}
    */
   async disconnect(): Promise<void> {
+    if (!this.isAuthenticated) {
+      return;
+    }
     this.isAuthenticated = false;
     this.walletAddress = null;
     this.userId = null;
@@ -330,7 +345,7 @@ class Auth {
 
   /**
    * Connect the user's wallet and sign the message.
-   * @returns {Promise<object>} A promise that resolves with the authentication result.
+   * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
    * @throws {APIError} - Throws an error if the user cannot be authenticated.
    */
   async connect(): Promise<{
@@ -384,16 +399,16 @@ class Auth {
 
   /**
    * Get the user's linked social accounts.
-   * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
-   * @throws {APIError} - Throws an error if the user is not authenticated or if the request fails.
+   * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
+   * @throws {Error|APIError} - Throws an error if the user is not authenticated or if the request fails.
    * @example
    * const auth = new Auth({ clientId: "your-client-id" });
    * const socials = await auth.getLinkedSocials();
    * console.log(socials);
    */
-  async getLinkedSocials(): Promise<Record<string, any>> {
+  async getLinkedSocials(): Promise<Record<string, boolean>> {
     if (!this.isAuthenticated)
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     const connections = await fetch(
       `${constants.AUTH_HUB_BASE_API}/auth/client-user/connections-sdk`,
       {
@@ -406,7 +421,7 @@ class Auth {
       }
     ).then((res) => res.json());
     if (!connections.isError) {
-      const socials: Record<string, any> = {};
+      const socials: Record<string, boolean> = {};
       Object.keys(connections.data.data).forEach((key) => {
         socials[key.split("User")[0]] = connections.data.data[key];
       });
@@ -418,12 +433,12 @@ class Auth {
 
   /**
    * Link the user's Twitter account.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated.
+   * @returns {Promise<void>}
+   * @throws {Error} - Throws an error if the user is not authenticated.
    */
   async linkTwitter(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     }
     await this.#sendAnalyticsEvent(
       constants.ACKEE_EVENTS.TWITTER_LINKED,
@@ -434,12 +449,12 @@ class Auth {
 
   /**
    * Link the user's Discord account.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated.
+   * @returns {Promise<void>}
+   * @throws {Error} - Throws an error if the user is not authenticated.
    */
   async linkDiscord(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     }
     await this.#sendAnalyticsEvent(
       constants.ACKEE_EVENTS.DISCORD_LINKED,
@@ -450,12 +465,12 @@ class Auth {
 
   /**
    * Link the user's Spotify account.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated.
+   * @returns {Promise<void>}
+   * @throws {Error} - Throws an error if the user is not authenticated.
    */
   async linkSpotify(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     }
     await this.#sendAnalyticsEvent(
       constants.ACKEE_EVENTS.SPOTIFY_LINKED,
@@ -467,12 +482,12 @@ class Auth {
   /**
    * Link the user's TikTok account.
    * @param {string} handle The user's TikTok handle.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated.
+   * @returns {Promise<any>} A promise that resolves with the TikTok account data.
+   * @throws {Error|APIError} - Throws an error if the user is not authenticated.
    */
   async linkTikTok(handle: string): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     }
     const data = await fetch(
       `${constants.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
@@ -512,12 +527,12 @@ class Auth {
   /**
    * Send an OTP to the user's Telegram account.
    * @param {string} phoneNumber The user's phone number.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated.
+   * @returns {Promise<any>} A promise that resolves with the OTP data.
+   * @throws {Error|APIError} - Throws an error if the user is not authenticated.
    */
   async sendTelegramOTP(phoneNumber: string): Promise<any> {
     if (!this.isAuthenticated)
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     if (!phoneNumber) throw new APIError("Phone number is required");
     await this.unlinkTelegram();
     const data = await fetch(
@@ -548,8 +563,8 @@ class Auth {
    * @param {string} phoneNumber The user's phone number.
    * @param {string} otp The OTP.
    * @param {string} phoneCodeHash The phone code hash.
-   * @returns {void}
-   * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
+   * @returns {Promise<object>} A promise that resolves with the Telegram account data.
+   * @throws {APIError|Error} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
    */
   async linkTelegram(
     phoneNumber: string,
@@ -557,7 +572,7 @@ class Auth {
     phoneCodeHash: string
   ): Promise<any> {
     if (!this.isAuthenticated)
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     if (!phoneNumber || !otp || !phoneCodeHash)
       throw new APIError("Phone number, OTP, and phone code hash are required");
     const data = await fetch(
@@ -593,10 +608,13 @@ class Auth {
 
   /**
    * Unlink the user's Twitter account.
+   * @returns {Promise<any>} A promise that resolves with the unlink result.
+   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {APIError} - Throws an error if the request fails.
    */
   async unlinkTwitter(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new Error("User needs to be authenticated");
     }
     const data = await fetch(
       `${constants.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`,
@@ -622,6 +640,9 @@ class Auth {
 
   /**
    * Unlink the user's Discord account.
+   * @returns {Promise<any>} A promise that resolves with the unlink result.
+   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {APIError} - Throws an error if the request fails.
    */
   async unlinkDiscord(): Promise<any> {
     if (!this.isAuthenticated) {
@@ -651,6 +672,9 @@ class Auth {
 
   /**
    * Unlink the user's Spotify account.
+   * @returns {Promise<any>} A promise that resolves with the unlink result.
+   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {APIError} - Throws an error if the request fails.
    */
   async unlinkSpotify(): Promise<any> {
     if (!this.isAuthenticated) {
@@ -678,6 +702,12 @@ class Auth {
     }
   }
 
+  /**
+   * Unlink the user's TikTok account.
+   * @returns {Promise<any>} A promise that resolves with the unlink result.
+   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
   async unlinkTikTok(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");
@@ -705,6 +735,12 @@ class Auth {
     }
   }
 
+  /**
+   * Unlink the user's Telegram account.
+   * @returns {Promise<any>} A promise that resolves with the unlink result.
+   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {APIError} - Throws an error if the request fails.
+   */
   async unlinkTelegram(): Promise<any> {
     if (!this.isAuthenticated) {
       throw new APIError("User needs to be authenticated");

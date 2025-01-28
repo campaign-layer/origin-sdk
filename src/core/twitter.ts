@@ -36,7 +36,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The tweets.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchTweetsByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchTweetsByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/tweets`, {
       twitterUserName,
       page,
@@ -53,7 +57,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The followers.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchFollowersByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchFollowersByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/followers`, {
       twitterUserName,
       page,
@@ -70,7 +78,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The following.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchFollowingByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchFollowingByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/following`, {
       twitterUserName,
       page,
@@ -98,7 +110,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The user data.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchUserByWalletAddress(walletAddress: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchUserByWalletAddress(
+    walletAddress: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/wallet-twitter-data`, {
       walletAddress,
       page,
@@ -115,7 +131,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The reposted tweets.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchRepostedByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchRepostedByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/reposted`, {
       twitterUserName,
       page,
@@ -132,7 +152,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The replies.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchRepliesByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchRepliesByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/replies`, {
       twitterUserName,
       page,
@@ -149,7 +173,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The likes.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchLikesByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchLikesByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/event/likes/${twitterUserName}`, {
       page,
       limit,
@@ -165,7 +193,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The follows.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchFollowsByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchFollowsByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/event/follows/${twitterUserName}`, {
       page,
       limit,
@@ -181,7 +213,11 @@ class TwitterAPI {
    * @returns {Promise<object>} - The viewed tweets.
    * @throws {APIError} - Throws an error if the request fails.
    */
-  async fetchViewedTweetsByUsername(twitterUserName: string, page: number = 1, limit: number = 10): Promise<object> {
+  async fetchViewedTweetsByUsername(
+    twitterUserName: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<object> {
     const url = buildURL(`${baseURL}/event/viewed-tweets/${twitterUserName}`, {
       page,
       limit,

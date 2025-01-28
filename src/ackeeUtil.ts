@@ -23,6 +23,19 @@ THE SOFTWARE.
 */
 
 const isBrowser = typeof window !== "undefined";
+const navigator = isBrowser
+  ? window.navigator
+  : {
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+      language: "en",
+      languages: [],
+      platform: "",
+      vendor: "",
+      maxTouchPoints: 0,
+      hardwareConcurrency: 0,
+      deviceMemory: 0,
+    };
 
 interface Options {
   detailed?: boolean;
@@ -152,7 +165,9 @@ export const attributes = function (detailed: boolean = false): Attributes {
   };
 
   const detailedData = {
-    siteLanguage: (navigator.language || navigator.language).substr(0, 2),
+    siteLanguage: navigator
+      ? (navigator?.language || navigator?.language || "").substr(0, 2)
+      : "",
     screenWidth: screen.width,
     screenHeight: screen.height,
     screenColorDepth: screen.colorDepth,
@@ -358,7 +373,7 @@ export const create = function (server: string, opts?: Options) {
     return fakeInstance;
   }
 
-  if (isBot(navigator.userAgent) === true) {
+  if (isBot(navigator ? navigator.userAgent : "") === true) {
     console.warn("Ackee ignores you because you are a bot");
     return fakeInstance;
   }

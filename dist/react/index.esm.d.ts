@@ -25,8 +25,8 @@ declare class Auth {
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-     * @param {boolean} options.allowAnalytics Whether to allow analytics to be sent.
-     * @param {object} options.ackeeInstance The Ackee instance.
+     * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
+     * @param {object} [options.ackeeInstance] The Ackee instance.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
     constructor({ clientId, redirectUri, allowAnalytics, ackeeInstance, }: {
@@ -70,12 +70,12 @@ declare class Auth {
     setWalletAddress(walletAddress: string): void;
     /**
      * Disconnect the user.
-     * @returns {void}
+     * @returns {Promise<void>}
      */
     disconnect(): Promise<void>;
     /**
      * Connect the user's wallet and sign the message.
-     * @returns {Promise<object>} A promise that resolves with the authentication result.
+     * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
      * @throws {APIError} - Throws an error if the user cannot be authenticated.
      */
     connect(): Promise<{
@@ -85,44 +85,44 @@ declare class Auth {
     }>;
     /**
      * Get the user's linked social accounts.
-     * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
-     * @throws {APIError} - Throws an error if the user is not authenticated or if the request fails.
+     * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated or if the request fails.
      * @example
      * const auth = new Auth({ clientId: "your-client-id" });
      * const socials = await auth.getLinkedSocials();
      * console.log(socials);
      */
-    getLinkedSocials(): Promise<Record<string, any>>;
+    getLinkedSocials(): Promise<Record<string, boolean>>;
     /**
      * Link the user's Twitter account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
      */
     linkTwitter(): Promise<void>;
     /**
      * Link the user's Discord account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
      */
     linkDiscord(): Promise<void>;
     /**
      * Link the user's Spotify account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
      */
     linkSpotify(): Promise<void>;
     /**
      * Link the user's TikTok account.
      * @param {string} handle The user's TikTok handle.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
+     * @returns {Promise<any>} A promise that resolves with the TikTok account data.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated.
      */
     linkTikTok(handle: string): Promise<any>;
     /**
      * Send an OTP to the user's Telegram account.
      * @param {string} phoneNumber The user's phone number.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
+     * @returns {Promise<any>} A promise that resolves with the OTP data.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated.
      */
     sendTelegramOTP(phoneNumber: string): Promise<any>;
     /**
@@ -130,23 +130,44 @@ declare class Auth {
      * @param {string} phoneNumber The user's phone number.
      * @param {string} otp The OTP.
      * @param {string} phoneCodeHash The phone code hash.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
+     * @returns {Promise<object>} A promise that resolves with the Telegram account data.
+     * @throws {APIError|Error} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
      */
     linkTelegram(phoneNumber: string, otp: string, phoneCodeHash: string): Promise<any>;
     /**
      * Unlink the user's Twitter account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkTwitter(): Promise<any>;
     /**
      * Unlink the user's Discord account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkDiscord(): Promise<any>;
     /**
      * Unlink the user's Spotify account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkSpotify(): Promise<any>;
+    /**
+     * Unlink the user's TikTok account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */
     unlinkTikTok(): Promise<any>;
+    /**
+     * Unlink the user's Telegram account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */
     unlinkTelegram(): Promise<any>;
 }
 

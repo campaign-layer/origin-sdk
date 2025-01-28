@@ -38,9 +38,9 @@ function n(t,e,i,n){return new(i||(i=Promise))((function(r,s){function o(t){try{
  */
 function d(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return i?`${t}?${i}`:t}const c="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",h="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const u={id:325e3,name:"Camp Network Testnet V2",nativeCurrency:{decimals:18,name:"Ether",symbol:"ETH"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz"]}},blockExplorers:{default:{name:"Explorer",url:"https://camp-network-testnet.blockscout.com"}}};
 // @ts-ignore
-let l=null;const f=(t,i="window.ethereum")=>t||l?((!l||l.transport.name!==i&&t)&&(l=e.createWalletClient({chain:u,transport:e.custom(t,{name:i})})),l):(console.warn("Provider is required to create a client."),null);var w="Connect with Camp Network",p="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",y="https://ackee-production-01bd.up.railway.app",m={USER_CONNECTED:"ed42542d-b676-4112-b6d9-6db98048b2e0",USER_DISCONNECTED:"20af31ac-e602-442e-9e0e-b589f4dd4016",TWITTER_LINKED:"7fbea086-90ef-4679-ba69-f47f9255b34c",DISCORD_LINKED:"d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",SPOTIFY_LINKED:"fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",TIKTOK_LINKED:"4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",TELEGRAM_LINKED:"9006bc5d-bcc9-4d01-a860-4f1a201e8e47"};let v=[];const I=()=>v,g=t=>{function e(e){v.some((t=>t.info.uuid===e.detail.info.uuid))||(v=[...v,e.detail],t(v))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)},A="undefined"!=typeof window,k=function(t){return"88888888-8888-8888-8888-888888888888"===t},T=function(){return"hidden"===document.visibilityState},b=function(){const t=(location.search.split("source=")[1]||"").split("&")[0];return""===t?void 0:t},$=function(t){return{query:"\n\t\t\tmutation updateRecord($recordId: ID!) {\n\t\t\t\tupdateRecord(id: $recordId) {\n\t\t\t\t\tsuccess\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{recordId:t}}},S=function(t,e,i,n){const r=new XMLHttpRequest;r.open("POST",t),r.onload=()=>{if(200!==r.status)throw new Error("Server returned with an unhandled status");let t=null;try{t=JSON.parse(r.responseText)}catch(t){throw new Error("Failed to parse response from server")}if(null!=t.errors)throw new Error(t.errors[0].message);if("function"==typeof n)return n(t)},r.setRequestHeader("Content-Type","application/json;charset=UTF-8"),
+let l=null;const f=(t,i="window.ethereum")=>t||l?((!l||l.transport.name!==i&&t)&&(l=e.createWalletClient({chain:u,transport:e.custom(t,{name:i})})),l):(console.warn("Provider is required to create a client."),null);var w="Connect with Camp Network",p="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",y="https://ackee-production-01bd.up.railway.app",m={USER_CONNECTED:"ed42542d-b676-4112-b6d9-6db98048b2e0",USER_DISCONNECTED:"20af31ac-e602-442e-9e0e-b589f4dd4016",TWITTER_LINKED:"7fbea086-90ef-4679-ba69-f47f9255b34c",DISCORD_LINKED:"d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",SPOTIFY_LINKED:"fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",TIKTOK_LINKED:"4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",TELEGRAM_LINKED:"9006bc5d-bcc9-4d01-a860-4f1a201e8e47"};let v=[];const I=()=>v,g=t=>{function e(e){v.some((t=>t.info.uuid===e.detail.info.uuid))||(v=[...v,e.detail],t(v))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)},A="undefined"!=typeof window,k=A?window.navigator:{userAgent:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",language:"en",languages:[],platform:"",vendor:"",maxTouchPoints:0,hardwareConcurrency:0,deviceMemory:0},T=function(t){return"88888888-8888-8888-8888-888888888888"===t},b=function(){return"hidden"===document.visibilityState},E=function(){const t=(location.search.split("source=")[1]||"").split("&")[0];return""===t?void 0:t},S=function(t){return{query:"\n\t\t\tmutation updateRecord($recordId: ID!) {\n\t\t\t\tupdateRecord(id: $recordId) {\n\t\t\t\t\tsuccess\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{recordId:t}}},$=function(t,e,i,n){const r=new XMLHttpRequest;r.open("POST",t),r.onload=()=>{if(200!==r.status)throw new Error("Server returned with an unhandled status");let t=null;try{t=JSON.parse(r.responseText)}catch(t){throw new Error("Failed to parse response from server")}if(null!=t.errors)throw new Error(t.errors[0].message);if("function"==typeof n)return n(t)},r.setRequestHeader("Content-Type","application/json;charset=UTF-8"),
 //   xhr.withCredentials = opts.ignoreOwnVisits ?? false;
-r.withCredentials=!1,r.send(JSON.stringify(e))},E=function(t,e){e=function(t={}){
+r.withCredentials=!1,r.send(JSON.stringify(e))},D=function(t,e){e=function(t={}){
 // Create new object to avoid changes by reference
 const e={};
 // Defaults to false
@@ -48,16 +48,16 @@ return e.detailed=!0===t.detailed,
 // Defaults to true
 e.ignoreLocalhost=!1!==t.ignoreLocalhost,
 // Defaults to true
-e.ignoreOwnVisits=!1!==t.ignoreOwnVisits,e}(e);const i=function(t){const e="/"===t.substr(-1);return t+(!0===e?"":"/")+"api"}(t),n=()=>{},r={record:()=>({stop:n}),updateRecord:()=>({stop:n}),action:n,updateAction:n};if(!0===e.ignoreLocalhost&&!0==(""===(s=location.hostname)||"localhost"===s||"127.0.0.1"===s||"::1"===s))return console.warn("Ackee ignores you because you are on localhost"),r;var s,o;if(!0===(o=navigator.userAgent,/bot|crawler|spider|crawling/i.test(o)))return console.warn("Ackee ignores you because you are a bot"),r;
+e.ignoreOwnVisits=!1!==t.ignoreOwnVisits,e}(e);const i=function(t){const e="/"===t.substr(-1);return t+(!0===e?"":"/")+"api"}(t),n=()=>{},r={record:()=>({stop:n}),updateRecord:()=>({stop:n}),action:n,updateAction:n};if(!0===e.ignoreLocalhost&&!0==(""===(s=location.hostname)||"localhost"===s||"127.0.0.1"===s||"::1"===s))return console.warn("Ackee ignores you because you are on localhost"),r;var s,o;if(!0===(o=k?k.userAgent:"",/bot|crawler|spider|crawling/i.test(o)))return console.warn("Ackee ignores you because you are a bot"),r;
 // Creates a new record on the server and updates the record
 // very x seconds to track the duration of the visit. Tries to use
 // the default attributes when there're no custom attributes defined.
 // Return the real instance
-return{record:(t,n=function(t=!1){const e={siteLocation:window.location.href,siteReferrer:document.referrer,source:b()},i={siteLanguage:(navigator.language||navigator.language).substr(0,2),screenWidth:screen.width,screenHeight:screen.height,screenColorDepth:screen.colorDepth,browserWidth:window.outerWidth,browserHeight:window.outerHeight};return Object.assign(Object.assign({},e),!0===t?i:{})}(e.detailed),r)=>{
+return{record:(t,n=function(t=!1){const e={siteLocation:window.location.href,siteReferrer:document.referrer,source:E()},i={siteLanguage:k?((null==k?void 0:k.language)||(null==k?void 0:k.language)||"").substr(0,2):"",screenWidth:screen.width,screenHeight:screen.height,screenColorDepth:screen.colorDepth,browserWidth:window.outerWidth,browserHeight:window.outerHeight};return Object.assign(Object.assign({},e),!0===t?i:{})}(e.detailed),r)=>{
 // Function to stop updating the record
-let s=!1;return S(i,function(t,e){return{query:"\n\t\t\tmutation createRecord($domainId: ID!, $input: CreateRecordInput!) {\n\t\t\t\tcreateRecord(domainId: $domainId, input: $input) {\n\t\t\t\t\tpayload {\n\t\t\t\t\t\tid\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{domainId:t,input:e}}}(t,n),0,(t=>{const e=t.data.createRecord.payload.id;if(!0===k(e))return console.warn("Ackee ignores you because this is your own site");const n=setInterval((()=>{!0!==s?!0!==T()&&S(i,$(e)):clearInterval(n)}),15e3);return"function"==typeof r?r(e):void 0})),{stop:()=>{s=!0}}},updateRecord:t=>{
+let s=!1;return $(i,function(t,e){return{query:"\n\t\t\tmutation createRecord($domainId: ID!, $input: CreateRecordInput!) {\n\t\t\t\tcreateRecord(domainId: $domainId, input: $input) {\n\t\t\t\t\tpayload {\n\t\t\t\t\t\tid\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{domainId:t,input:e}}}(t,n),0,(t=>{const e=t.data.createRecord.payload.id;if(!0===T(e))return console.warn("Ackee ignores you because this is your own site");const n=setInterval((()=>{!0!==s?!0!==b()&&$(i,S(e)):clearInterval(n)}),15e3);return"function"==typeof r?r(e):void 0})),{stop:()=>{s=!0}}},updateRecord:t=>{
 // Function to stop updating the record
-let e=!1;const n=()=>{e=!0};if(!0===k(t))return console.warn("Ackee ignores you because this is your own site"),{stop:n};const r=setInterval((()=>{!0!==e?!0!==T()&&S(i,$(t)):clearInterval(r)}),15e3);return{stop:n}},action:(t,e,n)=>{S(i,function(t,e){return{query:"\n\t\t\tmutation createAction($eventId: ID!, $input: CreateActionInput!) {\n\t\t\t\tcreateAction(eventId: $eventId, input: $input) {\n\t\t\t\t\tpayload {\n\t\t\t\t\t\tid\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{eventId:t,input:e}}}(t,e),0,(t=>{const e=t.data.createAction.payload.id;return!0===k(e)?console.warn("Ackee ignores you because this is your own site"):"function"==typeof n?n(e):void 0}))},updateAction:(t,e)=>{if(!0===k(t))return console.warn("Ackee ignores you because this is your own site");S(i,function(t,e){return{query:"\n\t\t\tmutation updateAction($actionId: ID!, $input: UpdateActionInput!) {\n\t\t\t\tupdateAction(id: $actionId, input: $input) {\n\t\t\t\t\tsuccess\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{actionId:t,input:e}}}(t,e))}}};
+let e=!1;const n=()=>{e=!0};if(!0===T(t))return console.warn("Ackee ignores you because this is your own site"),{stop:n};const r=setInterval((()=>{!0!==e?!0!==b()&&$(i,S(t)):clearInterval(r)}),15e3);return{stop:n}},action:(t,e,n)=>{$(i,function(t,e){return{query:"\n\t\t\tmutation createAction($eventId: ID!, $input: CreateActionInput!) {\n\t\t\t\tcreateAction(eventId: $eventId, input: $input) {\n\t\t\t\t\tpayload {\n\t\t\t\t\t\tid\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{eventId:t,input:e}}}(t,e),0,(t=>{const e=t.data.createAction.payload.id;return!0===T(e)?console.warn("Ackee ignores you because this is your own site"):"function"==typeof n?n(e):void 0}))},updateAction:(t,e)=>{if(!0===T(t))return console.warn("Ackee ignores you because this is your own site");$(i,function(t,e){return{query:"\n\t\t\tmutation updateAction($actionId: ID!, $input: UpdateActionInput!) {\n\t\t\t\tupdateAction(id: $actionId, input: $input) {\n\t\t\t\t\tsuccess\n\t\t\t\t}\n\t\t\t}\n\t\t",variables:{actionId:t,input:e}}}(t,e))}}};
 /**
 The MIT License (MIT)
 
@@ -80,14 +80,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-*/var D,j,U,O,N,C,P,_,W,L;
+*/var j,U,O,C,N,P,_,W,L,x;
 // Only run Ackee automatically when executed in a browser environment
-!0===A&&function(){const t=document.querySelector("[data-ackee-domain-id]");if(null==t)return;const e=t.getAttribute("data-ackee-server")||"",i=t.getAttribute("data-ackee-domain-id")||"",n=t.getAttribute("data-ackee-opts")||"{}";E(e,JSON.parse(n)).record(i)}();j=new WeakMap,U=new WeakMap,D=new WeakSet,O=function(t,e){r(this,j,"f")[t]&&r(this,j,"f")[t].forEach((t=>t(e)))},N=function(){if("undefined"==typeof localStorage)return;const t=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),e=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");t&&e&&i?(this.walletAddress=t,this.userId=e,this.jwt=i,this.isAuthenticated=!0):this.isAuthenticated=!1},C=function(){return n(this,void 0,void 0,(function*(){try{const[t]=yield this.viem.requestAddresses();return this.walletAddress=t,t}catch(t){throw new o(t)}}))},P=function(){return n(this,void 0,void 0,(function*(){try{const t=yield fetch(`${p}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=yield t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}))},_=function(t,e){return n(this,void 0,void 0,(function*(){try{const i=yield fetch(`${p}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),n=yield i.json(),r=n.data.split(".")[1],s=JSON.parse(atob(r));return{success:!n.isError,userId:s.id,token:n.data}}catch(t){throw new o(t)}}))},W=function(t){return i.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:w,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})},L=function(t,e){return n(this,arguments,void 0,(function*(t,e,i=1){yield((t,e,i,r)=>n(void 0,void 0,void 0,(function*(){return new Promise(((n,s)=>{if("undefined"!=typeof window&&null!==t)try{t.action(e,{key:i,value:r},(t=>{n(t)}))}catch(t){console.error(t),s(t)}else s(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."))}))})))
+!0===A&&function(){const t=document.querySelector("[data-ackee-domain-id]");if(null==t)return;const e=t.getAttribute("data-ackee-server")||"",i=t.getAttribute("data-ackee-domain-id")||"",n=t.getAttribute("data-ackee-opts")||"{}";D(e,JSON.parse(n)).record(i)}();U=new WeakMap,O=new WeakMap,j=new WeakSet,C=function(t,e){r(this,U,"f")[t]&&r(this,U,"f")[t].forEach((t=>t(e)))},N=function(){if("undefined"==typeof localStorage)return;const t=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),e=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");t&&e&&i?(this.walletAddress=t,this.userId=e,this.jwt=i,this.isAuthenticated=!0):this.isAuthenticated=!1},P=function(){return n(this,void 0,void 0,(function*(){try{const[t]=yield this.viem.requestAddresses();return this.walletAddress=t,t}catch(t){throw new o(t)}}))},_=function(){return n(this,void 0,void 0,(function*(){try{const t=yield fetch(`${p}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=yield t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}))},W=function(t,e){return n(this,void 0,void 0,(function*(){try{const i=yield fetch(`${p}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),n=yield i.json(),r=n.data.split(".")[1],s=JSON.parse(atob(r));return{success:!n.isError,userId:s.id,token:n.data}}catch(t){throw new o(t)}}))},L=function(t){return i.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:w,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})},x=function(t,e){return n(this,arguments,void 0,(function*(t,e,i=1){yield((t,e,i,r)=>n(void 0,void 0,void 0,(function*(){return new Promise(((n,s)=>{if("undefined"!=typeof window&&null!==t)try{t.action(e,{key:i,value:r},(t=>{n(t)}))}catch(t){console.error(t),s(t)}else s(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."))}))})))
 /**
  * The TwitterAPI class.
  * @class
  * @classdesc The TwitterAPI class is used to interact with the Twitter API.
- */(r(this,U,"f"),t,e,i)}))},exports.Auth=
+ */(r(this,O,"f"),t,e,i)}))},exports.Auth=
 /**
  * The Auth class.
  * @class
@@ -99,11 +99,11 @@ class{
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-     * @param {boolean} options.allowAnalytics Whether to allow analytics to be sent.
-     * @param {object} options.ackeeInstance The Ackee instance.
+     * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
+     * @param {object} [options.ackeeInstance] The Ackee instance.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(D.add(this),j.set(this,void 0),U.set(this,void 0),!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=f(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,i)=>(e[i]=t[i]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,i)=>(e[i]=t,e)),{}):t?{}:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),n&&s(this,U,n,"f"),i&&!r(this,U,"f")&&s(this,U,E(y,{detailed:!1,ignoreLocalhost:!1,ignoreOwnVisits:!1}),"f"),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,s(this,j,{},"f"),g((t=>{r(this,D,"m",O).call(this,"providers",t)})),r(this,D,"m",N).call(this)}
+constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(j.add(this),U.set(this,void 0),O.set(this,void 0),!t)throw new Error("clientId is required");this.viem=null,"undefined"!=typeof window&&window.ethereum&&(this.viem=f(window.ethereum)),this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==typeof t?e.reduce(((e,i)=>(e[i]=t[i]||("undefined"!=typeof window?window.location.href:""),e)),{}):"string"==typeof t?e.reduce(((e,i)=>(e[i]=t,e)),{}):t?{}:e.reduce(((t,e)=>(t[e]="undefined"!=typeof window?window.location.href:"",t)),{})})(e),n&&s(this,O,n,"f"),i&&!r(this,O,"f")&&s(this,O,D(y,{detailed:!1,ignoreLocalhost:!1,ignoreOwnVisits:!1}),"f"),this.clientId=t,this.isAuthenticated=!1,this.jwt=null,this.walletAddress=null,this.userId=null,s(this,U,{},"f"),g((t=>{r(this,j,"m",C).call(this,"providers",t)})),r(this,j,"m",N).call(this)}
 /**
      * Subscribe to an event. Possible events are "state", "provider", and "providers".
      * @param {("state"|"provider"|"providers")} event The event.
@@ -113,18 +113,18 @@ constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(D
      * auth.on("state", (state) => {
      *  console.log(state);
      * });
-     */on(t,e){r(this,j,"f")[t]||(r(this,j,"f")[t]=[]),r(this,j,"f")[t].push(e),"providers"===t&&e(I())}
+     */on(t,e){r(this,U,"f")[t]||(r(this,U,"f")[t]=[]),r(this,U,"f")[t].push(e),"providers"===t&&e(I())}
 /**
      * Set the loading state.
      * @param {boolean} loading The loading state.
      * @returns {void}
-     */setLoading(t){r(this,D,"m",O).call(this,"state",t?"loading":this.isAuthenticated?"authenticated":"unauthenticated")}
+     */setLoading(t){r(this,j,"m",C).call(this,"state",t?"loading":this.isAuthenticated?"authenticated":"unauthenticated")}
 /**
      * Set the provider. This is useful for setting the provider when the user selects a provider from the UI or when dApp wishes to use a specific provider.
      * @param {object} options The options object. Includes the provider and the provider info.
      * @returns {void}
      * @throws {APIError} - Throws an error if the provider is not provided.
-     */setProvider({provider:t,info:e}){if(!t)throw new o("provider is required");this.viem=f(t,e.name),r(this,D,"m",O).call(this,"provider",{provider:t,info:e})}
+     */setProvider({provider:t,info:e}){if(!t)throw new o("provider is required");this.viem=f(t,e.name),r(this,j,"m",C).call(this,"provider",{provider:t,info:e})}
 /**
      * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
      * @param {string} walletAddress The wallet address.
@@ -132,66 +132,87 @@ constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(D
      */setWalletAddress(t){this.walletAddress=t}
 /**
      * Disconnect the user.
-     * @returns {void}
-     */disconnect(){return n(this,void 0,void 0,(function*(){this.isAuthenticated=!1,this.walletAddress=null,this.userId=null,this.jwt=null,localStorage.removeItem("camp-sdk:wallet-address"),localStorage.removeItem("camp-sdk:user-id"),localStorage.removeItem("camp-sdk:jwt"),r(this,D,"m",O).call(this,"state","unauthenticated"),yield r(this,D,"m",L).call(this,m.USER_DISCONNECTED,"User Disconnected")}))}
+     * @returns {Promise<void>}
+     */disconnect(){return n(this,void 0,void 0,(function*(){this.isAuthenticated&&(this.isAuthenticated=!1,this.walletAddress=null,this.userId=null,this.jwt=null,localStorage.removeItem("camp-sdk:wallet-address"),localStorage.removeItem("camp-sdk:user-id"),localStorage.removeItem("camp-sdk:jwt"),r(this,j,"m",C).call(this,"state","unauthenticated"),yield r(this,j,"m",x).call(this,m.USER_DISCONNECTED,"User Disconnected"))}))}
 /**
      * Connect the user's wallet and sign the message.
-     * @returns {Promise<object>} A promise that resolves with the authentication result.
+     * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
      * @throws {APIError} - Throws an error if the user cannot be authenticated.
-     */connect(){return n(this,void 0,void 0,(function*(){r(this,D,"m",O).call(this,"state","loading");try{this.walletAddress||(yield r(this,D,"m",C).call(this));const t=yield r(this,D,"m",P).call(this),e=r(this,D,"m",W).call(this,t),i=yield this.viem.signMessage({account:this.walletAddress,message:e}),n=yield r(this,D,"m",_).call(this,e,i);if(n.success)return this.isAuthenticated=!0,this.userId=n.userId,this.jwt=n.token,localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),r(this,D,"m",O).call(this,"state","authenticated"),yield r(this,D,"m",L).call(this,m.USER_CONNECTED,"User Connected"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,r(this,D,"m",O).call(this,"state","unauthenticated"),new o("Failed to authenticate")}catch(t){throw this.isAuthenticated=!1,r(this,D,"m",O).call(this,"state","unauthenticated"),new o(t)}}))}
+     */connect(){return n(this,void 0,void 0,(function*(){r(this,j,"m",C).call(this,"state","loading");try{this.walletAddress||(yield r(this,j,"m",P).call(this));const t=yield r(this,j,"m",_).call(this),e=r(this,j,"m",L).call(this,t),i=yield this.viem.signMessage({account:this.walletAddress,message:e}),n=yield r(this,j,"m",W).call(this,e,i);if(n.success)return this.isAuthenticated=!0,this.userId=n.userId,this.jwt=n.token,localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),r(this,j,"m",C).call(this,"state","authenticated"),yield r(this,j,"m",x).call(this,m.USER_CONNECTED,"User Connected"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,r(this,j,"m",C).call(this,"state","unauthenticated"),new o("Failed to authenticate")}catch(t){throw this.isAuthenticated=!1,r(this,j,"m",C).call(this,"state","unauthenticated"),new o(t)}}))}
 /**
      * Get the user's linked social accounts.
-     * @returns {Promise<object>} A promise that resolves with the user's linked social accounts.
-     * @throws {APIError} - Throws an error if the user is not authenticated or if the request fails.
+     * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated or if the request fails.
      * @example
      * const auth = new Auth({ clientId: "your-client-id" });
      * const socials = await auth.getLinkedSocials();
      * console.log(socials);
-     */getLinkedSocials(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((i=>{e[i.split("User")[0]]=t.data.data[i]})),e}}))}
+     */getLinkedSocials(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");const t=yield fetch(`${p}/auth/client-user/connections-sdk`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to fetch connections");{const e={};return Object.keys(t.data.data).forEach((i=>{e[i.split("User")[0]]=t.data.data[i]})),e}}))}
 /**
      * Link the user's Twitter account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
-     */linkTwitter(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");yield r(this,D,"m",L).call(this,m.TWITTER_LINKED,"Twitter Linked"),window.location.href=`${p}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.twitter}`}))}
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     */linkTwitter(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");yield r(this,j,"m",x).call(this,m.TWITTER_LINKED,"Twitter Linked"),window.location.href=`${p}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.twitter}`}))}
 /**
      * Link the user's Discord account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
-     */linkDiscord(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");yield r(this,D,"m",L).call(this,m.DISCORD_LINKED,"Discord Linked"),window.location.href=`${p}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.discord}`}))}
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     */linkDiscord(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");yield r(this,j,"m",x).call(this,m.DISCORD_LINKED,"Discord Linked"),window.location.href=`${p}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.discord}`}))}
 /**
      * Link the user's Spotify account.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
-     */linkSpotify(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");yield r(this,D,"m",L).call(this,m.SPOTIFY_LINKED,"Spotify Linked"),window.location.href=`${p}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.spotify}`}))}
+     * @returns {Promise<void>}
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     */linkSpotify(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");yield r(this,j,"m",x).call(this,m.SPOTIFY_LINKED,"Spotify Linked"),window.location.href=`${p}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri.spotify}`}))}
 /**
      * Link the user's TikTok account.
      * @param {string} handle The user's TikTok handle.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
-     */linkTikTok(t){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const e=yield fetch(`${p}/tiktok/connect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userHandle:t,clientId:this.clientId,userId:this.userId})}).then((t=>t.json()));if(e.isError)throw"Request failed with status code 502"===e.message?new o("TikTok service is currently unavailable, try again later"):new o(e.message||"Failed to link TikTok account");return r(this,D,"m",L).call(this,m.TIKTOK_LINKED,"TikTok Linked"),e.data}))}
+     * @returns {Promise<any>} A promise that resolves with the TikTok account data.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated.
+     */linkTikTok(t){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");const e=yield fetch(`${p}/tiktok/connect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userHandle:t,clientId:this.clientId,userId:this.userId})}).then((t=>t.json()));if(e.isError)throw"Request failed with status code 502"===e.message?new o("TikTok service is currently unavailable, try again later"):new o(e.message||"Failed to link TikTok account");return r(this,j,"m",x).call(this,m.TIKTOK_LINKED,"TikTok Linked"),e.data}))}
 /**
      * Send an OTP to the user's Telegram account.
      * @param {string} phoneNumber The user's phone number.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated.
-     */sendTelegramOTP(t){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");if(!t)throw new o("Phone number is required");yield this.unlinkTelegram();const e=yield fetch(`${p}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new o(e.message||"Failed to send Telegram OTP");return e.data}))}
+     * @returns {Promise<any>} A promise that resolves with the OTP data.
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated.
+     */sendTelegramOTP(t){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");if(!t)throw new o("Phone number is required");yield this.unlinkTelegram();const e=yield fetch(`${p}/telegram/sendOTP-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t})}).then((t=>t.json()));if(e.isError)throw new o(e.message||"Failed to send Telegram OTP");return e.data}))}
 /**
      * Link the user's Telegram account.
      * @param {string} phoneNumber The user's phone number.
      * @param {string} otp The OTP.
      * @param {string} phoneCodeHash The phone code hash.
-     * @returns {void}
-     * @throws {APIError} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
-     */linkTelegram(t,e,i){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");if(!t||!e||!i)throw new o("Phone number, OTP, and phone code hash are required");const n=yield fetch(`${p}/telegram/signIn-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(n.isError)throw new o(n.message||"Failed to link Telegram account");return r(this,D,"m",L).call(this,m.TELEGRAM_LINKED,"Telegram Linked"),n.data}))}
+     * @returns {Promise<object>} A promise that resolves with the Telegram account data.
+     * @throws {APIError|Error} - Throws an error if the user is not authenticated. Also throws an error if the phone number, OTP, and phone code hash are not provided.
+     */linkTelegram(t,e,i){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");if(!t||!e||!i)throw new o("Phone number, OTP, and phone code hash are required");const n=yield fetch(`${p}/telegram/signIn-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({phone:t,code:e,phone_code_hash:i,userId:this.userId,clientId:this.clientId})}).then((t=>t.json()));if(n.isError)throw new o(n.message||"Failed to link Telegram account");return r(this,j,"m",x).call(this,m.TELEGRAM_LINKED,"Telegram Linked"),n.data}))}
 /**
      * Unlink the user's Twitter account.
-     */unlinkTwitter(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Twitter account");return t.data}))}
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */unlinkTwitter(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");const t=yield fetch(`${p}/twitter/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Twitter account");return t.data}))}
 /**
      * Unlink the user's Discord account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
      */unlinkDiscord(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/discord/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Discord account");return t.data}))}
 /**
      * Unlink the user's Spotify account.
-     */unlinkSpotify(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Spotify account");return t.data}))}unlinkTikTok(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink TikTok account");return t.data}))}unlinkTelegram(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Telegram account");return t.data}))}},exports.SpotifyAPI=
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */unlinkSpotify(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/spotify/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({id:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Spotify account");return t.data}))}
+/**
+     * Unlink the user's TikTok account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */unlinkTikTok(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/tiktok/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink TikTok account");return t.data}))}
+/**
+     * Unlink the user's Telegram account.
+     * @returns {Promise<any>} A promise that resolves with the unlink result.
+     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {APIError} - Throws an error if the request fails.
+     */unlinkTelegram(){return n(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new o("User needs to be authenticated");const t=yield fetch(`${p}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((t=>t.json()));if(t.isError)throw new o(t.message||"Failed to unlink Telegram account");return t.data}))}},exports.SpotifyAPI=
 /**
  * The SpotifyAPI class.
  * @class

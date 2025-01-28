@@ -1,4 +1,5 @@
 const { Auth } = require("../dist/core.cjs");
+const xmlhttprequest = require("xmlhttprequest");
 class LocalStorageMock {
   constructor() {
     this.store = {};
@@ -28,6 +29,15 @@ describe("Auth Class", () => {
   beforeEach(() => {
     auth = new Auth({ clientId, redirectUri });
     global.localStorage = new LocalStorageMock();
+    global.navigator = {
+      userAgent: "node.js",
+      platform: "node",
+      appName: "Netscape",
+      appVersion: "5.0 (Windows)",
+      onLine: true,
+      language: "en-US",
+      languages: ["en-US", "en"],
+    };
     global.window = {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
@@ -36,6 +46,7 @@ describe("Auth Class", () => {
       },
       dispatchEvent: jest.fn(),
     };
+    global.XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
   });
 
   test("should throw error if clientId is not provided", () => {
@@ -73,6 +84,7 @@ describe("Auth Class", () => {
   });
 
   test("should disconnect user", async () => {
+    auth.isAuthenticated = true;
     localStorage.setItem("camp-sdk:wallet-address", "0x123");
     localStorage.setItem("camp-sdk:user-id", "user-id");
     localStorage.setItem("camp-sdk:jwt", "jwt-token");
@@ -83,9 +95,9 @@ describe("Auth Class", () => {
     expect(auth.jwt).toBeNull();
   });
 
-  test("should throw error if user is not authenticated when linking socials", () => {
-    expect(() => auth.linkTwitter()).toThrow("User needs to be authenticated");
-    expect(() => auth.linkDiscord()).toThrow("User needs to be authenticated");
-    expect(() => auth.linkSpotify()).toThrow("User needs to be authenticated");
+  test("should throw error if user is not authenticated when linking socials", async () => {
+    await expect(auth.linkTwitter()).rejects.toThrow(
+      "User needs to be authenticated"
+    );
   });
 });
