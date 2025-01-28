@@ -77,7 +77,6 @@ export const sendAnalyticsEvent = async (
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (typeof window !== "undefined" && ackee !== null) {
-      console.log("Sending analytics event", event, value);
       try {
         ackee.action(
           event,
@@ -94,7 +93,11 @@ export const sendAnalyticsEvent = async (
         reject(error);
       }
     } else {
-      reject(new Error("Ackee is not available or window is undefined"));
+      reject(
+        new Error(
+          "Unable to send analytics event. If you are using the library, you can ignore this error."
+        )
+      );
     }
   });
 };

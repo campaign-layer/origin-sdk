@@ -519,7 +519,6 @@ const capitalize = (str) => {
 const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
         if (typeof window !== "undefined" && ackee !== null) {
-            console.log("Sending analytics event", event, value);
             try {
                 ackee.action(event, {
                     key: key,
@@ -534,7 +533,7 @@ const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 
             }
         }
         else {
-            reject(new Error("Ackee is not available or window is undefined"));
+            reject(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."));
         }
     });
 });
