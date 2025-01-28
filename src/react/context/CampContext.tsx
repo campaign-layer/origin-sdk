@@ -3,7 +3,7 @@ import { Auth } from "../../core/auth/index";
 import { ModalProvider } from "./ModalContext";
 // @ts-ignore
 import { WagmiContext } from "wagmi";
-import * as ackeeTracker from "../../ackeeUtil";
+import { Ackee } from "../../index";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../toasts";
 import constants from "../../constants";
@@ -55,7 +55,7 @@ const CampProvider = ({
   allowAnalytics?: boolean;
 }) => {
   const ackeeInstance = allowAnalytics
-    ? ackeeTracker.create(constants.ACKEE_INSTANCE, {
+    ? Ackee.create(constants.ACKEE_INSTANCE, {
         detailed: false,
         ignoreLocalhost: false,
         ignoreOwnVisits: false,

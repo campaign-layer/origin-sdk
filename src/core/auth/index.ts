@@ -4,7 +4,7 @@ import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
-import * as ackeeTracker from "../../ackeeUtil";
+import { Ackee } from "../../index";
 import { sendAnalyticsEvent } from "../../utils";
 
 declare global {
@@ -88,7 +88,7 @@ class Auth {
 
     if (ackeeInstance) this.#ackeeInstance = ackeeInstance;
     if (allowAnalytics && !this.#ackeeInstance) {
-      this.#ackeeInstance = ackeeTracker.create(constants.ACKEE_INSTANCE, {
+      this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
         detailed: false,
         ignoreLocalhost: false,
         ignoreOwnVisits: false,

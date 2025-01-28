@@ -154,6 +154,34 @@ const providerStore = {
     },
 };
 
+const formatAddress = (address, n = 8) => {
+    return `${address.slice(0, n)}...${address.slice(-n)}`;
+};
+const capitalize = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        if (typeof window !== "undefined" && ackee !== null) {
+            try {
+                ackee.action(event, {
+                    key: key,
+                    value: value,
+                }, (res) => {
+                    resolve(res);
+                });
+            }
+            catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        }
+        else {
+            reject(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."));
+        }
+    });
+});
+
 /**
 The MIT License (MIT)
 
@@ -523,34 +551,6 @@ const create = function (server, opts) {
 if (isBrowser === true) {
     detect();
 }
-
-const formatAddress = (address, n = 8) => {
-    return `${address.slice(0, n)}...${address.slice(-n)}`;
-};
-const capitalize = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
-const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 0, void 0, function* () {
-    return new Promise((resolve, reject) => {
-        if (typeof window !== "undefined" && ackee !== null) {
-            try {
-                ackee.action(event, {
-                    key: key,
-                    value: value,
-                }, (res) => {
-                    resolve(res);
-                });
-            }
-            catch (error) {
-                console.error(error);
-                reject(error);
-            }
-        }
-        else {
-            reject(new Error("Unable to send analytics event. If you are using the library, you can ignore this error."));
-        }
-    });
-});
 
 var _Auth_instances, _Auth_triggers, _Auth_ackeeInstance, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage, _Auth_sendAnalyticsEvent;
 const createRedirectUriObject = (redirectUri) => {
