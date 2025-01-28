@@ -610,7 +610,7 @@ class Auth {
         if (allowAnalytics && !__classPrivateFieldGet(this, _Auth_ackeeInstance, "f")) {
             __classPrivateFieldSet(this, _Auth_ackeeInstance, create(constants.ACKEE_INSTANCE, {
                 detailed: false,
-                ignoreLocalhost: false,
+                ignoreLocalhost: true,
                 ignoreOwnVisits: false,
             }), "f");
         }
@@ -1329,7 +1329,7 @@ const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, 
     const ackeeInstance = allowAnalytics
         ? create(constants.ACKEE_INSTANCE, {
             detailed: false,
-            ignoreLocalhost: false,
+            ignoreLocalhost: true,
             ignoreOwnVisits: false,
         })
         : null;

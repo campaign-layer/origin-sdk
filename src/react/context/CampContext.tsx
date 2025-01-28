@@ -57,7 +57,7 @@ const CampProvider = ({
   const ackeeInstance = allowAnalytics
     ? Ackee.create(constants.ACKEE_INSTANCE, {
         detailed: false,
-        ignoreLocalhost: false,
+        ignoreLocalhost: true,
         ignoreOwnVisits: false,
       })
     : null;

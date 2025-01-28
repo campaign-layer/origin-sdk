@@ -90,7 +90,7 @@ class Auth {
     if (allowAnalytics && !this.#ackeeInstance) {
       this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
         detailed: false,
-        ignoreLocalhost: false,
+        ignoreLocalhost: true,
         ignoreOwnVisits: false,
       });
     }
