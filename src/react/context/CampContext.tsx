@@ -1,7 +1,6 @@
 import React, { useState, useContext, createContext } from "react";
-import { Auth } from "../../core/auth/index";
+import { Auth } from "@campnetwork/sdk";
 import { ModalProvider } from "./ModalContext";
-// @ts-ignore
 import { WagmiContext } from "wagmi";
 import { Ackee } from "../../index";
 import { SocialsProvider } from "./SocialsContext";

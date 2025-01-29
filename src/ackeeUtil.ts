@@ -379,7 +379,8 @@ export const create = function (server: string, opts?: Options) {
 
   if (
     opts.ignoreLocalhost === true &&
-    isLocalhost(location.hostname) === true
+    isLocalhost(location.hostname) === true &&
+    isBrowser === true
   ) {
     console.warn("Ackee ignores you because you are on localhost");
     return fakeInstance;

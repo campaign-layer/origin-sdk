@@ -3,7 +3,7 @@ import { CampContext, CampProvider } from "../context/CampContext";
 import { ModalContext } from "../context/ModalContext";
 import { providerStore, Provider } from "../../core/auth/viem/providers";
 import { CampModal, MyCampModal } from "./modals";
-import { Auth } from "../../core/auth";
+import { Auth } from "@campnetwork/sdk";
 import { SocialsContext } from "../context/SocialsContext";
 import { LinkButton } from "./buttons";
 import constants from "../../constants";

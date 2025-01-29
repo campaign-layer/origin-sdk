@@ -73,7 +73,7 @@ const config = [
         },
       }),
     ],
-    external: ["axios", "viem", "viem/siwe"],
+    external: ["axios", "viem", "viem/siwe", "viem/accounts"],
   },
   // React
   {
@@ -127,6 +127,8 @@ const config = [
       "viem",
       "viem/siwe",
       "@tanstack/react-query",
+      "@campnetwork/sdk",
+      "viem/accounts",
     ],
   },
   // Core types
