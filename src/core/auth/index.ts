@@ -162,11 +162,11 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the provider is not provided.
    */
-  setProvider({ provider, info }: { provider: any; info: any }): void {
+  setProvider({ provider, info, address }: { provider: any; info: any, address?: string }): void {
     if (!provider) {
       throw new APIError("provider is required");
     }
-    this.viem = getClient(provider, info.name);
+    this.viem = getClient(provider, info.name, address);
     this.#trigger("provider", { provider, info });
   }
 

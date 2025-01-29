@@ -147,7 +147,15 @@ const AuthModal = ({
   }, [wcProvider]);
 
   const handleConnect = (provider: any) => {
-    if (provider) setProvider(provider);
+    if (provider) {
+      setProvider({
+        ...provider,
+        address: customAccount?.address,
+      });
+      if (customAccount?.address) {
+        auth.setWalletAddress(customAccount.address);
+      }
+    }
     // necessary for appkit, as it doesn't seem to support the "eth_requestAccounts" method
     if (
       customAccount?.address &&

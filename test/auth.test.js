@@ -38,6 +38,9 @@ describe("Auth Class", () => {
       language: "en-US",
       languages: ["en-US", "en"],
     };
+    global.location = {
+      href: "http://localhost",
+    };
     global.window = {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),

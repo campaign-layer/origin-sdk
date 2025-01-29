@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useRef, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
-import { createWalletClient, custom } from 'viem';
+import { custom, createWalletClient } from 'viem';
 import { createSiweMessage } from 'viem/siwe';
 import 'axios';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
@@ -102,20 +102,856 @@ const testnet = {
     },
 };
 
+function number(n) {
+    if (!Number.isSafeInteger(n) || n < 0)
+        throw new Error(`positive integer expected, not ${n}`);
+}
+// copied from utils
+function isBytes(a) {
+    return (a instanceof Uint8Array ||
+        (a != null && typeof a === 'object' && a.constructor.name === 'Uint8Array'));
+}
+function bytes(b, ...lengths) {
+    if (!isBytes(b))
+        throw new Error('Uint8Array expected');
+    if (lengths.length > 0 && !lengths.includes(b.length))
+        throw new Error(`Uint8Array expected of length ${lengths}, not of length=${b.length}`);
+}
+function exists(instance, checkFinished = true) {
+    if (instance.destroyed)
+        throw new Error('Hash instance has been destroyed');
+    if (checkFinished && instance.finished)
+        throw new Error('Hash#digest() has already been called');
+}
+function output(out, instance) {
+    bytes(out);
+    const min = instance.outputLen;
+    if (out.length < min) {
+        throw new Error(`digestInto() expects output buffer of length at least ${min}`);
+    }
+}
+
+/*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+// We use WebCrypto aka globalThis.crypto, which exists in browsers and node.js 16+.
+// node.js versions earlier than v19 don't declare it in global scope.
+// For node.js, package.json#exports field mapping rewrites import
+// from `crypto` to `cryptoNode`, which imports native module.
+// Makes the utils un-importable in browsers without a bundler.
+// Once node.js 18 is deprecated (2025-04-30), we can just drop the import.
+const u32 = (arr) => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
+const isLE = new Uint8Array(new Uint32Array([0x11223344]).buffer)[0] === 0x44;
+// The byte swap operation for uint32
+const byteSwap = (word) => ((word << 24) & 0xff000000) |
+    ((word << 8) & 0xff0000) |
+    ((word >>> 8) & 0xff00) |
+    ((word >>> 24) & 0xff);
+// In place byte swap for Uint32Array
+function byteSwap32(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        arr[i] = byteSwap(arr[i]);
+    }
+}
+/**
+ * @example utf8ToBytes('abc') // new Uint8Array([97, 98, 99])
+ */
+function utf8ToBytes(str) {
+    if (typeof str !== 'string')
+        throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
+    return new Uint8Array(new TextEncoder().encode(str)); // https://bugzil.la/1681809
+}
+/**
+ * Normalizes (non-hex) string or Uint8Array to Uint8Array.
+ * Warning: when Uint8Array is passed, it would NOT get copied.
+ * Keep in mind for future mutable operations.
+ */
+function toBytes$1(data) {
+    if (typeof data === 'string')
+        data = utf8ToBytes(data);
+    bytes(data);
+    return data;
+}
+// For runtime check if class implements interface
+class Hash {
+    // Safe version that clones internal state
+    clone() {
+        return this._cloneInto();
+    }
+}
+function wrapConstructor(hashCons) {
+    const hashC = (msg) => hashCons().update(toBytes$1(msg)).digest();
+    const tmp = hashCons();
+    hashC.outputLen = tmp.outputLen;
+    hashC.blockLen = tmp.blockLen;
+    hashC.create = () => hashCons();
+    return hashC;
+}
+
+const U32_MASK64 = /* @__PURE__ */ BigInt(2 ** 32 - 1);
+const _32n = /* @__PURE__ */ BigInt(32);
+// We are not using BigUint64Array, because they are extremely slow as per 2022
+function fromBig(n, le = false) {
+    if (le)
+        return { h: Number(n & U32_MASK64), l: Number((n >> _32n) & U32_MASK64) };
+    return { h: Number((n >> _32n) & U32_MASK64) | 0, l: Number(n & U32_MASK64) | 0 };
+}
+function split(lst, le = false) {
+    let Ah = new Uint32Array(lst.length);
+    let Al = new Uint32Array(lst.length);
+    for (let i = 0; i < lst.length; i++) {
+        const { h, l } = fromBig(lst[i], le);
+        [Ah[i], Al[i]] = [h, l];
+    }
+    return [Ah, Al];
+}
+// Left rotate for Shift in [1, 32)
+const rotlSH = (h, l, s) => (h << s) | (l >>> (32 - s));
+const rotlSL = (h, l, s) => (l << s) | (h >>> (32 - s));
+// Left rotate for Shift in (32, 64), NOTE: 32 is special case.
+const rotlBH = (h, l, s) => (l << (s - 32)) | (h >>> (64 - s));
+const rotlBL = (h, l, s) => (h << (s - 32)) | (l >>> (64 - s));
+
+const version = '2.21.37';
+
+let errorConfig = {
+    getDocsUrl: ({ docsBaseUrl, docsPath = '', docsSlug, }) => docsPath
+        ? `${docsBaseUrl ?? 'https://viem.sh'}${docsPath}${docsSlug ? `#${docsSlug}` : ''}`
+        : undefined,
+    version: `viem@${version}`,
+};
+class BaseError extends Error {
+    constructor(shortMessage, args = {}) {
+        const details = (() => {
+            if (args.cause instanceof BaseError)
+                return args.cause.details;
+            if (args.cause?.message)
+                return args.cause.message;
+            return args.details;
+        })();
+        const docsPath = (() => {
+            if (args.cause instanceof BaseError)
+                return args.cause.docsPath || args.docsPath;
+            return args.docsPath;
+        })();
+        const docsUrl = errorConfig.getDocsUrl?.({ ...args, docsPath });
+        const message = [
+            shortMessage || 'An error occurred.',
+            '',
+            ...(args.metaMessages ? [...args.metaMessages, ''] : []),
+            ...(docsUrl ? [`Docs: ${docsUrl}`] : []),
+            ...(details ? [`Details: ${details}`] : []),
+            ...(errorConfig.version ? [`Version: ${errorConfig.version}`] : []),
+        ].join('\n');
+        super(message, args.cause ? { cause: args.cause } : undefined);
+        Object.defineProperty(this, "details", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "docsPath", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "metaMessages", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "shortMessage", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "version", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        Object.defineProperty(this, "name", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: 'BaseError'
+        });
+        this.details = details;
+        this.docsPath = docsPath;
+        this.metaMessages = args.metaMessages;
+        this.name = args.name ?? this.name;
+        this.shortMessage = shortMessage;
+        this.version = version;
+    }
+    walk(fn) {
+        return walk(this, fn);
+    }
+}
+function walk(err, fn) {
+    if (fn?.(err))
+        return err;
+    if (err && typeof err === 'object' && 'cause' in err)
+        return walk(err.cause, fn);
+    return fn ? null : err;
+}
+
+class IntegerOutOfRangeError extends BaseError {
+    constructor({ max, min, signed, size, value, }) {
+        super(`Number "${value}" is not in safe ${size ? `${size * 8}-bit ${signed ? 'signed' : 'unsigned'} ` : ''}integer range ${max ? `(${min} to ${max})` : `(above ${min})`}`, { name: 'IntegerOutOfRangeError' });
+    }
+}
+class SizeOverflowError extends BaseError {
+    constructor({ givenSize, maxSize }) {
+        super(`Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`, { name: 'SizeOverflowError' });
+    }
+}
+
+class SizeExceedsPaddingSizeError extends BaseError {
+    constructor({ size, targetSize, type, }) {
+        super(`${type.charAt(0).toUpperCase()}${type
+            .slice(1)
+            .toLowerCase()} size (${size}) exceeds padding size (${targetSize}).`, { name: 'SizeExceedsPaddingSizeError' });
+    }
+}
+
+function pad(hexOrBytes, { dir, size = 32 } = {}) {
+    if (typeof hexOrBytes === 'string')
+        return padHex(hexOrBytes, { dir, size });
+    return padBytes(hexOrBytes, { dir, size });
+}
+function padHex(hex_, { dir, size = 32 } = {}) {
+    if (size === null)
+        return hex_;
+    const hex = hex_.replace('0x', '');
+    if (hex.length > size * 2)
+        throw new SizeExceedsPaddingSizeError({
+            size: Math.ceil(hex.length / 2),
+            targetSize: size,
+            type: 'hex',
+        });
+    return `0x${hex[dir === 'right' ? 'padEnd' : 'padStart'](size * 2, '0')}`;
+}
+function padBytes(bytes, { dir, size = 32 } = {}) {
+    if (size === null)
+        return bytes;
+    if (bytes.length > size)
+        throw new SizeExceedsPaddingSizeError({
+            size: bytes.length,
+            targetSize: size,
+            type: 'bytes',
+        });
+    const paddedBytes = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+        const padEnd = dir === 'right';
+        paddedBytes[padEnd ? i : size - i - 1] =
+            bytes[padEnd ? i : bytes.length - i - 1];
+    }
+    return paddedBytes;
+}
+
+function isHex(value, { strict = true } = {}) {
+    if (!value)
+        return false;
+    if (typeof value !== 'string')
+        return false;
+    return strict ? /^0x[0-9a-fA-F]*$/.test(value) : value.startsWith('0x');
+}
+
+/**
+ * @description Retrieves the size of the value (in bytes).
+ *
+ * @param value The value (hex or byte array) to retrieve the size of.
+ * @returns The size of the value (in bytes).
+ */
+function size(value) {
+    if (isHex(value, { strict: false }))
+        return Math.ceil((value.length - 2) / 2);
+    return value.length;
+}
+
+const encoder = /*#__PURE__*/ new TextEncoder();
+/**
+ * Encodes a UTF-8 string, hex value, bigint, number or boolean to a byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/toBytes
+ * - Example: https://viem.sh/docs/utilities/toBytes#usage
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Byte array value.
+ *
+ * @example
+ * import { toBytes } from 'viem'
+ * const data = toBytes('Hello world')
+ * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+ *
+ * @example
+ * import { toBytes } from 'viem'
+ * const data = toBytes(420)
+ * // Uint8Array([1, 164])
+ *
+ * @example
+ * import { toBytes } from 'viem'
+ * const data = toBytes(420, { size: 4 })
+ * // Uint8Array([0, 0, 1, 164])
+ */
+function toBytes(value, opts = {}) {
+    if (typeof value === 'number' || typeof value === 'bigint')
+        return numberToBytes(value, opts);
+    if (typeof value === 'boolean')
+        return boolToBytes(value, opts);
+    if (isHex(value))
+        return hexToBytes(value, opts);
+    return stringToBytes(value, opts);
+}
+/**
+ * Encodes a boolean into a byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/toBytes#booltobytes
+ *
+ * @param value Boolean value to encode.
+ * @param opts Options.
+ * @returns Byte array value.
+ *
+ * @example
+ * import { boolToBytes } from 'viem'
+ * const data = boolToBytes(true)
+ * // Uint8Array([1])
+ *
+ * @example
+ * import { boolToBytes } from 'viem'
+ * const data = boolToBytes(true, { size: 32 })
+ * // Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
+ */
+function boolToBytes(value, opts = {}) {
+    const bytes = new Uint8Array(1);
+    bytes[0] = Number(value);
+    if (typeof opts.size === 'number') {
+        assertSize(bytes, { size: opts.size });
+        return pad(bytes, { size: opts.size });
+    }
+    return bytes;
+}
+// We use very optimized technique to convert hex string to byte array
+const charCodeMap = {
+    zero: 48,
+    nine: 57,
+    A: 65,
+    F: 70,
+    a: 97,
+    f: 102,
+};
+function charCodeToBase16(char) {
+    if (char >= charCodeMap.zero && char <= charCodeMap.nine)
+        return char - charCodeMap.zero;
+    if (char >= charCodeMap.A && char <= charCodeMap.F)
+        return char - (charCodeMap.A - 10);
+    if (char >= charCodeMap.a && char <= charCodeMap.f)
+        return char - (charCodeMap.a - 10);
+    return undefined;
+}
+/**
+ * Encodes a hex string into a byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/toBytes#hextobytes
+ *
+ * @param hex Hex string to encode.
+ * @param opts Options.
+ * @returns Byte array value.
+ *
+ * @example
+ * import { hexToBytes } from 'viem'
+ * const data = hexToBytes('0x48656c6c6f20776f726c6421')
+ * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33])
+ *
+ * @example
+ * import { hexToBytes } from 'viem'
+ * const data = hexToBytes('0x48656c6c6f20776f726c6421', { size: 32 })
+ * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+ */
+function hexToBytes(hex_, opts = {}) {
+    let hex = hex_;
+    if (opts.size) {
+        assertSize(hex, { size: opts.size });
+        hex = pad(hex, { dir: 'right', size: opts.size });
+    }
+    let hexString = hex.slice(2);
+    if (hexString.length % 2)
+        hexString = `0${hexString}`;
+    const length = hexString.length / 2;
+    const bytes = new Uint8Array(length);
+    for (let index = 0, j = 0; index < length; index++) {
+        const nibbleLeft = charCodeToBase16(hexString.charCodeAt(j++));
+        const nibbleRight = charCodeToBase16(hexString.charCodeAt(j++));
+        if (nibbleLeft === undefined || nibbleRight === undefined) {
+            throw new BaseError(`Invalid byte sequence ("${hexString[j - 2]}${hexString[j - 1]}" in "${hexString}").`);
+        }
+        bytes[index] = nibbleLeft * 16 + nibbleRight;
+    }
+    return bytes;
+}
+/**
+ * Encodes a number into a byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/toBytes#numbertobytes
+ *
+ * @param value Number to encode.
+ * @param opts Options.
+ * @returns Byte array value.
+ *
+ * @example
+ * import { numberToBytes } from 'viem'
+ * const data = numberToBytes(420)
+ * // Uint8Array([1, 164])
+ *
+ * @example
+ * import { numberToBytes } from 'viem'
+ * const data = numberToBytes(420, { size: 4 })
+ * // Uint8Array([0, 0, 1, 164])
+ */
+function numberToBytes(value, opts) {
+    const hex = numberToHex(value, opts);
+    return hexToBytes(hex);
+}
+/**
+ * Encodes a UTF-8 string into a byte array.
+ *
+ * - Docs: https://viem.sh/docs/utilities/toBytes#stringtobytes
+ *
+ * @param value String to encode.
+ * @param opts Options.
+ * @returns Byte array value.
+ *
+ * @example
+ * import { stringToBytes } from 'viem'
+ * const data = stringToBytes('Hello world!')
+ * // Uint8Array([72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33])
+ *
+ * @example
+ * import { stringToBytes } from 'viem'
+ * const data = stringToBytes('Hello world!', { size: 32 })
+ * // Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+ */
+function stringToBytes(value, opts = {}) {
+    const bytes = encoder.encode(value);
+    if (typeof opts.size === 'number') {
+        assertSize(bytes, { size: opts.size });
+        return pad(bytes, { dir: 'right', size: opts.size });
+    }
+    return bytes;
+}
+
+function assertSize(hexOrBytes, { size: size$1 }) {
+    if (size(hexOrBytes) > size$1)
+        throw new SizeOverflowError({
+            givenSize: size(hexOrBytes),
+            maxSize: size$1,
+        });
+}
+
+/**
+ * Encodes a number or bigint into a hex string
+ *
+ * - Docs: https://viem.sh/docs/utilities/toHex#numbertohex
+ *
+ * @param value Value to encode.
+ * @param opts Options.
+ * @returns Hex value.
+ *
+ * @example
+ * import { numberToHex } from 'viem'
+ * const data = numberToHex(420)
+ * // '0x1a4'
+ *
+ * @example
+ * import { numberToHex } from 'viem'
+ * const data = numberToHex(420, { size: 32 })
+ * // '0x00000000000000000000000000000000000000000000000000000000000001a4'
+ */
+function numberToHex(value_, opts = {}) {
+    const { signed, size } = opts;
+    const value = BigInt(value_);
+    let maxValue;
+    if (size) {
+        if (signed)
+            maxValue = (1n << (BigInt(size) * 8n - 1n)) - 1n;
+        else
+            maxValue = 2n ** (BigInt(size) * 8n) - 1n;
+    }
+    else if (typeof value_ === 'number') {
+        maxValue = BigInt(Number.MAX_SAFE_INTEGER);
+    }
+    const minValue = typeof maxValue === 'bigint' && signed ? -maxValue - 1n : 0;
+    if ((maxValue && value > maxValue) || value < minValue) {
+        const suffix = typeof value_ === 'bigint' ? 'n' : '';
+        throw new IntegerOutOfRangeError({
+            max: maxValue ? `${maxValue}${suffix}` : undefined,
+            min: `${minValue}${suffix}`,
+            signed,
+            size,
+            value: `${value_}${suffix}`,
+        });
+    }
+    const hex = `0x${(signed && value < 0 ? (1n << BigInt(size * 8)) + BigInt(value) : value).toString(16)}`;
+    if (size)
+        return pad(hex, { size });
+    return hex;
+}
+
+class InvalidAddressError extends BaseError {
+    constructor({ address }) {
+        super(`Address "${address}" is invalid.`, {
+            metaMessages: [
+                '- Address must be a hex value of 20 bytes (40 hex characters).',
+                '- Address must match its checksum counterpart.',
+            ],
+            name: 'InvalidAddressError',
+        });
+    }
+}
+
+/**
+ * Map with a LRU (Least recently used) policy.
+ *
+ * @link https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU
+ */
+class LruMap extends Map {
+    constructor(size) {
+        super();
+        Object.defineProperty(this, "maxSize", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
+        this.maxSize = size;
+    }
+    get(key) {
+        const value = super.get(key);
+        if (super.has(key) && value !== undefined) {
+            this.delete(key);
+            super.set(key, value);
+        }
+        return value;
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (this.maxSize && this.size > this.maxSize) {
+            const firstKey = this.keys().next().value;
+            if (firstKey)
+                this.delete(firstKey);
+        }
+        return this;
+    }
+}
+
+// SHA3 (keccak) is based on a new design: basically, the internal state is bigger than output size.
+// It's called a sponge function.
+// Various per round constants calculations
+const SHA3_PI = [];
+const SHA3_ROTL = [];
+const _SHA3_IOTA = [];
+const _0n = /* @__PURE__ */ BigInt(0);
+const _1n = /* @__PURE__ */ BigInt(1);
+const _2n = /* @__PURE__ */ BigInt(2);
+const _7n = /* @__PURE__ */ BigInt(7);
+const _256n = /* @__PURE__ */ BigInt(256);
+const _0x71n = /* @__PURE__ */ BigInt(0x71);
+for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
+    // Pi
+    [x, y] = [y, (2 * x + 3 * y) % 5];
+    SHA3_PI.push(2 * (5 * y + x));
+    // Rotational
+    SHA3_ROTL.push((((round + 1) * (round + 2)) / 2) % 64);
+    // Iota
+    let t = _0n;
+    for (let j = 0; j < 7; j++) {
+        R = ((R << _1n) ^ ((R >> _7n) * _0x71n)) % _256n;
+        if (R & _2n)
+            t ^= _1n << ((_1n << /* @__PURE__ */ BigInt(j)) - _1n);
+    }
+    _SHA3_IOTA.push(t);
+}
+const [SHA3_IOTA_H, SHA3_IOTA_L] = /* @__PURE__ */ split(_SHA3_IOTA, true);
+// Left rotation (without 0, 32, 64)
+const rotlH = (h, l, s) => (s > 32 ? rotlBH(h, l, s) : rotlSH(h, l, s));
+const rotlL = (h, l, s) => (s > 32 ? rotlBL(h, l, s) : rotlSL(h, l, s));
+// Same as keccakf1600, but allows to skip some rounds
+function keccakP(s, rounds = 24) {
+    const B = new Uint32Array(5 * 2);
+    // NOTE: all indices are x2 since we store state as u32 instead of u64 (bigints to slow in js)
+    for (let round = 24 - rounds; round < 24; round++) {
+        // Theta θ
+        for (let x = 0; x < 10; x++)
+            B[x] = s[x] ^ s[x + 10] ^ s[x + 20] ^ s[x + 30] ^ s[x + 40];
+        for (let x = 0; x < 10; x += 2) {
+            const idx1 = (x + 8) % 10;
+            const idx0 = (x + 2) % 10;
+            const B0 = B[idx0];
+            const B1 = B[idx0 + 1];
+            const Th = rotlH(B0, B1, 1) ^ B[idx1];
+            const Tl = rotlL(B0, B1, 1) ^ B[idx1 + 1];
+            for (let y = 0; y < 50; y += 10) {
+                s[x + y] ^= Th;
+                s[x + y + 1] ^= Tl;
+            }
+        }
+        // Rho (ρ) and Pi (π)
+        let curH = s[2];
+        let curL = s[3];
+        for (let t = 0; t < 24; t++) {
+            const shift = SHA3_ROTL[t];
+            const Th = rotlH(curH, curL, shift);
+            const Tl = rotlL(curH, curL, shift);
+            const PI = SHA3_PI[t];
+            curH = s[PI];
+            curL = s[PI + 1];
+            s[PI] = Th;
+            s[PI + 1] = Tl;
+        }
+        // Chi (χ)
+        for (let y = 0; y < 50; y += 10) {
+            for (let x = 0; x < 10; x++)
+                B[x] = s[y + x];
+            for (let x = 0; x < 10; x++)
+                s[y + x] ^= ~B[(x + 2) % 10] & B[(x + 4) % 10];
+        }
+        // Iota (ι)
+        s[0] ^= SHA3_IOTA_H[round];
+        s[1] ^= SHA3_IOTA_L[round];
+    }
+    B.fill(0);
+}
+class Keccak extends Hash {
+    // NOTE: we accept arguments in bytes instead of bits here.
+    constructor(blockLen, suffix, outputLen, enableXOF = false, rounds = 24) {
+        super();
+        this.blockLen = blockLen;
+        this.suffix = suffix;
+        this.outputLen = outputLen;
+        this.enableXOF = enableXOF;
+        this.rounds = rounds;
+        this.pos = 0;
+        this.posOut = 0;
+        this.finished = false;
+        this.destroyed = false;
+        // Can be passed from user as dkLen
+        number(outputLen);
+        // 1600 = 5x5 matrix of 64bit.  1600 bits === 200 bytes
+        if (0 >= this.blockLen || this.blockLen >= 200)
+            throw new Error('Sha3 supports only keccak-f1600 function');
+        this.state = new Uint8Array(200);
+        this.state32 = u32(this.state);
+    }
+    keccak() {
+        if (!isLE)
+            byteSwap32(this.state32);
+        keccakP(this.state32, this.rounds);
+        if (!isLE)
+            byteSwap32(this.state32);
+        this.posOut = 0;
+        this.pos = 0;
+    }
+    update(data) {
+        exists(this);
+        const { blockLen, state } = this;
+        data = toBytes$1(data);
+        const len = data.length;
+        for (let pos = 0; pos < len;) {
+            const take = Math.min(blockLen - this.pos, len - pos);
+            for (let i = 0; i < take; i++)
+                state[this.pos++] ^= data[pos++];
+            if (this.pos === blockLen)
+                this.keccak();
+        }
+        return this;
+    }
+    finish() {
+        if (this.finished)
+            return;
+        this.finished = true;
+        const { state, suffix, pos, blockLen } = this;
+        // Do the padding
+        state[pos] ^= suffix;
+        if ((suffix & 0x80) !== 0 && pos === blockLen - 1)
+            this.keccak();
+        state[blockLen - 1] ^= 0x80;
+        this.keccak();
+    }
+    writeInto(out) {
+        exists(this, false);
+        bytes(out);
+        this.finish();
+        const bufferOut = this.state;
+        const { blockLen } = this;
+        for (let pos = 0, len = out.length; pos < len;) {
+            if (this.posOut >= blockLen)
+                this.keccak();
+            const take = Math.min(blockLen - this.posOut, len - pos);
+            out.set(bufferOut.subarray(this.posOut, this.posOut + take), pos);
+            this.posOut += take;
+            pos += take;
+        }
+        return out;
+    }
+    xofInto(out) {
+        // Sha3/Keccak usage with XOF is probably mistake, only SHAKE instances can do XOF
+        if (!this.enableXOF)
+            throw new Error('XOF is not possible for this instance');
+        return this.writeInto(out);
+    }
+    xof(bytes) {
+        number(bytes);
+        return this.xofInto(new Uint8Array(bytes));
+    }
+    digestInto(out) {
+        output(out, this);
+        if (this.finished)
+            throw new Error('digest() was already called');
+        this.writeInto(out);
+        this.destroy();
+        return out;
+    }
+    digest() {
+        return this.digestInto(new Uint8Array(this.outputLen));
+    }
+    destroy() {
+        this.destroyed = true;
+        this.state.fill(0);
+    }
+    _cloneInto(to) {
+        const { blockLen, suffix, outputLen, rounds, enableXOF } = this;
+        to || (to = new Keccak(blockLen, suffix, outputLen, enableXOF, rounds));
+        to.state32.set(this.state32);
+        to.pos = this.pos;
+        to.posOut = this.posOut;
+        to.finished = this.finished;
+        to.rounds = rounds;
+        // Suffix can change in cSHAKE
+        to.suffix = suffix;
+        to.outputLen = outputLen;
+        to.enableXOF = enableXOF;
+        to.destroyed = this.destroyed;
+        return to;
+    }
+}
+const gen = (suffix, blockLen, outputLen) => wrapConstructor(() => new Keccak(blockLen, suffix, outputLen));
+/**
+ * keccak-256 hash function. Different from SHA3-256.
+ * @param message - that would be hashed
+ */
+const keccak_256 = /* @__PURE__ */ gen(0x01, 136, 256 / 8);
+
+function keccak256(value, to_) {
+    const bytes = keccak_256(isHex(value, { strict: false }) ? toBytes(value) : value);
+    return bytes;
+}
+
+const checksumAddressCache = /*#__PURE__*/ new LruMap(8192);
+function checksumAddress(address_, 
+/**
+ * Warning: EIP-1191 checksum addresses are generally not backwards compatible with the
+ * wider Ethereum ecosystem, meaning it will break when validated against an application/tool
+ * that relies on EIP-55 checksum encoding (checksum without chainId).
+ *
+ * It is highly recommended to not use this feature unless you
+ * know what you are doing.
+ *
+ * See more: https://github.com/ethereum/EIPs/issues/1121
+ */
+chainId) {
+    if (checksumAddressCache.has(`${address_}.${chainId}`))
+        return checksumAddressCache.get(`${address_}.${chainId}`);
+    const hexAddress = address_.substring(2).toLowerCase();
+    const hash = keccak256(stringToBytes(hexAddress));
+    const address = (hexAddress).split('');
+    for (let i = 0; i < 40; i += 2) {
+        if (hash[i >> 1] >> 4 >= 8 && address[i]) {
+            address[i] = address[i].toUpperCase();
+        }
+        if ((hash[i >> 1] & 0x0f) >= 8 && address[i + 1]) {
+            address[i + 1] = address[i + 1].toUpperCase();
+        }
+    }
+    const result = `0x${address.join('')}`;
+    checksumAddressCache.set(`${address_}.${chainId}`, result);
+    return result;
+}
+
+const addressRegex = /^0x[a-fA-F0-9]{40}$/;
+/** @internal */
+const isAddressCache = /*#__PURE__*/ new LruMap(8192);
+function isAddress(address, options) {
+    const { strict = true } = options ?? {};
+    const cacheKey = `${address}.${strict}`;
+    if (isAddressCache.has(cacheKey))
+        return isAddressCache.get(cacheKey);
+    const result = (() => {
+        if (!addressRegex.test(address))
+            return false;
+        if (address.toLowerCase() === address)
+            return true;
+        if (strict)
+            return checksumAddress(address) === address;
+        return true;
+    })();
+    isAddressCache.set(cacheKey, result);
+    return result;
+}
+
+// TODO(v3): Rename to `toLocalAccount` + add `source` property to define source (privateKey, mnemonic, hdKey, etc).
+/**
+ * @description Creates an Account from a custom signing implementation.
+ *
+ * @returns A Local Account.
+ */
+function toAccount(source) {
+    if (typeof source === 'string') {
+        if (!isAddress(source, { strict: false }))
+            throw new InvalidAddressError({ address: source });
+        return {
+            address: source,
+            type: 'json-rpc',
+        };
+    }
+    if (!isAddress(source.address, { strict: false }))
+        throw new InvalidAddressError({ address: source.address });
+    return {
+        address: source.address,
+        nonceManager: source.nonceManager,
+        sign: source.sign,
+        experimental_signAuthorization: source.experimental_signAuthorization,
+        signMessage: source.signMessage,
+        signTransaction: source.signTransaction,
+        signTypedData: source.signTypedData,
+        source: 'custom',
+        type: 'local',
+    };
+}
+
 // @ts-ignore
 let client = null;
-const getClient = (provider, name = "window.ethereum") => {
+const getClient = (provider, name = "window.ethereum", address) => {
+    var _a;
     if (!provider && !client) {
         console.warn("Provider is required to create a client.");
         return null;
     }
-    if (!client || (client.transport.name !== name && provider)) {
-        client = createWalletClient({
+    if (!client ||
+        (client.transport.name !== name && provider) ||
+        (address !== ((_a = client.account) === null || _a === void 0 ? void 0 : _a.address) && provider)) {
+        const obj = {
             chain: testnet,
             transport: custom(provider, {
                 name: name,
             }),
-        });
+        };
+        if (address) {
+            obj.account = toAccount(address);
+        }
+        client = createWalletClient(obj);
     }
     return client;
 };
@@ -662,11 +1498,11 @@ class Auth {
      * @returns {void}
      * @throws {APIError} - Throws an error if the provider is not provided.
      */
-    setProvider({ provider, info }) {
+    setProvider({ provider, info, address }) {
         if (!provider) {
             throw new APIError("provider is required");
         }
-        this.viem = getClient(provider, info.name);
+        this.viem = getClient(provider, info.name, address);
         __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "provider", { provider, info });
     }
     /**
@@ -1700,8 +2536,12 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
     }, [wcProvider]);
     const handleConnect = (provider) => {
         var _a;
-        if (provider)
-            setProvider(provider);
+        if (provider) {
+            setProvider(Object.assign(Object.assign({}, provider), { address: customAccount === null || customAccount === void 0 ? void 0 : customAccount.address }));
+            if (customAccount === null || customAccount === void 0 ? void 0 : customAccount.address) {
+                auth.setWalletAddress(customAccount.address);
+            }
+        }
         // necessary for appkit, as it doesn't seem to support the "eth_requestAccounts" method
         if ((customAccount === null || customAccount === void 0 ? void 0 : customAccount.address) &&
             (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid) &&
