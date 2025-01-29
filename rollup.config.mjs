@@ -84,6 +84,9 @@ const config = [
       exports: "auto",
       inlineDynamicImports: true,
       banner: "'use client';",
+      paths: {
+        "@campnetwork/sdk": "../core.esm",
+      }
     },
     plugins: [
       typescript({

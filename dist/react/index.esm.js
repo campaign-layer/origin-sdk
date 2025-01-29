@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useRef, useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
-import { Auth } from '@campnetwork/sdk';
+import { Auth } from '../core.esm';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
 import 'axios';
 import 'viem';
