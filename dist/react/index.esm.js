@@ -998,7 +998,7 @@ const capitalize = (str) => {
 };
 const sendAnalyticsEvent = (ackee, event, key, value) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
-        if (typeof window !== "undefined" && ackee !== null) {
+        if (typeof window !== "undefined" && !!ackee) {
             try {
                 ackee.action(event, {
                     key: key,
@@ -1053,6 +1053,18 @@ const navigator = isBrowser
         maxTouchPoints: 0,
         hardwareConcurrency: 0,
         deviceMemory: 0,
+    };
+const location = isBrowser
+    ? window.location
+    : {
+        href: "",
+        protocol: "",
+        host: "",
+        hostname: "",
+        port: "",
+        pathname: "",
+        search: "",
+        hash: "",
     };
 /**
  * Validates options and sets defaults for undefined properties.
@@ -1498,7 +1510,7 @@ class Auth {
      * @returns {void}
      * @throws {APIError} - Throws an error if the provider is not provided.
      */
-    setProvider({ provider, info, address }) {
+    setProvider({ provider, info, address, }) {
         if (!provider) {
             throw new APIError("provider is required");
         }
@@ -2014,7 +2026,10 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
     });
 }, _Auth_sendAnalyticsEvent = function _Auth_sendAnalyticsEvent(event_1, message_1) {
     return __awaiter(this, arguments, void 0, function* (event, message, count = 1) {
-        yield sendAnalyticsEvent(__classPrivateFieldGet(this, _Auth_ackeeInstance, "f"), event, message, count);
+        if (__classPrivateFieldGet(this, _Auth_ackeeInstance, "f"))
+            yield sendAnalyticsEvent(__classPrivateFieldGet(this, _Auth_ackeeInstance, "f"), event, message, count);
+        else
+            return;
     });
 };
 

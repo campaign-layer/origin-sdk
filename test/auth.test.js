@@ -27,7 +27,7 @@ describe("Auth Class", () => {
   const redirectUri = "http://localhost";
 
   beforeEach(() => {
-    auth = new Auth({ clientId, redirectUri });
+    auth = new Auth({ clientId, redirectUri, allowAnalytics: false });
     global.localStorage = new LocalStorageMock();
     global.navigator = {
       userAgent: "node.js",

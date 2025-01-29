@@ -162,7 +162,15 @@ class Auth {
    * @returns {void}
    * @throws {APIError} - Throws an error if the provider is not provided.
    */
-  setProvider({ provider, info, address }: { provider: any; info: any, address?: string }): void {
+  setProvider({
+    provider,
+    info,
+    address,
+  }: {
+    provider: any;
+    info: any;
+    address?: string;
+  }): void {
     if (!provider) {
       throw new APIError("provider is required");
     }
@@ -318,7 +326,9 @@ class Auth {
     message: string,
     count: number = 1
   ): Promise<void> {
-    await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
+    if (this.#ackeeInstance)
+      await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
+    else return;
   }
 
   /**

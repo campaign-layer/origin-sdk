@@ -251,7 +251,7 @@ declare class Auth {
      * @returns {void}
      * @throws {APIError} - Throws an error if the provider is not provided.
      */
-    setProvider({ provider, info, address }: {
+    setProvider({ provider, info, address, }: {
         provider: any;
         info: any;
         address?: string;

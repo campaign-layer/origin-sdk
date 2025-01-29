@@ -76,7 +76,7 @@ export const sendAnalyticsEvent = async (
   value: number
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
-    if (typeof window !== "undefined" && ackee !== null) {
+    if (typeof window !== "undefined" && !!ackee) {
       try {
         ackee.action(
           event,

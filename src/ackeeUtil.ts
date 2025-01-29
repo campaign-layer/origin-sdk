@@ -36,6 +36,18 @@ const navigator = isBrowser
       hardwareConcurrency: 0,
       deviceMemory: 0,
     };
+const location = isBrowser
+  ? window.location
+  : {
+      href: "",
+      protocol: "",
+      host: "",
+      hostname: "",
+      port: "",
+      pathname: "",
+      search: "",
+      hash: "",
+    };
 
 interface Options {
   detailed?: boolean;
