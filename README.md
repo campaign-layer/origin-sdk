@@ -3,6 +3,15 @@
 </p>
 <br/>
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/@campnetwork/sdk">
+    <img src="https://img.shields.io/npm/v/@campnetwork/sdk?style=for-the-badge" alt="npm version"/>
+  </a>
+  <img alt="GitHub License" src="https://img.shields.io/github/license/campaign-layer/camp-sdk?style=for-the-badge">
+  <img src="https://img.shields.io/npm/last-update/%40campnetwork%2Fsdk?style=for-the-badge" alt="npm last update"/>
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40campnetwork%2Fsdk?style=for-the-badge">
+</p>
+
 # Camp SDK
 
 The Camp SDK currently exposes the following modules:
@@ -474,7 +483,9 @@ The `linkTelegram` method links the provided phone number to the Auth Hub using 
 ```js
 await auth.linkTelegram("+1234567890", "123456", "abc123");
 ```
+
 ---
+
 #### unlinkTwitter
 
 `unlinkTwitter() => Promise<void>`
@@ -523,7 +534,6 @@ The `unlinkTelegram` method unlinks the user's Telegram account from the Auth Hu
 ```js
 await auth.unlinkTelegram();
 ```
-
 
 # React
 
@@ -876,8 +886,12 @@ function App() {
       <button onClick={linkDiscord}>Link Discord</button>
       <button onClick={linkSpotify}>Link Spotify</button>
       <button onClick={() => linkTiktok("tiktokhandle")}>Link TikTok</button>
-      <button onClick={() => sendTelegramOTP("+1234567890")}>Send Telegram OTP</button>
-      <button onClick={() => linkTelegram("+1234567890", "123456", "abc123")}>Link Telegram</button>
+      <button onClick={() => sendTelegramOTP("+1234567890")}>
+        Send Telegram OTP
+      </button>
+      <button onClick={() => linkTelegram("+1234567890", "123456", "abc123")}>
+        Link Telegram
+      </button>
       <button onClick={unlinkTwitter}>Unlink Twitter</button>
       <button onClick={unlinkDiscord}>Unlink Discord</button>
       <button onClick={unlinkSpotify}>Unlink Spotify</button>
