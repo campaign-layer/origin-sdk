@@ -4,9 +4,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@campnetwork/sdk">
-    <img src="https://img.shields.io/npm/v/@campnetwork/sdk?style=for-the-badge" alt="npm version"/>
-  </a>
+  <a href="https://www.npmjs.com/package/@campnetwork/sdk"><img src="https://img.shields.io/npm/v/@campnetwork/sdk?style=for-the-badge" alt="npm version"/></a>
   <img alt="GitHub License" src="https://img.shields.io/github/license/campaign-layer/camp-sdk?style=for-the-badge">
   <img src="https://img.shields.io/npm/last-update/%40campnetwork%2Fsdk?style=for-the-badge" alt="npm last update"/>
   <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40campnetwork%2Fsdk?style=for-the-badge">
@@ -276,6 +274,7 @@ The Auth class is the entry point for authenticating users with the Camp SDK. It
   - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
   - `discord` - The URI to redirect to after the user completes oauth for Discord.
   - `spotify` - The URI to redirect to after the user completes oauth for Spotify.
+- `allowAnalytics` - Whether to allow analytics to be collected. Defaults to `true`.
 
 You may use the `redirectUri` object to redirect the user to different pages based on the social they are linking.
 You may only define the URIs for the socials you are using, the rest will default to `window.location.href`.
@@ -286,6 +285,7 @@ import { Auth } from "@campnetwork/sdk";
 const auth = new Auth({
   clientId: string,
   redirectUri: string | object,
+  allowAnalytics: boolean,
 });
 ```
 
@@ -623,6 +623,7 @@ The **CampModal** can take the following props:
 - `injectButton` - `boolean` - Whether to inject the button into the DOM or not. Defaults to `true`. If set to `false`, the button will not be rendered and the modal can be opened programmatically via the `openModal` function returned by the `useModal` hook.
 - `onlyWagmi` - `boolean` - Whether to only show the provider that the user is currently authenticated with. Defaults to `false`.
 - `defaultProvider` - `{ provider: EIP1193Provider, info: EIP6963ProviderInfo, exclusive: boolean }` - Custom provider to set as the highlighted provider in the modal. If not set, the wagmi provider will be highlighted if it is available. The `exclusive` property can be set to `true` to only show this provider in the modal.
+- `allowAnalytics` - `boolean` - Whether to allow analytics to be collected. Defaults to `true`.
 
 ### Usage
 
