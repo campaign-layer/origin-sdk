@@ -1624,9 +1624,10 @@ const useAuthState = () => {
     if (!auth) {
         throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
     }
-    const [authenticated, setAuthenticated] = useState(auth.isAuthenticated);
+    const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(false);
     useEffect(() => {
+        setAuthenticated(auth.isAuthenticated);
         auth.on("state", (state) => {
             setAuthenticated(state === "authenticated");
             setLoading(state === "loading");
