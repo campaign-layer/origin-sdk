@@ -276,9 +276,9 @@ export const CampModal = ({
   onlyWagmi = false,
   defaultProvider,
 }: CampModalProps) => {
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
-  const { isVisible, setIsVisible } = useContext(ModalContext);
+  const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } = useContext(ModalContext);
   const { isLinkingVisible } = useContext(ModalContext);
   const { provider } = useProvider();
   const providers = useProviders();

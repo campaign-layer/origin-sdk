@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 const isBrowser = typeof window !== "undefined";
 const navigator = isBrowser
-  ? window.navigator
+  ? window?.navigator
   : {
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -37,7 +37,7 @@ const navigator = isBrowser
       deviceMemory: 0,
     };
 const location = isBrowser
-  ? window.location
+  ? window?.location
   : {
       href: "",
       protocol: "",
@@ -171,7 +171,7 @@ const source = function (): string | undefined {
  */
 export const attributes = function (detailed: boolean = false): Attributes {
   const defaultData = {
-    siteLocation: window.location.href,
+    siteLocation: window?.location?.href,
     siteReferrer: document.referrer,
     source: source(),
   };
@@ -183,8 +183,8 @@ export const attributes = function (detailed: boolean = false): Attributes {
     screenWidth: screen.width,
     screenHeight: screen.height,
     screenColorDepth: screen.colorDepth,
-    browserWidth: window.outerWidth,
-    browserHeight: window.outerHeight,
+    browserWidth: window?.outerWidth,
+    browserHeight: window?.outerHeight,
   };
 
   return {
@@ -382,12 +382,12 @@ export const create = function (server: string, opts?: Options) {
     isLocalhost(location.hostname) === true &&
     isBrowser === true
   ) {
-    console.warn("Ackee ignores you because you are on localhost");
+    // console.warn("Ackee ignores you because you are on localhost");
     return fakeInstance;
   }
 
   if (isBot(navigator ? navigator.userAgent : "") === true) {
-    console.warn("Ackee ignores you because you are a bot");
+    // console.warn("Ackee ignores you because you are a bot");
     return fakeInstance;
   }
 
@@ -409,7 +409,8 @@ export const create = function (server: string, opts?: Options) {
       const recordId = json.data.createRecord.payload.id;
 
       if (isFakeId(recordId) === true) {
-        return console.warn("Ackee ignores you because this is your own site");
+        // return console.warn("Ackee ignores you because this is your own site");
+        return;
       }
 
       const interval = setInterval(() => {
@@ -440,7 +441,7 @@ export const create = function (server: string, opts?: Options) {
     };
 
     if (isFakeId(recordId) === true) {
-      console.warn("Ackee ignores you because this is your own site");
+      // console.warn("Ackee ignores you because this is your own site");
       return { stop };
     }
 
@@ -468,7 +469,8 @@ export const create = function (server: string, opts?: Options) {
       const actionId = json.data.createAction.payload.id;
 
       if (isFakeId(actionId) === true) {
-        return console.warn("Ackee ignores you because this is your own site");
+        // return console.warn("Ackee ignores you because this is your own site");
+        return;
       }
 
       if (typeof next === "function") {
@@ -480,7 +482,8 @@ export const create = function (server: string, opts?: Options) {
   // Updates an action
   const _updateAction = (actionId: string, attrs: any) => {
     if (isFakeId(actionId) === true) {
-      return console.warn("Ackee ignores you because this is your own site");
+      // return console.warn("Ackee ignores you because this is your own site");
+      return;
     }
 
     send(url, updateActionBody(actionId, attrs), opts);

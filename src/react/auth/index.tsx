@@ -5,13 +5,14 @@ import { providerStore, Provider } from "../../core/auth/viem/providers";
 import { CampModal, MyCampModal } from "./modals";
 import { Auth } from "@campnetwork/sdk";
 import { SocialsContext } from "../context/SocialsContext";
-import { LinkButton } from "./buttons";
+import { LinkButton, StandaloneCampButton } from "./buttons";
 import constants from "../../constants";
 import { type UseQueryResult } from "@tanstack/react-query";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
+export { StandaloneCampButton as CampButton };
 
 const getAuthProperties = (auth: Auth) => {
   const prototype = Object.getPrototypeOf(auth);

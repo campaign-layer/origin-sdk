@@ -87,7 +87,11 @@ class Auth {
     this.redirectUri = createRedirectUriObject(redirectUri);
 
     if (ackeeInstance) this.#ackeeInstance = ackeeInstance;
-    if (allowAnalytics && !this.#ackeeInstance) {
+    if (
+      allowAnalytics &&
+      !this.#ackeeInstance &&
+      typeof window !== "undefined"
+    ) {
       this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
         detailed: false,
         ignoreLocalhost: true,

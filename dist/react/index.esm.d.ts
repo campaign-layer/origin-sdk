@@ -36,6 +36,8 @@ declare const CampProvider: ({ clientId, redirectUri, children, allowAnalytics, 
 }) => React.JSX.Element;
 
 interface ModalContextProps {
+    isButtonDisabled: boolean;
+    setIsButtonDisabled: (isButtonDisabled: boolean) => void;
     isVisible: boolean;
     setIsVisible: (isVisible: boolean) => void;
     isLinkingVisible: boolean;
@@ -73,6 +75,7 @@ declare const MyCampModal: ({ wcProvider }: {
     wcProvider: any;
 }) => React.JSX.Element;
 
+declare const StandaloneCampButton: () => JSX.Element | null;
 interface LinkButtonProps {
     variant?: "default" | "icon";
     social: "twitter" | "spotify" | "discord" | "tiktok" | "telegram";
@@ -163,4 +166,4 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, T
 };
 declare const useSocials: () => UseSocialsResult;
 
-export { CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };

@@ -1,12 +1,15 @@
 import constants from "../../constants";
+import { CampIcon, getIconBySocial } from "./icons";
 import {
-  CampIcon,
-  getIconBySocial,
-} from "./icons";
-import { useAuthState, useLinkModal, useSocials } from "./index";
+  ModalContext,
+  useAuthState,
+  useLinkModal,
+  useModal,
+  useSocials,
+} from "./index";
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useContext, useEffect, useState } from "react";
 
 interface CampButtonProps {
   onClick: () => void;
@@ -51,6 +54,27 @@ export const CampButton = ({
       </div>
       {authenticated ? "My Camp" : "Connect"}
     </button>
+  );
+};
+
+export const StandaloneCampButton = () => {
+  const modalContext = useContext(ModalContext);
+  const { openModal } = useModal();
+  const { authenticated } = useAuthState();
+
+  if (!modalContext) {
+    console.error("CampButton must be used within a ModalProvider");
+    return null;
+  }
+
+  const { isButtonDisabled } = modalContext;
+
+  return (
+    <CampButton
+      onClick={openModal}
+      authenticated={authenticated}
+      disabled={isButtonDisabled}
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from "react";
+import React, { useState, useContext, createContext, useEffect } from "react";
 import { Auth } from "@campnetwork/sdk";
 import { ModalProvider } from "./ModalContext";
 import { WagmiContext } from "wagmi";
@@ -53,19 +53,26 @@ const CampProvider = ({
   children: React.ReactNode;
   allowAnalytics?: boolean;
 }) => {
-  const ackeeInstance = allowAnalytics
-    ? Ackee.create(constants.ACKEE_INSTANCE, {
-        detailed: false,
-        ignoreLocalhost: true,
-        ignoreOwnVisits: false,
-      })
-    : null;
+  const isServer = typeof window === "undefined";
+
+  const ackeeInstance =
+    allowAnalytics && !isServer
+      ? Ackee.create(constants.ACKEE_INSTANCE, {
+          detailed: false,
+          ignoreLocalhost: true,
+          ignoreOwnVisits: false,
+        })
+      : null;
   const [ackee, setAckee] = useState(ackeeInstance);
 
   const [auth, setAuth] = useState(
     new Auth({
       clientId,
-      redirectUri: redirectUri || window.location.href,
+      redirectUri: redirectUri
+        ? redirectUri
+        : !isServer
+        ? window.location.href
+        : "",
       ackeeInstance,
     })
   );
