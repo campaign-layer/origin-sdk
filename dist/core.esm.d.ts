@@ -194,6 +194,15 @@ declare class SpotifyAPI {
     _fetchDataWithAuth(url: string): Promise<object>;
 }
 
+interface OriginUsageReturnType {
+    user: {
+        multiplier: number;
+        points: number;
+        active: boolean;
+    };
+    teams: Array<any>;
+    dataSources: Array<any>;
+}
 declare global {
     interface Window {
         ethereum?: any;
@@ -277,6 +286,25 @@ declare class Auth {
         message: string;
         walletAddress: string;
     }>;
+    /**
+     * Get the user's Origin stats (multiplier, consent, usage, etc.).
+     * @returns {Promise<any>} A promise that resolves with the Origin stats.
+     */
+    getOriginUsage(): Promise<OriginUsageReturnType>;
+    /**
+     * Set the user's consent for Origin usage.
+     * @param {boolean} consent The user's consent.
+     * @returns {Promise<void>}
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
+     */
+    setOriginConsent(consent: boolean): Promise<void>;
+    /**
+     * Set the user's Origin multiplier.
+     * @param {number} multiplier The user's Origin multiplier.
+     * @returns {Promise<void>}
+     * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the multiplier is not provided.
+     */
+    setOriginMultiplier(multiplier: number): Promise<void>;
     /**
      * Get the user's linked social accounts.
      * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
