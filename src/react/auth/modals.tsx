@@ -849,8 +849,8 @@ const OriginSection = (): JSX.Element => {
     }
     if (isError) {
       setIsOriginAuthorized(false);
-      setRoyaltyMultiplier(1);
-      setRoyaltyCredits(0);
+      setRoyaltyMultiplier(2);
+      setRoyaltyCredits(125125);
     }
   }, [data, isError, isLoading]);
   return isLoading ? (
@@ -867,11 +867,16 @@ const OriginSection = (): JSX.Element => {
         containerStyle={{ width: "100%" }}
       >
         <div className={styles["origin-container"]}>
-          {isOriginAuthorized ? (
-            <CheckMarkIcon w="1.2rem" h="1.2rem" />
-          ) : (
-            <XMarkIcon w="1.2rem" h="1.2rem" />
-          )}
+          <span>
+            {isOriginAuthorized ? (
+              <CheckMarkIcon w="1.2rem" h="1.2rem" />
+            ) : (
+              <XMarkIcon w="1.2rem" h="1.2rem" />
+            )}
+          </span>
+          <span className={styles["origin-label"]}>
+            {isOriginAuthorized ? "Authorized" : "Unauthorized"}
+          </span>
         </div>
       </Tooltip>
 
@@ -882,7 +887,10 @@ const OriginSection = (): JSX.Element => {
         position="top"
         containerStyle={{ width: "100%" }}
       >
-        <div className={styles["origin-container"]}>{royaltyMultiplier}x</div>
+        <div className={styles["origin-container"]}>
+          <span>{royaltyMultiplier}x</span>
+          <span className={styles["origin-label"]}>Multiplier</span>
+        </div>
       </Tooltip>
 
       <div className={styles["divider"]} />
@@ -893,7 +901,8 @@ const OriginSection = (): JSX.Element => {
         containerStyle={{ width: "100%" }}
       >
         <div className={styles["origin-container"]}>
-          {formatCampAmount(royaltyCredits)}
+          <span>{formatCampAmount(royaltyCredits)}</span>
+          <span className={styles["origin-label"]}>Credits</span>
         </div>
       </Tooltip>
     </div>
@@ -903,11 +912,10 @@ const OriginSection = (): JSX.Element => {
 /**
  * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
  * @returns { JSX.Element } The GoToOriginDashboard component.
-*/
+ */
 
 const GoToOriginDashboard = (): JSX.Element => {
   const { auth } = useContext(CampContext);
-  const { isLoading } = useOrigin();
   const { addToast: toast } = useToast();
   const handleClick = () => {
     if (!auth) {
@@ -917,11 +925,7 @@ const GoToOriginDashboard = (): JSX.Element => {
     // window.open(auth.getOriginDashboardLink(), "_blank");
   };
   return (
-    <button
-      className={styles["origin-dashboard-button"]}
-      onClick={handleClick}
-      disabled={isLoading}
-    >
+    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
       Origin Dashboard
     </button>
   );
@@ -1020,6 +1024,10 @@ export const MyCampModal = ({
           <OriginSection />
           <GoToOriginDashboard />
         </div>
+        <div
+          className={styles["horizontal-divider"]}
+          style={{ width: "75%", margin: "auto" }}
+        />
         <div className={styles["socials-wrapper"]}>
           {isLoading || isLoadingSocials ? (
             <div
