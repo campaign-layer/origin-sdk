@@ -88,12 +88,13 @@ const capitalize = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 const formatCampAmount = (amount) => {
-    {
+    if (amount >= 1000) {
         const formatted = (amount / 1000).toFixed(1);
         return formatted.endsWith(".0")
             ? formatted.slice(0, -2) + "k"
             : formatted + "k";
     }
+    return amount.toString();
 };
 
 const testnet = {
@@ -625,6 +626,9 @@ const getIconBySocial = (social) => {
 };
 const CheckMarkIcon = ({ w, h }) => (React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", width: w || "1rem", height: h || "1rem" },
     React.createElement("path", { d: "M20 6L9 17l-5-5" })));
+const XMarkIcon = ({ w, h }) => (React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", width: w || "1rem", height: h || "1rem" },
+    React.createElement("path", { d: "M18 6L6 18" }),
+    React.createElement("path", { d: "M6 6l12 12" })));
 const CampIcon = ({ customStyles }) => (React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 571.95 611.12", height: "1rem", width: "1rem", fill: "currentColor", style: customStyles },
     React.createElement("path", { d: "m563.25 431.49-66.17-51.46c-11.11-8.64-27.28-5.06-33.82 7.4-16.24 30.9-41.69 56.36-70.85 73.73l-69.35-69.35c-3.73-3.73-8.79-5.83-14.07-5.83s-10.34 2.1-14.07 5.83l-73.78 73.78c-57.37-30.39-96.55-90.71-96.55-160.03 0-99.79 81.19-180.98 180.98-180.98 60.35 0 118.17 26.28 156.39 89.44 6.85 11.32 21.92 14.33 32.59 6.51l64.21-47.06c9.53-6.98 12.06-20.15 5.78-30.16C508.83 54.41 411.43 0 305.56 0 137.07 0 0 137.07 0 305.56s137.07 305.56 305.56 305.56c57.6 0 113.72-16.13 162.31-46.63A306.573 306.573 0 0 0 568.8 460.8c5.78-9.78 3.42-22.34-5.55-29.31Zm-301.42 49.69 47.15-47.15 44.69 44.69c-15.92 5.1-32.2 7.83-48.1 7.83-15.08 0-29.72-1.87-43.74-5.36Zm42.36-222.47c-.07 1.49-.08 21.29 49.54 55.11 37.02 25.24 19.68 75.52 12.1 92.05a147.07 147.07 0 0 0-20.12-38.91c-12.73-17.59-26.87-28.9-36.74-35.59-10.38 6.36-27.41 18.74-41.07 40.02-8.27 12.89-12.82 25.16-15.42 34.48l-.03-.05c-15.1-40.6-9.75-60.88-1.95-71.9 6.12-8.65 17.24-20.6 17.24-20.6 9.71-9.66 19.96-19.06 29.82-38.17 6.06-11.75 6.59-15.84 6.63-16.45Z", fill: "#000", strokeWidth: "0" }),
     React.createElement("path", { d: "M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z", fill: "#ff6d01", strokeWidth: "0" })));
@@ -770,6 +774,24 @@ const useToast = () => {
     return context;
 };
 
+const OriginContext = createContext({
+    query: null,
+});
+const OriginProvider = ({ children }) => {
+    const { authenticated } = useAuthState();
+    const { auth } = useContext(CampContext);
+    if (!auth) {
+        throw new Error("Auth instance is not available");
+    }
+    const query = useQuery({
+        queryKey: ["origin", authenticated],
+        queryFn: () => auth.getOriginUsage(),
+    });
+    return (React.createElement(OriginContext.Provider, { value: {
+            query,
+        } }, children));
+};
+
 const CampContext = createContext({
     clientId: null,
     auth: null,
@@ -816,8 +838,9 @@ const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, 
             setAckee,
         } },
         React.createElement(SocialsProvider, null,
-            React.createElement(ToastProvider, null,
-                React.createElement(ModalProvider, null, children)))));
+            React.createElement(OriginProvider, null,
+                React.createElement(ToastProvider, null,
+                    React.createElement(ModalProvider, null, children))))));
 };
 
 const getWalletConnectProvider = (projectId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -1471,11 +1494,27 @@ const LinkingModal = () => {
             React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network"))));
 };
 const OriginSection = () => {
-    const royaltyMultiplier = 1;
-    const royaltyCredits = 12255;
-    return (React.createElement("div", { className: styles["origin-section"] },
-        React.createElement(Tooltip, { content: "Origin Authorized" , position: "top", containerStyle: { width: "100%" } },
-            React.createElement("div", { className: styles["origin-container"] }, (React.createElement(CheckMarkIcon, { w: "1.2rem", h: "1.2rem" })) )),
+    const { data, isError, isLoading } = useOrigin();
+    const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
+    const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
+    const [royaltyCredits, setRoyaltyCredits] = useState(0);
+    useEffect(() => {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        if (!isLoading && !isError) {
+            setIsOriginAuthorized((_c = (_b = (_a = data === null || data === void 0 ? void 0 : data.data) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.active) !== null && _c !== void 0 ? _c : true);
+            setRoyaltyMultiplier((_f = (_e = (_d = data === null || data === void 0 ? void 0 : data.data) === null || _d === void 0 ? void 0 : _d.user) === null || _e === void 0 ? void 0 : _e.multiplier) !== null && _f !== void 0 ? _f : 1);
+            setRoyaltyCredits((_j = (_h = (_g = data === null || data === void 0 ? void 0 : data.data) === null || _g === void 0 ? void 0 : _g.user) === null || _h === void 0 ? void 0 : _h.points) !== null && _j !== void 0 ? _j : 0);
+        }
+        if (isError) {
+            setIsOriginAuthorized(false);
+            setRoyaltyMultiplier(1);
+            setRoyaltyCredits(0);
+        }
+    }, [data, isError, isLoading]);
+    return isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem" } },
+        React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", { className: styles["origin-section"] },
+        React.createElement(Tooltip, { content: isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized", position: "top", containerStyle: { width: "100%" } },
+            React.createElement("div", { className: styles["origin-container"] }, isOriginAuthorized ? (React.createElement(CheckMarkIcon, { w: "1.2rem", h: "1.2rem" })) : (React.createElement(XMarkIcon, { w: "1.2rem", h: "1.2rem" })))),
         React.createElement("div", { className: styles["divider"] }),
         React.createElement(Tooltip, { content: `Royalty Multiplier: ${royaltyMultiplier}x`, position: "top", containerStyle: { width: "100%" } },
             React.createElement("div", { className: styles["origin-container"] },
@@ -1487,6 +1526,7 @@ const OriginSection = () => {
 };
 const GoToOriginDashboard = () => {
     const { auth } = useContext(CampContext);
+    const { isLoading } = useOrigin();
     const { addToast: toast } = useToast();
     const handleClick = () => {
         if (!auth) {
@@ -1495,7 +1535,7 @@ const GoToOriginDashboard = () => {
         }
         // window.open(auth.getOriginDashboardLink(), "_blank");
     };
-    return (React.createElement("button", { className: styles["origin-dashboard-button"], onClick: handleClick }, "Origin Dashboard"));
+    return (React.createElement("button", { className: styles["origin-dashboard-button"], onClick: handleClick, disabled: isLoading }, "Origin Dashboard"));
 };
 /**
  * The MyCampModal component.
@@ -1786,5 +1826,9 @@ const useSocials = () => {
     const socials = query === null || query === void 0 ? void 0 : query.data;
     return Object.assign(Object.assign({}, query), { socials });
 };
+const useOrigin = () => {
+    const { query } = useContext(OriginContext);
+    return query;
+};
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };

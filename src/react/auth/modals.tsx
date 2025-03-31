@@ -3,6 +3,7 @@ import {
   useAuthState,
   useConnect,
   useLinkModal,
+  useOrigin,
   useProvider,
   useProviders,
   useSocials,
@@ -831,10 +832,28 @@ const LinkingModal = () => {
 };
 
 const OriginSection = () => {
-  const isOriginAuthorized = true;
-  const royaltyMultiplier = 1;
-  const royaltyCredits = 12255;
-  return (
+  const { data, isError, isLoading } = useOrigin();
+  const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
+  const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
+  const [royaltyCredits, setRoyaltyCredits] = useState(0);
+
+  useEffect(() => {
+    if (!isLoading && !isError) {
+      setIsOriginAuthorized((data as any)?.data?.user?.active ?? true);
+      setRoyaltyMultiplier((data as any)?.data?.user?.multiplier ?? 1);
+      setRoyaltyCredits((data as any)?.data?.user?.points ?? 0);
+    }
+    if (isError) {
+      setIsOriginAuthorized(false);
+      setRoyaltyMultiplier(1);
+      setRoyaltyCredits(0);
+    }
+  }, [data, isError, isLoading]);
+  return isLoading ? (
+    <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+      <div className={styles.spinner} />
+    </div>
+  ) : (
     <div className={styles["origin-section"]}>
       <Tooltip
         content={
@@ -864,7 +883,6 @@ const OriginSection = () => {
 
       <div className={styles["divider"]} />
 
-
       <Tooltip
         content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
         position="top"
@@ -880,6 +898,7 @@ const OriginSection = () => {
 
 const GoToOriginDashboard = () => {
   const { auth } = useContext(CampContext);
+  const { isLoading } = useOrigin();
   const { addToast: toast } = useToast();
   const handleClick = () => {
     if (!auth) {
@@ -889,11 +908,15 @@ const GoToOriginDashboard = () => {
     // window.open(auth.getOriginDashboardLink(), "_blank");
   };
   return (
-    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
+    <button
+      className={styles["origin-dashboard-button"]}
+      onClick={handleClick}
+      disabled={isLoading}
+    >
       Origin Dashboard
     </button>
   );
-}
+};
 /**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.

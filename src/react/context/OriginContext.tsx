@@ -1,0 +1,37 @@
+import React, { createContext, useContext, ReactNode } from "react";
+import { CampContext, useAuthState } from "../auth/index";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+
+interface OriginContextProps {
+  query: UseQueryResult<any, unknown> | null;
+}
+
+export const OriginContext = createContext<OriginContextProps>({
+  query: null,
+});
+
+interface OriginProviderProps {
+  children: ReactNode;
+}
+
+export const OriginProvider = ({ children }: OriginProviderProps) => {
+  const { authenticated } = useAuthState();
+  const { auth } = useContext(CampContext);
+  if (!auth) {
+    throw new Error("Auth instance is not available");
+  }
+  const query = useQuery({
+    queryKey: ["origin", authenticated],
+    queryFn: () => auth.getOriginUsage(),
+  });
+
+  return (
+    <OriginContext.Provider
+      value={{
+        query,
+      }}
+    >
+      {children}
+    </OriginContext.Provider>
+  );
+};

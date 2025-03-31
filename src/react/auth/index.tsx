@@ -8,6 +8,7 @@ import { SocialsContext } from "../context/SocialsContext";
 import { LinkButton, StandaloneCampButton } from "./buttons";
 import constants from "../../constants";
 import { type UseQueryResult } from "@tanstack/react-query";
+import { OriginContext } from "../context/OriginContext";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
@@ -315,4 +316,11 @@ export const useSocials = (): UseSocialsResult => {
     ...query,
     socials,
   };
+};
+
+export const useOrigin = (): UseQueryResult => {
+  const { query } = useContext(OriginContext) as {
+    query: UseQueryResult<any, Error>;
+  };
+  return query;
 };

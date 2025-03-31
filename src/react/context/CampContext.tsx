@@ -6,6 +6,7 @@ import { Ackee } from "../../index";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../toasts";
 import constants from "../../constants";
+import { OriginProvider } from "./OriginContext";
 
 /**
  * CampContext
@@ -91,9 +92,11 @@ const CampProvider = ({
       }}
     >
       <SocialsProvider>
-        <ToastProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </ToastProvider>
+        <OriginProvider>
+          <ToastProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </ToastProvider>
+        </OriginProvider>
       </SocialsProvider>
     </CampContext.Provider>
   );
