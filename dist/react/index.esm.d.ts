@@ -165,5 +165,6 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, T
     socials: Record<string, string>;
 };
 declare const useSocials: () => UseSocialsResult;
+declare const useOrigin: () => UseQueryResult;
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };

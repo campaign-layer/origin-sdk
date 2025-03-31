@@ -61,14 +61,30 @@ const baseSpotifyURL: string =
 const baseTikTokURL: string =
   "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/tiktok";
 
+/**
+ * Formats an Ethereum address by truncating it to the first and last n characters.
+ * @param {string} address - The Ethereum address to format.
+ * @param {number} n - The number of characters to keep from the start and end of the address.
+ * @return {string} - The formatted address.
+ */
 const formatAddress = (address: string, n: number = 8): string => {
   return `${address.slice(0, n)}...${address.slice(-n)}`;
 };
 
+/**
+ * Capitalizes the first letter of a string.
+ * @param {string} str - The string to capitalize.
+ * @return {string} - The capitalized string.
+ */
 const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * Formats a Camp amount to a human-readable string.
+ * @param {number} amount - The Camp amount to format.
+ * @returns {string} - The formatted Camp amount.
+ */
 export const formatCampAmount = (amount: number) => {
   if (amount >= 1000) {
     const formatted = (amount / 1000).toFixed(1);
@@ -79,6 +95,14 @@ export const formatCampAmount = (amount: number) => {
   return amount.toString();
 };
 
+/**
+ * Sends an analytics event to the Ackee server.
+ * @param {any} ackee - The Ackee instance.
+ * @param {string} event - The event name.
+ * @param {string} key - The key for the event.
+ * @param {number} value - The value for the event.
+ * @returns {Promise<string>} - A promise that resolves with the response from the server.
+ */
 export const sendAnalyticsEvent = async (
   ackee: any,
   event: string,

@@ -831,7 +831,11 @@ const LinkingModal = () => {
   );
 };
 
-const OriginSection = () => {
+/**
+ * The OriginSection component. Displays the Origin status, royalty multiplier, and royalty credits.
+ * @returns { JSX.Element } The OriginSection component.
+ */
+const OriginSection = (): JSX.Element => {
   const { data, isError, isLoading } = useOrigin();
   const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
   const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
@@ -896,7 +900,12 @@ const OriginSection = () => {
   );
 };
 
-const GoToOriginDashboard = () => {
+/**
+ * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
+ * @returns { JSX.Element } The GoToOriginDashboard component.
+*/
+
+const GoToOriginDashboard = (): JSX.Element => {
   const { auth } = useContext(CampContext);
   const { isLoading } = useOrigin();
   const { addToast: toast } = useToast();

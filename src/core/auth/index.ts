@@ -444,7 +444,7 @@ class Auth {
       }
     ).then((res) => res.json());
 
-    if (!data.isError && data.user) {
+    if (!data.isError && data.data.user) {
       return data;
     } else {
       throw new APIError(data.message || "Failed to fetch Origin usage");

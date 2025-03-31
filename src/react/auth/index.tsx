@@ -227,6 +227,10 @@ export const useModal = (): {
   };
 };
 
+/**
+ * Returns the functions to open and close the link modal.
+ * @returns { { isLinkingOpen: boolean, closeModal: function, handleOpen: function } } The link modal state and functions to open and close the modal.
+ */
 export const useLinkModal = (): Record<string, Function | boolean> & {
   isLinkingOpen: boolean;
   closeModal: () => void;
@@ -295,17 +299,17 @@ export const useLinkModal = (): Record<string, Function | boolean> & {
   };
 };
 
-/**
- * Fetches the socials linked to the user.
- * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
- */
-
 type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<
   TData,
   TError
 > & {
   socials: Record<string, string>;
 };
+
+/**
+ * Fetches the socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ */
 
 export const useSocials = (): UseSocialsResult => {
   const { query } = useContext(SocialsContext) as {
@@ -318,6 +322,10 @@ export const useSocials = (): UseSocialsResult => {
   };
 };
 
+/**
+ * Fetches the Origin usage data.
+ * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ */
 export const useOrigin = (): UseQueryResult => {
   const { query } = useContext(OriginContext) as {
     query: UseQueryResult<any, Error>;

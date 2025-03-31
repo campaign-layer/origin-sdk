@@ -89,6 +89,11 @@ export const ClientOnly = ({
   return <div {...delegated}>{children}</div>;
 };
 
+/**
+ * Returns the icon URL based on the connector name.
+ * @param {string} name - The connector name.
+ * @returns {string} The icon URL.
+ */
 export const getIconByConnectorName = (name: string): string => {
   switch (name) {
     case "AppKit Auth":
@@ -104,6 +109,11 @@ export const getIconByConnectorName = (name: string): string => {
   }
 };
 
+/**
+ * Formats a Camp amount to a human-readable string.
+ * @param {number} amount - The Camp amount to format.
+ * @returns {string} The formatted Camp amount.
+ */
 export const CampAmount = ({
   amount,
   logo = true,
