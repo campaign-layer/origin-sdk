@@ -152,19 +152,27 @@ declare const useModal: () => {
     openModal: () => void;
     closeModal: () => void;
 };
+/**
+ * Returns the functions to open and close the link modal.
+ * @returns { { isLinkingOpen: boolean, closeModal: function, handleOpen: function } } The link modal state and functions to open and close the modal.
+ */
 declare const useLinkModal: () => Record<string, Function | boolean> & {
     isLinkingOpen: boolean;
     closeModal: () => void;
     handleOpen: (social: string) => void;
 };
+type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, TError> & {
+    socials: Record<string, string>;
+};
 /**
  * Fetches the socials linked to the user.
  * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
-type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, TError> & {
-    socials: Record<string, string>;
-};
 declare const useSocials: () => UseSocialsResult;
+/**
+ * Fetches the Origin usage data.
+ * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ */
 declare const useOrigin: () => UseQueryResult;
 
 export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };

@@ -81,12 +81,28 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
+/**
+ * Formats an Ethereum address by truncating it to the first and last n characters.
+ * @param {string} address - The Ethereum address to format.
+ * @param {number} n - The number of characters to keep from the start and end of the address.
+ * @return {string} - The formatted address.
+ */
 const formatAddress = (address, n = 8) => {
     return `${address.slice(0, n)}...${address.slice(-n)}`;
 };
+/**
+ * Capitalizes the first letter of a string.
+ * @param {string} str - The string to capitalize.
+ * @return {string} - The capitalized string.
+ */
 const capitalize = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
+/**
+ * Formats a Camp amount to a human-readable string.
+ * @param {number} amount - The Camp amount to format.
+ * @returns {string} - The formatted Camp amount.
+ */
 const formatCampAmount = (amount) => {
     if (amount >= 1000) {
         const formatted = (amount / 1000).toFixed(1);
@@ -700,6 +716,11 @@ const ClientOnly = (_a) => {
     }
     return React.createElement("div", Object.assign({}, delegated), children);
 };
+/**
+ * Returns the icon URL based on the connector name.
+ * @param {string} name - The connector name.
+ * @returns {string} The icon URL.
+ */
 const getIconByConnectorName = (name) => {
     switch (name) {
         case "AppKit Auth":
@@ -1493,6 +1514,10 @@ const LinkingModal = () => {
                 flow === "telegram" && React.createElement(TelegramFlow, null))),
             React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network"))));
 };
+/**
+ * The OriginSection component. Displays the Origin status, royalty multiplier, and royalty credits.
+ * @returns { JSX.Element } The OriginSection component.
+ */
 const OriginSection = () => {
     const { data, isError, isLoading } = useOrigin();
     const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
@@ -1524,6 +1549,10 @@ const OriginSection = () => {
         React.createElement(Tooltip, { content: `Royalty Credits: ${royaltyCredits.toLocaleString()}`, position: "top", containerStyle: { width: "100%" } },
             React.createElement("div", { className: styles["origin-container"] }, formatCampAmount(royaltyCredits)))));
 };
+/**
+ * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
+ * @returns { JSX.Element } The GoToOriginDashboard component.
+*/
 const GoToOriginDashboard = () => {
     const { auth } = useContext(CampContext);
     const { isLoading } = useOrigin();
@@ -1771,6 +1800,10 @@ const useModal = () => {
         closeModal: handleClose,
     };
 };
+/**
+ * Returns the functions to open and close the link modal.
+ * @returns { { isLinkingOpen: boolean, closeModal: function, handleOpen: function } } The link modal state and functions to open and close the modal.
+ */
 const useLinkModal = () => {
     const { socials } = useSocials();
     const { isLinkingVisible, setIsLinkingVisible, setCurrentlyLinking } = useContext(ModalContext);
@@ -1821,11 +1854,19 @@ const useLinkModal = () => {
     });
     return Object.assign(Object.assign({ isLinkingOpen: isLinkingVisible }, obj), { closeModal: handleClose, handleOpen });
 };
+/**
+ * Fetches the socials linked to the user.
+ * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ */
 const useSocials = () => {
     const { query } = useContext(SocialsContext);
     const socials = query === null || query === void 0 ? void 0 : query.data;
     return Object.assign(Object.assign({}, query), { socials });
 };
+/**
+ * Fetches the Origin usage data.
+ * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ */
 const useOrigin = () => {
     const { query } = useContext(OriginContext);
     return query;
