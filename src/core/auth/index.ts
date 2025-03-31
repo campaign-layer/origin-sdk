@@ -425,7 +425,7 @@ class Auth {
 
   /**
    * Get the user's Origin stats (multiplier, consent, usage, etc.).
-   * @returns {Promise<any>} A promise that resolves with the Origin stats.
+   * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
    */
 
   async getOriginUsage(): Promise<OriginUsageReturnType> {

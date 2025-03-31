@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, JSX } from "react";
 import {
   useAuthState,
   useConnect,
@@ -10,10 +10,15 @@ import {
 import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
 import { CampContext } from "../context/CampContext";
-import { formatAddress, capitalize } from "../../utils";
+import { formatAddress, capitalize, formatCampAmount } from "../../utils";
 import { useWalletConnectProvider } from "../../core/auth/viem/walletconnect";
 import { useAccount, useConnectorClient } from "wagmi";
-import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils";
+import {
+  CampAmount,
+  ClientOnly,
+  ReactPortal,
+  getIconByConnectorName,
+} from "../utils";
 import { CampButton, ProviderButton, ConnectorButton } from "./buttons";
 import {
   DiscordIcon,
@@ -24,9 +29,12 @@ import {
   getIconBySocial,
   TikTokIcon,
   TelegramIcon,
+  CheckMarkIcon,
+  XMarkIcon,
 } from "./icons.js";
 import constants from "../../constants.js";
 import { useToast } from "../toasts.js";
+import Tooltip from "../components/Tooltip";
 
 interface AuthModalProps {
   setIsVisible: (isVisible: boolean) => void;
@@ -278,7 +286,8 @@ export const CampModal = ({
 }: CampModalProps) => {
   // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const { authenticated, loading } = useAuthState();
-  const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } = useContext(ModalContext);
+  const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } =
+    useContext(ModalContext);
   const { isLinkingVisible } = useContext(ModalContext);
   const { provider } = useProvider();
   const providers = useProviders();
@@ -821,12 +830,80 @@ const LinkingModal = () => {
   );
 };
 
+const OriginSection = () => {
+  const isOriginAuthorized = true;
+  const royaltyMultiplier = 1;
+  const royaltyCredits = 12255;
+  return (
+    <div className={styles["origin-section"]}>
+      <Tooltip
+        content={
+          isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized"
+        }
+        position="top"
+        containerStyle={{ width: "100%" }}
+      >
+        <div className={styles["origin-container"]}>
+          {isOriginAuthorized ? (
+            <CheckMarkIcon w="1.2rem" h="1.2rem" />
+          ) : (
+            <XMarkIcon w="1.2rem" h="1.2rem" />
+          )}
+        </div>
+      </Tooltip>
+
+      <div className={styles["divider"]} />
+
+      <Tooltip
+        content={`Royalty Multiplier: ${royaltyMultiplier}x`}
+        position="top"
+        containerStyle={{ width: "100%" }}
+      >
+        <div className={styles["origin-container"]}>{royaltyMultiplier}x</div>
+      </Tooltip>
+
+      <div className={styles["divider"]} />
+
+
+      <Tooltip
+        content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
+        position="top"
+        containerStyle={{ width: "100%" }}
+      >
+        <div className={styles["origin-container"]}>
+          {formatCampAmount(royaltyCredits)}
+        </div>
+      </Tooltip>
+    </div>
+  );
+};
+
+const GoToOriginDashboard = () => {
+  const { auth } = useContext(CampContext);
+  const { addToast: toast } = useToast();
+  const handleClick = () => {
+    if (!auth) {
+      toast("Auth instance is not available.", "error", 5000);
+      return;
+    }
+    // window.open(auth.getOriginDashboardLink(), "_blank");
+  };
+  return (
+    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
+      Origin Dashboard
+    </button>
+  );
+}
 /**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-export const MyCampModal = ({ wcProvider }: { wcProvider: any }) => {
+export const MyCampModal = ({
+  wcProvider,
+}: {
+  wcProvider: any;
+}): JSX.Element => {
   const { auth } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
@@ -894,83 +971,92 @@ export const MyCampModal = ({ wcProvider }: { wcProvider: any }) => {
   const notConnected = connectedSocials.filter((social) => !social.isConnected);
 
   return (
-    <div className={styles.container}>
-      <div
-        className={styles["close-button"]}
-        onClick={() => setIsVisible(false)}
-      >
-        <CloseIcon />
+    <div className={styles["outer-container"]}>
+      {/* <OriginContainer /> */}
+      <div className={styles.container}>
+        <div
+          className={styles["close-button"]}
+          onClick={() => setIsVisible(false)}
+        >
+          <CloseIcon />
+        </div>
+        <div className={styles.header}>
+          <span>My Origin</span>
+          <span className={styles["wallet-address"]}>
+            {formatAddress(auth.walletAddress as string)}
+          </span>
+          <OriginSection />
+          <GoToOriginDashboard />
+        </div>
+        <div className={styles["socials-wrapper"]}>
+          {isLoading || isLoadingSocials ? (
+            <div
+              className={styles.spinner}
+              style={{
+                margin: "auto",
+                marginTop: "6rem",
+                marginBottom: "6rem",
+              }}
+            />
+          ) : (
+            <>
+              <div className={styles["socials-container"]}>
+                <h3>Not Linked</h3>
+                {notConnected.map((social) => (
+                  <ConnectorButton
+                    key={social.name}
+                    name={social.name}
+                    link={social.link as Function}
+                    unlink={social.unlink}
+                    isConnected={!!social.isConnected}
+                    refetch={refetch}
+                    icon={social.icon}
+                  />
+                ))}
+                {notConnected.length === 0 && (
+                  <span className={styles["no-socials"]}>
+                    You've linked all your socials!
+                  </span>
+                )}
+              </div>
+              <div className={styles["socials-container"]}>
+                <h3>Linked</h3>
+                {connected.map((social) => (
+                  <ConnectorButton
+                    key={social.name}
+                    name={social.name}
+                    link={social.link as Function}
+                    unlink={social.unlink}
+                    isConnected={!!social.isConnected}
+                    refetch={refetch}
+                    icon={social.icon}
+                  />
+                ))}
+                {connected.length === 0 && (
+                  <span className={styles["no-socials"]}>
+                    You have no socials linked.
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        <button
+          className={styles["disconnect-button"]}
+          onClick={handleDisconnect}
+        >
+          Disconnect
+        </button>
+        <a
+          href="https://campnetwork.xyz"
+          className={styles["footer-text"]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginTop: 0 }}
+        >
+          Powered by Camp Network
+        </a>
       </div>
-      <div className={styles.header}>
-        <span>My Camp</span>
-        <span className={styles["wallet-address"]}>
-          {formatAddress(auth.walletAddress as string)}
-        </span>
-      </div>
-      <div className={styles["socials-wrapper"]}>
-        {isLoading || isLoadingSocials ? (
-          <div
-            className={styles.spinner}
-            style={{ margin: "auto", marginTop: "6rem", marginBottom: "6rem" }}
-          />
-        ) : (
-          <>
-            <div className={styles["socials-container"]}>
-              <h3>Not Linked</h3>
-              {notConnected.map((social) => (
-                <ConnectorButton
-                  key={social.name}
-                  name={social.name}
-                  link={social.link as Function}
-                  unlink={social.unlink}
-                  isConnected={!!social.isConnected}
-                  refetch={refetch}
-                  icon={social.icon}
-                />
-              ))}
-              {notConnected.length === 0 && (
-                <span className={styles["no-socials"]}>
-                  You've linked all your socials!
-                </span>
-              )}
-            </div>
-            <div className={styles["socials-container"]}>
-              <h3>Linked</h3>
-              {connected.map((social) => (
-                <ConnectorButton
-                  key={social.name}
-                  name={social.name}
-                  link={social.link as Function}
-                  unlink={social.unlink}
-                  isConnected={!!social.isConnected}
-                  refetch={refetch}
-                  icon={social.icon}
-                />
-              ))}
-              {connected.length === 0 && (
-                <span className={styles["no-socials"]}>
-                  You have no socials linked.
-                </span>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-      <button
-        className={styles["disconnect-button"]}
-        onClick={handleDisconnect}
-      >
-        Disconnect
-      </button>
-      <a
-        href="https://campnetwork.xyz"
-        className={styles["footer-text"]}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ marginTop: 0 }}
-      >
-        Powered by Camp Network
-      </a>
     </div>
   );
 };

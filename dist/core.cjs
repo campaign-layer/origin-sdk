@@ -151,7 +151,7 @@ constructor({clientId:t,redirectUri:e,allowAnalytics:i=!0,ackeeInstance:n}){if(T
 // ORIGIN
 /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).
-     * @returns {Promise<any>} A promise that resolves with the Origin stats.
+     * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
      */
 getOriginUsage(){return r(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new Error("User needs to be authenticated");const t=yield fetch(`${m}/auth/origin/usage`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"}}).then((t=>t.json()));if(!t.isError&&t.user)return t;throw new a(t.message||"Failed to fetch Origin usage")}))}
 /**

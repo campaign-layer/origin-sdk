@@ -69,6 +69,16 @@ const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const formatCampAmount = (amount: number) => {
+  if (amount >= 1000) {
+    const formatted = (amount / 1000).toFixed(1);
+    return formatted.endsWith(".0")
+      ? formatted.slice(0, -2) + "k"
+      : formatted + "k";
+  }
+  return amount.toString();
+};
+
 export const sendAnalyticsEvent = async (
   ackee: any,
   event: string,

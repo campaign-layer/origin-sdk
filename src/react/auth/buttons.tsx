@@ -52,7 +52,7 @@ export const CampButton = ({
           />
         </svg>
       </div>
-      {authenticated ? "My Camp" : "Connect"}
+      {authenticated ? "My Origin" : "Connect"}
     </button>
   );
 };

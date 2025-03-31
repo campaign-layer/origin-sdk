@@ -65,15 +65,15 @@ interface CampModalProps {
  * @param { { injectButton?: boolean, wcProjectId?: string, onlyWagmi?: boolean, defaultProvider?: object } } props The props.
  * @returns { JSX.Element } The CampModal component.
  */
-declare const CampModal: ({ injectButton, wcProjectId, onlyWagmi, defaultProvider, }: CampModalProps) => React.JSX.Element;
+declare const CampModal: ({ injectButton, wcProjectId, onlyWagmi, defaultProvider, }: CampModalProps) => JSX.Element;
 /**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
  */
-declare const MyCampModal: ({ wcProvider }: {
+declare const MyCampModal: ({ wcProvider, }: {
     wcProvider: any;
-}) => React.JSX.Element;
+}) => JSX.Element;
 
 declare const StandaloneCampButton: () => JSX.Element | null;
 interface LinkButtonProps {

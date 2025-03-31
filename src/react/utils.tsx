@@ -6,6 +6,9 @@ import React, {
   ReactNode,
   JSX,
 } from "react";
+import { formatCampAmount } from "../utils";
+import Tooltip from "./components/Tooltip";
+import { CampIcon } from "./auth/icons";
 
 /**
  * Creates a wrapper element and appends it to the body.
@@ -99,4 +102,23 @@ export const getIconByConnectorName = (name: string): string => {
         return "data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='56' height='56' rx='16.3333' fill='%23FF573B'/%3E%3Cpath d='M11.6667 33.8333H44.3334V38.5C44.3334 39.7886 43.2501 40.8333 41.9137 40.8333H14.0865C12.7501 40.8333 11.6667 39.7886 11.6667 38.5V33.8333Z' fill='%23202020'/%3E%3Cpath d='M11.6667 24.5H44.3334V31.5H11.6667V24.5Z' fill='%23202020'/%3E%3Cpath d='M11.6667 17.5C11.6667 16.2113 12.7501 15.1666 14.0865 15.1666H41.9137C43.2501 15.1666 44.3334 16.2113 44.3334 17.5V22.1666H11.6667V17.5Z' fill='%23202020'/%3E%3C/svg%3E";
       } else return "";
   }
+};
+
+export const CampAmount = ({
+  amount,
+  logo = true,
+  className,
+}: {
+  amount: number;
+  logo?: boolean;
+  className?: string;
+}) => {
+  return (
+    <Tooltip content={amount.toLocaleString() + " $CAMP"}>
+      <div className={`flex items-center gap-2 ${className ? className : ""}`}>
+        {logo && <CampIcon customStyles={{ color: "black" }} />}
+        <span>{formatCampAmount(amount)}</span>
+      </div>
+    </Tooltip>
+  );
 };
