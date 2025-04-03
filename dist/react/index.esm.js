@@ -1430,6 +1430,7 @@ const BasicFlow = () => {
         throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
     }
     const handleLink = () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(isSocialsLoading, currentlyLinking, socials);
         if (isSocialsLoading)
             return;
         if (socials[currentlyLinking]) {
@@ -1449,7 +1450,7 @@ const BasicFlow = () => {
         }
         else {
             try {
-                auth[`link${capitalize(currentlyLinking)}`]();
+                yield auth[`link${capitalize(currentlyLinking)}`]();
             }
             catch (error) {
                 setIsLinkingVisible(false);
@@ -1497,24 +1498,25 @@ const LinkingModal = () => {
         }, style: {
             zIndex: 86,
         } },
-        React.createElement("div", { className: styles.container },
-            React.createElement("div", { className: styles["close-button"], onClick: () => setIsLinkingVisible(false) },
-                React.createElement(CloseIcon, null)),
-            isSocialsLoading ? (React.createElement("div", { style: {
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "4rem",
-                    marginBottom: "1rem",
-                } },
-                React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", null,
-                React.createElement("div", { className: styles.header },
-                    React.createElement("div", { className: styles["small-modal-icon"] },
-                        React.createElement(Icon, null))),
-                flow === "basic" && React.createElement(BasicFlow, null),
-                flow === "tiktok" && React.createElement(TikTokFlow, null),
-                flow === "telegram" && React.createElement(TelegramFlow, null))),
-            React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network"))));
+        React.createElement("div", { className: styles["outer-container"] },
+            React.createElement("div", { className: styles.container },
+                React.createElement("div", { className: styles["close-button"], onClick: () => setIsLinkingVisible(false) },
+                    React.createElement(CloseIcon, null)),
+                isSocialsLoading ? (React.createElement("div", { style: {
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "4rem",
+                        marginBottom: "1rem",
+                    } },
+                    React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", null,
+                    React.createElement("div", { className: styles.header },
+                        React.createElement("div", { className: styles["small-modal-icon"] },
+                            React.createElement(Icon, null))),
+                    flow === "basic" && React.createElement(BasicFlow, null),
+                    flow === "tiktok" && React.createElement(TikTokFlow, null),
+                    flow === "telegram" && React.createElement(TelegramFlow, null))),
+                React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network")))));
 };
 /**
  * The OriginSection component. Displays the Origin status, royalty multiplier, and royalty credits.
@@ -1538,7 +1540,7 @@ const OriginSection = () => {
             setRoyaltyCredits(125125);
         }
     }, [data, isError, isLoading]);
-    return isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem" } },
+    return isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem", flex: 1 } },
         React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", { className: styles["origin-section"] },
         React.createElement(Tooltip, { content: isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized", position: "top", containerStyle: { width: "100%" } },
             React.createElement("div", { className: styles["origin-container"] },

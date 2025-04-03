@@ -566,10 +566,10 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    await this.#sendAnalyticsEvent(
-      constants.ACKEE_EVENTS.TWITTER_LINKED,
-      "Twitter Linked"
-    );
+    // await this.#sendAnalyticsEvent(
+    //   constants.ACKEE_EVENTS.TWITTER_LINKED,
+    //   "Twitter Linked"
+    // );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
 
@@ -582,10 +582,10 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    await this.#sendAnalyticsEvent(
-      constants.ACKEE_EVENTS.DISCORD_LINKED,
-      "Discord Linked"
-    );
+    // await this.#sendAnalyticsEvent(
+    //   constants.ACKEE_EVENTS.DISCORD_LINKED,
+    //   "Discord Linked"
+    // );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
 
@@ -598,10 +598,10 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    await this.#sendAnalyticsEvent(
-      constants.ACKEE_EVENTS.SPOTIFY_LINKED,
-      "Spotify Linked"
-    );
+    // await this.#sendAnalyticsEvent(
+    //   constants.ACKEE_EVENTS.SPOTIFY_LINKED,
+    //   "Spotify Linked"
+    // );
     window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 

@@ -695,6 +695,7 @@ const BasicFlow = () => {
   }
 
   const handleLink = async () => {
+    console.log(isSocialsLoading, currentlyLinking, socials);
     if (isSocialsLoading) return;
     if (socials[currentlyLinking]) {
       setIsUnlinking(true);
@@ -711,7 +712,7 @@ const BasicFlow = () => {
       setIsUnlinking(false);
     } else {
       try {
-        (auth as any)[`link${capitalize(currentlyLinking)}`]();
+        await (auth as any)[`link${capitalize(currentlyLinking)}`]();
       } catch (error) {
         setIsLinkingVisible(false);
         console.error(error);
@@ -787,46 +788,48 @@ const LinkingModal = () => {
         zIndex: 86,
       }}
     >
-      <div className={styles.container}>
-        <div
-          className={styles["close-button"]}
-          onClick={() => setIsLinkingVisible(false)}
-        >
-          <CloseIcon />
-        </div>
-        {isSocialsLoading ? (
+      <div className={styles["outer-container"]}>
+        <div className={styles.container}>
           <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "4rem",
-              marginBottom: "1rem",
-            }}
+            className={styles["close-button"]}
+            onClick={() => setIsLinkingVisible(false)}
           >
-            <div className={styles.spinner} />
+            <CloseIcon />
           </div>
-        ) : (
-          <div>
-            <div className={styles.header}>
-              <div className={styles["small-modal-icon"]}>
-                <Icon />
-              </div>
+          {isSocialsLoading ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "4rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <div className={styles.spinner} />
             </div>
-            {flow === "basic" && <BasicFlow />}
-            {flow === "tiktok" && <TikTokFlow />}
-            {flow === "telegram" && <TelegramFlow />}
-          </div>
-        )}
-        <a
-          href="https://campnetwork.xyz"
-          className={styles["footer-text"]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ marginTop: 0 }}
-        >
-          Powered by Camp Network
-        </a>
+          ) : (
+            <div>
+              <div className={styles.header}>
+                <div className={styles["small-modal-icon"]}>
+                  <Icon />
+                </div>
+              </div>
+              {flow === "basic" && <BasicFlow />}
+              {flow === "tiktok" && <TikTokFlow />}
+              {flow === "telegram" && <TelegramFlow />}
+            </div>
+          )}
+          <a
+            href="https://campnetwork.xyz"
+            className={styles["footer-text"]}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginTop: 0 }}
+          >
+            Powered by Camp Network
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -855,7 +858,7 @@ const OriginSection = (): JSX.Element => {
     }
   }, [data, isError, isLoading]);
   return isLoading ? (
-    <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+    <div style={{ marginTop: "1rem", marginBottom: "1rem", flex: 1 }}>
       <div className={styles.spinner} />
     </div>
   ) : (
