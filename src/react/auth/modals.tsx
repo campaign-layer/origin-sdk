@@ -32,6 +32,7 @@ import {
   TelegramIcon,
   CheckMarkIcon,
   XMarkIcon,
+  LinkIcon,
 } from "./icons.js";
 import constants from "../../constants.js";
 import { useToast } from "../toasts.js";
@@ -913,7 +914,6 @@ const OriginSection = (): JSX.Element => {
  * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
  * @returns { JSX.Element } The GoToOriginDashboard component.
  */
-
 const GoToOriginDashboard = (): JSX.Element => {
   const { auth } = useContext(CampContext);
   const { addToast: toast } = useToast();
@@ -926,10 +926,32 @@ const GoToOriginDashboard = (): JSX.Element => {
   };
   return (
     <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
-      Origin Dashboard
+      Origin Dashboard <LinkIcon w="0.875rem" />
     </button>
   );
 };
+
+const TabButton = ({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      className={`${styles["tab-button"]} ${
+        isActive ? styles["active-tab"] : ""
+      }`}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+};
+
 /**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.
@@ -946,6 +968,9 @@ export const MyCampModal = ({
   const { socials, isLoading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
+  const [activeTab, setActiveTab] = useState<"origin" | "socials" | "data">(
+    "origin"
+  );
 
   if (!auth) {
     throw new Error(
@@ -1008,7 +1033,6 @@ export const MyCampModal = ({
 
   return (
     <div className={styles["outer-container"]}>
-      {/* <OriginContainer /> */}
       <div className={styles.container}>
         <div
           className={styles["close-button"]}
@@ -1019,66 +1043,38 @@ export const MyCampModal = ({
         <div className={styles.header}>
           <span>My Origin</span>
           <span className={styles["wallet-address"]}>
-            {formatAddress(auth.walletAddress as string)}
+            {formatAddress(auth.walletAddress as string, 6)}
           </span>
-          <OriginSection />
-          <GoToOriginDashboard />
         </div>
-        <div
-          className={styles["horizontal-divider"]}
-          style={{ width: "75%", margin: "auto" }}
-        />
-        <div className={styles["socials-wrapper"]}>
-          {isLoading || isLoadingSocials ? (
-            <div
-              className={styles.spinner}
-              style={{
-                margin: "auto",
-                marginTop: "6rem",
-                marginBottom: "6rem",
-              }}
+        <div className={styles["tabs"]}>
+          <TabButton
+            label="Stats"
+            isActive={activeTab === "origin"}
+            onClick={() => setActiveTab("origin")}
+          />
+          <TabButton
+            label="Socials"
+            isActive={activeTab === "socials"}
+            onClick={() => setActiveTab("socials")}
+          />
+          <TabButton
+            label="Data Sources"
+            isActive={activeTab === "data"}
+            onClick={() => setActiveTab("data")}
+          />
+        </div>
+        <div className={styles["horizontal-divider"]} />
+
+        <div className={styles["tab-content"]}>
+          {activeTab === "origin" && <OriginTab />}
+          {activeTab === "socials" && (
+            <SocialsTab
+              connectedSocials={connected}
+              notConnectedSocials={notConnected}
+              refetch={refetch}
+              isLoading={isLoading}
+              isLoadingSocials={isLoadingSocials}
             />
-          ) : (
-            <>
-              <div className={styles["socials-container"]}>
-                <h3>Not Linked</h3>
-                {notConnected.map((social) => (
-                  <ConnectorButton
-                    key={social.name}
-                    name={social.name}
-                    link={social.link as Function}
-                    unlink={social.unlink}
-                    isConnected={!!social.isConnected}
-                    refetch={refetch}
-                    icon={social.icon}
-                  />
-                ))}
-                {notConnected.length === 0 && (
-                  <span className={styles["no-socials"]}>
-                    You've linked all your socials!
-                  </span>
-                )}
-              </div>
-              <div className={styles["socials-container"]}>
-                <h3>Linked</h3>
-                {connected.map((social) => (
-                  <ConnectorButton
-                    key={social.name}
-                    name={social.name}
-                    link={social.link as Function}
-                    unlink={social.unlink}
-                    isConnected={!!social.isConnected}
-                    refetch={refetch}
-                    icon={social.icon}
-                  />
-                ))}
-                {connected.length === 0 && (
-                  <span className={styles["no-socials"]}>
-                    You have no socials linked.
-                  </span>
-                )}
-              </div>
-            </>
           )}
         </div>
         <button
@@ -1097,6 +1093,85 @@ export const MyCampModal = ({
           Powered by Camp Network
         </a>
       </div>
+    </div>
+  );
+};
+
+const OriginTab = () => {
+  return (
+    <div className={styles["origin-tab"]}>
+      <OriginSection />
+      <GoToOriginDashboard />
+    </div>
+  );
+};
+
+const SocialsTab = ({
+  connectedSocials,
+  notConnectedSocials,
+  refetch,
+  isLoading,
+  isLoadingSocials,
+}: {
+  connectedSocials: any[];
+  notConnectedSocials: any[];
+  refetch: Function;
+  isLoading: boolean;
+  isLoadingSocials: boolean;
+}) => {
+  return (
+    <div className={styles["socials-wrapper"]}>
+      {isLoading || isLoadingSocials ? (
+        <div
+          className={styles.spinner}
+          style={{
+            margin: "auto",
+            marginTop: "6rem",
+            marginBottom: "6rem",
+          }}
+        />
+      ) : (
+        <>
+          <div className={styles["socials-container"]}>
+            <h3>Not Linked</h3>
+            {notConnectedSocials.map((social) => (
+              <ConnectorButton
+                key={social.name}
+                name={social.name}
+                link={social.link as Function}
+                unlink={social.unlink}
+                isConnected={!!social.isConnected}
+                refetch={refetch}
+                icon={social.icon}
+              />
+            ))}
+            {notConnectedSocials.length === 0 && (
+              <span className={styles["no-socials"]}>
+                You've linked all your socials!
+              </span>
+            )}
+          </div>
+          <div className={styles["socials-container"]}>
+            <h3>Linked</h3>
+            {connectedSocials.map((social) => (
+              <ConnectorButton
+                key={social.name}
+                name={social.name}
+                link={social.link as Function}
+                unlink={social.unlink}
+                isConnected={!!social.isConnected}
+                refetch={refetch}
+                icon={social.icon}
+              />
+            ))}
+            {connectedSocials.length === 0 && (
+              <span className={styles["no-socials"]}>
+                You have no socials linked.
+              </span>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

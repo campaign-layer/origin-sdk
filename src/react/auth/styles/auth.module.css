@@ -64,7 +64,16 @@
     overflow-y: auto;
   }
 }
-
+.origin-tab {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  width: 100%;
+}
 .origin-section {
   display: flex;
   flex-direction: row;
@@ -92,7 +101,6 @@
   margin-top: 0.5rem;
 }
 
-
 .origin-container .origin-label {
   font-size: 0.75rem;
   font-weight: 400;
@@ -116,20 +124,26 @@
 }
 
 .origin-dashboard-button {
-  background-color: #ff6f00;
-  color: white;
+  /* background-color: #ff6f00; */
+  color: #ff6f00;
   border: none;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   padding: 0.25rem;
   font-size: 0.875rem;
   width: 100%;
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  /* box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px; */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .origin-dashboard-button:hover {
-  background-color: #cc4e02;
+  /* background-color: #cc4e02; */
   cursor: pointer;
+  color: #cc4e02;
 }
 
 .origin-dashboard-button:disabled {
@@ -145,15 +159,22 @@
 
 .container .header {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
   color: #333;
   width: 100%;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
+  text-align: left;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  margin-top: -0.6rem;
   font-weight: bold;
+  gap: 0.5rem;
+
+  @media screen and (max-width: 440px) {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
 }
 
 .container .header .small-modal-icon {
@@ -167,7 +188,7 @@
   font-size: 0.75rem;
   color: #777;
   font-weight: normal;
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
 }
 
 .container .close-button {
@@ -567,4 +588,36 @@ input.tiktok-input.invalid {
 
 .otp-input:focus {
   border-color: #ff6f00;
+}
+
+.tabs {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: calc(-0.5rem - 1px);
+}
+
+.tab-button {
+  background-color: #fefefe;
+  border-bottom: 1px solid #ddd;
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tab-button:hover {
+  background-color: #eee;
+}
+
+.active-tab {
+  border-bottom-color: #ff6f00;
+}
+
+.tab-content {
+  margin-top: 0.25rem;
+  width: 100%;
+  min-height: 20rem;
+  height: 20rem;
 }
