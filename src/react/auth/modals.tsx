@@ -971,7 +971,7 @@ export const MyCampModal = ({
   const { socials, isLoading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
-  const [activeTab, setActiveTab] = useState<"origin" | "socials" | "data">(
+  const [activeTab, setActiveTab] = useState<"origin" | "socials" | "images" | "audio">(
     "origin"
   );
 
@@ -1061,9 +1061,14 @@ export const MyCampModal = ({
             onClick={() => setActiveTab("socials")}
           />
           <TabButton
-            label="Data Sources"
-            isActive={activeTab === "data"}
-            onClick={() => setActiveTab("data")}
+            label="Images"
+            isActive={activeTab === "images"}
+            onClick={() => setActiveTab("images")}
+          />
+          <TabButton
+            label="Audio"
+            isActive={activeTab === "audio"}
+            onClick={() => setActiveTab("audio")}
           />
         </div>
         <div className={styles["horizontal-divider"]} />

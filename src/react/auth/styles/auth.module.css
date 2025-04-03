@@ -594,6 +594,15 @@ input.tiktok-input.invalid {
   display: flex;
   justify-content: flex-start;
   margin-bottom: calc(-0.5rem - 1px);
+  max-width: 100%;
+  overflow-x: auto;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tabs::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 0.25rem;
 }
 
 .tab-button {
