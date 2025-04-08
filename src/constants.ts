@@ -2,6 +2,8 @@ export default {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
   AUTH_HUB_BASE_API:
     "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+  ORIGIN_DASHBOARD:
+    "https://coinflip-git-feat-origin-dashboard-campaignlayer-testing.vercel.app/origin", // temp
   AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
   ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
   ACKEE_EVENTS: {

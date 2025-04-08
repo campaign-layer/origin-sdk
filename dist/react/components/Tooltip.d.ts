@@ -9,6 +9,7 @@ interface TooltipProps {
 }
 /**
  * Tooltip component to wrap other components and display a tooltip on hover.
+ * Uses portals to render the tooltip outside of its parent container.
  * @param {TooltipProps} props The props for the Tooltip component.
  * @returns {JSX.Element} The Tooltip component.
  */

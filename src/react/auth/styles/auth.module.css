@@ -79,7 +79,6 @@
   justify-content: space-evenly;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
   width: 100%;
 }
 
@@ -607,8 +606,6 @@ input.tiktok-input.invalid {
 .tab-button {
   background-color: #fefefe;
   border-right: 2px solid #ddd;
-  /* border-top-right-radius: 0.25rem; */
-  /* border-bottom-right-radius: 0.25rem; */
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   cursor: pointer;
@@ -661,9 +658,12 @@ input.tiktok-input.invalid {
   max-width: 100%;
 }
 
-.images-tab-container {
+.ip-tab-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
 }

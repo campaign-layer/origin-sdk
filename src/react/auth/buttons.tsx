@@ -61,24 +61,25 @@ export const CampButton = ({
 
 /**
  * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
+ * @param { { text?: string } } props The props.
+ * @param { string } [props.text] The text to display on the button.
+ * @param { string } [props.text="Origin Dashboard"] The default text to display on the button.
  * @returns { JSX.Element } The GoToOriginDashboard component.
  */
-export const GoToOriginDashboard = (): JSX.Element => {
-  const { auth } = useContext(CampContext);
-  const { addToast: toast } = useToast();
-  const handleClick = () => {
-    if (!auth) {
-      toast("Auth instance is not available.", "error", 5000);
-      return;
-    }
-    // window.open(auth.getOriginDashboardLink(), "_blank");
-  };
-  return (
-    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
-      Origin Dashboard <LinkIcon w="0.875rem" />
-    </button>
-  );
-};
+export const GoToOriginDashboard = ({
+  text = "Origin Dashboard",
+}: {
+  text?: string;
+}): JSX.Element => (
+  <a
+    className={styles["origin-dashboard-button"]}
+    href={constants.ORIGIN_DASHBOARD}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {text} <LinkIcon w="0.875rem" />
+  </a>
+);
 
 /**
  * The TabButton component.
@@ -424,7 +425,7 @@ export const FileUpload = ({
 
       if (invalidFiles.length > 0) {
         addToast(
-          `Some files are not supported. Accepted types: ${accept}`,
+          `File not supported. Accepted types: ${accept}`,
           "error",
           5000
         );
@@ -452,7 +453,7 @@ export const FileUpload = ({
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
-    fileInputRef.current!.value = ""; // Reset the input value
+    fileInputRef.current!.value = "";
   };
 
   const renderFilePreview = () => {
