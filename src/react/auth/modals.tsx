@@ -1007,41 +1007,41 @@ export const MyCampModal = ({
             {formatAddress(auth.walletAddress as string, 6)}
           </span>
         </div>
-        <div className={styles["tabs"]}>
-          <TabButton
-            label="Stats"
-            isActive={activeTab === "origin"}
-            onClick={() => setActiveTab("origin")}
-          />
-          <TabButton
-            label="Socials"
-            isActive={activeTab === "socials"}
-            onClick={() => setActiveTab("socials")}
-          />
-          <TabButton
-            label="Images"
-            isActive={activeTab === "images"}
-            onClick={() => setActiveTab("images")}
-          />
-          <TabButton
-            label="Audio"
-            isActive={activeTab === "audio"}
-            onClick={() => setActiveTab("audio")}
-          />
-        </div>
-        <div className={styles["horizontal-divider"]} />
-
-        <div className={styles["tab-content"]}>
-          {activeTab === "origin" && <OriginTab />}
-          {activeTab === "socials" && (
-            <SocialsTab
-              connectedSocials={connected}
-              notConnectedSocials={notConnected}
-              refetch={refetch}
-              isLoading={isLoading}
-              isLoadingSocials={isLoadingSocials}
+        <div className={styles["vertical-tabs-container"]}>
+          <div className={styles["vertical-tabs"]}>
+            <TabButton
+              label="Stats"
+              isActive={activeTab === "origin"}
+              onClick={() => setActiveTab("origin")}
             />
-          )}
+            <TabButton
+              label="Socials"
+              isActive={activeTab === "socials"}
+              onClick={() => setActiveTab("socials")}
+            />
+            <TabButton
+              label="Images"
+              isActive={activeTab === "images"}
+              onClick={() => setActiveTab("images")}
+            />
+            <TabButton
+              label="Audio"
+              isActive={activeTab === "audio"}
+              onClick={() => setActiveTab("audio")}
+            />
+          </div>
+          <div className={styles["vertical-tab-content"]}>
+            {activeTab === "origin" && <OriginTab />}
+            {activeTab === "socials" && (
+              <SocialsTab
+                connectedSocials={connected}
+                notConnectedSocials={notConnected}
+                refetch={refetch}
+                isLoading={isLoading}
+                isLoadingSocials={isLoadingSocials}
+              />
+            )}
+          </div>
         </div>
         <button
           className={styles["disconnect-button"]}
