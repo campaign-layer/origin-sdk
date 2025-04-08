@@ -1747,7 +1747,7 @@ const MyCampModal = ({ wcProvider, }) => {
     const { socials, isLoading, refetch } = useSocials();
     const [isLoadingSocials, setIsLoadingSocials] = useState(true);
     const { linkTiktok, linkTelegram } = useLinkModal();
-    const [activeTab, setActiveTab] = useState("origin");
+    const [activeTab, setActiveTab] = useState("socials");
     if (!auth) {
         throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
     }

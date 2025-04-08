@@ -932,7 +932,7 @@ export const MyCampModal = ({
   const { linkTiktok, linkTelegram } = useLinkModal();
   const [activeTab, setActiveTab] = useState<
     "origin" | "socials" | "images" | "audio"
-  >("origin");
+  >("socials");
 
   if (!auth) {
     throw new Error(
