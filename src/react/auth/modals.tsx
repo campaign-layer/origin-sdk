@@ -21,6 +21,7 @@ import {
   ConnectorButton,
   TabButton,
   GoToOriginDashboard,
+  FileUpload,
 } from "./buttons";
 import {
   DiscordIcon,
@@ -1041,6 +1042,8 @@ export const MyCampModal = ({
                 isLoadingSocials={isLoadingSocials}
               />
             )}
+            {activeTab === "images" && <ImagesTab />}
+            {activeTab === "audio" && <AudioTab />}
           </div>
         </div>
         <button
@@ -1138,6 +1141,30 @@ const SocialsTab = ({
           </div>
         </>
       )}
+    </div>
+  );
+};
+
+const ImagesTab = () => {
+  const handleFileUpload = (files: File[]) => {
+    console.log("Selected images:", files);
+  };
+
+  return (
+    <div className={styles["images-tab-container"]}>
+      <FileUpload onFileUpload={handleFileUpload} accept="image/*" />
+    </div>
+  );
+};
+
+const AudioTab = () => {
+  const handleFileUpload = (files: File[]) => {
+    console.log("Selected audio files:", files);
+  };
+
+  return (
+    <div>
+      <FileUpload onFileUpload={handleFileUpload} accept="audio/*" />
     </div>
   );
 };

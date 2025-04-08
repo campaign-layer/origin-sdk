@@ -1,6 +1,6 @@
 import constants from "../../constants";
 import { useToast } from "../toasts";
-import { CampIcon, getIconBySocial, LinkIcon } from "./icons";
+import { BinIcon, CampIcon, getIconBySocial, LinkIcon } from "./icons";
 import {
   CampContext,
   ModalContext,
@@ -11,7 +11,7 @@ import {
 } from "./index";
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
-import React, { JSX, useContext, useEffect, useState } from "react";
+import React, { JSX, useContext, useEffect, useState, useRef } from "react";
 
 interface CampButtonProps {
   onClick: () => void;
@@ -379,5 +379,155 @@ export const LinkButton = ({
         </div>
       )}
     </button>
+  );
+};
+
+interface FileUploadProps {
+  onFileUpload: (files: File[]) => void;
+  accept?: string;
+}
+
+/**
+ * The FileUpload component.
+ * Provides a file upload field with drag-and-drop support.
+ * @param { { onFileUpload: function, accept?: string } } props The props.
+ * @returns { JSX.Element } The FileUpload component.
+ */
+export const FileUpload = ({
+  onFileUpload,
+  accept,
+}: FileUploadProps): JSX.Element => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addToast } = useToast();
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+
+    if (accept) {
+      const acceptedTypes = accept.split(",");
+      const invalidFiles = files.filter(
+        (file) => !acceptedTypes.some((type) => file.type.match(type.trim()))
+      );
+
+      if (invalidFiles.length > 0) {
+        addToast(
+          `Some files are not supported. Accepted types: ${accept}`,
+          "error",
+          5000
+        );
+        return;
+      }
+    }
+
+    const file = files[0];
+    setSelectedFile(file);
+    onFileUpload([file]);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const file = files[0];
+      setSelectedFile(file);
+      onFileUpload([file]);
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    fileInputRef.current!.value = ""; // Reset the input value
+  };
+
+  const renderFilePreview = () => {
+    if (!selectedFile) return null;
+
+    if (selectedFile.type.startsWith("image/")) {
+      return (
+        <img
+          src={URL.createObjectURL(selectedFile)}
+          alt="Preview"
+          className={buttonStyles["file-preview"]}
+        />
+      );
+    }
+
+    if (selectedFile.type.startsWith("audio/")) {
+      return (
+        <audio
+          controls
+          src={URL.createObjectURL(selectedFile)}
+          className={buttonStyles["file-preview"]}
+        />
+      );
+    }
+
+    return (
+      <p className={buttonStyles["file-preview-text"]}>
+        File selected: {selectedFile.name}
+      </p>
+    );
+  };
+
+  return (
+    <div
+      className={`${buttonStyles["file-upload-container"]} ${
+        isDragging
+          ? buttonStyles["dragging"]
+          : selectedFile
+          ? buttonStyles["file-selected"]
+          : ""
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={!selectedFile ? handleClick : undefined}
+    >
+      <input
+        type="file"
+        accept={accept}
+        className={buttonStyles["file-input"]}
+        onChange={handleFileChange}
+        ref={fileInputRef}
+      />
+      {selectedFile ? (
+        <div className={buttonStyles["selected-file-container"]}>
+          {renderFilePreview()}
+          <span className={buttonStyles["file-name"]}>{selectedFile.name}</span>
+          <div className={buttonStyles["upload-buttons"]}>
+            <button
+              className={buttonStyles["remove-file-button"]}
+              onClick={handleRemoveFile}
+            >
+              <BinIcon w="1rem" h="1rem" />
+            </button>
+            <button
+              className={buttonStyles["upload-file-button"]}
+              onClick={() => onFileUpload([selectedFile])}
+            >
+              Upload
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p>Drag and drop files here, or click to select files</p>
+      )}
+    </div>
   );
 };

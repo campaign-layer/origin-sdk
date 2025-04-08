@@ -1,6 +1,7 @@
 .tooltip-container {
   position: relative;
   display: inline-block;
+  min-height: fit-content;
 }
 
 .tooltip {
@@ -14,11 +15,32 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
+  min-height: fit-content;
 }
 
-.tooltip-container:hover .tooltip {
-  opacity: 1;
-  visibility: visible;
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.tooltip.show {
+  animation: fadeIn 0.2s ease-in-out forwards;
 }
 
 .tooltip.top {
