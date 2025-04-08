@@ -1,6 +1,8 @@
 import constants from "../../constants";
-import { CampIcon, getIconBySocial } from "./icons";
+import { useToast } from "../toasts";
+import { CampIcon, getIconBySocial, LinkIcon } from "./icons";
 import {
+  CampContext,
   ModalContext,
   useAuthState,
   useLinkModal,
@@ -53,6 +55,53 @@ export const CampButton = ({
         </svg>
       </div>
       {authenticated ? "My Origin" : "Connect"}
+    </button>
+  );
+};
+
+/**
+ * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
+ * @returns { JSX.Element } The GoToOriginDashboard component.
+ */
+export const GoToOriginDashboard = (): JSX.Element => {
+  const { auth } = useContext(CampContext);
+  const { addToast: toast } = useToast();
+  const handleClick = () => {
+    if (!auth) {
+      toast("Auth instance is not available.", "error", 5000);
+      return;
+    }
+    // window.open(auth.getOriginDashboardLink(), "_blank");
+  };
+  return (
+    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
+      Origin Dashboard <LinkIcon w="0.875rem" />
+    </button>
+  );
+};
+
+/**
+ * The TabButton component.
+ * @param { { label: string, isActive: boolean, onClick: function } } props The props.
+ * @returns { JSX.Element } The TabButton component.
+ */
+export const TabButton = ({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      className={`${styles["tab-button"]} ${
+        isActive ? styles["active-tab"] : ""
+      }`}
+      onClick={onClick}
+    >
+      {label}
     </button>
   );
 };

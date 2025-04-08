@@ -14,13 +14,14 @@ import { CampContext } from "../context/CampContext";
 import { formatAddress, capitalize, formatCampAmount } from "../../utils";
 import { useWalletConnectProvider } from "../../core/auth/viem/walletconnect";
 import { useAccount, useConnectorClient } from "wagmi";
+import { ClientOnly, ReactPortal, getIconByConnectorName } from "../utils";
 import {
-  CampAmount,
-  ClientOnly,
-  ReactPortal,
-  getIconByConnectorName,
-} from "../utils";
-import { CampButton, ProviderButton, ConnectorButton } from "./buttons";
+  CampButton,
+  ProviderButton,
+  ConnectorButton,
+  TabButton,
+  GoToOriginDashboard,
+} from "./buttons";
 import {
   DiscordIcon,
   TwitterIcon,
@@ -32,7 +33,6 @@ import {
   TelegramIcon,
   CheckMarkIcon,
   XMarkIcon,
-  LinkIcon,
 } from "./icons.js";
 import constants from "../../constants.js";
 import { useToast } from "../toasts.js";
@@ -914,48 +914,6 @@ const OriginSection = (): JSX.Element => {
 };
 
 /**
- * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
- * @returns { JSX.Element } The GoToOriginDashboard component.
- */
-const GoToOriginDashboard = (): JSX.Element => {
-  const { auth } = useContext(CampContext);
-  const { addToast: toast } = useToast();
-  const handleClick = () => {
-    if (!auth) {
-      toast("Auth instance is not available.", "error", 5000);
-      return;
-    }
-    // window.open(auth.getOriginDashboardLink(), "_blank");
-  };
-  return (
-    <button className={styles["origin-dashboard-button"]} onClick={handleClick}>
-      Origin Dashboard <LinkIcon w="0.875rem" />
-    </button>
-  );
-};
-
-const TabButton = ({
-  label,
-  isActive,
-  onClick,
-}: {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}) => {
-  return (
-    <button
-      className={`${styles["tab-button"]} ${
-        isActive ? styles["active-tab"] : ""
-      }`}
-      onClick={onClick}
-    >
-      {label}
-    </button>
-  );
-};
-
-/**
  * The MyCampModal component.
  * @param { { wcProvider: object } } props The props.
  * @returns { JSX.Element } The MyCampModal component.
@@ -971,9 +929,9 @@ export const MyCampModal = ({
   const { socials, isLoading, refetch } = useSocials();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
-  const [activeTab, setActiveTab] = useState<"origin" | "socials" | "images" | "audio">(
-    "origin"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "origin" | "socials" | "images" | "audio"
+  >("origin");
 
   if (!auth) {
     throw new Error(

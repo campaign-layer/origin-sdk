@@ -909,6 +909,32 @@ const CampButton = ({ onClick, authenticated, disabled, }) => {
                 React.createElement("path", { d: "M267.74 313.33s-11.11 11.95-17.24 20.6c-7.8 11.02-13.14 31.3 1.95 71.9-86.02-75.3 2.56-152.15.79-146.3-6.58 21.75 14.49 53.8 14.49 53.8Zm20.98-23.66c3.01-4.27 5.97-9.06 8.8-14.55 6.62-12.83 6.64-16.54 6.64-16.54s-2.09 20.02 49.53 55.21c37.02 25.24 19.68 75.52 12.1 92.05 0 0 43.69-27.86 37.49-74.92-7.45-56.61-38.08-51.5-60.84-93.43-21.23-39.11 15.03-70.44 15.03-70.44s-48.54-2.61-70.76 48.42c-23.42 53.77 2 74.21 2 74.21Z", fill: "#ff6d01", strokeWidth: "0" }))),
         authenticated ? "My Origin" : "Connect"));
 };
+/**
+ * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
+ * @returns { JSX.Element } The GoToOriginDashboard component.
+ */
+const GoToOriginDashboard = () => {
+    const { auth } = useContext(CampContext);
+    const { addToast: toast } = useToast();
+    const handleClick = () => {
+        if (!auth) {
+            toast("Auth instance is not available.", "error", 5000);
+            return;
+        }
+        // window.open(auth.getOriginDashboardLink(), "_blank");
+    };
+    return (React.createElement("button", { className: styles["origin-dashboard-button"], onClick: handleClick },
+        "Origin Dashboard ",
+        React.createElement(LinkIcon, { w: "0.875rem" })));
+};
+/**
+ * The TabButton component.
+ * @param { { label: string, isActive: boolean, onClick: function } } props The props.
+ * @returns { JSX.Element } The TabButton component.
+ */
+const TabButton = ({ label, isActive, onClick, }) => {
+    return (React.createElement("button", { className: `${styles["tab-button"]} ${isActive ? styles["active-tab"] : ""}`, onClick: onClick }, label));
+};
 const StandaloneCampButton = () => {
     const modalContext = useContext(ModalContext);
     const { openModal } = useModal();
@@ -1558,27 +1584,6 @@ const OriginSection = () => {
             React.createElement("div", { className: styles["origin-container"] },
                 React.createElement("span", null, formatCampAmount(royaltyCredits)),
                 React.createElement("span", { className: styles["origin-label"] }, "Credits")))));
-};
-/**
- * The GoToOriginDashboard component. Handles the action of going to the Origin Dashboard.
- * @returns { JSX.Element } The GoToOriginDashboard component.
- */
-const GoToOriginDashboard = () => {
-    const { auth } = useContext(CampContext);
-    const { addToast: toast } = useToast();
-    const handleClick = () => {
-        if (!auth) {
-            toast("Auth instance is not available.", "error", 5000);
-            return;
-        }
-        // window.open(auth.getOriginDashboardLink(), "_blank");
-    };
-    return (React.createElement("button", { className: styles["origin-dashboard-button"], onClick: handleClick },
-        "Origin Dashboard ",
-        React.createElement(LinkIcon, { w: "0.875rem" })));
-};
-const TabButton = ({ label, isActive, onClick, }) => {
-    return (React.createElement("button", { className: `${styles["tab-button"]} ${isActive ? styles["active-tab"] : ""}`, onClick: onClick }, label));
 };
 /**
  * The MyCampModal component.
