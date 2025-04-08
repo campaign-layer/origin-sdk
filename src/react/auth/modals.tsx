@@ -1152,7 +1152,10 @@ const ImagesTab = () => {
 
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload onFileUpload={handleFileUpload} accept="image/*" />
+      <FileUpload
+        onFileUpload={handleFileUpload}
+        accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
+      />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
@@ -1165,7 +1168,10 @@ const AudioTab = () => {
 
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload onFileUpload={handleFileUpload} accept="audio/*" />
+      <FileUpload
+        onFileUpload={handleFileUpload}
+        accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
+      />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );

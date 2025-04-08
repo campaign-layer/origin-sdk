@@ -4,6 +4,9 @@ export default {
     "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
   ORIGIN_DASHBOARD:
     "https://coinflip-git-feat-origin-dashboard-campaignlayer-testing.vercel.app/origin", // temp
+  SUPPORTED_IMAGE_FORMATS: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  SUPPORTED_VIDEO_FORMATS: ["video/mp4", "video/webm"],
+  SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
   AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
   ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
   ACKEE_EVENTS: {

@@ -527,7 +527,19 @@ export const FileUpload = ({
           </div>
         </div>
       ) : (
-        <p>Drag and drop files here, or click to select files</p>
+        <p>
+          Drag and drop files here, or click to select files.
+          <br />
+          {accept && (
+            <span>
+              {accept
+                .split(",")
+                .map((type) => type.trim().split("/")[1].replace(/-/g, " "))
+                .join(", ")}
+            </span>
+          )}
+          <br />
+        </p>
       )}
     </div>
   );

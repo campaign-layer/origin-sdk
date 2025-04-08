@@ -138,6 +138,9 @@ var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
     AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
     ORIGIN_DASHBOARD: "https://coinflip-git-feat-origin-dashboard-campaignlayer-testing.vercel.app/origin", // temp
+    SUPPORTED_IMAGE_FORMATS: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+    SUPPORTED_VIDEO_FORMATS: ["video/mp4", "video/webm"],
+    SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
     AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
     ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
     ACKEE_EVENTS: {
@@ -1185,7 +1188,14 @@ const FileUpload = ({ onFileUpload, accept, }) => {
             React.createElement("div", { className: buttonStyles["upload-buttons"] },
                 React.createElement("button", { className: buttonStyles["remove-file-button"], onClick: handleRemoveFile },
                     React.createElement(BinIcon, { w: "1rem", h: "1rem" })),
-                React.createElement("button", { className: buttonStyles["upload-file-button"], onClick: () => onFileUpload([selectedFile]) }, "Upload")))) : (React.createElement("p", null, "Drag and drop files here, or click to select files"))));
+                React.createElement("button", { className: buttonStyles["upload-file-button"], onClick: () => onFileUpload([selectedFile]) }, "Upload")))) : (React.createElement("p", null,
+            "Drag and drop files here, or click to select files.",
+            React.createElement("br", null),
+            accept && (React.createElement("span", null, accept
+                .split(",")
+                .map((type) => type.trim().split("/")[1].replace(/-/g, " "))
+                .join(", "))),
+            React.createElement("br", null)))));
 };
 
 /**
@@ -1835,7 +1845,7 @@ const ImagesTab = () => {
         console.log("Selected images:", files);
     };
     return (React.createElement("div", { className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: "image/*" }),
+        React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: constants.SUPPORTED_IMAGE_FORMATS.join(",") }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 const AudioTab = () => {
@@ -1843,7 +1853,7 @@ const AudioTab = () => {
         console.log("Selected audio files:", files);
     };
     return (React.createElement("div", { className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: "audio/*" }),
+        React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: constants.SUPPORTED_AUDIO_FORMATS.join(",") }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 
