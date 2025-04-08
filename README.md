@@ -10,17 +10,15 @@
   <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40campnetwork%2Fsdk?style=for-the-badge">
 </p>
 
-# Camp SDK
+# Origin SDK
 
-The Camp SDK currently exposes the following modules:
+The Origin SDK currently exposes the following modules:
 
 - `"@campnetwork/sdk"` - The main entry point for the SDK, exposes the following classes:
   - `TwitterAPI` - For fetching user Twitter data from the Auth Hub
   - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
-  - `Auth` - For authenticating users with the Camp SDK
+  - `Auth` - For authenticating users with the Origin SDK
 - `"@campnetwork/sdk/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via the Camp Auth Hub
-
-_the `@campnetwork/sdk/react/auth` module is deprecated and will be removed in a future release; all functionality has been moved to the `@campnetwork/sdk/react` module_
 
 # Installation
 
@@ -50,7 +48,7 @@ import { TwitterAPI, SpotifyAPI, Auth } from "@campnetwork/sdk";
 
 The TwitterAPI class is the entry point for fetching user Twitter data from the Auth Hub. It requires an API key to be instantiated.
 
-**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Camp SDK.**
+**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
 #### Constructor
 
@@ -156,7 +154,7 @@ const viewedTweets = await twitter.fetchViewedTweetsByUsername("jack", 1, 10);
 
 The SpotifyAPI class is the entry point for fetching user Spotify data from the Auth Hub. It requires an API key to be instantiated.
 
-**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Camp SDK.**
+**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
 #### Constructor
 
@@ -230,7 +228,7 @@ const user = await spotify.fetchUserByWalletAddress("0x1234567890");
 
 The TikTokAPI class is the entry point for fetching user TikTok data from the Auth Hub. It requires an API key to be instantiated.
 
-**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Camp SDK.**
+**Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
 #### Constructor
 
@@ -262,13 +260,13 @@ const video = await tiktok.fetchVideo("jack", "1234567890");
 
 ## Auth
 
-The Auth class is the entry point for authenticating users with the Camp SDK. It requires a clientId to be instantiated.
+The Auth class is the entry point for authenticating users with the Origin SDK. It requires a clientId to be instantiated.
 
 **Note: The Auth class is only to be used on the client side.**
 
 ### Constructor
 
-- `clientId` - The client ID of your app. This is required to authenticate users with the Camp SDK.
+- `clientId` - The client ID of your app. This is required to authenticate users with the Origin SDK.
 - `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
   The `redirectUri` can also be an object with the following optional properties:
   - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
@@ -306,7 +304,7 @@ const auth = new Auth({
 
 `connect() => void`
 
-The `connect` method prompts the user to sign a message with their wallet in order to authenticate with the Camp SDK.
+The `connect` method prompts the user to sign a message with their wallet in order to authenticate with the Origin SDK.
 The wallet provider can be set by calling the `setProvider` method on the Auth instance beforehand. The default provider used is `window.ethereum`.
 
 ```js
@@ -317,7 +315,7 @@ auth.connect();
 
 `disconnect() => void`
 
-The `disconnect` method logs the user out of the Camp SDK on the client side.
+The `disconnect` method logs the user out of the Origin SDK on the client side.
 
 ```js
 auth.disconnect();
@@ -354,7 +352,7 @@ auth.setWalletAddress("0x1234567890");
 
 `on(event: string, callback: (data: any) => void) => void`
 
-The `on` method listens for events emitted by the Auth module of the Camp SDK.
+The `on` method listens for events emitted by the Auth module of the Origin SDK.
 
 The following events are emitted:
 
@@ -375,7 +373,7 @@ auth.on("state", (data) => {
 ##### "provider"
 
 Returns the provider that has been set via the `setProvider` method.
-If using the Camp SDK React components, this event is emitted when the user selects a provider in the Auth modal.
+If using the Origin SDK React components, this event is emitted when the user selects a provider in the Auth modal.
 
 ```js
 auth.on("provider", (data) => {
@@ -603,13 +601,13 @@ function App() {
 }
 ```
 
-The `CampProvider` component sets up the context for the Camp SDK and provides the Auth instance to the rest of the app.
+The `CampProvider` component sets up the context for the Origin SDK and provides the Auth instance to the rest of the app.
 
 ## CampModal
 
 ![@campnetwork/sdk](https://imgur.com/n9o0rJ3.png)
 
-The **CampModal** is a one-line\* solution for authenticating users with the Camp SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
+The **CampModal** is a one-line\* solution for authenticating users with the Origin SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
 
 It works as follows:
 
