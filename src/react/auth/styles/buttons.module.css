@@ -405,6 +405,11 @@
   border-color: #ff6f00;
 }
 
+.file-upload-container.dragging .file-preview {
+  opacity: 0.2;
+  transition: opacity 0.2s;
+}
+
 .file-upload-container.file-selected {
   background-color: #f9f9f9;
   border: none;
