@@ -308,14 +308,14 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<
 
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * @returns { { data: {}, socials: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 
 export const useSocials = (): UseSocialsResult => {
   const { query } = useContext(SocialsContext) as {
     query: UseQueryResult<any, Error>;
   };
-  const socials = query?.data;
+  const socials = query?.data || {};
   return {
     ...query,
     socials,
@@ -324,7 +324,7 @@ export const useSocials = (): UseSocialsResult => {
 
 /**
  * Fetches the Origin usage data.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * @returns { { data: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 export const useOrigin = (): UseQueryResult => {
   const { query } = useContext(OriginContext) as {

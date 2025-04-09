@@ -2058,16 +2058,16 @@ const useLinkModal = () => {
 };
 /**
  * Fetches the socials linked to the user.
- * @returns { { data: Array, socials: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * @returns { { data: {}, socials: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 const useSocials = () => {
     const { query } = useContext(SocialsContext);
-    const socials = query === null || query === void 0 ? void 0 : query.data;
+    const socials = (query === null || query === void 0 ? void 0 : query.data) || {};
     return Object.assign(Object.assign({}, query), { socials });
 };
 /**
  * Fetches the Origin usage data.
- * @returns { { data: Array, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * @returns { { data: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 const useOrigin = () => {
     const { query } = useContext(OriginContext);
