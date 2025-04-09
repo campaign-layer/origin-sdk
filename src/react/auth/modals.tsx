@@ -853,9 +853,9 @@ const OriginSection = (): JSX.Element => {
       setRoyaltyCredits((data as any)?.data?.user?.points ?? 0);
     }
     if (isError) {
-      setIsOriginAuthorized(false);
-      setRoyaltyMultiplier(2);
-      setRoyaltyCredits(125125);
+      setIsOriginAuthorized(true);
+      setRoyaltyMultiplier(1);
+      setRoyaltyCredits(0);
     }
   }, [data, isError, isLoading]);
   return isLoading ? (

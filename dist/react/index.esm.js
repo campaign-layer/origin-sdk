@@ -1711,9 +1711,9 @@ const OriginSection = () => {
             setRoyaltyCredits((_j = (_h = (_g = data === null || data === void 0 ? void 0 : data.data) === null || _g === void 0 ? void 0 : _g.user) === null || _h === void 0 ? void 0 : _h.points) !== null && _j !== void 0 ? _j : 0);
         }
         if (isError) {
-            setIsOriginAuthorized(false);
-            setRoyaltyMultiplier(2);
-            setRoyaltyCredits(125125);
+            setIsOriginAuthorized(true);
+            setRoyaltyMultiplier(1);
+            setRoyaltyCredits(0);
         }
     }, [data, isError, isLoading]);
     return isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem", flex: 1 } },
