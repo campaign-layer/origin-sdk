@@ -1172,6 +1172,9 @@ const FileUpload = ({ onFileUpload, accept, }) => {
         if (selectedFile.type.startsWith("audio/")) {
             return (React.createElement("audio", { controls: true, src: URL.createObjectURL(selectedFile), className: buttonStyles["file-preview"] }));
         }
+        if (selectedFile.type.startsWith("video/")) {
+            return (React.createElement("video", { controls: true, src: URL.createObjectURL(selectedFile), className: buttonStyles["file-preview"] }));
+        }
         return (React.createElement("p", { className: buttonStyles["file-preview-text"] },
             "File selected: ",
             selectedFile.name));
@@ -1189,7 +1192,7 @@ const FileUpload = ({ onFileUpload, accept, }) => {
                 React.createElement("button", { className: buttonStyles["remove-file-button"], onClick: handleRemoveFile },
                     React.createElement(BinIcon, { w: "1rem", h: "1rem" })),
                 React.createElement("button", { className: buttonStyles["upload-file-button"], onClick: () => onFileUpload([selectedFile]) }, "Upload")))) : (React.createElement("p", null,
-            "Drag and drop files here, or click to select files.",
+            "Drag and drop your file here, or click to select a file.",
             React.createElement("br", null),
             accept && (React.createElement("span", null, accept
                 .split(",")
@@ -1811,12 +1814,14 @@ const MyCampModal = ({ wcProvider, }) => {
                     React.createElement(TabButton, { label: "Stats", isActive: activeTab === "origin", onClick: () => setActiveTab("origin") }),
                     React.createElement(TabButton, { label: "Socials", isActive: activeTab === "socials", onClick: () => setActiveTab("socials") }),
                     React.createElement(TabButton, { label: "Images", isActive: activeTab === "images", onClick: () => setActiveTab("images") }),
-                    React.createElement(TabButton, { label: "Audio", isActive: activeTab === "audio", onClick: () => setActiveTab("audio") })),
+                    React.createElement(TabButton, { label: "Audio", isActive: activeTab === "audio", onClick: () => setActiveTab("audio") }),
+                    React.createElement(TabButton, { label: "Videos", isActive: activeTab === "videos", onClick: () => setActiveTab("videos") })),
                 React.createElement("div", { className: styles["vertical-tab-content"] },
                     activeTab === "origin" && React.createElement(OriginTab, null),
                     activeTab === "socials" && (React.createElement(SocialsTab, { connectedSocials: connected, notConnectedSocials: notConnected, refetch: refetch, isLoading: isLoading, isLoadingSocials: isLoadingSocials })),
                     activeTab === "images" && React.createElement(ImagesTab, null),
-                    activeTab === "audio" && React.createElement(AudioTab, null))),
+                    activeTab === "audio" && React.createElement(AudioTab, null),
+                    activeTab === "videos" && React.createElement(VideosTab, null))),
             React.createElement("button", { className: styles["disconnect-button"], onClick: handleDisconnect }, "Disconnect"),
             React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network"))));
 };
@@ -1854,6 +1859,14 @@ const AudioTab = () => {
     };
     return (React.createElement("div", { className: styles["ip-tab-container"] },
         React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: constants.SUPPORTED_AUDIO_FORMATS.join(",") }),
+        React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
+};
+const VideosTab = () => {
+    const handleFileUpload = (files) => {
+        console.log("Selected video files:", files);
+    };
+    return (React.createElement("div", { className: styles["ip-tab-container"] },
+        React.createElement(FileUpload, { onFileUpload: handleFileUpload, accept: constants.SUPPORTED_VIDEO_FORMATS.join(",") }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 

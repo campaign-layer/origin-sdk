@@ -479,6 +479,16 @@ export const FileUpload = ({
       );
     }
 
+    if (selectedFile.type.startsWith("video/")) {
+      return (
+        <video
+          controls
+          src={URL.createObjectURL(selectedFile)}
+          className={buttonStyles["file-preview"]}
+        />
+      );
+    }
+
     return (
       <p className={buttonStyles["file-preview-text"]}>
         File selected: {selectedFile.name}
@@ -528,7 +538,7 @@ export const FileUpload = ({
         </div>
       ) : (
         <p>
-          Drag and drop files here, or click to select files.
+          Drag and drop your file here, or click to select a file.
           <br />
           {accept && (
             <span>

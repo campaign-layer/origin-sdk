@@ -931,7 +931,7 @@ export const MyCampModal = ({
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
   const [activeTab, setActiveTab] = useState<
-    "origin" | "socials" | "images" | "audio"
+    "origin" | "socials" | "images" | "audio" | "videos"
   >("socials");
 
   if (!auth) {
@@ -1030,6 +1030,11 @@ export const MyCampModal = ({
               isActive={activeTab === "audio"}
               onClick={() => setActiveTab("audio")}
             />
+            <TabButton
+              label="Videos"
+              isActive={activeTab === "videos"}
+              onClick={() => setActiveTab("videos")}
+            />
           </div>
           <div className={styles["vertical-tab-content"]}>
             {activeTab === "origin" && <OriginTab />}
@@ -1044,6 +1049,7 @@ export const MyCampModal = ({
             )}
             {activeTab === "images" && <ImagesTab />}
             {activeTab === "audio" && <AudioTab />}
+            {activeTab === "videos" && <VideosTab />}
           </div>
         </div>
         <button
@@ -1171,6 +1177,22 @@ const AudioTab = () => {
       <FileUpload
         onFileUpload={handleFileUpload}
         accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
+      />
+      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+    </div>
+  );
+};
+
+const VideosTab = () => {
+  const handleFileUpload = (files: File[]) => {
+    console.log("Selected video files:", files);
+  };
+
+  return (
+    <div className={styles["ip-tab-container"]}>
+      <FileUpload
+        onFileUpload={handleFileUpload}
+        accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
       />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
