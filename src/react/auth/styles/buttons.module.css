@@ -507,3 +507,10 @@
 .upload-buttons .remove-file-button {
   flex-grow: 0;
 }
+
+.accepted-types {
+  font-size: 0.875rem;
+  color: #777;
+  margin-top: 0.5rem;
+  font-style: italic;
+}

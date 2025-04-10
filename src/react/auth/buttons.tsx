@@ -541,7 +541,7 @@ export const FileUpload = ({
           Drag and drop your file here, or click to select a file.
           <br />
           {accept && (
-            <span>
+            <span className={buttonStyles["accepted-types"]}>
               {accept
                 .split(",")
                 .map((type) => type.trim().split("/")[1].replace(/-/g, " "))
