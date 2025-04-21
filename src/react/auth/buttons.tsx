@@ -387,6 +387,7 @@ export const LinkButton = ({
 interface FileUploadProps {
   onFileUpload?: (files: File[]) => void;
   accept?: string;
+  maxFileSize?: number; // in bytes
 }
 
 interface LoadingBarProps {
@@ -412,12 +413,13 @@ const LoadingBar = ({ progress }: LoadingBarProps): JSX.Element => {
 /**
  * The FileUpload component.
  * Provides a file upload field with drag-and-drop support.
- * @param { { onFileUpload?: function, accept?: string } } props The props.
+ * @param { { onFileUpload?: function, accept?: string, maxFileSize?: number } } props The props.
  * @returns { JSX.Element } The FileUpload component.
  */
 export const FileUpload = ({
   onFileUpload,
   accept,
+  maxFileSize,
 }: FileUploadProps): JSX.Element => {
   const auth = useAuth();
   const [isDragging, setIsDragging] = useState(false);
@@ -482,6 +484,20 @@ export const FileUpload = ({
     }
 
     const file = files[0];
+
+    if (maxFileSize && file.size > maxFileSize) {
+      addToast(
+        `File size exceeds the limit of ${(
+          maxFileSize /
+          1024 /
+          1024
+        ).toPrecision(2)} MB`,
+        "error",
+        5000
+      );
+      return;
+    }
+
     setSelectedFile(file);
   };
 
@@ -489,6 +505,20 @@ export const FileUpload = ({
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       const file = files[0];
+
+      if (maxFileSize && file.size > maxFileSize) {
+        addToast(
+          `File size exceeds the limit of ${(
+            maxFileSize /
+            1024 /
+            1024
+          ).toPrecision(2)} MB`,
+          "error",
+          5000
+        );
+        return;
+      }
+
       setSelectedFile(file);
     }
   };
@@ -598,6 +628,11 @@ export const FileUpload = ({
             </span>
           )}
           <br />
+          {maxFileSize && (
+            <span className={buttonStyles["accepted-types"]}>
+              Max size: {(maxFileSize / 1024 / 1024).toPrecision(2)} MB
+            </span>
+          )}
         </p>
       )}
     </div>

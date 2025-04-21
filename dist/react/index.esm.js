@@ -1125,10 +1125,10 @@ const LoadingBar = ({ progress }) => {
 /**
  * The FileUpload component.
  * Provides a file upload field with drag-and-drop support.
- * @param { { onFileUpload?: function, accept?: string } } props The props.
+ * @param { { onFileUpload?: function, accept?: string, maxFileSize?: number } } props The props.
  * @returns { JSX.Element } The FileUpload component.
  */
-const FileUpload = ({ onFileUpload, accept, }) => {
+const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
     const auth = useAuth();
     const [isDragging, setIsDragging] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -1182,12 +1182,24 @@ const FileUpload = ({ onFileUpload, accept, }) => {
             }
         }
         const file = files[0];
+        if (maxFileSize && file.size > maxFileSize) {
+            addToast(`File size exceeds the limit of ${(maxFileSize /
+                1024 /
+                1024).toPrecision(2)} MB`, "error", 5000);
+            return;
+        }
         setSelectedFile(file);
     };
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
             const file = files[0];
+            if (maxFileSize && file.size > maxFileSize) {
+                addToast(`File size exceeds the limit of ${(maxFileSize /
+                    1024 /
+                    1024).toPrecision(2)} MB`, "error", 5000);
+                return;
+            }
             setSelectedFile(file);
         }
     };
@@ -1235,7 +1247,11 @@ const FileUpload = ({ onFileUpload, accept, }) => {
                 .split(",")
                 .map((type) => type.trim().split("/")[1].replace(/-/g, " "))
                 .join(", "))),
-            React.createElement("br", null)))));
+            React.createElement("br", null),
+            maxFileSize && (React.createElement("span", { className: buttonStyles["accepted-types"] },
+                "Max size: ",
+                (maxFileSize / 1024 / 1024).toPrecision(2),
+                " MB"))))));
 };
 
 /**
@@ -1884,17 +1900,17 @@ const SocialsTab = ({ connectedSocials, notConnectedSocials, refetch, isLoading,
 };
 const ImagesTab = () => {
     return (React.createElement("div", { className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_IMAGE_FORMATS.join(",") }),
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_IMAGE_FORMATS.join(","), maxFileSize: 1.049e7 }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 const AudioTab = () => {
     return (React.createElement("div", { className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_AUDIO_FORMATS.join(",") }),
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_AUDIO_FORMATS.join(","), maxFileSize: 1.573e7 }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 const VideosTab = () => {
     return (React.createElement("div", { className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_VIDEO_FORMATS.join(",") }),
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_VIDEO_FORMATS.join(","), maxFileSize: 2.097e7 }),
         React.createElement(GoToOriginDashboard, { text: "Manage on Origin Dashboard" })));
 };
 
