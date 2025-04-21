@@ -4,6 +4,7 @@ import { BinIcon, CampIcon, getIconBySocial, LinkIcon } from "./icons";
 import {
   CampContext,
   ModalContext,
+  useAuth,
   useAuthState,
   useLinkModal,
   useModal,
@@ -384,24 +385,71 @@ export const LinkButton = ({
 };
 
 interface FileUploadProps {
-  onFileUpload: (files: File[]) => void;
+  onFileUpload?: (files: File[]) => void;
   accept?: string;
 }
+
+interface LoadingBarProps {
+  progress: number;
+}
+
+/**
+ * LoadingBar component to display upload progress.
+ * @param { { progress: number } } props The props.
+ * @returns { JSX.Element } The LoadingBar component.
+ */
+const LoadingBar = ({ progress }: LoadingBarProps): JSX.Element => {
+  return (
+    <div className={buttonStyles["loading-bar-container"]}>
+      <div
+        className={buttonStyles["loading-bar"]}
+        style={{ width: `${progress}%` }}
+      ></div>
+    </div>
+  );
+};
 
 /**
  * The FileUpload component.
  * Provides a file upload field with drag-and-drop support.
- * @param { { onFileUpload: function, accept?: string } } props The props.
+ * @param { { onFileUpload?: function, accept?: string } } props The props.
  * @returns { JSX.Element } The FileUpload component.
  */
 export const FileUpload = ({
   onFileUpload,
   accept,
 }: FileUploadProps): JSX.Element => {
+  const auth = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      setIsUploading(true);
+      try {
+        await auth?.origin?.uploadFile(selectedFile, {
+          progressCallback(percent) {
+            setUploadProgress(percent);
+          },
+        });
+        if (onFileUpload) {
+          onFileUpload([selectedFile]);
+        }
+        addToast("File uploaded successfully", "success", 5000);
+      } catch (error) {
+        addToast("Error uploading file", "error", 5000);
+        setIsUploading(false);
+      } finally {
+        setSelectedFile(null);
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -435,7 +483,6 @@ export const FileUpload = ({
 
     const file = files[0];
     setSelectedFile(file);
-    onFileUpload([file]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -443,7 +490,6 @@ export const FileUpload = ({
     if (files.length > 0) {
       const file = files[0];
       setSelectedFile(file);
-      onFileUpload([file]);
     }
   };
 
@@ -521,16 +567,19 @@ export const FileUpload = ({
         <div className={buttonStyles["selected-file-container"]}>
           {renderFilePreview()}
           <span className={buttonStyles["file-name"]}>{selectedFile.name}</span>
+          {isUploading && <LoadingBar progress={uploadProgress} />}
           <div className={buttonStyles["upload-buttons"]}>
             <button
               className={buttonStyles["remove-file-button"]}
+              disabled={isUploading}
               onClick={handleRemoveFile}
             >
               <BinIcon w="1rem" h="1rem" />
             </button>
             <button
               className={buttonStyles["upload-file-button"]}
-              onClick={() => onFileUpload([selectedFile])}
+              onClick={handleUpload}
+              disabled={!selectedFile || isUploading}
             >
               Upload
             </button>

@@ -1152,48 +1152,27 @@ const SocialsTab = ({
 };
 
 const ImagesTab = () => {
-  const handleFileUpload = (files: File[]) => {
-    console.log("Selected images:", files);
-  };
-
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload
-        onFileUpload={handleFileUpload}
-        accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
-      />
+      <FileUpload accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")} />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
 };
 
 const AudioTab = () => {
-  const handleFileUpload = (files: File[]) => {
-    console.log("Selected audio files:", files);
-  };
-
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload
-        onFileUpload={handleFileUpload}
-        accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
-      />
+      <FileUpload accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")} />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
 };
 
 const VideosTab = () => {
-  const handleFileUpload = (files: File[]) => {
-    console.log("Selected video files:", files);
-  };
-
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload
-        onFileUpload={handleFileUpload}
-        accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
-      />
+      <FileUpload accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")} />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );

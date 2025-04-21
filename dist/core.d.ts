@@ -194,6 +194,19 @@ declare class SpotifyAPI {
     _fetchDataWithAuth(url: string): Promise<object>;
 }
 
+/**
+ * The Origin class
+ * Handles the upload of files to Origin, as well as querying the user's stats
+ */
+declare class Origin {
+    #private;
+    private jwt;
+    constructor(jwt: string);
+    uploadFile: (file: File, options?: {
+        progressCallback?: (percent: number) => void;
+    }) => Promise<void>;
+}
+
 interface OriginUsageReturnType {
     user: {
         multiplier: number;
@@ -222,6 +235,7 @@ declare class Auth {
     walletAddress: string | null;
     userId: string | null;
     viem: any;
+    origin: Origin | null;
     /**
      * Constructor for the Auth class.
      * @param {object} options The options object.

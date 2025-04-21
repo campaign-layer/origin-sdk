@@ -136,6 +136,49 @@ export const sendAnalyticsEvent = async (
   });
 };
 
+interface UploadProgressCallback {
+  (percent: number): void;
+}
+
+interface UploadWithProgress {
+  (
+    file: File,
+    url: string,
+    onProgress: UploadProgressCallback
+  ): Promise<string>;
+}
+
+export const uploadWithProgress: UploadWithProgress = (
+  file,
+  url,
+  onProgress
+) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("PUT", url, true);
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = (event.loaded / event.total) * 100;
+        onProgress(percent);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response);
+      } else {
+        reject(xhr.statusText);
+      }
+    };
+
+    xhr.onerror = () => reject(xhr.statusText);
+
+    xhr.send(file);
+  });
+};
+
 export {
   fetchData,
   buildQueryString,

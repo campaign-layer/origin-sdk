@@ -6,6 +6,7 @@ import constants from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
 import { Ackee } from "../../index";
 import { sendAnalyticsEvent } from "../../utils";
+import { Origin } from "./origin";
 
 interface OriginUsageReturnType {
   user: {
@@ -62,6 +63,7 @@ class Auth {
   walletAddress: string | null;
   userId: string | null;
   viem: any;
+  origin: Origin | null;
   #triggers: Record<string, Function[]>;
   #ackeeInstance: any;
 
@@ -112,6 +114,7 @@ class Auth {
     this.clientId = clientId;
     this.isAuthenticated = false;
     this.jwt = null;
+    this.origin = null;
     this.walletAddress = null;
     this.userId = null;
     this.#triggers = {};
@@ -119,6 +122,7 @@ class Auth {
       this.#trigger("providers", providers);
     });
     this.#loadAuthStatusFromStorage();
+
   }
 
   /**
@@ -217,6 +221,7 @@ class Auth {
       this.walletAddress = walletAddress;
       this.userId = userId;
       this.jwt = jwt;
+      this.origin = new Origin(this.jwt);
       this.isAuthenticated = true;
     } else {
       this.isAuthenticated = false;
@@ -357,6 +362,7 @@ class Auth {
     this.walletAddress = null;
     this.userId = null;
     this.jwt = null;
+    this.origin = null;
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
@@ -393,6 +399,7 @@ class Auth {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
+        this.origin = new Origin(this.jwt);
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem(
           "camp-sdk:wallet-address",
