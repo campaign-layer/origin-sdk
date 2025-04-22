@@ -836,80 +836,159 @@ const LinkingModal = () => {
   );
 };
 
+const OriginItem = ({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string | number;
+  icon: JSX.Element;
+}) => {
+  return (
+    <div className={styles["origin-item"]}>
+      <span>{icon}</span>
+      <span className={styles["origin-label"]}>{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+};
+
 /**
  * The OriginSection component. Displays the Origin status, royalty multiplier, and royalty credits.
  * @returns { JSX.Element } The OriginSection component.
  */
 const OriginSection = (): JSX.Element => {
-  const { data, isError, isLoading } = useOrigin();
+  const { stats, uploads } = useOrigin();
   const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
   const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
   const [royaltyCredits, setRoyaltyCredits] = useState(0);
 
+  const [uploadedImages, setUploadedImages] = useState(0);
+  const [uploadedVideos, setUploadedVideos] = useState(0);
+  const [uploadedAudio, setUploadedAudio] = useState(0);
+
   useEffect(() => {
-    if (!isLoading && !isError) {
-      setIsOriginAuthorized((data as any)?.data?.user?.active ?? true);
-      setRoyaltyMultiplier((data as any)?.data?.user?.multiplier ?? 1);
-      setRoyaltyCredits((data as any)?.data?.user?.points ?? 0);
+    if (!stats.isLoading && !stats.isError) {
+      setIsOriginAuthorized((stats.data as any)?.data?.user?.active ?? true);
+      setRoyaltyMultiplier((stats.data as any)?.data?.user?.multiplier ?? 1);
+      setRoyaltyCredits((stats.data as any)?.data?.user?.points ?? 0);
     }
-    if (isError) {
+    if (stats.isError) {
       setIsOriginAuthorized(true);
       setRoyaltyMultiplier(1);
       setRoyaltyCredits(0);
     }
-  }, [data, isError, isLoading]);
-  return isLoading ? (
+  }, [stats.data, stats.isError, stats.isLoading]);
+
+  useEffect(() => {
+    if (uploads.data) {
+      let imagesCount = 0;
+      let videosCount = 0;
+      let audioCount = 0;
+      uploads.data.forEach((upload) => {
+        if (upload.type.startsWith("image")) {
+          imagesCount++;
+        } else if (upload.type.startsWith("video")) {
+          videosCount++;
+        } else if (upload.type.startsWith("audio")) {
+          audioCount++;
+        }
+      });
+      setUploadedImages(imagesCount);
+      setUploadedVideos(videosCount);
+      setUploadedAudio(audioCount);
+    }
+  }, [uploads.data]);
+
+  return stats.isLoading ? (
     <div style={{ marginTop: "1rem", marginBottom: "1rem", flex: 1 }}>
       <div className={styles.spinner} />
     </div>
   ) : (
-    <div className={styles["origin-section"]}>
-      <Tooltip
-        content={
-          isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized"
-        }
-        position="top"
-        containerStyle={{ width: "100%" }}
-      >
-        <div className={styles["origin-container"]}>
-          <span>
-            {isOriginAuthorized ? (
-              <CheckMarkIcon w="1.2rem" h="1.2rem" />
-            ) : (
-              <XMarkIcon w="1.2rem" h="1.2rem" />
-            )}
-          </span>
-          <span className={styles["origin-label"]}>
-            {isOriginAuthorized ? "Authorized" : "Unauthorized"}
-          </span>
-        </div>
-      </Tooltip>
+    <div className={styles["origin-wrapper"]}>
+      <div className={styles["origin-section"]}>
+        <Tooltip
+          content={
+            isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized"
+          }
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>
+              {isOriginAuthorized ? (
+                <CheckMarkIcon w="1.2rem" h="1.2rem" />
+              ) : (
+                <XMarkIcon w="1.2rem" h="1.2rem" />
+              )}
+            </span>
+            <span className={styles["origin-label"]}>
+              {isOriginAuthorized ? "Authorized" : "Unauthorized"}
+            </span>
+          </div>
+        </Tooltip>
 
-      <div className={styles["divider"]} />
+        <div className={styles["divider"]} />
 
-      <Tooltip
-        content={`Royalty Multiplier: ${royaltyMultiplier}x`}
-        position="top"
-        containerStyle={{ width: "100%" }}
-      >
-        <div className={styles["origin-container"]}>
-          <span>{royaltyMultiplier}x</span>
-          <span className={styles["origin-label"]}>Multiplier</span>
-        </div>
-      </Tooltip>
+        <Tooltip
+          content={`Royalty Multiplier: ${royaltyMultiplier}x`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{royaltyMultiplier}x</span>
+            <span className={styles["origin-label"]}>Multiplier</span>
+          </div>
+        </Tooltip>
 
-      <div className={styles["divider"]} />
+        <div className={styles["divider"]} />
 
-      <Tooltip
-        content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
-        position="top"
-        containerStyle={{ width: "100%" }}
-      >
-        <div className={styles["origin-container"]}>
-          <span>{formatCampAmount(royaltyCredits)}</span>
-          <span className={styles["origin-label"]}>Credits</span>
-        </div>
-      </Tooltip>
+        <Tooltip
+          content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatCampAmount(royaltyCredits)}</span>
+            <span className={styles["origin-label"]}>Credits</span>
+          </div>
+        </Tooltip>
+      </div>
+      <div className={styles["origin-section"]}>
+        <Tooltip
+          content={`Images uploaded: ${uploadedImages.toLocaleString()}`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatCampAmount(uploadedImages)}</span>
+            <span className={styles["origin-label"]}>Images</span>
+          </div>
+        </Tooltip>
+        <div className={styles["divider"]} />
+        <Tooltip
+          content={`Audio uploaded: ${uploadedAudio.toLocaleString()}`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatCampAmount(uploadedAudio)}</span>
+            <span className={styles["origin-label"]}>Audio</span>
+          </div>
+        </Tooltip>
+        <div className={styles["divider"]} />
+        <Tooltip
+          content={`Videos uploaded: ${uploadedVideos.toLocaleString()}`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatCampAmount(uploadedVideos)}</span>
+            <span className={styles["origin-label"]}>Videos</span>
+          </div>
+        </Tooltip>
+      </div>
     </div>
   );
 };
@@ -1154,7 +1233,8 @@ const SocialsTab = ({
 const ImagesTab = () => {
   return (
     <div className={styles["ip-tab-container"]}>
-      <FileUpload accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")} 
+      <FileUpload
+        accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
       <GoToOriginDashboard text="Manage on Origin Dashboard" />

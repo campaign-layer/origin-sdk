@@ -323,12 +323,42 @@ export const useSocials = (): UseSocialsResult => {
 };
 
 /**
- * Fetches the Origin usage data.
- * @returns { { data: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * Fetches the Origin usage data and uploads data.
+ * @returns { usage: { data: any, isError: boolean, isLoading: boolean }, uploads: { data: any, isError: boolean, isLoading: boolean } } The Origin usage data and uploads data.
  */
-export const useOrigin = (): UseQueryResult => {
-  const { query } = useContext(OriginContext) as {
-    query: UseQueryResult<any, Error>;
+export const useOrigin = (): {
+  stats: { data: any; isError: boolean; isLoading: boolean };
+  uploads: { data: any[]; isError: boolean; isLoading: boolean };
+} => {
+  const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
+    statsQuery: UseQueryResult<any, Error>;
+    uploadsQuery: UseQueryResult<any, Error>;
   };
-  return query;
+  return {
+    stats: {
+      data: statsQuery?.data,
+      isError: statsQuery?.isError,
+      isLoading: statsQuery?.isLoading,
+    },
+    uploads: {
+      data: uploadsQuery?.data || [],
+      isError: uploadsQuery?.isError,
+      isLoading: uploadsQuery?.isLoading,
+    },
+  };
 };
+
+// export const useOrigin = (): {
+//   stats: any;
+//   uploads: any[];
+// } => {
+//   const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
+//     statsQuery: UseQueryResult<any, Error>;
+//     uploadsQuery: UseQueryResult<any, Error>;
+//   };
+//   // return {
+//   //   ...statsQuery,
+//   //   uploads: uploadsQuery?.data || [],
+//   //   // error: statsQuery?.error || uploadsQuery?.error || new Error("Unknown error"),
+//   // };
+// };

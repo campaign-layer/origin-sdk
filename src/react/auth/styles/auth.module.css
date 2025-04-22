@@ -99,6 +99,15 @@
   margin-top: 0.5rem;
 }
 
+.origin-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
 .origin-container .origin-label {
   font-size: 0.75rem;
   font-weight: 400;

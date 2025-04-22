@@ -3,11 +3,13 @@ import { CampContext, useAuthState } from "../auth/index";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 interface OriginContextProps {
-  query: UseQueryResult<any, unknown> | null;
+  statsQuery: UseQueryResult<any, unknown> | null;
+  uploadsQuery: UseQueryResult<any, unknown> | null;
 }
 
 export const OriginContext = createContext<OriginContextProps>({
-  query: null,
+  statsQuery: null,
+  uploadsQuery: null,
 });
 
 interface OriginProviderProps {
@@ -20,15 +22,21 @@ export const OriginProvider = ({ children }: OriginProviderProps) => {
   if (!auth) {
     throw new Error("Auth instance is not available");
   }
-  const query = useQuery({
-    queryKey: ["origin", authenticated],
-    queryFn: () => auth.getOriginUsage(),
+  const statsQuery = useQuery({
+    queryKey: ["origin-stats", authenticated],
+    queryFn: () => auth.origin?.getOriginUsage(),
+  });
+
+  const uploadsQuery = useQuery({
+    queryKey: ["origin-uploads", authenticated],
+    queryFn: () => auth.origin?.getOriginUploads(),
   });
 
   return (
     <OriginContext.Provider
       value={{
-        query,
+        statsQuery: statsQuery,
+        uploadsQuery: uploadsQuery,
       }}
     >
       {children}
