@@ -324,11 +324,21 @@ export const useSocials = (): UseSocialsResult => {
 
 /**
  * Fetches the Origin usage data and uploads data.
- * @returns { usage: { data: any, isError: boolean, isLoading: boolean }, uploads: { data: any, isError: boolean, isLoading: boolean } } The Origin usage data and uploads data.
+ * @returns { usage: { data: any, isError: boolean, isLoading: boolean, refetch: () => void }, uploads: { data: any, isError: boolean, isLoading: boolean, refetch: () => void } } The Origin usage data and uploads data.
  */
 export const useOrigin = (): {
-  stats: { data: any; isError: boolean; isLoading: boolean };
-  uploads: { data: any[]; isError: boolean; isLoading: boolean };
+  stats: {
+    data: any;
+    isError: boolean;
+    isLoading: boolean;
+    refetch: () => void;
+  };
+  uploads: {
+    data: any[];
+    isError: boolean;
+    isLoading: boolean;
+    refetch: () => void;
+  };
 } => {
   const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
     statsQuery: UseQueryResult<any, Error>;
@@ -339,11 +349,13 @@ export const useOrigin = (): {
       data: statsQuery?.data,
       isError: statsQuery?.isError,
       isLoading: statsQuery?.isLoading,
+      refetch: statsQuery?.refetch,
     },
     uploads: {
       data: uploadsQuery?.data || [],
       isError: uploadsQuery?.isError,
       isLoading: uploadsQuery?.isLoading,
+      refetch: uploadsQuery?.refetch,
     },
   };
 };

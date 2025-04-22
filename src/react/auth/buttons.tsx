@@ -8,6 +8,7 @@ import {
   useAuthState,
   useLinkModal,
   useModal,
+  useOrigin,
   useSocials,
 } from "./index";
 import styles from "./styles/auth.module.css";
@@ -422,6 +423,8 @@ export const FileUpload = ({
   maxFileSize,
 }: FileUploadProps): JSX.Element => {
   const auth = useAuth();
+  const { uploads } = useOrigin();
+  const { refetch } = uploads;
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -442,6 +445,7 @@ export const FileUpload = ({
           onFileUpload([selectedFile]);
         }
         addToast("File uploaded successfully", "success", 5000);
+        refetch();
       } catch (error) {
         addToast("Error uploading file", "error", 5000);
         setIsUploading(false);

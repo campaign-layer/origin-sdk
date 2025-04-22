@@ -676,3 +676,20 @@ input.tiktok-input.invalid {
   align-items: center;
   height: 100%;
 }
+
+.ip-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.ip-tab-content-text {
+  color: #777;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}

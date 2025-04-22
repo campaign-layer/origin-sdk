@@ -1231,36 +1231,81 @@ const SocialsTab = ({
 };
 
 const ImagesTab = () => {
+  const { uploads } = useOrigin();
+  const { isLoading } = uploads;
   return (
     <div className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
+      <div className={styles["ip-tab-content"]}>
+        {isLoading ? (
+          <div className={styles.spinner} style={{ marginRight: "auto" }} />
+        ) : (
+          <div className={styles["ip-tab-content-text"]}>
+            {
+              uploads.data.filter((item) => item.type.startsWith("image"))
+                .length
+            }{" "}
+            images uploaded
+          </div>
+        )}
+      </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
 };
 
 const AudioTab = () => {
+  const { uploads } = useOrigin();
+  const { isLoading } = uploads;
   return (
     <div className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
         maxFileSize={1.573e7} // 15 MB
       />
+      <div className={styles["ip-tab-content"]}>
+        {isLoading ? (
+          <div className={styles.spinner} style={{ marginRight: "auto" }} />
+        ) : (
+          <div className={styles["ip-tab-content-text"]}>
+            {
+              uploads.data.filter((item) => item.type.startsWith("audio"))
+                .length
+            }{" "}
+            audio files uploaded
+          </div>
+        )}
+      </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
 };
 
 const VideosTab = () => {
+  const { uploads } = useOrigin();
+  const { isLoading } = uploads;
   return (
     <div className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
         maxFileSize={2.097e7} // 20 MB
       />
+      <div className={styles["ip-tab-content"]}>
+        {isLoading ? (
+          <div className={styles.spinner} style={{ marginRight: "auto" }} />
+        ) : (
+          <div className={styles["ip-tab-content-text"]}>
+            {
+              uploads.data.filter((item) => item.type.startsWith("video"))
+                .length
+            }{" "}
+            videos uploaded
+          </div>
+        )}
+      </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
     </div>
   );
