@@ -64,6 +64,11 @@
     overflow-y: auto;
   }
 }
+
+.container.linking-container {
+  max-width: 300px;
+}
+
 .origin-tab {
   height: 100%;
   display: flex;
@@ -182,6 +187,10 @@
     margin-top: 0;
     margin-bottom: 0.5rem;
   }
+}
+
+.linking-container .header {
+  justify-content: center;
 }
 
 .container .header .small-modal-icon {

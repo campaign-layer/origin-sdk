@@ -569,6 +569,16 @@ export const FileUpload = ({
       );
     }
 
+    if (selectedFile.type.startsWith("text/")) {
+      return (
+        <iframe
+          src={URL.createObjectURL(selectedFile)}
+          className={buttonStyles["file-preview"]}
+          title="File Preview"
+        ></iframe>
+      );
+    }
+
     return (
       <p className={buttonStyles["file-preview-text"]}>
         File selected: {selectedFile.name}
@@ -628,7 +638,9 @@ export const FileUpload = ({
               {accept
                 .split(",")
                 .map((type) => type.trim().split("/")[1].replace(/-/g, " "))
-                .join(", ")}
+                .join(", ")
+                .replace("plain", "txt")
+                .replace(/, ([^,]*)$/, ", or $1")}
             </span>
           )}
           <br />

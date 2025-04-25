@@ -1,11 +1,12 @@
 {
-  "name": "@campnetwork/sdk",
-  "version": "1.4.5",
+  "name": "@campnetwork/origin",
+  "version": "0.0.1",
   "main": "dist/core.cjs",
   "exports": {
     ".": {
       "import": "./dist/core.esm.js",
-      "require": "./dist/core.cjs"
+      "require": "./dist/core.cjs",
+      "types": "./dist/core.d.ts"
     },
     "./react": "./dist/react/index.esm.js"
   },

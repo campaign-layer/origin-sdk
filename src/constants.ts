@@ -2,11 +2,16 @@ export default {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
   AUTH_HUB_BASE_API:
     "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-  ORIGIN_DASHBOARD:
-    "https://coinflip-git-feat-origin-dashboard-campaignlayer-testing.vercel.app/origin", // temp
-  SUPPORTED_IMAGE_FORMATS: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
+  SUPPORTED_IMAGE_FORMATS: [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+  ],
   SUPPORTED_VIDEO_FORMATS: ["video/mp4", "video/webm"],
   SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
+  SUPPORTED_TEXT_FORMATS: ["text/plain"],
   AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
   ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
   ACKEE_EVENTS: {

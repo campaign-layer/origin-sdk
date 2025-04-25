@@ -170,9 +170,22 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, T
  */
 declare const useSocials: () => UseSocialsResult;
 /**
- * Fetches the Origin usage data.
- * @returns { { data: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
+ * Fetches the Origin usage data and uploads data.
+ * @returns { usage: { data: any, isError: boolean, isLoading: boolean, refetch: () => void }, uploads: { data: any, isError: boolean, isLoading: boolean, refetch: () => void } } The Origin usage data and uploads data.
  */
-declare const useOrigin: () => UseQueryResult;
+declare const useOrigin: () => {
+    stats: {
+        data: any;
+        isError: boolean;
+        isLoading: boolean;
+        refetch: () => void;
+    };
+    uploads: {
+        data: any[];
+        isError: boolean;
+        isLoading: boolean;
+        refetch: () => void;
+    };
+};
 
 export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };

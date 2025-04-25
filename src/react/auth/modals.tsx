@@ -790,7 +790,7 @@ const LinkingModal = () => {
       }}
     >
       <div className={styles["outer-container"]}>
-        <div className={styles.container}>
+        <div className={`${styles.container} ${styles["linking-container"]}`}>
           <div
             className={styles["close-button"]}
             onClick={() => setIsLinkingVisible(false)}
@@ -807,7 +807,12 @@ const LinkingModal = () => {
                 marginBottom: "1rem",
               }}
             >
-              <div className={styles.spinner} />
+              <div
+                className={styles.spinner}
+                style={{
+                  marginRight: "auto",
+                }}
+              />
             </div>
           ) : (
             <div>
@@ -867,6 +872,7 @@ const OriginSection = (): JSX.Element => {
   const [uploadedImages, setUploadedImages] = useState(0);
   const [uploadedVideos, setUploadedVideos] = useState(0);
   const [uploadedAudio, setUploadedAudio] = useState(0);
+  const [uploadedText, setUploadedText] = useState(0);
 
   useEffect(() => {
     if (!stats.isLoading && !stats.isError) {
@@ -886,6 +892,7 @@ const OriginSection = (): JSX.Element => {
       let imagesCount = 0;
       let videosCount = 0;
       let audioCount = 0;
+      let textCount = 0;
       uploads.data.forEach((upload) => {
         if (upload.type.startsWith("image")) {
           imagesCount++;
@@ -893,11 +900,14 @@ const OriginSection = (): JSX.Element => {
           videosCount++;
         } else if (upload.type.startsWith("audio")) {
           audioCount++;
+        } else if (upload.type.startsWith("text")) {
+          textCount++;
         }
       });
       setUploadedImages(imagesCount);
       setUploadedVideos(videosCount);
       setUploadedAudio(audioCount);
+      setUploadedText(textCount);
     }
   }, [uploads.data]);
 
@@ -988,6 +998,17 @@ const OriginSection = (): JSX.Element => {
             <span className={styles["origin-label"]}>Videos</span>
           </div>
         </Tooltip>
+        <div className={styles["divider"]} />
+        <Tooltip
+          content={`Text uploaded: ${uploadedText.toLocaleString()}`}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatCampAmount(uploadedText)}</span>
+            <span className={styles["origin-label"]}>Text</span>
+          </div>
+        </Tooltip>
       </div>
     </div>
   );
@@ -1010,7 +1031,7 @@ export const MyCampModal = ({
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
   const [activeTab, setActiveTab] = useState<
-    "origin" | "socials" | "images" | "audio" | "videos"
+    "origin" | "socials" | "images" | "audio" | "videos" | "text"
   >("socials");
 
   if (!auth) {
@@ -1114,6 +1135,11 @@ export const MyCampModal = ({
               isActive={activeTab === "videos"}
               onClick={() => setActiveTab("videos")}
             />
+            <TabButton
+              label="Text"
+              isActive={activeTab === "text"}
+              onClick={() => setActiveTab("text")}
+            />
           </div>
           <div className={styles["vertical-tab-content"]}>
             {activeTab === "origin" && <OriginTab />}
@@ -1129,6 +1155,7 @@ export const MyCampModal = ({
             {activeTab === "images" && <ImagesTab />}
             {activeTab === "audio" && <AudioTab />}
             {activeTab === "videos" && <VideosTab />}
+            {activeTab === "text" && <TextTab />}
           </div>
         </div>
         <button
@@ -1303,6 +1330,30 @@ const VideosTab = () => {
                 .length
             }{" "}
             videos uploaded
+          </div>
+        )}
+      </div>
+      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+    </div>
+  );
+};
+
+const TextTab = () => {
+  const { uploads } = useOrigin();
+  const { isLoading } = uploads;
+  return (
+    <div className={styles["ip-tab-container"]}>
+      <FileUpload
+        accept={constants.SUPPORTED_TEXT_FORMATS.join(",")}
+        maxFileSize={1.049e7} // 10 MB
+      />
+      <div className={styles["ip-tab-content"]}>
+        {isLoading ? (
+          <div className={styles.spinner} style={{ marginRight: "auto" }} />
+        ) : (
+          <div className={styles["ip-tab-content-text"]}>
+            {uploads.data.filter((item) => item.type.startsWith("text")).length}{" "}
+            text files uploaded
           </div>
         )}
       </div>
