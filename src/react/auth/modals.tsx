@@ -7,6 +7,7 @@ import {
   useProvider,
   useProviders,
   useSocials,
+  useViem,
 } from "./index";
 import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
@@ -867,6 +868,7 @@ const OriginItem = ({
  */
 const OriginSection = (): JSX.Element => {
   const { stats, uploads } = useOrigin();
+  const { client } = useViem();
   const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
   const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
   const [royaltyCredits, setRoyaltyCredits] = useState(0);
@@ -912,6 +914,11 @@ const OriginSection = (): JSX.Element => {
       setUploadedText(textCount);
     }
   }, [uploads.data]);
+
+  useEffect(() => {
+    console.log(client);
+    
+  }, [client]);
 
   return stats.isLoading ? (
     <div style={{ marginTop: "1rem", marginBottom: "1rem", flex: 1 }}>

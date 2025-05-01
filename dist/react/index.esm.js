@@ -114,22 +114,25 @@ const formatCampAmount = (amount) => {
 };
 
 const testnet = {
-    id: 325000,
-    name: "Camp Network Testnet V2",
+    id: 123420001114,
+    name: "Basecamp",
     nativeCurrency: {
         decimals: 18,
-        name: "Ether",
-        symbol: "ETH",
+        name: "Camp",
+        symbol: "CAMP",
     },
     rpcUrls: {
         default: {
-            http: ["https://rpc-campnetwork.xyz"],
+            http: [
+                "https://rpc-campnetwork.xyz",
+                "https://rpc.basecamp.t.raas.gelato.cloud",
+            ],
         },
     },
     blockExplorers: {
         default: {
             name: "Explorer",
-            url: "https://camp-network-testnet.blockscout.com",
+            url: "https://basecamp.cloud.blockscout.com/",
         },
     },
 };
@@ -1779,6 +1782,7 @@ const LinkingModal = () => {
  */
 const OriginSection = () => {
     const { stats, uploads } = useOrigin();
+    const { client } = useViem();
     const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
     const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
     const [royaltyCredits, setRoyaltyCredits] = useState(0);
@@ -1825,6 +1829,9 @@ const OriginSection = () => {
             setUploadedText(textCount);
         }
     }, [uploads.data]);
+    useEffect(() => {
+        console.log(client);
+    }, [client]);
     return stats.isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem", flex: 1 } },
         React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", { className: styles["origin-wrapper"] },
         React.createElement("div", { className: styles["origin-section"] },
@@ -2131,6 +2138,22 @@ const useAuthState = () => {
     }, [auth]);
     return { authenticated, loading };
 };
+const useViem = () => {
+    const { auth } = useContext(CampContext);
+    const [client, setClient] = useState(null);
+    useEffect(() => {
+        setClient(auth === null || auth === void 0 ? void 0 : auth.viem);
+        auth === null || auth === void 0 ? void 0 : auth.on("viem", (client) => {
+            setClient(client);
+        });
+    }, [auth]);
+    if (!auth) {
+        throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
+    }
+    return {
+        client,
+    };
+};
 /**
  * Connects and disconnects the user.
  * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
@@ -2266,4 +2289,4 @@ const useOrigin = () => {
 //   // };
 // };
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials, useViem };

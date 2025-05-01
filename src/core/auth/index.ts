@@ -115,8 +115,8 @@ class Auth {
   }
 
   /**
-   * Subscribe to an event. Possible events are "state", "provider", and "providers".
-   * @param {("state"|"provider"|"providers")} event The event.
+   * Subscribe to an event. Possible events are "state", "provider", "providers", and "viem".
+   * @param {("state"|"provider"|"providers"|"viem")} event The event.
    * @param {function} callback The callback function.
    * @returns {void}
    * @example
@@ -124,7 +124,10 @@ class Auth {
    *  console.log(state);
    * });
    */
-  on(event: "state" | "provider" | "providers", callback: Function): void {
+  on(
+    event: "state" | "provider" | "providers" | "viem",
+    callback: Function
+  ): void {
     if (!this.#triggers[event]) {
       this.#triggers[event] = [];
     }
@@ -182,6 +185,7 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name, address);
+    this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
   }
 
@@ -197,9 +201,10 @@ class Auth {
   /**
    * Load the authentication status from local storage.
    * @private
+   * @param {any} [provider] Optional provider to use for reinitializing viem.
    * @returns {void}
    */
-  #loadAuthStatusFromStorage(): void {
+  #loadAuthStatusFromStorage(provider?: any): void {
     if (typeof localStorage === "undefined") {
       return;
     }
@@ -212,6 +217,23 @@ class Auth {
       this.jwt = jwt;
       this.origin = new Origin(this.jwt);
       this.isAuthenticated = true;
+
+      // Reinitialize viem with the stored wallet address and provider
+      const selectedProvider =
+        provider ||
+        providerStore
+          .value()
+          ?.find(
+            (p) => p.provider.selectedAddress === walletAddress.toLowerCase()
+          )?.provider;
+      if (selectedProvider) {
+        this.viem = getClient(
+          selectedProvider,
+          "selectedProvider",
+          walletAddress
+        );
+        this.#trigger("viem", this.viem);
+      }
     } else {
       this.isAuthenticated = false;
     }

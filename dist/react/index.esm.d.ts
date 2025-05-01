@@ -126,6 +126,9 @@ declare const useAuthState: () => {
     authenticated: boolean;
     loading: boolean;
 };
+declare const useViem: () => {
+    client: any;
+};
 /**
  * Connects and disconnects the user.
  * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
@@ -188,4 +191,4 @@ declare const useOrigin: () => {
     };
 };
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials, useViem };

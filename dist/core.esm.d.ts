@@ -272,8 +272,8 @@ declare class Auth {
         ackeeInstance?: any;
     });
     /**
-     * Subscribe to an event. Possible events are "state", "provider", and "providers".
-     * @param {("state"|"provider"|"providers")} event The event.
+     * Subscribe to an event. Possible events are "state", "provider", "providers", and "viem".
+     * @param {("state"|"provider"|"providers"|"viem")} event The event.
      * @param {function} callback The callback function.
      * @returns {void}
      * @example
@@ -281,7 +281,7 @@ declare class Auth {
      *  console.log(state);
      * });
      */
-    on(event: "state" | "provider" | "providers", callback: Function): void;
+    on(event: "state" | "provider" | "providers" | "viem", callback: Function): void;
     /**
      * Set the loading state.
      * @param {boolean} loading The loading state.

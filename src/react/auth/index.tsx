@@ -165,6 +165,29 @@ export const useAuthState = (): {
   return { authenticated, loading };
 };
 
+export const useViem = (): {
+  client: any;
+} => {
+  const { auth } = useContext(CampContext);
+  const [client, setClient] = useState<any>(null);
+  useEffect(() => {
+    setClient(auth?.viem);
+    auth?.on("viem", (client: any) => {
+      setClient(client);
+    });
+  }, [auth]);
+
+  if (!auth) {
+    throw new Error(
+      "Auth instance is not available. Make sure to wrap your component with CampProvider."
+    );
+  }
+
+  return {
+    client,
+  };
+};
+
 /**
  * Connects and disconnects the user.
  * @returns { { connect: function, disconnect: function } } The connect and disconnect functions.
