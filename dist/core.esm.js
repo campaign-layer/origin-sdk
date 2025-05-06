@@ -276,7 +276,7 @@ this.viem=k(t,e.name,i),h(this,D,"m",W).call(this,"viem",this.viem),h(this,D,"m"
      * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
      * @param {string} walletAddress The wallet address.
      * @returns {void}
-     */setWalletAddress(t){this.walletAddress=t,console.log("Wallet address set:",this.walletAddress)}
+     */setWalletAddress(t){this.walletAddress=t}
 /**
      * Disconnect the user.
      * @returns {Promise<void>}

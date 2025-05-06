@@ -211,7 +211,6 @@ class Auth {
    */
   setWalletAddress(walletAddress: string): void {
     this.walletAddress = walletAddress;
-    console.log("Wallet address set:", this.walletAddress);
   }
 
   /**

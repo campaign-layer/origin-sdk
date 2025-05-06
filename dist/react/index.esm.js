@@ -1407,8 +1407,6 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
             if (((_a = provider === null || provider === void 0 ? void 0 : provider.provider) === null || _a === void 0 ? void 0 : _a.uid) === (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid)) {
                 addr = customAccount === null || customAccount === void 0 ? void 0 : customAccount.address;
             }
-            console.log("Connecting to provider:", provider.provider);
-            console.log(customProvider);
             setProvider(Object.assign(Object.assign({}, provider), { address: addr }));
             if (addr) {
                 auth.setWalletAddress(addr);

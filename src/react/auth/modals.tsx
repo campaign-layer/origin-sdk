@@ -166,8 +166,6 @@ const AuthModal = ({
       if (provider?.provider?.uid === customProvider?.uid) {
         addr = customAccount?.address;
       }
-      console.log("Connecting to provider:", provider.provider);
-      console.log(customProvider);
       setProvider({
         ...provider,
         address: addr,

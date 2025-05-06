@@ -36,9 +36,9 @@ function r(t,e,i,n){return new(i||(i=Promise))((function(r,o){function s(t){try{
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function c(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return i?`${t}?${i}`:t}const h="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",l="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const u={id:123420001114,name:"Basecamp",nativeCurrency:{decimals:18,name:"Camp",symbol:"CAMP"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz","https://rpc.basecamp.t.raas.gelato.cloud"]}},blockExplorers:{default:{name:"Explorer",url:"https://basecamp.cloud.blockscout.com/"}}};
+function c(t,e={}){const i=function(t={}){return Object.keys(t).map((e=>`${encodeURIComponent(e)}=${encodeURIComponent(t[e])}`)).join("&")}(e);return i?`${t}?${i}`:t}const h="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",u="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";const l={id:123420001114,name:"Basecamp",nativeCurrency:{decimals:18,name:"Camp",symbol:"CAMP"},rpcUrls:{default:{http:["https://rpc-campnetwork.xyz","https://rpc.basecamp.t.raas.gelato.cloud"]}},blockExplorers:{default:{name:"Explorer",url:"https://basecamp.cloud.blockscout.com/"}}};
 // @ts-ignore
-let f=null,w=null;const p=(t,n="window.ethereum",r)=>{var o;if(!t&&!f)return console.warn("Provider is required to create a client."),null;if(!f||f.transport.name!==n&&t||r!==(null===(o=f.account)||void 0===o?void 0:o.address)&&t){const o={chain:u,transport:e.custom(t,{name:n})};r&&(o.account=i.toAccount(r)),f=e.createWalletClient(o)}return f},m=()=>(w||(w=e.createPublicClient({chain:u,transport:e.http()})),w);var v="Connect with Camp Network",y="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",g="https://ackee-production-01bd.up.railway.app",I={USER_CONNECTED:"ed42542d-b676-4112-b6d9-6db98048b2e0",USER_DISCONNECTED:"20af31ac-e602-442e-9e0e-b589f4dd4016",TWITTER_LINKED:"7fbea086-90ef-4679-ba69-f47f9255b34c",DISCORD_LINKED:"d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",SPOTIFY_LINKED:"fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",TIKTOK_LINKED:"4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",TELEGRAM_LINKED:"9006bc5d-bcc9-4d01-a860-4f1a201e8e47"};let A=[];const T=()=>A,k=t=>{function e(e){A.some((t=>t.info.uuid===e.detail.info.uuid))||(A=[...A,e.detail],t(A))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};var b,$,E,S,j,C,O,U,P,D,N,_,W,B;
+let f=null,w=null;const p=(t,n="window.ethereum",r)=>{var o;if(!t&&!f)return console.warn("Provider is required to create a client."),null;if(!f||f.transport.name!==n&&t||r!==(null===(o=f.account)||void 0===o?void 0:o.address)&&t){const o={chain:l,transport:e.custom(t,{name:n})};r&&(o.account=i.toAccount(r)),f=e.createWalletClient(o)}return f},m=()=>(w||(w=e.createPublicClient({chain:l,transport:e.http()})),w);var v="Connect with Camp Network",y="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",g="https://ackee-production-01bd.up.railway.app",I={USER_CONNECTED:"ed42542d-b676-4112-b6d9-6db98048b2e0",USER_DISCONNECTED:"20af31ac-e602-442e-9e0e-b589f4dd4016",TWITTER_LINKED:"7fbea086-90ef-4679-ba69-f47f9255b34c",DISCORD_LINKED:"d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",SPOTIFY_LINKED:"fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",TIKTOK_LINKED:"4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",TELEGRAM_LINKED:"9006bc5d-bcc9-4d01-a860-4f1a201e8e47"};let A=[];const T=()=>A,k=t=>{function e(e){A.some((t=>t.info.uuid===e.detail.info.uuid))||(A=[...A,e.detail],t(A))}if("undefined"!=typeof window)return window.addEventListener("eip6963:announceProvider",e),window.dispatchEvent(new Event("eip6963:requestProvider")),()=>window.removeEventListener("eip6963:announceProvider",e)};var b,$,E,S,j,C,O,U,P,D,N,_,W,B;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
@@ -168,7 +168,7 @@ this.viem=p(t,e.name,i),o(this,E,"m",C).call(this,"viem",this.viem),o(this,E,"m"
      * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
      * @param {string} walletAddress The wallet address.
      * @returns {void}
-     */setWalletAddress(t){this.walletAddress=t,console.log("Wallet address set:",this.walletAddress)}
+     */setWalletAddress(t){this.walletAddress=t}
 /**
      * Disconnect the user.
      * @returns {Promise<void>}
@@ -278,7 +278,7 @@ window.location.href=`${y}/spotify/connect?clientId=${this.clientId}&userId=${th
      * @param {CallOptions} [options] The call options.
      * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
      * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
-     */callContractMethod(t,i,n,s){return r(this,arguments,void 0,(function*(t,i,n,r,s={}){const a=e.getAbiItem({abi:i,name:n}),d=a&&"stateMutability"in a&&("view"===a.stateMutability||"pure"===a.stateMutability);if(!d&&!this.viem)throw new Error("WalletClient not connected.");if(d){const e=m();return(yield e.readContract({address:t,abi:i,functionName:n,args:r}))||null}{const[a]=yield this.viem.getAddresses(),d=e.encodeFunctionData({abi:i,functionName:n,args:r});yield o(this,E,"m",B).call(this,u);const c=yield this.viem.sendTransaction({to:t,data:d,account:a,value:s.value,gas:s.gas});if(s.waitForReceipt){return yield o(this,E,"m",W).call(this,c)}return c}}))}},exports.SpotifyAPI=
+     */callContractMethod(t,i,n,s){return r(this,arguments,void 0,(function*(t,i,n,r,s={}){const a=e.getAbiItem({abi:i,name:n}),d=a&&"stateMutability"in a&&("view"===a.stateMutability||"pure"===a.stateMutability);if(!d&&!this.viem)throw new Error("WalletClient not connected.");if(d){const e=m();return(yield e.readContract({address:t,abi:i,functionName:n,args:r}))||null}{const[a]=yield this.viem.getAddresses(),d=e.encodeFunctionData({abi:i,functionName:n,args:r});yield o(this,E,"m",B).call(this,l);const c=yield this.viem.sendTransaction({to:t,data:d,account:a,value:s.value,gas:s.gas});if(s.waitForReceipt){return yield o(this,E,"m",W).call(this,c)}return c}}))}},exports.SpotifyAPI=
 /**
  * The SpotifyAPI class.
  * @class
@@ -297,45 +297,45 @@ constructor(t){this.apiKey=t.apiKey}
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved tracks.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedTracksById(t){return r(this,void 0,void 0,(function*(){const e=c(`${l}/save-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
+     */fetchSavedTracksById(t){return r(this,void 0,void 0,(function*(){const e=c(`${u}/save-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
 /**
      * Fetch the played tracks of a user by Spotify ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The played tracks.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchPlayedTracksById(t){return r(this,void 0,void 0,(function*(){const e=c(`${l}/played-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
+     */fetchPlayedTracksById(t){return r(this,void 0,void 0,(function*(){const e=c(`${u}/played-tracks`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
 /**
      * Fetch the user's saved albums by Spotify user ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved albums.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedAlbumsById(t){return r(this,void 0,void 0,(function*(){const e=c(`${l}/saved-albums`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
+     */fetchSavedAlbumsById(t){return r(this,void 0,void 0,(function*(){const e=c(`${u}/saved-albums`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
 /**
      * Fetch the user's saved playlists by Spotify user ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved playlists.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedPlaylistsById(t){return r(this,void 0,void 0,(function*(){const e=c(`${l}/saved-playlists`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
+     */fetchSavedPlaylistsById(t){return r(this,void 0,void 0,(function*(){const e=c(`${u}/saved-playlists`,{spotifyId:t});return this._fetchDataWithAuth(e)}))}
 /**
      * Fetch the tracks of an album by album ID.
      * @param {string} spotifyId - The Spotify ID of the user.
      * @param {string} albumId - The album ID.
      * @returns {Promise<object>} - The tracks in the album.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTracksInAlbum(t,e){return r(this,void 0,void 0,(function*(){const i=c(`${l}/album/tracks`,{spotifyId:t,albumId:e});return this._fetchDataWithAuth(i)}))}
+     */fetchTracksInAlbum(t,e){return r(this,void 0,void 0,(function*(){const i=c(`${u}/album/tracks`,{spotifyId:t,albumId:e});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch the tracks in a playlist by playlist ID.
      * @param {string} spotifyId - The Spotify ID of the user.
      * @param {string} playlistId - The playlist ID.
      * @returns {Promise<object>} - The tracks in the playlist.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTracksInPlaylist(t,e){return r(this,void 0,void 0,(function*(){const i=c(`${l}/playlist/tracks`,{spotifyId:t,playlistId:e});return this._fetchDataWithAuth(i)}))}
+     */fetchTracksInPlaylist(t,e){return r(this,void 0,void 0,(function*(){const i=c(`${u}/playlist/tracks`,{spotifyId:t,playlistId:e});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch the user's Spotify data by wallet address.
      * @param {string} walletAddress - The wallet address.
      * @returns {Promise<object>} - The user's Spotify data.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchUserByWalletAddress(t){return r(this,void 0,void 0,(function*(){const e=c(`${l}/wallet-spotify-data`,{walletAddress:t});return this._fetchDataWithAuth(e)}))}
+     */fetchUserByWalletAddress(t){return r(this,void 0,void 0,(function*(){const e=c(`${u}/wallet-spotify-data`,{walletAddress:t});return this._fetchDataWithAuth(e)}))}
 /**
      * Private method to fetch data with authorization header.
      * @param {string} url - The URL to fetch.
