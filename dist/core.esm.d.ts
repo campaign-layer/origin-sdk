@@ -413,6 +413,16 @@ declare class Auth {
      * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkTelegram(): Promise<any>;
+    /**
+     * Call a contract method.
+     * @param {string} contractAddress The contract address.
+     * @param {Abi} abi The contract ABI.
+     * @param {string} methodName The method name.
+     * @param {any[]} params The method parameters.
+     * @param {CallOptions} [options] The call options.
+     * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
+     * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
+     */
     callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
 }
 
