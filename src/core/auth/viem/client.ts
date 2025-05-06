@@ -42,7 +42,7 @@ const getClient = (
   return client;
 };
 
-const getPublicClient = (): PublicClient | null => {
+const getPublicClient = (): PublicClient => {
   if (!publicClient) {
     publicClient = createPublicClient({
       chain: testnet,

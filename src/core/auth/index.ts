@@ -839,6 +839,14 @@ class Auth {
       throw new APIError(data.message || "Failed to unlink Telegram account");
     }
   }
+
+  /**
+   * Wait for the transaction receipt.
+   * @private
+   * @param {string} txHash The transaction hash.
+   * @returns {Promise<any>} A promise that resolves with the transaction receipt.
+   * @throws {Error} - Throws an error if the wallet client is not connected.
+   */
   async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
     if (!this.viem) throw new Error("WalletClient not connected.");
 
@@ -856,14 +864,23 @@ class Auth {
     }
   }
 
+  /**
+   * Ensure the chain ID is correct.
+   * @private
+   * @param {any} chain The chain object.
+   * @returns {Promise<void>} A promise that resolves when the chain ID is ensured.
+   * @throws {Error} - Throws an error if the wallet client is not connected.
+   */
   async #ensureChainId(chain: any): Promise<void> {
     if (!this.viem) throw new Error("WalletClient not connected.");
 
-    const currentChainId = await this.viem.request({
+    let currentChainId = await this.viem.request({
       method: "eth_chainId",
       params: [],
     });
-
+    if (typeof currentChainId === "string") {
+      currentChainId = parseInt(currentChainId, 16);
+    }
 
     if (currentChainId !== chain.id) {
       try {
@@ -897,6 +914,16 @@ class Auth {
     }
   }
 
+  /**
+   * Call a contract method.
+   * @param {string} contractAddress The contract address.
+   * @param {Abi} abi The contract ABI.
+   * @param {string} methodName The method name.
+   * @param {any[]} params The method parameters.
+   * @param {CallOptions} [options] The call options.
+   * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
+   * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
+   */
   async callContractMethod(
     contractAddress: string,
     abi: Abi,
@@ -920,7 +947,7 @@ class Auth {
       const publicClient = getPublicClient();
 
       const result =
-        (await publicClient?.readContract({
+        (await publicClient.readContract({
           address: contractAddress as `0x${string}`,
           abi,
           functionName: methodName,
