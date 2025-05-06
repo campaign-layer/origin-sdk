@@ -22,14 +22,15 @@ export const OriginProvider = ({ children }: OriginProviderProps) => {
   if (!auth) {
     throw new Error("Auth instance is not available");
   }
+
   const statsQuery = useQuery({
     queryKey: ["origin-stats", authenticated],
-    queryFn: () => auth.origin?.getOriginUsage(),
+    queryFn: () => auth.origin?.getOriginUsage() ?? Promise.resolve(null),
   });
 
   const uploadsQuery = useQuery({
     queryKey: ["origin-uploads", authenticated],
-    queryFn: () => auth.origin?.getOriginUploads(),
+    queryFn: () => auth.origin?.getOriginUploads() ?? Promise.resolve(null),
   });
 
   return (

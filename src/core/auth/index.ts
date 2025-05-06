@@ -1,5 +1,5 @@
 import { APIError } from "../../errors";
-import { getClient } from "./viem/client";
+import { getClient, getPublicClient } from "./viem/client";
 // @ts-ignore
 import { createSiweMessage } from "viem/siwe";
 import constants from "../../constants";
@@ -7,12 +7,25 @@ import { Provider, providerStore } from "./viem/providers";
 import { Ackee } from "../../index";
 import { sendAnalyticsEvent } from "../../utils";
 import { Origin } from "./origin";
+import {
+  Abi,
+  decodeFunctionResult,
+  encodeFunctionData,
+  getAbiItem,
+} from "viem";
+import { testnet } from "./viem/chains";
 
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
+
+type CallOptions = {
+  value?: bigint;
+  gas?: bigint;
+  waitForReceipt?: boolean;
+};
 
 const createRedirectUriObject = (
   redirectUri: string | Record<string, string>
@@ -83,9 +96,9 @@ class Auth {
 
     this.viem = null;
 
-    if (typeof window !== "undefined") {
-      if (window.ethereum) this.viem = getClient(window.ethereum);
-    }
+    // if (typeof window !== "undefined") {
+    //   if (window.ethereum) this.viem = getClient(window.ethereum);
+    // }
     this.redirectUri = createRedirectUriObject(redirectUri);
 
     if (ackeeInstance) this.#ackeeInstance = ackeeInstance;
@@ -184,6 +197,8 @@ class Auth {
     if (!provider) {
       throw new APIError("provider is required");
     }
+    // const addr = provider.selectedAddress || provider.accounts[0];
+    // TOFIX: the address can be the leftover address, make sure it resets after disconnection
     this.viem = getClient(provider, info.name, address);
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
@@ -204,13 +219,15 @@ class Auth {
    * @param {any} [provider] Optional provider to use for reinitializing viem.
    * @returns {void}
    */
-  #loadAuthStatusFromStorage(provider?: any): void {
+  async #loadAuthStatusFromStorage(provider?: any): Promise<void> {
     if (typeof localStorage === "undefined") {
       return;
     }
+
     const walletAddress = localStorage?.getItem("camp-sdk:wallet-address");
     const userId = localStorage?.getItem("camp-sdk:user-id");
     const jwt = localStorage?.getItem("camp-sdk:jwt");
+
     if (walletAddress && userId && jwt) {
       this.walletAddress = walletAddress;
       this.userId = userId;
@@ -218,18 +235,29 @@ class Auth {
       this.origin = new Origin(this.jwt);
       this.isAuthenticated = true;
 
-      // Reinitialize viem with the stored wallet address and provider
-      const selectedProvider =
-        provider ||
-        providerStore
-          .value()
-          ?.find(
-            (p) => p.provider.selectedAddress === walletAddress.toLowerCase()
-          )?.provider;
+      let selectedProvider = provider;
+
+      if (!selectedProvider) {
+        const providers = providerStore.value() ?? [];
+        for (const p of providers) {
+          try {
+            const accounts = await p.provider.request({
+              method: "eth_accounts",
+            });
+            if (accounts[0]?.toLowerCase() === walletAddress.toLowerCase()) {
+              selectedProvider = p.provider;
+              break;
+            }
+          } catch (err) {
+            console.warn("Failed to fetch accounts from provider:", err);
+          }
+        }
+      }
+
       if (selectedProvider) {
         this.viem = getClient(
           selectedProvider,
-          "selectedProvider",
+          new Date().getTime().toString(),
           walletAddress
         );
         this.#trigger("viem", this.viem);
@@ -396,9 +424,9 @@ class Auth {
   }> {
     this.#trigger("state", "loading");
     try {
-      if (!this.walletAddress) {
-        await this.#requestAccount();
-      }
+      // if (!this.walletAddress) {
+      await this.#requestAccount();
+      // }
       const nonce = await this.#fetchNonce();
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({
@@ -809,6 +837,121 @@ class Auth {
       return data.data;
     } else {
       throw new APIError(data.message || "Failed to unlink Telegram account");
+    }
+  }
+  async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
+    if (!this.viem) throw new Error("WalletClient not connected.");
+
+    while (true) {
+      const receipt = await this.viem.request({
+        method: "eth_getTransactionReceipt",
+        params: [txHash],
+      });
+
+      if (receipt && receipt.blockNumber) {
+        return receipt;
+      }
+
+      await new Promise((res) => setTimeout(res, 1000));
+    }
+  }
+
+  async #ensureChainId(chain: any): Promise<void> {
+    if (!this.viem) throw new Error("WalletClient not connected.");
+
+    const currentChainId = await this.viem.request({
+      method: "eth_chainId",
+      params: [],
+    });
+
+
+    if (currentChainId !== chain.id) {
+      try {
+        await this.viem.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+        });
+      } catch (switchError: any) {
+        // Unrecognized chain
+        if (switchError.code === 4902) {
+          await this.viem.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x" + BigInt(chain.id).toString(16),
+                chainName: chain.name,
+                rpcUrls: chain.rpcUrls,
+                nativeCurrency: chain.nativeCurrency,
+              },
+            ],
+          });
+
+          await this.viem.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
+  }
+
+  async callContractMethod(
+    contractAddress: string,
+    abi: Abi,
+    methodName: string,
+    params: any[],
+    options: CallOptions = {}
+  ): Promise<any> {
+    const abiItem = getAbiItem({ abi, name: methodName });
+
+    const isView =
+      abiItem &&
+      "stateMutability" in abiItem &&
+      (abiItem.stateMutability === "view" ||
+        abiItem.stateMutability === "pure");
+
+    if (!isView && !this.viem) {
+      throw new Error("WalletClient not connected.");
+    }
+
+    if (isView) {
+      const publicClient = getPublicClient();
+
+      const result =
+        (await publicClient?.readContract({
+          address: contractAddress as `0x${string}`,
+          abi,
+          functionName: methodName,
+          args: params,
+        })) || null;
+      return result;
+    } else {
+      const [account] = await this.viem.getAddresses();
+
+      const data = encodeFunctionData({
+        abi,
+        functionName: methodName,
+        args: params,
+      });
+
+      await this.#ensureChainId(testnet);
+
+      const txHash = await this.viem.sendTransaction({
+        to: contractAddress as `0x${string}`,
+        data,
+        account,
+        value: options.value,
+        gas: options.gas,
+      });
+
+      if (options.waitForReceipt) {
+        const receipt = await this.#waitForTxReceipt.call(this, txHash);
+        return receipt;
+      }
+
+      return txHash;
     }
   }
 }

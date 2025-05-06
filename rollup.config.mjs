@@ -8,6 +8,7 @@ import typescript from "@rollup/plugin-typescript";
 import dts from "rollup-plugin-dts";
 import fs from "fs";
 import path from "path";
+import json from "@rollup/plugin-json";
 
 const cleanupDtsPlugin = () => {
   return {
@@ -67,6 +68,7 @@ const config = [
       }),
       babel({ babelHelpers: "bundled" }),
       nodePolyfills(),
+      json(),
       terser({
         format: {
           comments: "all",
@@ -112,6 +114,8 @@ const config = [
           ],
         ],
       }),
+      json(),
+
       nodePolyfills(),
       postcss({
         plugins: [autoprefixer],

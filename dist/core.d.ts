@@ -1,3 +1,5 @@
+import { Abi } from 'viem';
+
 /**
  * The TwitterAPI class.
  * @class
@@ -241,6 +243,11 @@ declare global {
         ethereum?: any;
     }
 }
+type CallOptions = {
+    value?: bigint;
+    gas?: bigint;
+    waitForReceipt?: boolean;
+};
 /**
  * The Auth class.
  * @class
@@ -406,6 +413,7 @@ declare class Auth {
      * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkTelegram(): Promise<any>;
+    callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
 }
 
 /**

@@ -39,6 +39,8 @@ import {
 import constants from "../../constants.js";
 import { useToast } from "../toasts.js";
 import Tooltip from "../components/Tooltip";
+import StorageABI from "../../core/origin/contracts/Storage.json";
+import { Abi } from "viem";
 
 interface AuthModalProps {
   setIsVisible: (isVisible: boolean) => void;
@@ -699,7 +701,6 @@ const BasicFlow = () => {
   }
 
   const handleLink = async () => {
-    console.log(isSocialsLoading, currentlyLinking, socials);
     if (isSocialsLoading) return;
     if (socials[currentlyLinking]) {
       setIsUnlinking(true);
@@ -862,6 +863,74 @@ const OriginItem = ({
   );
 };
 
+const ContractInteraction = () => {
+  const { auth } = useContext(CampContext);
+  const [inputValue, setInputValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { addToast: toast } = useToast();
+  const CONTRACT_ADDRESS = "0xcCB22CdA4857E1665dE3043FF77ff125c9E0A2A7";
+  const callContract = async (
+    methodName: string,
+    params: any[],
+    isWrite = false
+  ) => {
+    if (!auth) {
+      toast("Auth instance not available", "error", 5000);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await auth.callContractMethod(
+        CONTRACT_ADDRESS,
+        StorageABI as Abi,
+        methodName,
+        params,
+        { waitForReceipt: true }
+      );
+
+      if (isWrite) {
+        toast("Transaction sent successfully", "success", 5000);
+        alert(`Transaction sent successfully: ${result.transactionHash}`);
+      } else {
+        toast("Retrieved value successfully", "success", 5000);
+        alert(`Retrieved value: ${result}`);
+      }
+    } catch (err: any) {
+      console.error("Contract call failed:", err);
+      toast(`Error: ${err.message || "Contract call failed"}`, "error", 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className={styles["contract-button-container"]}>
+      <input
+        type="number"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder="Enter a number"
+        className={styles["contract-input"]}
+      />
+      <button
+        className={styles["contract-button"]}
+        onClick={() => callContract("store", [parseInt(inputValue, 10)], true)}
+        disabled={loading || !inputValue}
+      >
+        {loading ? "Setting..." : "Set"}
+      </button>
+      <button
+        className={styles["contract-button"]}
+        onClick={() => callContract("retrieve", [])}
+        disabled={loading}
+      >
+        {loading ? "Retrieving..." : "Retrieve"}
+      </button>
+    </div>
+  );
+};
+
 /**
  * The OriginSection component. Displays the Origin status, royalty multiplier, and royalty credits.
  * @returns { JSX.Element } The OriginSection component.
@@ -915,17 +984,13 @@ const OriginSection = (): JSX.Element => {
     }
   }, [uploads.data]);
 
-  useEffect(() => {
-    console.log(client);
-    
-  }, [client]);
-
   return stats.isLoading ? (
     <div style={{ marginTop: "1rem", marginBottom: "1rem", flex: 1 }}>
       <div className={styles.spinner} />
     </div>
   ) : (
     <div className={styles["origin-wrapper"]}>
+      <ContractInteraction />
       <div className={styles["origin-section"]}>
         <Tooltip
           content={

@@ -5,10 +5,14 @@ import {
   custom,
   WalletClient,
   WalletClientConfig,
+  createPublicClient,
+  type PublicClient,
+  http,
 } from "viem";
 import { testnet } from "./chains";
 import { toAccount } from "viem/accounts";
 let client: any = null;
+let publicClient: PublicClient | null = null;
 
 const getClient = (
   provider: any,
@@ -37,4 +41,14 @@ const getClient = (
   }
   return client;
 };
-export { getClient };
+
+const getPublicClient = (): PublicClient | null => {
+  if (!publicClient) {
+    publicClient = createPublicClient({
+      chain: testnet,
+      transport: http(),
+    });
+  }
+  return publicClient;
+};
+export { getClient, getPublicClient };
