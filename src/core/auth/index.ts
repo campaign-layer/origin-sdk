@@ -211,6 +211,7 @@ class Auth {
    */
   setWalletAddress(walletAddress: string): void {
     this.walletAddress = walletAddress;
+    console.log("Wallet address set:", this.walletAddress);
   }
 
   /**
@@ -424,9 +425,9 @@ class Auth {
   }> {
     this.#trigger("state", "loading");
     try {
-      // if (!this.walletAddress) {
-      await this.#requestAccount();
-      // }
+      if (!this.walletAddress) {
+        await this.#requestAccount();
+      } else console.log("Wallet address already set:", this.walletAddress);
       const nonce = await this.#fetchNonce();
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({

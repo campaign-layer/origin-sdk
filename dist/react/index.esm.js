@@ -1401,17 +1401,23 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
         };
     }, [wcProvider]);
     const handleConnect = (provider) => {
-        var _a;
+        var _a, _b;
         if (provider) {
-            setProvider(Object.assign(Object.assign({}, provider), { address: customAccount === null || customAccount === void 0 ? void 0 : customAccount.address }));
-            if (customAccount === null || customAccount === void 0 ? void 0 : customAccount.address) {
-                auth.setWalletAddress(customAccount.address);
+            let addr = null;
+            if (((_a = provider === null || provider === void 0 ? void 0 : provider.provider) === null || _a === void 0 ? void 0 : _a.uid) === (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid)) {
+                addr = customAccount === null || customAccount === void 0 ? void 0 : customAccount.address;
+            }
+            console.log("Connecting to provider:", provider.provider);
+            console.log(customProvider);
+            setProvider(Object.assign(Object.assign({}, provider), { address: addr }));
+            if (addr) {
+                auth.setWalletAddress(addr);
             }
         }
         // necessary for appkit, as it doesn't seem to support the "eth_requestAccounts" method
         if ((customAccount === null || customAccount === void 0 ? void 0 : customAccount.address) &&
             (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid) &&
-            ((_a = provider === null || provider === void 0 ? void 0 : provider.provider) === null || _a === void 0 ? void 0 : _a.uid) === (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid)) {
+            ((_b = provider === null || provider === void 0 ? void 0 : provider.provider) === null || _b === void 0 ? void 0 : _b.uid) === (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid)) {
             auth.setWalletAddress(customAccount === null || customAccount === void 0 ? void 0 : customAccount.address);
         }
         connect();
