@@ -426,7 +426,7 @@ class Auth {
     try {
       if (!this.walletAddress) {
         await this.#requestAccount();
-      } else console.log("Wallet address already set:", this.walletAddress);
+      }
       const nonce = await this.#fetchNonce();
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({
@@ -883,9 +883,6 @@ class Auth {
       currentChainId = parseInt(currentChainId, 16);
     }
 
-    console.log("Current chain ID:", currentChainId);
-    console.log("Target chain ID:", chain.id);
-
     if (currentChainId !== chain.id) {
       try {
         await this.viem.request({
@@ -901,7 +898,7 @@ class Auth {
               {
                 chainId: "0x" + BigInt(chain.id).toString(16),
                 chainName: chain.name,
-                rpcUrls: chain.rpcUrls,
+                rpcUrls: chain.rpcUrls.default.http,
                 nativeCurrency: chain.nativeCurrency,
               },
             ],

@@ -1466,6 +1466,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
  */
 const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaultProvider, }) => {
     // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const { auth } = useContext(CampContext);
     const { authenticated, loading } = useAuthState();
     const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } = useContext(ModalContext);
     const { isLinkingVisible } = useContext(ModalContext);
@@ -1489,6 +1490,50 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
             }
         }
     }, [authenticated]);
+    useEffect(() => {
+        const recoverProvider = () => __awaiter(void 0, void 0, void 0, function* () {
+            var _a, _b;
+            try {
+                if (auth) {
+                    if (defaultProvider && defaultProvider.provider) {
+                        const provider = defaultProvider.provider;
+                        const [address] = yield provider.request({
+                            method: "eth_requestAccounts",
+                        });
+                        if (address.toLowerCase() === ((_a = auth.walletAddress) === null || _a === void 0 ? void 0 : _a.toLowerCase())) {
+                            auth.setProvider(Object.assign(Object.assign({}, defaultProvider), { address }));
+                        }
+                        else {
+                            console.error("Address mismatch. Default provider address does not match authenticated address.");
+                        }
+                    }
+                    else if (walletConnectProvider) {
+                        const [address] = yield walletConnectProvider.request({
+                            method: "eth_requestAccounts",
+                        });
+                        if (address.toLowerCase() === ((_b = auth.walletAddress) === null || _b === void 0 ? void 0 : _b.toLowerCase())) {
+                            auth.setProvider({
+                                provider: walletConnectProvider,
+                                info: {
+                                    name: "WalletConnect",
+                                },
+                                address,
+                            });
+                        }
+                        else {
+                            console.error("Address mismatch. WalletConnect provider address does not match authenticated address.");
+                        }
+                    }
+                }
+            }
+            catch (error) {
+                console.error("Error recovering provider:", error);
+            }
+        });
+        if (authenticated) {
+            recoverProvider();
+        }
+    }, [authenticated, defaultProvider, defaultProvider === null || defaultProvider === void 0 ? void 0 : defaultProvider.provider, auth]);
     // Cases where the button should be disabled
     useEffect(() => {
         const noProvider = !provider.provider;
@@ -1811,6 +1856,7 @@ const LinkingModal = () => {
                     flow === "telegram" && React.createElement(TelegramFlow, null))),
                 React.createElement("a", { href: "https://campnetwork.xyz", className: styles["footer-text"], target: "_blank", rel: "noopener noreferrer", style: { marginTop: 0 } }, "Powered by Camp Network")))));
 };
+/** demo */
 const ContractInteraction = () => {
     const { auth } = useContext(CampContext);
     const [inputValue, setInputValue] = useState("");
@@ -1853,7 +1899,6 @@ const ContractInteraction = () => {
  */
 const OriginSection = () => {
     const { stats, uploads } = useOrigin();
-    useViem();
     const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
     const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
     const [royaltyCredits, setRoyaltyCredits] = useState(0);

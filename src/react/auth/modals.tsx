@@ -297,6 +297,7 @@ export const CampModal = ({
   defaultProvider,
 }: CampModalProps) => {
   // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const { auth } = useContext(CampContext);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } =
     useContext(ModalContext);
@@ -323,6 +324,54 @@ export const CampModal = ({
       }
     }
   }, [authenticated]);
+
+  useEffect(() => {
+    const recoverProvider = async () => {
+      try {
+        if (auth) {
+          if (defaultProvider && defaultProvider.provider) {
+            const provider = defaultProvider.provider;
+            const [address] = await provider.request({
+              method: "eth_requestAccounts",
+            });
+            if (address.toLowerCase() === auth.walletAddress?.toLowerCase()) {
+              auth.setProvider({
+                ...defaultProvider,
+                address,
+              });
+            } else {
+              console.error(
+                "Address mismatch. Default provider address does not match authenticated address."
+              );
+            }
+          } else if (walletConnectProvider) {
+            const [address] = await walletConnectProvider.request({
+              method: "eth_requestAccounts",
+            });
+            if (address.toLowerCase() === auth.walletAddress?.toLowerCase()) {
+              auth.setProvider({
+                provider: walletConnectProvider,
+                info: {
+                  name: "WalletConnect",
+                },
+                address,
+              });
+            } else {
+              console.error(
+                "Address mismatch. WalletConnect provider address does not match authenticated address."
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error recovering provider:", error);
+      }
+    };
+
+    if (authenticated) {
+      recoverProvider();
+    }
+  }, [authenticated, defaultProvider, defaultProvider?.provider, auth]);
 
   // Cases where the button should be disabled
   useEffect(() => {
@@ -848,25 +897,7 @@ const LinkingModal = () => {
     </div>
   );
 };
-
-const OriginItem = ({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  icon: JSX.Element;
-}) => {
-  return (
-    <div className={styles["origin-item"]}>
-      <span>{icon}</span>
-      <span className={styles["origin-label"]}>{label}</span>
-      <span>{value}</span>
-    </div>
-  );
-};
-
+/** demo */
 const ContractInteraction = () => {
   const { auth } = useContext(CampContext);
   const [inputValue, setInputValue] = useState("");
@@ -941,7 +972,6 @@ const ContractInteraction = () => {
  */
 const OriginSection = (): JSX.Element => {
   const { stats, uploads } = useOrigin();
-  const { client } = useViem();
   const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
   const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
   const [royaltyCredits, setRoyaltyCredits] = useState(0);
