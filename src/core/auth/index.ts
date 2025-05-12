@@ -872,6 +872,7 @@ class Auth {
    * @throws {Error} - Throws an error if the wallet client is not connected.
    */
   async #ensureChainId(chain: any): Promise<void> {
+    // return;
     if (!this.viem) throw new Error("WalletClient not connected.");
 
     let currentChainId = await this.viem.request({
@@ -881,6 +882,9 @@ class Auth {
     if (typeof currentChainId === "string") {
       currentChainId = parseInt(currentChainId, 16);
     }
+
+    console.log("Current chain ID:", currentChainId);
+    console.log("Target chain ID:", chain.id);
 
     if (currentChainId !== chain.id) {
       try {
