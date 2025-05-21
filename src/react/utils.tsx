@@ -15,9 +15,8 @@ import { CampIcon } from "./auth/icons";
  * @param { string } wrapperId The wrapper ID.
  * @returns { HTMLElement } The wrapper element.
  */
-export const createWrapperAndAppendToBody = (
-  wrapperId: string
-): HTMLElement => {
+export const createWrapperAndAppendToBody = (wrapperId: string) => {
+  if (typeof document === "undefined") return null;
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
   document.body.appendChild(wrapperElement);
@@ -28,6 +27,9 @@ interface ReactPortalProps {
   children: ReactNode;
   wrapperId: string;
 }
+
+export const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
  * The ReactPortal component. Renders children in a portal.
@@ -41,7 +43,8 @@ export const ReactPortal = ({
   const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(
     null
   );
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
+    if (typeof document === "undefined") return;
     let element = document.getElementById(wrapperId);
     let systemCreated = false;
 

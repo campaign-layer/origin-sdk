@@ -148,34 +148,45 @@ interface UploadWithProgress {
   ): Promise<string>;
 }
 
+/**
+ * Uploads a file to a specified URL with progress tracking.
+ * Falls back to a simple fetch request if XMLHttpRequest is not available.
+ * @param {File} file - The file to upload.
+ * @param {string} url - The URL to upload the file to.
+ * @param {UploadProgressCallback} onProgress - A callback function to track upload progress.
+ * @returns {Promise<string>} - A promise that resolves with the response from the server.
+ */
 export const uploadWithProgress: UploadWithProgress = (
   file,
   url,
   onProgress
 ) => {
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.open("PUT", url, true);
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percent = (event.loaded / event.total) * 100;
-        onProgress(percent);
-      }
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(xhr.response);
-      } else {
-        reject(xhr.statusText);
-      }
-    };
-
-    xhr.onerror = () => reject(xhr.statusText);
-
-    xhr.send(file);
+    axios
+      .put(url, file, {
+        headers: {
+          "Content-Type": file.type,
+        },
+        ...(typeof window !== "undefined" && typeof onProgress === "function"
+          ? {
+              onUploadProgress: (progressEvent) => {
+                if (progressEvent.total) {
+                  const percent =
+                    (progressEvent.loaded / progressEvent.total) * 100;
+                  onProgress(percent);
+                }
+              },
+            }
+          : {}),
+      })
+      .then((res) => {
+        resolve(res.data);
+      })
+      .catch((error) => {
+        const message =
+          error?.response?.data || error?.message || "Upload failed";
+        reject(message);
+      });
   });
 };
 

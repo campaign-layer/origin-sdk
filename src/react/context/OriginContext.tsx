@@ -19,18 +19,18 @@ interface OriginProviderProps {
 export const OriginProvider = ({ children }: OriginProviderProps) => {
   const { authenticated } = useAuthState();
   const { auth } = useContext(CampContext);
-  if (!auth) {
+  if (!auth && typeof window !== "undefined") {
     throw new Error("Auth instance is not available");
   }
 
   const statsQuery = useQuery({
     queryKey: ["origin-stats", authenticated],
-    queryFn: () => auth.origin?.getOriginUsage() ?? Promise.resolve(null),
+    queryFn: () => auth?.origin?.getOriginUsage() ?? Promise.resolve(null),
   });
 
   const uploadsQuery = useQuery({
     queryKey: ["origin-uploads", authenticated],
-    queryFn: () => auth.origin?.getOriginUploads() ?? Promise.resolve(null),
+    queryFn: () => auth?.origin?.getOriginUploads() ?? Promise.resolve(null),
   });
 
   return (

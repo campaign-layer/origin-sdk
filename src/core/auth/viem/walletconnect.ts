@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { testnet } from "./chains";
 
 const getWalletConnectProvider = async (projectId: string): Promise<any> => {
+  const { EthereumProvider } = await import("@walletconnect/ethereum-provider");
   const provider = await EthereumProvider.init({
     optionalChains: [testnet.id],
     chains: [testnet.id],

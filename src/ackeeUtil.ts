@@ -151,7 +151,7 @@ const isFakeId = function (id: string): boolean {
  * @returns {boolean}
  */
 const isInBackground = function (): boolean {
-  return document.visibilityState === "hidden";
+  return isBrowser ? document.visibilityState === "hidden" : false;
 };
 
 /**
@@ -171,20 +171,20 @@ const source = function (): string | undefined {
  */
 export const attributes = function (detailed: boolean = false): Attributes {
   const defaultData = {
-    siteLocation: window?.location?.href,
-    siteReferrer: document.referrer,
+    siteLocation: isBrowser ? window?.location?.href : "",
+    siteReferrer: isBrowser ? document.referrer : "",
     source: source(),
   };
 
   const detailedData = {
-    siteLanguage: navigator
+    siteLanguage: isBrowser
       ? (navigator?.language || navigator?.language || "").substr(0, 2)
       : "",
-    screenWidth: screen.width,
-    screenHeight: screen.height,
-    screenColorDepth: screen.colorDepth,
-    browserWidth: window?.outerWidth,
-    browserHeight: window?.outerHeight,
+    screenWidth: isBrowser ? screen.width : 0,
+    screenHeight: isBrowser ? screen.height : 0,
+    screenColorDepth: isBrowser ? screen.colorDepth : 0,
+    browserWidth: isBrowser ? window?.outerWidth : 0,
+    browserHeight: isBrowser ? window?.outerHeight : 0,
   };
 
   return {
@@ -347,6 +347,7 @@ const send = function (
  * Fails silently.
  */
 export const detect = function (): void {
+  if (isBrowser === false) return;
   const elem = document.querySelector("[data-ackee-domain-id]");
 
   if (elem == null) return;

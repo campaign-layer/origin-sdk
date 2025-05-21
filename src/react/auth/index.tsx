@@ -3,7 +3,7 @@ import { CampContext, CampProvider } from "../context/CampContext";
 import { ModalContext } from "../context/ModalContext";
 import { providerStore, Provider } from "../../core/auth/viem/providers";
 import { CampModal, MyCampModal } from "./modals";
-import { Auth } from "@campnetwork/sdk";
+import { Auth } from "../../core/auth";
 import { SocialsContext } from "../context/SocialsContext";
 import { LinkButton, StandaloneCampButton } from "./buttons";
 import constants from "../../constants";
@@ -14,6 +14,8 @@ export { CampModal, MyCampModal };
 export { LinkButton };
 export { CampContext, CampProvider, ModalContext };
 export { StandaloneCampButton as CampButton };
+
+const isBrowser = typeof window !== "undefined";
 
 const getAuthProperties = (auth: Auth) => {
   const prototype = Object.getPrototypeOf(auth);
@@ -48,8 +50,10 @@ const getAuthVariables = (auth: Auth) => {
  * auth.connect();
  */
 export const useAuth = (): Auth => {
+  if (!isBrowser) {
+    return {} as Auth;
+  }
   const { auth } = useContext(CampContext);
-
   if (!auth) {
     throw new Error(
       "Auth instance is not available. Make sure to wrap your component with CampProvider."
@@ -65,6 +69,9 @@ export const useAuth = (): Auth => {
   };
 
   useEffect(() => {
+    if (!isBrowser) {
+      return;
+    }
     auth.on("state", updateAuth);
     auth.on("provider", updateAuth);
   }, [auth]);
@@ -114,8 +121,13 @@ export const useProvider = (): {
   provider: { provider: any; info: { name: string } };
   setProvider: (provider: any, info?: any) => void;
 } => {
+  if (!isBrowser) {
+    return {
+      provider: { provider: null, info: { name: "" } },
+      setProvider: () => {},
+    };
+  }
   const { auth } = useContext(CampContext);
-
   if (!auth) {
     throw new Error(
       "Auth instance is not available. Make sure to wrap your component with CampProvider."
@@ -123,13 +135,18 @@ export const useProvider = (): {
   }
 
   const [provider, setProvider] = useState({
-    provider: auth.viem?.transport,
-    info: { name: auth.viem?.transport?.name },
+    provider: isBrowser ? auth.viem?.transport : null,
+    info: { name: isBrowser ? auth.viem?.transport?.name : "" },
   });
   useEffect(() => {
-    auth.on("provider", ({ provider, info }: { provider: any; info: any }) => {
-      setProvider({ provider, info });
-    });
+    if (isBrowser) {
+      auth.on(
+        "provider",
+        ({ provider, info }: { provider: any; info: any }) => {
+          setProvider({ provider, info });
+        }
+      );
+    }
   }, [auth]);
 
   const authSetProvider = auth.setProvider.bind(auth);
@@ -145,6 +162,9 @@ export const useAuthState = (): {
   authenticated: boolean;
   loading: boolean;
 } => {
+  if (!isBrowser) {
+    return { authenticated: false, loading: false };
+  }
   const { auth } = useContext(CampContext);
 
   if (!auth) {
@@ -168,6 +188,9 @@ export const useAuthState = (): {
 export const useViem = (): {
   client: any;
 } => {
+  if (!isBrowser) {
+    return { client: null };
+  }
   const { auth } = useContext(CampContext);
   const [client, setClient] = useState<any>(null);
   useEffect(() => {
@@ -200,6 +223,13 @@ export const useConnect = (): {
   }>;
   disconnect: () => Promise<void>;
 } => {
+  if (!isBrowser) {
+    return {
+      connect: () =>
+        Promise.resolve({ success: false, message: "", walletAddress: "" }),
+      disconnect: () => Promise.resolve(),
+    };
+  }
   const { auth } = useContext(CampContext);
 
   if (!auth) {
@@ -217,12 +247,17 @@ export const useConnect = (): {
  * Returns the array of providers.
  * @returns { Array } The array of providers and the loading state.
  */
-export const useProviders = (): Provider[] =>
-  useSyncExternalStore(
+export const useProviders = (): Provider[] => {
+  if (!isBrowser) {
+    return [];
+  }
+
+  return useSyncExternalStore(
     providerStore.subscribe as any,
     providerStore.value,
     providerStore.value
   );
+};
 
 /**
  * Returns the modal state and functions to open and close the modal.

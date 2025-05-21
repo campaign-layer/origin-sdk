@@ -1,11 +1,10 @@
 import { APIError } from "../../errors";
 import { getClient, getPublicClient } from "./viem/client";
-// @ts-ignore
 import { createSiweMessage } from "viem/siwe";
 import constants from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
-import { Ackee } from "../../index";
-import { sendAnalyticsEvent } from "../../utils";
+// import { Ackee } from "../../index";
+// import { sendAnalyticsEvent } from "../../utils";
 import { Origin } from "./origin";
 import {
   Abi,
@@ -107,11 +106,11 @@ class Auth {
       !this.#ackeeInstance &&
       typeof window !== "undefined"
     ) {
-      this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
-        detailed: false,
-        ignoreLocalhost: true,
-        ignoreOwnVisits: false,
-      });
+      // this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
+      //   detailed: false,
+      //   ignoreLocalhost: true,
+      //   ignoreOwnVisits: false,
+      // });
     }
 
     this.clientId = clientId;
@@ -197,8 +196,6 @@ class Auth {
     if (!provider) {
       throw new APIError("provider is required");
     }
-    // const addr = provider.selectedAddress || provider.accounts[0];
-    // TOFIX: the address can be the leftover address, make sure it resets after disconnection
     this.viem = getClient(provider, info.name, address);
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
@@ -384,9 +381,9 @@ class Auth {
     message: string,
     count: number = 1
   ): Promise<void> {
-    if (this.#ackeeInstance)
-      await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
-    else return;
+    // if (this.#ackeeInstance)
+    //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
+    // else return;
   }
 
   /**
@@ -466,8 +463,6 @@ class Auth {
       throw new APIError(e);
     }
   }
-
-  // ORIGIN
 
   /**
    * Get the user's linked social accounts.

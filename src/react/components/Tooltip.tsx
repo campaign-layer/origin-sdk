@@ -54,17 +54,15 @@ const Tooltip = ({
       style={containerStyle}
     >
       {children}
-      {isVisible &&
-        tooltipPosition &&
-        ReactDOM.createPortal(
-          <div
-            className={`${styles.tooltip} ${styles[position]} ${styles["show"]}`}
-            style={tooltipStyles}
-          >
-            {content}
-          </div>,
-          document.body
-        )}
+      {isVisible && tooltipPosition && typeof document !== "undefined" && ReactDOM.createPortal(
+        <div
+          className={`${styles.tooltip} ${styles[position]} ${styles["show"]}`}
+          style={tooltipStyles}
+        >
+          {content}
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
@@ -81,6 +79,7 @@ const getTooltipPosition = (
   position: "top" | "bottom" | "left" | "right"
 ): CSSProperties => {
   if (!rect) return {};
+  if (typeof window === "undefined") return {};
   const spacing = 8; // Space between the tooltip and the target element
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;

@@ -17,12 +17,12 @@ interface SocialsProviderProps {
 export const SocialsProvider = ({ children }: SocialsProviderProps) => {
   const { authenticated } = useAuthState();
   const { auth } = useContext(CampContext);
-  if (!auth) {
+  if (!auth && typeof window !== "undefined") { 
     throw new Error("Auth instance is not available");
   }
   const query = useQuery({
     queryKey: ["socials", authenticated],
-    queryFn: () => auth.getLinkedSocials(),
+    queryFn: () => auth?.getLinkedSocials() ?? Promise.resolve(null)
   });
 
   return (

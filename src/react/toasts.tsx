@@ -1,7 +1,7 @@
 import React, { useState, useRef, ReactNode, useLayoutEffect } from "react";
 // import { createPortal } from "react-dom";
 import styles from "./toasts.module.css";
-import { /*createWrapperAndAppendToBody,*/ ReactPortal } from "./utils";
+import { /*createWrapperAndAppendToBody,*/ ClientOnly, ReactPortal } from "./utils";
 
 interface Toast {
   id: number;
@@ -107,25 +107,27 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         </div>,
         document.body
       )} */}
-      <ReactPortal wrapperId="toast-wrapper">
-        <div
-          className={styles["toast-container"]}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {toasts.map((toast) => (
-            <div
-              key={toast.id}
-              className={`${styles.toast} ${styles[`toast-${toast.type}`]} ${
-                toast.isVisible ? styles["toast-enter"] : styles["toast-exit"]
-              }`}
-              onClick={() => removeToast(toast.id)}
-            >
-              {toast.message}
-            </div>
-          ))}
-        </div>
-      </ReactPortal>
+      <ClientOnly>
+        <ReactPortal wrapperId="toast-wrapper">
+          <div
+            className={styles["toast-container"]}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {toasts.map((toast) => (
+              <div
+                key={toast.id}
+                className={`${styles.toast} ${styles[`toast-${toast.type}`]} ${
+                  toast.isVisible ? styles["toast-enter"] : styles["toast-exit"]
+                }`}
+                onClick={() => removeToast(toast.id)}
+              >
+                {toast.message}
+              </div>
+            ))}
+          </div>
+        </ReactPortal>
+      </ClientOnly>
     </ToastContext.Provider>
   );
 };

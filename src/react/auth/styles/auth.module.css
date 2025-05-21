@@ -641,6 +641,7 @@ input.tiktok-input.invalid {
   cursor: pointer;
   transition: background-color 0.2s;
   text-align: left;
+  color: #333;
 }
 
 .tab-button:hover {
@@ -732,6 +733,7 @@ input.tiktok-input.invalid {
   border-radius: 0.5rem;
   outline: none;
   transition: border-color 0.2s;
+  color: #333;
 }
 
 .contract-input:focus {

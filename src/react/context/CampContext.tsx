@@ -1,8 +1,8 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
-import { Auth } from "@campnetwork/sdk";
+import { Auth } from "../../core/auth";
 import { ModalProvider } from "./ModalContext";
 import { WagmiContext } from "wagmi";
-import { Ackee } from "../../index";
+// import { Ackee } from "../../index";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../toasts";
 import constants from "../../constants";
@@ -19,7 +19,7 @@ import { OriginProvider } from "./OriginContext";
 interface CampContextType {
   clientId: string | null;
   auth: Auth | null;
-  setAuth: React.Dispatch<React.SetStateAction<Auth>>;
+  setAuth: React.Dispatch<React.SetStateAction<Auth | null>>;
   wagmiAvailable: boolean;
   ackee: any;
   setAckee: any;
@@ -56,29 +56,32 @@ const CampProvider = ({
 }) => {
   const isServer = typeof window === "undefined";
 
-  const ackeeInstance =
-    allowAnalytics && !isServer
-      ? Ackee.create(constants.ACKEE_INSTANCE, {
-          detailed: false,
-          ignoreLocalhost: true,
-          ignoreOwnVisits: false,
-        })
-      : null;
-  const [ackee, setAckee] = useState(ackeeInstance);
+  // const ackeeInstance =
+  //   allowAnalytics && !isServer
+  //     ? Ackee.create(constants.ACKEE_INSTANCE, {
+  //         detailed: false,
+  //         ignoreLocalhost: true,
+  //         ignoreOwnVisits: false,
+  //       })
+  //     : null;
+  // const [ackee, setAckee] = useState(ackeeInstance);
 
   const [auth, setAuth] = useState(
-    new Auth({
+    !isServer ? new Auth({
       clientId,
       redirectUri: redirectUri
         ? redirectUri
         : !isServer
         ? window.location.href
         : "",
-      ackeeInstance,
-    })
+      // ackeeInstance,
+    }) : null
   );
 
-  const wagmiContext = useContext(WagmiContext);
+  // const wagmiContext = useContext(WagmiContext);
+
+  const wagmiContext = typeof window !== "undefined" ? useContext(WagmiContext) : undefined;
+
 
   return (
     <CampContext.Provider
@@ -87,8 +90,8 @@ const CampProvider = ({
         auth,
         setAuth,
         wagmiAvailable: wagmiContext !== undefined,
-        ackee,
-        setAckee,
+        ackee: null,
+        setAckee : () => {},
       }}
     >
       <SocialsProvider>
