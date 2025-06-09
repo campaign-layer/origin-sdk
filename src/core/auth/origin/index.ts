@@ -1,0 +1,402 @@
+import { Abi, encodeFunctionData, getAbiItem } from "viem";
+import constants from "../../../constants";
+import { APIError } from "../../../errors";
+import { uploadWithProgress } from "../../../utils";
+import { getPublicClient } from "../viem/client";
+import { testnet } from "../viem/chains";
+import { mintWithSignature } from "./mintWithSignature";
+import { updateTerms } from "./updateTerms";
+import { requestDelete } from "./requestDelete";
+import { getTerms } from "./getTerms";
+import { ownerOf } from "./ownerOf";
+import { balanceOf } from "./balanceOf";
+import { contentHash } from "./contentHash";
+import { tokenURI } from "./tokenURI";
+import { dataStatus } from "./dataStatus";
+import { royaltyInfo } from "./royaltyInfo";
+import { getApproved } from "./getApproved";
+import { isApprovedForAll } from "./isApprovedForAll";
+import { transferFrom } from "./transferFrom";
+import { safeTransferFrom } from "./safeTransferFrom";
+import { approve } from "./approve";
+import { setApprovalForAll } from "./setApprovalForAll";
+
+interface OriginUsageReturnType {
+  user: {
+    multiplier: number;
+    points: number;
+    active: boolean;
+  };
+  teams: Array<any>;
+  dataSources: Array<any>;
+}
+
+type CallOptions = {
+  value?: bigint;
+  gas?: bigint;
+  waitForReceipt?: boolean;
+};
+
+/**
+ * The Origin class
+ * Handles the upload of files to Origin, as well as querying the user's stats
+ */
+export class Origin {
+  mintWithSignature!: typeof mintWithSignature;
+  updateTerms!: typeof updateTerms;
+  requestDelete!: typeof requestDelete;
+  getTerms!: typeof getTerms;
+  ownerOf!: typeof ownerOf;
+  balanceOf!: typeof balanceOf;
+  contentHash!: typeof contentHash;
+  tokenURI!: typeof tokenURI;
+  dataStatus!: typeof dataStatus;
+  royaltyInfo!: typeof royaltyInfo;
+  getApproved!: typeof getApproved;
+  isApprovedForAll!: typeof isApprovedForAll;
+  transferFrom!: typeof transferFrom;
+  safeTransferFrom!: typeof safeTransferFrom;
+  approve!: typeof approve;
+  setApprovalForAll!: typeof setApprovalForAll;
+
+  private jwt: string;
+  private viemClient?: any;
+  constructor(jwt: string, viemClient?: any) {
+    this.jwt = jwt;
+    this.viemClient = viemClient;
+  }
+
+  setViemClient(client: any) {
+    this.viemClient = client;
+  }
+
+  #generateURL = async (file: File) => {
+    const uploadRes = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: file.name,
+          type: file.type,
+        }),
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+        },
+      }
+    );
+    const data = await uploadRes.json();
+    return data.isError ? data.message : data.data;
+  };
+
+  #setOriginStatus = async (key: string, status: string) => {
+    const res = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/update-status`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          status,
+          fileKey: key,
+        }),
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!res.ok) {
+      console.error("Failed to update origin status");
+      return;
+    }
+  };
+
+  uploadFile = async (
+    file: File,
+    options?: { progressCallback?: (percent: number) => void }
+  ) => {
+    const uploadURL = await this.#generateURL(file);
+    if (!uploadURL) {
+      console.error("Failed to generate upload URL");
+      return;
+    }
+    try {
+      await uploadWithProgress(
+        file,
+        uploadURL.url,
+        options?.progressCallback || (() => {})
+      );
+    } catch (error) {
+      await this.#setOriginStatus(uploadURL.key, "failed");
+      throw new Error("Failed to upload file: " + error);
+    }
+    await this.#setOriginStatus(uploadURL.key, "success");
+  };
+
+  getOriginUploads = async () => {
+    const res = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/files`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+        },
+      }
+    );
+    if (!res.ok) {
+      console.error("Failed to get origin uploads");
+      return null;
+    }
+    const data = await res.json();
+    return data.data;
+  };
+
+  /**
+   * Get the user's Origin stats (multiplier, consent, usage, etc.).
+   * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
+   */
+
+  async getOriginUsage(): Promise<OriginUsageReturnType> {
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/usage`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          // "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError && data.data.user) {
+      return data;
+    } else {
+      throw new APIError(data.message || "Failed to fetch Origin usage");
+    }
+  }
+
+  /**
+   * Set the user's consent for Origin usage.
+   * @param {boolean} consent The user's consent.
+   * @returns {Promise<void>}
+   * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
+   */
+
+  async setOriginConsent(consent: boolean): Promise<void> {
+    if (consent === undefined) {
+      throw new APIError("Consent is required");
+    }
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/status`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          // "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          active: consent,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return;
+    } else {
+      throw new APIError(data.message || "Failed to set Origin consent");
+    }
+  }
+
+  /**
+   * Set the user's Origin multiplier.
+   * @param {number} multiplier The user's Origin multiplier.
+   * @returns {Promise<void>}
+   * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the multiplier is not provided.
+   */
+
+  async setOriginMultiplier(multiplier: number): Promise<void> {
+    if (multiplier === undefined) {
+      throw new APIError("Multiplier is required");
+    }
+    const data = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/multiplier`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          // "x-client-id": this.clientId,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          multiplier,
+        }),
+      }
+    ).then((res) => res.json());
+
+    if (!data.isError) {
+      return;
+    } else {
+      throw new APIError(data.message || "Failed to set Origin multiplier");
+    }
+  }
+
+  /**
+   * Wait for the transaction receipt.
+   * @private
+   * @param {string} txHash The transaction hash.
+   * @returns {Promise<any>} A promise that resolves with the transaction receipt.
+   * @throws {Error} - Throws an error if the wallet client is not connected.
+   */
+  async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
+    if (!this.viemClient) throw new Error("WalletClient not connected.");
+
+    while (true) {
+      const receipt = await this.viemClient.request({
+        method: "eth_getTransactionReceipt",
+        params: [txHash],
+      });
+
+      if (receipt && receipt.blockNumber) {
+        return receipt;
+      }
+
+      await new Promise((res) => setTimeout(res, 1000));
+    }
+  }
+
+  /**
+   * Ensure the chain ID is correct.
+   * @private
+   * @param {any} chain The chain object.
+   * @returns {Promise<void>} A promise that resolves when the chain ID is ensured.
+   * @throws {Error} - Throws an error if the wallet client is not connected.
+   */
+  async #ensureChainId(chain: any): Promise<void> {
+    // return;
+    if (!this.viemClient) throw new Error("WalletClient not connected.");
+
+    let currentChainId = await this.viemClient.request({
+      method: "eth_chainId",
+      params: [],
+    });
+    if (typeof currentChainId === "string") {
+      currentChainId = parseInt(currentChainId, 16);
+    }
+
+    if (currentChainId !== chain.id) {
+      try {
+        await this.viemClient.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+        });
+      } catch (switchError: any) {
+        // Unrecognized chain
+        if (switchError.code === 4902) {
+          await this.viemClient.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x" + BigInt(chain.id).toString(16),
+                chainName: chain.name,
+                rpcUrls: chain.rpcUrls.default.http,
+                nativeCurrency: chain.nativeCurrency,
+              },
+            ],
+          });
+
+          await this.viemClient.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    }
+  }
+
+  /**
+   * Call a contract method.
+   * @param {string} contractAddress The contract address.
+   * @param {Abi} abi The contract ABI.
+   * @param {string} methodName The method name.
+   * @param {any[]} params The method parameters.
+   * @param {CallOptions} [options] The call options.
+   * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
+   * @throws {Error} - Throws an error if the wallet client is not connected and the method is not a view function.
+   */
+  async callContractMethod(
+    contractAddress: string,
+    abi: Abi,
+    methodName: string,
+    params: any[],
+    options: CallOptions = {}
+  ): Promise<any> {
+    const abiItem = getAbiItem({ abi, name: methodName });
+
+    const isView =
+      abiItem &&
+      "stateMutability" in abiItem &&
+      (abiItem.stateMutability === "view" ||
+        abiItem.stateMutability === "pure");
+
+    if (!isView && !this.viemClient) {
+      throw new Error("WalletClient not connected.");
+    }
+
+    if (isView) {
+      const publicClient = getPublicClient();
+
+      const result =
+        (await publicClient.readContract({
+          address: contractAddress as `0x${string}`,
+          abi,
+          functionName: methodName,
+          args: params,
+        })) || null;
+      return result;
+    } else {
+      const [account] = await this.viemClient.getAddresses();
+
+      const data = encodeFunctionData({
+        abi,
+        functionName: methodName,
+        args: params,
+      });
+
+      await this.#ensureChainId(testnet);
+
+      const txHash = await this.viemClient.sendTransaction({
+        to: contractAddress as `0x${string}`,
+        data,
+        account,
+        value: options.value,
+        gas: options.gas,
+      });
+
+      if (options.waitForReceipt) {
+        const receipt = await this.#waitForTxReceipt.call(this, txHash);
+        return receipt;
+      }
+
+      return txHash;
+    }
+  }
+}
+
+Origin.prototype.mintWithSignature = mintWithSignature;
+Origin.prototype.updateTerms = updateTerms;
+Origin.prototype.requestDelete = requestDelete;
+Origin.prototype.getTerms = getTerms;
+Origin.prototype.ownerOf = ownerOf;
+Origin.prototype.balanceOf = balanceOf;
+Origin.prototype.contentHash = contentHash;
+Origin.prototype.tokenURI = tokenURI;
+Origin.prototype.dataStatus = dataStatus;
+Origin.prototype.royaltyInfo = royaltyInfo;
+Origin.prototype.getApproved = getApproved;
+Origin.prototype.isApprovedForAll = isApprovedForAll;
+Origin.prototype.transferFrom = transferFrom;
+Origin.prototype.safeTransferFrom = safeTransferFrom;
+Origin.prototype.approve = approve;
+Origin.prototype.setApprovalForAll = setApprovalForAll;

@@ -6,25 +6,12 @@ import { Provider, providerStore } from "./viem/providers";
 // import { Ackee } from "../../index";
 // import { sendAnalyticsEvent } from "../../utils";
 import { Origin } from "./origin";
-import {
-  Abi,
-  decodeFunctionResult,
-  encodeFunctionData,
-  getAbiItem,
-} from "viem";
-import { testnet } from "./viem/chains";
 
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
-
-type CallOptions = {
-  value?: bigint;
-  gas?: bigint;
-  waitForReceipt?: boolean;
-};
 
 const createRedirectUriObject = (
   redirectUri: string | Record<string, string>
@@ -197,6 +184,9 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name, address);
+    if (this.origin) {
+      this.origin.setViemClient(this.viem);
+    }
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
   }
@@ -252,12 +242,20 @@ class Auth {
       }
 
       if (selectedProvider) {
-        this.viem = getClient(
-          selectedProvider,
-          new Date().getTime().toString(),
-          walletAddress
-        );
-        this.#trigger("viem", this.viem);
+        // this.viem = getClient(
+        //   selectedProvider,
+        //   new Date().getTime().toString(),
+        //   walletAddress
+        // );
+        // this.#trigger("viem", this.viem);
+        this.setProvider({
+          provider: selectedProvider,
+          info: {
+            name: "reinitialized",
+            version: "1.0.0",
+          },
+          address: walletAddress,
+        });
       }
     } else {
       this.isAuthenticated = false;
@@ -435,7 +433,7 @@ class Auth {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
-        this.origin = new Origin(this.jwt);
+        this.origin = new Origin(this.jwt, this.viem);
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem(
           "camp-sdk:wallet-address",
@@ -835,148 +833,6 @@ class Auth {
     }
   }
 
-  /**
-   * Wait for the transaction receipt.
-   * @private
-   * @param {string} txHash The transaction hash.
-   * @returns {Promise<any>} A promise that resolves with the transaction receipt.
-   * @throws {Error} - Throws an error if the wallet client is not connected.
-   */
-  async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
-    if (!this.viem) throw new Error("WalletClient not connected.");
-
-    while (true) {
-      const receipt = await this.viem.request({
-        method: "eth_getTransactionReceipt",
-        params: [txHash],
-      });
-
-      if (receipt && receipt.blockNumber) {
-        return receipt;
-      }
-
-      await new Promise((res) => setTimeout(res, 1000));
-    }
-  }
-
-  /**
-   * Ensure the chain ID is correct.
-   * @private
-   * @param {any} chain The chain object.
-   * @returns {Promise<void>} A promise that resolves when the chain ID is ensured.
-   * @throws {Error} - Throws an error if the wallet client is not connected.
-   */
-  async #ensureChainId(chain: any): Promise<void> {
-    // return;
-    if (!this.viem) throw new Error("WalletClient not connected.");
-
-    let currentChainId = await this.viem.request({
-      method: "eth_chainId",
-      params: [],
-    });
-    if (typeof currentChainId === "string") {
-      currentChainId = parseInt(currentChainId, 16);
-    }
-
-    if (currentChainId !== chain.id) {
-      try {
-        await this.viem.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
-        });
-      } catch (switchError: any) {
-        // Unrecognized chain
-        if (switchError.code === 4902) {
-          await this.viem.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: "0x" + BigInt(chain.id).toString(16),
-                chainName: chain.name,
-                rpcUrls: chain.rpcUrls.default.http,
-                nativeCurrency: chain.nativeCurrency,
-              },
-            ],
-          });
-
-          await this.viem.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
-          });
-        } else {
-          throw switchError;
-        }
-      }
-    }
-  }
-
-  /**
-   * Call a contract method.
-   * @param {string} contractAddress The contract address.
-   * @param {Abi} abi The contract ABI.
-   * @param {string} methodName The method name.
-   * @param {any[]} params The method parameters.
-   * @param {CallOptions} [options] The call options.
-   * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
-   * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
-   */
-  async callContractMethod(
-    contractAddress: string,
-    abi: Abi,
-    methodName: string,
-    params: any[],
-    options: CallOptions = {}
-  ): Promise<any> {
-    const abiItem = getAbiItem({ abi, name: methodName });
-
-    const isView =
-      abiItem &&
-      "stateMutability" in abiItem &&
-      (abiItem.stateMutability === "view" ||
-        abiItem.stateMutability === "pure");
-
-    if (!isView && !this.viem) {
-      throw new Error("WalletClient not connected.");
-    }
-
-    if (isView) {
-      const publicClient = getPublicClient();
-
-      const result =
-        (await publicClient.readContract({
-          address: contractAddress as `0x${string}`,
-          abi,
-          functionName: methodName,
-          args: params,
-        })) || null;
-      return result;
-    } else {
-      const [account] = await this.viem.getAddresses();
-
-      const data = encodeFunctionData({
-        abi,
-        functionName: methodName,
-        args: params,
-      });
-
-      await this.#ensureChainId(testnet);
-
-      const txHash = await this.viem.sendTransaction({
-        to: contractAddress as `0x${string}`,
-        data,
-        account,
-        value: options.value,
-        gas: options.gas,
-      });
-
-      if (options.waitForReceipt) {
-        const receipt = await this.#waitForTxReceipt.call(this, txHash);
-        return receipt;
-      }
-
-      return txHash;
-    }
-  }
 }
 
 export { Auth };

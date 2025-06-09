@@ -1,4 +1,4 @@
-import { Abi } from 'viem';
+import { Address, Hex, Abi } from 'viem';
 
 /**
  * The TwitterAPI class.
@@ -196,6 +196,54 @@ declare class SpotifyAPI {
     _fetchDataWithAuth(url: string): Promise<object>;
 }
 
+type LicenseTerms = {
+    price: bigint;
+    duration: number;
+    royaltyBps: number;
+    paymentToken: Address;
+};
+declare enum DataStatus {
+    ACTIVE = 0,
+    PENDING_DELETE = 1,
+    DELETED = 2
+}
+
+declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: {
+    v: number;
+    r: Hex;
+    s: Hex;
+}): Promise<any>;
+
+declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTerms): Promise<any>;
+
+declare function requestDelete(this: Origin, tokenId: bigint): Promise<any>;
+
+declare function getTerms(this: Origin, tokenId: bigint): Promise<any>;
+
+declare function ownerOf(this: Origin, tokenId: bigint): Promise<any>;
+
+declare function balanceOf(this: Origin, owner: Address): Promise<any>;
+
+declare function contentHash(this: Origin, tokenId: bigint): Promise<any>;
+
+declare function tokenURI(this: Origin, tokenId: bigint): Promise<any>;
+
+declare function dataStatus(this: Origin, tokenId: bigint): Promise<DataStatus>;
+
+declare function royaltyInfo(this: Origin, tokenId: bigint, salePrice: bigint): Promise<[Address, bigint]>;
+
+declare function getApproved(this: Origin, tokenId: bigint): Promise<Address>;
+
+declare function isApprovedForAll(this: Origin, owner: Address, operator: Address): Promise<boolean>;
+
+declare function transferFrom(this: Origin, from: Address, to: Address, tokenId: bigint): Promise<any>;
+
+declare function safeTransferFrom(this: Origin, from: Address, to: Address, tokenId: bigint, data?: Hex): Promise<any>;
+
+declare function approve(this: Origin, to: Address, tokenId: bigint): Promise<any>;
+
+declare function setApprovalForAll(this: Origin, operator: Address, approved: boolean): Promise<any>;
+
 interface OriginUsageReturnType {
     user: {
         multiplier: number;
@@ -205,14 +253,37 @@ interface OriginUsageReturnType {
     teams: Array<any>;
     dataSources: Array<any>;
 }
+type CallOptions = {
+    value?: bigint;
+    gas?: bigint;
+    waitForReceipt?: boolean;
+};
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 declare class Origin {
     #private;
+    mintWithSignature: typeof mintWithSignature;
+    updateTerms: typeof updateTerms;
+    requestDelete: typeof requestDelete;
+    getTerms: typeof getTerms;
+    ownerOf: typeof ownerOf;
+    balanceOf: typeof balanceOf;
+    contentHash: typeof contentHash;
+    tokenURI: typeof tokenURI;
+    dataStatus: typeof dataStatus;
+    royaltyInfo: typeof royaltyInfo;
+    getApproved: typeof getApproved;
+    isApprovedForAll: typeof isApprovedForAll;
+    transferFrom: typeof transferFrom;
+    safeTransferFrom: typeof safeTransferFrom;
+    approve: typeof approve;
+    setApprovalForAll: typeof setApprovalForAll;
     private jwt;
-    constructor(jwt: string);
+    private viemClient?;
+    constructor(jwt: string, viemClient?: any);
+    setViemClient(client: any): void;
     uploadFile: (file: File, options?: {
         progressCallback?: (percent: number) => void;
     }) => Promise<void>;
@@ -236,6 +307,17 @@ declare class Origin {
      * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the multiplier is not provided.
      */
     setOriginMultiplier(multiplier: number): Promise<void>;
+    /**
+     * Call a contract method.
+     * @param {string} contractAddress The contract address.
+     * @param {Abi} abi The contract ABI.
+     * @param {string} methodName The method name.
+     * @param {any[]} params The method parameters.
+     * @param {CallOptions} [options] The call options.
+     * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
+     * @throws {Error} - Throws an error if the wallet client is not connected and the method is not a view function.
+     */
+    callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
 }
 
 declare global {
@@ -243,11 +325,6 @@ declare global {
         ethereum?: any;
     }
 }
-type CallOptions = {
-    value?: bigint;
-    gas?: bigint;
-    waitForReceipt?: boolean;
-};
 /**
  * The Auth class.
  * @class
@@ -413,17 +490,6 @@ declare class Auth {
      * @throws {APIError} - Throws an error if the request fails.
      */
     unlinkTelegram(): Promise<any>;
-    /**
-     * Call a contract method.
-     * @param {string} contractAddress The contract address.
-     * @param {Abi} abi The contract ABI.
-     * @param {string} methodName The method name.
-     * @param {any[]} params The method parameters.
-     * @param {CallOptions} [options] The call options.
-     * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
-     * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
-     */
-    callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
 }
 
 export { Auth, SpotifyAPI, TwitterAPI };

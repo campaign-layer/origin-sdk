@@ -417,18 +417,3 @@ export const useOrigin = (): {
     },
   };
 };
-
-// export const useOrigin = (): {
-//   stats: any;
-//   uploads: any[];
-// } => {
-//   const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
-//     statsQuery: UseQueryResult<any, Error>;
-//     uploadsQuery: UseQueryResult<any, Error>;
-//   };
-//   // return {
-//   //   ...statsQuery,
-//   //   uploads: uploadsQuery?.data || [],
-//   //   // error: statsQuery?.error || uploadsQuery?.error || new Error("Unknown error"),
-//   // };
-// };

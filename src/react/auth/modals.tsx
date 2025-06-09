@@ -916,7 +916,7 @@ const ContractInteraction = () => {
 
     try {
       setLoading(true);
-      const result = await auth.callContractMethod(
+      const result = await auth.origin?.callContractMethod(
         CONTRACT_ADDRESS,
         StorageABI as Abi,
         methodName,

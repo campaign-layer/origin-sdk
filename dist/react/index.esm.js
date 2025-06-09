@@ -164,6 +164,8 @@ var constants = {
         TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
         TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
     },
+    DATANFT_CONTRACT_ADDRESS: "0xd064817Dc0Af032c3fb5dd4671fd10E0a5F0515D",
+    MARKETPLACE_CONTRACT_ADDRESS: "0x3B782d053de8910cC0EF3DC09EEA055229a70c6b",
 };
 
 let providers = [];
@@ -249,13 +251,1148 @@ const uploadWithProgress = (file, url, onProgress) => {
     });
 };
 
-var _Origin_generateURL, _Origin_setOriginStatus;
+var abi = [
+	{
+		type: "constructor",
+		inputs: [
+			{
+				name: "_name",
+				type: "string",
+				internalType: "string"
+			},
+			{
+				name: "_symbol",
+				type: "string",
+				internalType: "string"
+			},
+			{
+				name: "_baseURI",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "addCreator",
+		inputs: [
+			{
+				name: "creator",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "addPauser",
+		inputs: [
+			{
+				name: "pauser",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "approve",
+		inputs: [
+			{
+				name: "to",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "balanceOf",
+		inputs: [
+			{
+				name: "owner_",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "baseURI",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "contentHash",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "creators",
+		inputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "dataStatus",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint8",
+				internalType: "enum DataNFT.DataStatus"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "finalizeDelete",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "getApproved",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "getTerms",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "tuple",
+				internalType: "struct DataNFT.LicenseTerms",
+				components: [
+					{
+						name: "price",
+						type: "uint128",
+						internalType: "uint128"
+					},
+					{
+						name: "duration",
+						type: "uint32",
+						internalType: "uint32"
+					},
+					{
+						name: "royaltyBps",
+						type: "uint16",
+						internalType: "uint16"
+					},
+					{
+						name: "paymentToken",
+						type: "address",
+						internalType: "address"
+					}
+				]
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "isApprovedForAll",
+		inputs: [
+			{
+				name: "owner_",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "operator",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "mintWithSignature",
+		inputs: [
+			{
+				name: "to",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "hash",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "uri",
+				type: "string",
+				internalType: "string"
+			},
+			{
+				name: "licenseTerms",
+				type: "tuple",
+				internalType: "struct DataNFT.LicenseTerms",
+				components: [
+					{
+						name: "price",
+						type: "uint128",
+						internalType: "uint128"
+					},
+					{
+						name: "duration",
+						type: "uint32",
+						internalType: "uint32"
+					},
+					{
+						name: "royaltyBps",
+						type: "uint16",
+						internalType: "uint16"
+					},
+					{
+						name: "paymentToken",
+						type: "address",
+						internalType: "address"
+					}
+				]
+			},
+			{
+				name: "deadline",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "v",
+				type: "uint8",
+				internalType: "uint8"
+			},
+			{
+				name: "r",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "s",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "name",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "owner",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "ownerOf",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "pause",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "paused",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "pausers",
+		inputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "removeCreator",
+		inputs: [
+			{
+				name: "creator",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "removePauser",
+		inputs: [
+			{
+				name: "pauser",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "requestDelete",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "royaltyInfo",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "salePrice",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "receiver",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "royaltyAmount",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "royaltyPercentages",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint16",
+				internalType: "uint16"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "royaltyReceivers",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "safeTransferFrom",
+		inputs: [
+			{
+				name: "from",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "to",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "safeTransferFrom",
+		inputs: [
+			{
+				name: "from",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "to",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "data",
+				type: "bytes",
+				internalType: "bytes"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "setApprovalForAll",
+		inputs: [
+			{
+				name: "operator",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "approved",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "symbol",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "terms",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "price",
+				type: "uint128",
+				internalType: "uint128"
+			},
+			{
+				name: "duration",
+				type: "uint32",
+				internalType: "uint32"
+			},
+			{
+				name: "royaltyBps",
+				type: "uint16",
+				internalType: "uint16"
+			},
+			{
+				name: "paymentToken",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "tokenURI",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "transferFrom",
+		inputs: [
+			{
+				name: "from",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "to",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "unpause",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "updateTerms",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "newTerms",
+				type: "tuple",
+				internalType: "struct DataNFT.LicenseTerms",
+				components: [
+					{
+						name: "price",
+						type: "uint128",
+						internalType: "uint128"
+					},
+					{
+						name: "duration",
+						type: "uint32",
+						internalType: "uint32"
+					},
+					{
+						name: "royaltyBps",
+						type: "uint16",
+						internalType: "uint16"
+					},
+					{
+						name: "paymentToken",
+						type: "address",
+						internalType: "address"
+					}
+				]
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "event",
+		name: "AccessPurchased",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "buyer",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "periods",
+				type: "uint32",
+				indexed: false,
+				internalType: "uint32"
+			},
+			{
+				name: "newExpiry",
+				type: "uint64",
+				indexed: false,
+				internalType: "uint64"
+			},
+			{
+				name: "amountPaid",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Approval",
+		inputs: [
+			{
+				name: "owner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "approved",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ApprovalForAll",
+		inputs: [
+			{
+				name: "owner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "operator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "approved",
+				type: "bool",
+				indexed: false,
+				internalType: "bool"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DataDeleted",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DataDeletionRequested",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DataMinted",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "contentHash",
+				type: "bytes32",
+				indexed: false,
+				internalType: "bytes32"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "RoyaltyPaid",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "royaltyAmount",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			},
+			{
+				name: "protocolAmount",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "TermsUpdated",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "newPrice",
+				type: "uint128",
+				indexed: false,
+				internalType: "uint128"
+			},
+			{
+				name: "newDuration",
+				type: "uint32",
+				indexed: false,
+				internalType: "uint32"
+			},
+			{
+				name: "newRoyaltyBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			},
+			{
+				name: "paymentToken",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Transfer",
+		inputs: [
+			{
+				name: "from",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "to",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "error",
+		name: "DurationZero",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidRoyalty",
+		inputs: [
+			{
+				name: "royaltyBps",
+				type: "uint16",
+				internalType: "uint16"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "NotTokenOwner",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "caller",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "TokenAlreadyExists",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "URIQueryForNonexistentToken",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "Unauthorized",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "Verifier_InvalidDeadline",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "Verifier_InvalidSignature",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "ZeroAddress",
+		inputs: [
+		]
+	}
+];
+
+function mintWithSignature(to, tokenId, hash, uri, licenseTerms, deadline, signature) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "mintWithSignature", [
+        to,
+        tokenId,
+        hash,
+        uri,
+        licenseTerms,
+        deadline,
+        signature.v,
+        signature.r,
+        signature.s,
+    ]);
+}
+
+function updateTerms(tokenId, newTerms) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "updateTerms", [tokenId, newTerms]);
+}
+
+function requestDelete(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "requestDelete", [tokenId]);
+}
+
+function getTerms(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "getTerms", [tokenId]);
+}
+
+function ownerOf(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "ownerOf", [tokenId]);
+}
+
+function balanceOf(owner) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "balanceOf", [owner]);
+}
+
+function contentHash(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "contentHash", [tokenId]);
+}
+
+function tokenURI(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "tokenURI", [tokenId]);
+}
+
+function dataStatus(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "dataStatus", [tokenId]);
+}
+
+function royaltyInfo(tokenId, salePrice) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "royaltyInfo", [tokenId, salePrice]);
+    });
+}
+
+function getApproved(tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "getApproved", [tokenId]);
+}
+
+function isApprovedForAll(owner, operator) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "isApprovedForAll", [owner, operator]);
+}
+
+function transferFrom(from, to, tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "transferFrom", [from, to, tokenId]);
+}
+
+function safeTransferFrom(from, to, tokenId, data) {
+    const args = data ? [from, to, tokenId, data] : [from, to, tokenId];
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "safeTransferFrom", args);
+}
+
+function approve(to, tokenId) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "approve", [to, tokenId]);
+}
+
+function setApprovalForAll(operator, approved) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi, "setApprovalForAll", [operator, approved]);
+}
+
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 class Origin {
-    constructor(jwt) {
+    constructor(jwt, viemClient) {
+        _Origin_instances.add(this);
         _Origin_generateURL.set(this, (file) => __awaiter(this, void 0, void 0, function* () {
             const uploadRes = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`, {
                 method: "POST",
@@ -317,6 +1454,10 @@ class Origin {
             return data.data;
         });
         this.jwt = jwt;
+        this.viemClient = viemClient;
+    }
+    setViemClient(client) {
+        this.viemClient = client;
     }
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).
@@ -400,10 +1541,138 @@ class Origin {
             }
         });
     }
+    /**
+     * Call a contract method.
+     * @param {string} contractAddress The contract address.
+     * @param {Abi} abi The contract ABI.
+     * @param {string} methodName The method name.
+     * @param {any[]} params The method parameters.
+     * @param {CallOptions} [options] The call options.
+     * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
+     * @throws {Error} - Throws an error if the wallet client is not connected and the method is not a view function.
+     */
+    callContractMethod(contractAddress_1, abi_1, methodName_1, params_1) {
+        return __awaiter(this, arguments, void 0, function* (contractAddress, abi, methodName, params, options = {}) {
+            const abiItem = getAbiItem({ abi, name: methodName });
+            const isView = abiItem &&
+                "stateMutability" in abiItem &&
+                (abiItem.stateMutability === "view" ||
+                    abiItem.stateMutability === "pure");
+            if (!isView && !this.viemClient) {
+                throw new Error("WalletClient not connected.");
+            }
+            if (isView) {
+                const publicClient = getPublicClient();
+                const result = (yield publicClient.readContract({
+                    address: contractAddress,
+                    abi,
+                    functionName: methodName,
+                    args: params,
+                })) || null;
+                return result;
+            }
+            else {
+                const [account] = yield this.viemClient.getAddresses();
+                const data = encodeFunctionData({
+                    abi,
+                    functionName: methodName,
+                    args: params,
+                });
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, testnet);
+                const txHash = yield this.viemClient.sendTransaction({
+                    to: contractAddress,
+                    data,
+                    account,
+                    value: options.value,
+                    gas: options.gas,
+                });
+                if (options.waitForReceipt) {
+                    const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
+                    return receipt;
+                }
+                return txHash;
+            }
+        });
+    }
 }
-_Origin_generateURL = new WeakMap(), _Origin_setOriginStatus = new WeakMap();
+_Origin_generateURL = new WeakMap(), _Origin_setOriginStatus = new WeakMap(), _Origin_instances = new WeakSet(), _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.viemClient)
+            throw new Error("WalletClient not connected.");
+        while (true) {
+            const receipt = yield this.viemClient.request({
+                method: "eth_getTransactionReceipt",
+                params: [txHash],
+            });
+            if (receipt && receipt.blockNumber) {
+                return receipt;
+            }
+            yield new Promise((res) => setTimeout(res, 1000));
+        }
+    });
+}, _Origin_ensureChainId = function _Origin_ensureChainId(chain) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // return;
+        if (!this.viemClient)
+            throw new Error("WalletClient not connected.");
+        let currentChainId = yield this.viemClient.request({
+            method: "eth_chainId",
+            params: [],
+        });
+        if (typeof currentChainId === "string") {
+            currentChainId = parseInt(currentChainId, 16);
+        }
+        if (currentChainId !== chain.id) {
+            try {
+                yield this.viemClient.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+                });
+            }
+            catch (switchError) {
+                // Unrecognized chain
+                if (switchError.code === 4902) {
+                    yield this.viemClient.request({
+                        method: "wallet_addEthereumChain",
+                        params: [
+                            {
+                                chainId: "0x" + BigInt(chain.id).toString(16),
+                                chainName: chain.name,
+                                rpcUrls: chain.rpcUrls.default.http,
+                                nativeCurrency: chain.nativeCurrency,
+                            },
+                        ],
+                    });
+                    yield this.viemClient.request({
+                        method: "wallet_switchEthereumChain",
+                        params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
+                    });
+                }
+                else {
+                    throw switchError;
+                }
+            }
+        }
+    });
+};
+Origin.prototype.mintWithSignature = mintWithSignature;
+Origin.prototype.updateTerms = updateTerms;
+Origin.prototype.requestDelete = requestDelete;
+Origin.prototype.getTerms = getTerms;
+Origin.prototype.ownerOf = ownerOf;
+Origin.prototype.balanceOf = balanceOf;
+Origin.prototype.contentHash = contentHash;
+Origin.prototype.tokenURI = tokenURI;
+Origin.prototype.dataStatus = dataStatus;
+Origin.prototype.royaltyInfo = royaltyInfo;
+Origin.prototype.getApproved = getApproved;
+Origin.prototype.isApprovedForAll = isApprovedForAll;
+Origin.prototype.transferFrom = transferFrom;
+Origin.prototype.safeTransferFrom = safeTransferFrom;
+Origin.prototype.approve = approve;
+Origin.prototype.setApprovalForAll = setApprovalForAll;
 
-var _Auth_instances, _Auth_triggers, _Auth_ackeeInstance, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage, _Auth_sendAnalyticsEvent, _Auth_waitForTxReceipt, _Auth_ensureChainId;
+var _Auth_instances, _Auth_triggers, _Auth_ackeeInstance, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage, _Auth_sendAnalyticsEvent;
 const createRedirectUriObject = (redirectUri) => {
     const keys = ["twitter", "discord", "spotify"];
     if (typeof redirectUri === "object") {
@@ -514,6 +1783,9 @@ class Auth {
             throw new APIError("provider is required");
         }
         this.viem = getClient(provider, info.name, address);
+        if (this.origin) {
+            this.origin.setViemClient(this.viem);
+        }
         __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "viem", this.viem);
         __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "provider", { provider, info });
     }
@@ -569,7 +1841,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt);
+                    this.origin = new Origin(this.jwt, this.viem);
                     localStorage.setItem("camp-sdk:jwt", this.jwt);
                     localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
                     localStorage.setItem("camp-sdk:user-id", this.userId);
@@ -944,59 +2216,6 @@ class Auth {
             }
         });
     }
-    /**
-     * Call a contract method.
-     * @param {string} contractAddress The contract address.
-     * @param {Abi} abi The contract ABI.
-     * @param {string} methodName The method name.
-     * @param {any[]} params The method parameters.
-     * @param {CallOptions} [options] The call options.
-     * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
-     * @throws {Error} - Throws an error if the wallet client is not connected or if the method is not a view function.
-     */
-    callContractMethod(contractAddress_1, abi_1, methodName_1, params_1) {
-        return __awaiter(this, arguments, void 0, function* (contractAddress, abi, methodName, params, options = {}) {
-            const abiItem = getAbiItem({ abi, name: methodName });
-            const isView = abiItem &&
-                "stateMutability" in abiItem &&
-                (abiItem.stateMutability === "view" ||
-                    abiItem.stateMutability === "pure");
-            if (!isView && !this.viem) {
-                throw new Error("WalletClient not connected.");
-            }
-            if (isView) {
-                const publicClient = getPublicClient();
-                const result = (yield publicClient.readContract({
-                    address: contractAddress,
-                    abi,
-                    functionName: methodName,
-                    args: params,
-                })) || null;
-                return result;
-            }
-            else {
-                const [account] = yield this.viem.getAddresses();
-                const data = encodeFunctionData({
-                    abi,
-                    functionName: methodName,
-                    args: params,
-                });
-                yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_ensureChainId).call(this, testnet);
-                const txHash = yield this.viem.sendTransaction({
-                    to: contractAddress,
-                    data,
-                    account,
-                    value: options.value,
-                    gas: options.gas,
-                });
-                if (options.waitForReceipt) {
-                    const receipt = yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_waitForTxReceipt).call(this, txHash);
-                    return receipt;
-                }
-                return txHash;
-            }
-        });
-    }
 }
 _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger = function _Auth_trigger(event, data) {
     if (__classPrivateFieldGet(this, _Auth_triggers, "f")[event]) {
@@ -1036,8 +2255,20 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
                 }
             }
             if (selectedProvider) {
-                this.viem = getClient(selectedProvider, new Date().getTime().toString(), walletAddress);
-                __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "viem", this.viem);
+                // this.viem = getClient(
+                //   selectedProvider,
+                //   new Date().getTime().toString(),
+                //   walletAddress
+                // );
+                // this.#trigger("viem", this.viem);
+                this.setProvider({
+                    provider: selectedProvider,
+                    info: {
+                        name: "reinitialized",
+                        version: "1.0.0",
+                    },
+                    address: walletAddress,
+                });
             }
         }
         else {
@@ -1119,65 +2350,6 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
         // if (this.#ackeeInstance)
         //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
         // else return;
-    });
-}, _Auth_waitForTxReceipt = function _Auth_waitForTxReceipt(txHash) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!this.viem)
-            throw new Error("WalletClient not connected.");
-        while (true) {
-            const receipt = yield this.viem.request({
-                method: "eth_getTransactionReceipt",
-                params: [txHash],
-            });
-            if (receipt && receipt.blockNumber) {
-                return receipt;
-            }
-            yield new Promise((res) => setTimeout(res, 1000));
-        }
-    });
-}, _Auth_ensureChainId = function _Auth_ensureChainId(chain) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // return;
-        if (!this.viem)
-            throw new Error("WalletClient not connected.");
-        let currentChainId = yield this.viem.request({
-            method: "eth_chainId",
-            params: [],
-        });
-        if (typeof currentChainId === "string") {
-            currentChainId = parseInt(currentChainId, 16);
-        }
-        if (currentChainId !== chain.id) {
-            try {
-                yield this.viem.request({
-                    method: "wallet_switchEthereumChain",
-                    params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
-                });
-            }
-            catch (switchError) {
-                // Unrecognized chain
-                if (switchError.code === 4902) {
-                    yield this.viem.request({
-                        method: "wallet_addEthereumChain",
-                        params: [
-                            {
-                                chainId: "0x" + BigInt(chain.id).toString(16),
-                                chainName: chain.name,
-                                rpcUrls: chain.rpcUrls.default.http,
-                                nativeCurrency: chain.nativeCurrency,
-                            },
-                        ],
-                    });
-                    yield this.viem.request({
-                        method: "wallet_switchEthereumChain",
-                        params: [{ chainId: "0x" + BigInt(chain.id).toString(16) }],
-                    });
-                }
-                else {
-                    throw switchError;
-                }
-            }
-        }
     });
 };
 
@@ -2513,13 +3685,14 @@ const ContractInteraction = () => {
     const { addToast: toast } = useToast();
     const CONTRACT_ADDRESS = "0xcCB22CdA4857E1665dE3043FF77ff125c9E0A2A7";
     const callContract = (methodName_1, params_1, ...args_1) => __awaiter(void 0, [methodName_1, params_1, ...args_1], void 0, function* (methodName, params, isWrite = false) {
+        var _a;
         if (!auth) {
             toast("Auth instance not available", "error", 5000);
             return;
         }
         try {
             setLoading(true);
-            const result = yield auth.callContractMethod(CONTRACT_ADDRESS, StorageABI, methodName, params, { waitForReceipt: true });
+            const result = yield ((_a = auth.origin) === null || _a === void 0 ? void 0 : _a.callContractMethod(CONTRACT_ADDRESS, StorageABI, methodName, params, { waitForReceipt: true }));
             if (isWrite) {
                 toast("Transaction sent successfully", "success", 5000);
                 alert(`Transaction sent successfully: ${result.transactionHash}`);
@@ -3069,19 +4242,5 @@ const useOrigin = () => {
         },
     };
 };
-// export const useOrigin = (): {
-//   stats: any;
-//   uploads: any[];
-// } => {
-//   const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
-//     statsQuery: UseQueryResult<any, Error>;
-//     uploadsQuery: UseQueryResult<any, Error>;
-//   };
-//   // return {
-//   //   ...statsQuery,
-//   //   uploads: uploadsQuery?.data || [],
-//   //   // error: statsQuery?.error || uploadsQuery?.error || new Error("Unknown error"),
-//   // };
-// };
 
 export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials, useViem };
