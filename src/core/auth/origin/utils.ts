@@ -12,3 +12,17 @@ export enum DataStatus {
   PENDING_DELETE = 1,
   DELETED = 2,
 }
+
+export const createLicenseTerms = (
+  price: bigint,
+  duration: number,
+  royaltyBps: number,
+  paymentToken: Address
+): LicenseTerms => {
+  return {
+    price,
+    duration,
+    royaltyBps,
+    paymentToken,
+  };
+};

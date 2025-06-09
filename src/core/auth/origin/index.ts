@@ -20,6 +20,10 @@ import { transferFrom } from "./transferFrom";
 import { safeTransferFrom } from "./safeTransferFrom";
 import { approve } from "./approve";
 import { setApprovalForAll } from "./setApprovalForAll";
+import { buyAccess } from "./buyAccess";
+import { renewAccess } from "./renewAccess";
+import { hasAccess } from "./hasAccess";
+import { subscriptionExpiry } from "./subscriptionExpiry";
 
 interface OriginUsageReturnType {
   user: {
@@ -42,6 +46,7 @@ type CallOptions = {
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 export class Origin {
+  // DataNFT methods
   mintWithSignature!: typeof mintWithSignature;
   updateTerms!: typeof updateTerms;
   requestDelete!: typeof requestDelete;
@@ -58,6 +63,11 @@ export class Origin {
   safeTransferFrom!: typeof safeTransferFrom;
   approve!: typeof approve;
   setApprovalForAll!: typeof setApprovalForAll;
+  // Marketplace methods
+  buyAccess!: typeof buyAccess;
+  renewAccess!: typeof renewAccess;
+  hasAccess!: typeof hasAccess;
+  subscriptionExpiry!: typeof subscriptionExpiry;
 
   private jwt: string;
   private viemClient?: any;
@@ -374,16 +384,24 @@ export class Origin {
         gas: options.gas,
       });
 
-      if (options.waitForReceipt) {
-        const receipt = await this.#waitForTxReceipt.call(this, txHash);
-        return receipt;
+      if (typeof txHash !== "string") {
+        throw new Error("Transaction failed to send.");
       }
 
-      return txHash;
+      if (!options.waitForReceipt) {
+        return txHash;
+      }
+
+      const receipt = await this.#waitForTxReceipt.call(
+        this,
+        txHash as `0x${string}`
+      );
+      return receipt;
     }
   }
 }
 
+// DataNFT methods
 Origin.prototype.mintWithSignature = mintWithSignature;
 Origin.prototype.updateTerms = updateTerms;
 Origin.prototype.requestDelete = requestDelete;
@@ -400,3 +418,8 @@ Origin.prototype.transferFrom = transferFrom;
 Origin.prototype.safeTransferFrom = safeTransferFrom;
 Origin.prototype.approve = approve;
 Origin.prototype.setApprovalForAll = setApprovalForAll;
+// Marketplace methods
+Origin.prototype.buyAccess = buyAccess;
+Origin.prototype.renewAccess = renewAccess;
+Origin.prototype.hasAccess = hasAccess;
+Origin.prototype.subscriptionExpiry = subscriptionExpiry;

@@ -2,7 +2,7 @@ import { Abi, Address, Hex } from "viem";
 import abi from "../../origin/contracts/DataNFT.json";
 import { Origin } from ".";
 import constants from "../../../constants";
-import { LicenseTerms } from "./types";
+import { LicenseTerms } from "./utils";
 
 export function mintWithSignature(
   this: Origin,

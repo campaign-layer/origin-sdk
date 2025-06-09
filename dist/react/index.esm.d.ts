@@ -50,6 +50,14 @@ declare function approve(this: Origin, to: Address, tokenId: bigint): Promise<an
 
 declare function setApprovalForAll(this: Origin, operator: Address, approved: boolean): Promise<any>;
 
+declare function buyAccess(this: Origin, tokenId: bigint, periods: number, value?: bigint): Promise<any>;
+
+declare function renewAccess(this: Origin, tokenId: bigint, buyer: Address, periods: number, value?: bigint): Promise<any>;
+
+declare function hasAccess(this: Origin, user: Address, tokenId: bigint): Promise<boolean>;
+
+declare function subscriptionExpiry(this: Origin, tokenId: bigint, user: Address): Promise<bigint>;
+
 interface OriginUsageReturnType {
     user: {
         multiplier: number;
@@ -86,6 +94,10 @@ declare class Origin {
     safeTransferFrom: typeof safeTransferFrom;
     approve: typeof approve;
     setApprovalForAll: typeof setApprovalForAll;
+    buyAccess: typeof buyAccess;
+    renewAccess: typeof renewAccess;
+    hasAccess: typeof hasAccess;
+    subscriptionExpiry: typeof subscriptionExpiry;
     private jwt;
     private viemClient?;
     constructor(jwt: string, viemClient?: any);
