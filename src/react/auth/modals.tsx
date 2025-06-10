@@ -1024,7 +1024,7 @@ const OriginSection = (): JSX.Element => {
     </div>
   ) : (
     <div className={styles["origin-wrapper"]}>
-      <ContractInteraction />
+      {/* <ContractInteraction /> */}
       <div className={styles["origin-section"]}>
         <Tooltip
           content={

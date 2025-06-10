@@ -634,10 +634,13 @@ input.tiktok-input.invalid {
 }
 
 .tab-button {
+  border-radius: 0;
   background-color: #fefefe;
+  border: 2px transparent;
   border-right: 2px solid #ddd;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   font-size: 0.875rem;
+  font-weight: 400;
   cursor: pointer;
   transition: background-color 0.2s;
   text-align: left;
@@ -646,6 +649,12 @@ input.tiktok-input.invalid {
 
 .tab-button:hover {
   background-color: #eee;
+  border-color: #ddd;
+}
+
+.tab-button:focus {
+  outline: none;
+  border-color: #ff6f00;
 }
 
 .active-tab {

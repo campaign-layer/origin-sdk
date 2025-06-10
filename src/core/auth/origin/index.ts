@@ -4,7 +4,7 @@ import { APIError } from "../../../errors";
 import { uploadWithProgress } from "../../../utils";
 import { getPublicClient } from "../viem/client";
 import { testnet } from "../viem/chains";
-import { mintWithSignature } from "./mintWithSignature";
+import { mintWithSignature, registerDataNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
 import { requestDelete } from "./requestDelete";
 import { getTerms } from "./getTerms";
@@ -24,6 +24,7 @@ import { buyAccess } from "./buyAccess";
 import { renewAccess } from "./renewAccess";
 import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
+import { createLicenseTerms, LicenseTerms } from "./utils";
 
 interface OriginUsageReturnType {
   user: {
@@ -48,6 +49,7 @@ type CallOptions = {
 export class Origin {
   // DataNFT methods
   mintWithSignature!: typeof mintWithSignature;
+  registerDataNFT!: typeof registerDataNFT;
   updateTerms!: typeof updateTerms;
   requestDelete!: typeof requestDelete;
   getTerms!: typeof getTerms;
@@ -74,6 +76,33 @@ export class Origin {
   constructor(jwt: string, viemClient?: any) {
     this.jwt = jwt;
     this.viemClient = viemClient;
+    // DataNFT methods
+    this.mintWithSignature = mintWithSignature.bind(this);
+    this.registerDataNFT = registerDataNFT.bind(this);
+    this.updateTerms = updateTerms.bind(this);
+    this.requestDelete = requestDelete.bind(this);
+    this.getTerms = getTerms.bind(this);
+    this.ownerOf = ownerOf.bind(this);
+    this.balanceOf = balanceOf.bind(this);
+    this.contentHash = contentHash.bind(this);
+    this.tokenURI = tokenURI.bind(this);
+    this.dataStatus = dataStatus.bind(this);
+    this.royaltyInfo = royaltyInfo.bind(this);
+    this.getApproved = getApproved.bind(this);
+    this.isApprovedForAll = isApprovedForAll.bind(this);
+    this.transferFrom = transferFrom.bind(this);
+    this.safeTransferFrom = safeTransferFrom.bind(this);
+    this.approve = approve.bind(this);
+    this.setApprovalForAll = setApprovalForAll.bind(this);
+    // Marketplace methods
+    this.buyAccess = buyAccess.bind(this);
+    this.renewAccess = renewAccess.bind(this);
+    this.hasAccess = hasAccess.bind(this);
+    this.subscriptionExpiry = subscriptionExpiry.bind(this);
+  }
+
+  getJwt() {
+    return this.jwt;
   }
 
   setViemClient(client: any) {
@@ -123,22 +152,103 @@ export class Origin {
     file: File,
     options?: { progressCallback?: (percent: number) => void }
   ) => {
-    const uploadURL = await this.#generateURL(file);
-    if (!uploadURL) {
+    const uploadInfo = await this.#generateURL(file);
+    if (!uploadInfo) {
       console.error("Failed to generate upload URL");
       return;
     }
     try {
       await uploadWithProgress(
         file,
-        uploadURL.url,
+        uploadInfo.url,
         options?.progressCallback || (() => {})
       );
     } catch (error) {
-      await this.#setOriginStatus(uploadURL.key, "failed");
+      await this.#setOriginStatus(uploadInfo.key, "failed");
       throw new Error("Failed to upload file: " + error);
     }
-    await this.#setOriginStatus(uploadURL.key, "success");
+    await this.#setOriginStatus(uploadInfo.key, "success");
+    return uploadInfo;
+  };
+
+  mintFile = async (
+    file: File,
+    license: LicenseTerms,
+    options?: {
+      progressCallback?: (percent: number) => void;
+    }
+  ): Promise<string | null> => {
+    try {
+      const info = await this.uploadFile(file, options);
+      if (!info || !info.key) {
+        console.error("Invalid upload info:", info);
+        return null;
+      }
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
+      const registration = await this.registerDataNFT(
+        "file",
+        deadline,
+        info.key
+      );
+      const { tokenId, signerAddress, hash, v, r, s } = registration;
+
+      if (
+        !tokenId ||
+        !signerAddress ||
+        !hash ||
+        v === undefined ||
+        r === undefined ||
+        s === undefined
+      ) {
+        console.error("Invalid registration data:", registration);
+        return null;
+      }
+
+      const [account] = await this.viemClient.getAddresses();
+
+      // const licenseTerms = createLicenseTerms(
+      //   BigInt(266), // price
+      //   10000000, // duration
+      //   0, // royaltyBps
+      //   "0x0000000000000000000000000000000000000000"
+      // );
+
+      const signature = { v, r, s };
+
+      const mintResult = await this.mintWithSignature(
+        account,
+        tokenId,
+        hash,
+        info.url,
+        license,
+        deadline,
+        signature
+      );
+
+      console.log("Minting successful:", mintResult);
+
+      return tokenId.toString();
+    } catch (error) {
+      console.error("Failed to upload file:", error);
+      return null;
+    }
+  };
+
+  mintSocial = async (
+    source: "spotify" | "twitter" | "tiktok"
+  ): Promise<string | null> => {
+    try {
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now (temp)
+      const registration = await this.registerDataNFT(source, deadline);
+      if (!registration) {
+        console.error("Failed to register DataNFT");
+        return null;
+      }
+      return registration.tokenId.toString();
+    } catch (error) {
+      console.error("Failed to mint social DataNFT:", error);
+      return null;
+    }
   };
 
   getOriginUploads = async () => {
@@ -400,26 +510,3 @@ export class Origin {
     }
   }
 }
-
-// DataNFT methods
-Origin.prototype.mintWithSignature = mintWithSignature;
-Origin.prototype.updateTerms = updateTerms;
-Origin.prototype.requestDelete = requestDelete;
-Origin.prototype.getTerms = getTerms;
-Origin.prototype.ownerOf = ownerOf;
-Origin.prototype.balanceOf = balanceOf;
-Origin.prototype.contentHash = contentHash;
-Origin.prototype.tokenURI = tokenURI;
-Origin.prototype.dataStatus = dataStatus;
-Origin.prototype.royaltyInfo = royaltyInfo;
-Origin.prototype.getApproved = getApproved;
-Origin.prototype.isApprovedForAll = isApprovedForAll;
-Origin.prototype.transferFrom = transferFrom;
-Origin.prototype.safeTransferFrom = safeTransferFrom;
-Origin.prototype.approve = approve;
-Origin.prototype.setApprovalForAll = setApprovalForAll;
-// Marketplace methods
-Origin.prototype.buyAccess = buyAccess;
-Origin.prototype.renewAccess = renewAccess;
-Origin.prototype.hasAccess = hasAccess;
-Origin.prototype.subscriptionExpiry = subscriptionExpiry;

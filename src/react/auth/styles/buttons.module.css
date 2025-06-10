@@ -529,3 +529,43 @@
   background-color: #ff6f00;
   transition: width 0.3s ease;
 }
+
+.date-picker {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: sans-serif;
+}
+
+.date-picker input {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.percentage-slider {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  font-family: sans-serif;
+  justify-content: space-between;
+}
+
+.percentage-slider input[type="range"] {
+  width: 100%;
+}
+
+.percentage-slider label {
+  min-width: 50px;
+}
+
+.price-input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: sans-serif;
+}

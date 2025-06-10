@@ -12,7 +12,7 @@ export default {
   SUPPORTED_VIDEO_FORMATS: ["video/mp4", "video/webm"],
   SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
   SUPPORTED_TEXT_FORMATS: ["text/plain"],
-  AVAILABLE_SOCIALS: ["twitter", "discord", "spotify", "tiktok", "telegram"],
+  AVAILABLE_SOCIALS: ["twitter", "spotify", "tiktok"],
   ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
   ACKEE_EVENTS: {
     USER_CONNECTED: "ed42542d-b676-4112-b6d9-6db98048b2e0",

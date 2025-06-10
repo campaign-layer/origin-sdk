@@ -2,23 +2,60 @@ import React, { JSX } from 'react';
 import { Address, Hex, Abi } from 'viem';
 import { UseQueryResult } from '@tanstack/react-query';
 
+/**
+ * Represents the terms of a license for a digital asset.
+ * @property price - The price of the asset in wei.
+ * @property duration - The duration of the license in seconds.
+ * @property royaltyBps - The royalty percentage in basis points (0-10000).
+ * @property paymentToken - The address of the payment token (ERC20 / address(0) for native currency).
+ */
 type LicenseTerms = {
     price: bigint;
     duration: number;
     royaltyBps: number;
     paymentToken: Address;
 };
+/**
+ * Enum representing the status of data in the system.
+ * * - ACTIVE: The data is currently active and available.
+ * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
+ * * - DELETED: The data has been deleted and is no longer available.
+ */
 declare enum DataStatus {
     ACTIVE = 0,
     PENDING_DELETE = 1,
     DELETED = 2
 }
+/**
+ * Represents the source of a Data NFT.
+ * This can be one of the supported social media platforms or a file upload.
+ */
+type DataNFTSource = "spotify" | "twitter" | "tiktok" | "file";
 
+/**
+ * Mints a Data NFT with a signature.
+ * @param to The address to mint the NFT to.
+ * @param tokenId The ID of the token to mint.
+ * @param hash The hash of the data associated with the NFT.
+ * @param uri The URI of the NFT metadata.
+ * @param licenseTerms The terms of the license for the NFT.
+ * @param deadline The deadline for the minting operation.
+ * @param signature The signature for the minting operation.
+ * @returns A promise that resolves when the minting is complete.
+ */
 declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: {
     v: number;
     r: Hex;
     s: Hex;
 }): Promise<any>;
+/**
+ * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
+ * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
+ * @param deadline The deadline for the registration operation.
+ * @param fileKey Optional file key for file uploads.
+ * @return A promise that resolves with the registration data.
+ */
+declare function registerDataNFT(this: Origin, source: DataNFTSource, deadline: bigint, fileKey?: string | string[]): Promise<any>;
 
 declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTerms): Promise<any>;
 
@@ -79,6 +116,7 @@ type CallOptions = {
 declare class Origin {
     #private;
     mintWithSignature: typeof mintWithSignature;
+    registerDataNFT: typeof registerDataNFT;
     updateTerms: typeof updateTerms;
     requestDelete: typeof requestDelete;
     getTerms: typeof getTerms;
@@ -101,10 +139,15 @@ declare class Origin {
     private jwt;
     private viemClient?;
     constructor(jwt: string, viemClient?: any);
+    getJwt(): string;
     setViemClient(client: any): void;
     uploadFile: (file: File, options?: {
         progressCallback?: (percent: number) => void;
-    }) => Promise<void>;
+    }) => Promise<any>;
+    mintFile: (file: File, license: LicenseTerms, options?: {
+        progressCallback?: (percent: number) => void;
+    }) => Promise<string | null>;
+    mintSocial: (source: "spotify" | "twitter" | "tiktok") => Promise<string | null>;
     getOriginUploads: () => Promise<any>;
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).

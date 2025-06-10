@@ -1,4 +1,5 @@
 import constants from "../../constants";
+import { createLicenseTerms } from "../../core/auth/origin/utils";
 import { useToast } from "../toasts";
 import { BinIcon, CampIcon, getIconBySocial, LinkIcon } from "./icons";
 import {
@@ -411,6 +412,67 @@ const LoadingBar = ({ progress }: LoadingBarProps): JSX.Element => {
   );
 };
 
+interface PercentageSliderProps {
+  onChange: (value: number) => void;
+}
+
+export const PercentageSlider: React.FC<PercentageSliderProps> = ({
+  onChange,
+}) => {
+  const [value, setValue] = useState(0);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setValue(val);
+    onChange(val);
+  };
+
+  return (
+    <div className={buttonStyles["percentage-slider"]}>
+      {/* <label htmlFor="slider">Royalty:</label> */}
+      <input
+        id="slider"
+        type="range"
+        min="0"
+        max="100"
+        value={value}
+        onChange={handleChange}
+      />
+      <label htmlFor="slider">{value}%</label>
+    </div>
+  );
+};
+
+interface DeadlinePickerProps {
+  onChange: (unixTimestamp: number) => void;
+}
+
+export const DatePicker: React.FC<DeadlinePickerProps> = ({ onChange }) => {
+  const [value, setValue] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dateStr = e.target.value;
+    setValue(dateStr);
+
+    const timestamp = Math.floor(new Date(dateStr).getTime() / 1000);
+    if (!isNaN(timestamp)) {
+      onChange(timestamp);
+    }
+  };
+
+  return (
+    <div className={buttonStyles["date-picker"]}>
+      {/* <label htmlFor="date">License expiry:</label> */}
+      <input
+        id="date"
+        type="datetime-local"
+        value={value}
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
 /**
  * The FileUpload component.
  * Provides a file upload field with drag-and-drop support.
@@ -431,16 +493,27 @@ export const FileUpload = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
+  const [price, setPrice] = useState<bigint>(BigInt(0)); // price in wei
+  const [royaltyBps, setRoyaltyBps] = useState<number>(0); // royalty basis points (0-10000)
+  const [licenseExpiry, setLicenseExpiry] = useState<number | null>(null); // Unix timestamp in seconds
 
   const handleUpload = async () => {
     if (selectedFile) {
       setIsUploading(true);
       try {
-        await auth?.origin?.uploadFile(selectedFile, {
+        const license = createLicenseTerms(
+          price, // price in wei
+          Number(licenseExpiry) - Math.floor(Date.now() / 1000), // duration in seconds
+          royaltyBps, // royalty basis points
+          "0x0000000000000000000000000000000000000000" // payment token
+        );
+        const res = await auth?.origin?.mintFile(selectedFile, license, {
           progressCallback(percent) {
             setUploadProgress(percent);
           },
         });
+        // console.log("File uploaded:", res);
+        console.log("Minted token ID:", res);
         if (onFileUpload) {
           onFileUpload([selectedFile]);
         }
@@ -612,6 +685,30 @@ export const FileUpload = ({
           {renderFilePreview()}
           <span className={buttonStyles["file-name"]}>{selectedFile.name}</span>
           {isUploading && <LoadingBar progress={uploadProgress} />}
+          <div>
+            <input
+              type="number"
+              placeholder="Price in wei"
+              className={buttonStyles["price-input"]}
+              value={price > 0 ? price.toString() : ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPrice(value ? BigInt(value) : BigInt(0));
+              }}
+            />
+          </div>
+          <DatePicker
+            onChange={(unixTimestamp) => {
+              setLicenseExpiry(unixTimestamp);
+              console.log("License expiry set to:", unixTimestamp);
+            }}
+          />
+          <PercentageSlider
+            onChange={(value) => {
+              const royaltyBps = Math.round((value / 100) * 10000);
+              setRoyaltyBps(royaltyBps);
+            }}
+          />
           <div className={buttonStyles["upload-buttons"]}>
             <button
               className={buttonStyles["remove-file-button"]}
@@ -625,7 +722,7 @@ export const FileUpload = ({
               onClick={handleUpload}
               disabled={!selectedFile || isUploading}
             >
-              Upload
+              Mint
             </button>
           </div>
         </div>
