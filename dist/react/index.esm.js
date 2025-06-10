@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, getAbiItem, encodeFunctionData } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -1369,7 +1369,7 @@ function registerDataNFT(source, deadline, fileKey) {
 }
 
 function updateTerms(tokenId, newTerms) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, newTerms]);
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, newTerms], { waitForReceipt: true });
 }
 
 function requestDelete(tokenId) {
@@ -1962,7 +1962,7 @@ var abi = [
 
 function buyAccess(tokenId, periods, value // only for native token payments
 ) {
-    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "buyAccess", [tokenId, periods], value !== undefined ? { value } : undefined);
+    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "buyAccess", [tokenId, periods], { waitForReceipt: true, value });
 }
 
 function renewAccess(tokenId, buyer, periods, value) {
@@ -1975,6 +1975,32 @@ function hasAccess(user, tokenId) {
 
 function subscriptionExpiry(tokenId, user) {
     return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "subscriptionExpiry", [tokenId, user]);
+}
+
+/**
+ * Approves a spender to spend a specified amount of tokens on behalf of the owner.
+ * If the current allowance is less than the specified amount, it will perform the approval.
+ * @param {ApproveParams} params - The parameters for the approval.
+ */
+function approveIfNeeded(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ walletClient, publicClient, tokenAddress, owner, spender, amount, }) {
+        const allowance = yield publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [owner, spender],
+        });
+        if (allowance < amount) {
+            yield walletClient.writeContract({
+                address: tokenAddress,
+                account: owner,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spender, amount],
+                chain: testnet,
+            });
+        }
+    });
 }
 
 var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId;
@@ -2033,6 +2059,9 @@ class Origin {
             return uploadInfo;
         });
         this.mintFile = (file, license, options) => __awaiter(this, void 0, void 0, function* () {
+            if (!this.viemClient) {
+                throw new Error("WalletClient not connected.");
+            }
             try {
                 const info = yield this.uploadFile(file, options);
                 if (!info || !info.key) {
@@ -2055,15 +2084,8 @@ class Origin {
                     method: "eth_requestAccounts",
                     params: [],
                 });
-                // const licenseTerms = createLicenseTerms(
-                //   BigInt(266), // price
-                //   10000000, // duration
-                //   0, // royaltyBps
-                //   "0x0000000000000000000000000000000000000000"
-                // );
                 const signature = { v, r, s };
                 const mintResult = yield this.mintWithSignature(account, tokenId, hash, info.url, license, deadline, signature);
-                console.log("Minting successful:", mintResult);
                 return tokenId.toString();
             }
             catch (error) {
@@ -2273,6 +2295,56 @@ class Origin {
             }
         });
     }
+    /**
+     * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
+     * @param {bigint} tokenId The token ID of the asset.
+     * @param {number} periods The number of periods to buy access for.
+     * @returns {Promise<any>} The result of the buyAccess call.
+     */
+    buyAccessSmart(tokenId, periods) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.viemClient) {
+                throw new Error("WalletClient not connected.");
+            }
+            const terms = yield this.getTerms(tokenId);
+            if (!terms)
+                throw new Error("Failed to fetch terms for asset");
+            const { price, paymentToken } = terms;
+            if (price === undefined || paymentToken === undefined) {
+                throw new Error("Terms missing price or paymentToken");
+            }
+            const totalCost = price * BigInt(periods);
+            const isNative = paymentToken === zeroAddress;
+            if (isNative) {
+                return this.buyAccess(tokenId, periods, totalCost);
+            }
+            const owner = yield this.viemClient.getAddress();
+            yield approveIfNeeded({
+                walletClient: this.viemClient,
+                publicClient: getPublicClient(),
+                tokenAddress: paymentToken,
+                owner,
+                spender: constants.MARKETPLACE_CONTRACT_ADDRESS,
+                amount: totalCost,
+            });
+            return this.buyAccess(tokenId, periods);
+        });
+    }
+    getData(tokenId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${this.jwt}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error("Failed to fetch data");
+            }
+            return response.json();
+        });
+    }
 }
 _Origin_generateURL = new WeakMap(), _Origin_setOriginStatus = new WeakMap(), _Origin_instances = new WeakSet(), _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -2469,6 +2541,7 @@ class Auth {
             if (!this.isAuthenticated) {
                 return;
             }
+            __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
             this.isAuthenticated = false;
             this.walletAddress = null;
             this.userId = null;
@@ -2477,8 +2550,10 @@ class Auth {
             localStorage.removeItem("camp-sdk:wallet-address");
             localStorage.removeItem("camp-sdk:user-id");
             localStorage.removeItem("camp-sdk:jwt");
-            __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
-            yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.USER_DISCONNECTED, "User Disconnected");
+            // await this.#sendAnalyticsEvent(
+            //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
+            //   "User Disconnected"
+            // );
         });
     }
     /**
@@ -2905,10 +2980,10 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
                 for (const p of providers) {
                     try {
                         const accounts = yield p.provider.request({
-                            method: "eth_accounts",
+                            method: "eth_requestAccounts",
                         });
                         if (((_b = accounts[0]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === walletAddress.toLowerCase()) {
-                            selectedProvider = p.provider;
+                            selectedProvider = p;
                             break;
                         }
                     }
@@ -2918,20 +2993,17 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
                 }
             }
             if (selectedProvider) {
-                // this.viem = getClient(
-                //   selectedProvider,
-                //   new Date().getTime().toString(),
-                //   walletAddress
-                // );
-                // this.#trigger("viem", this.viem);
                 this.setProvider({
-                    provider: selectedProvider,
-                    info: {
-                        name: "reinitialized",
-                        version: "1.0.0",
+                    provider: selectedProvider.provider,
+                    info: selectedProvider.info || {
+                        name: "Unknown",
                     },
                     address: walletAddress,
                 });
+            }
+            else {
+                // await this.disconnect();
+                console.warn("No matching provider found for the stored wallet address. User disconnected.");
             }
         }
         else {
@@ -3695,7 +3767,7 @@ const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
                 const license = createLicenseTerms(price, // price in wei
                 licenseDuration, // duration in seconds
                 royaltyBps, // royalty basis points
-                "0x0000000000000000000000000000000000000000" // payment token
+                zeroAddress // payment token
                 );
                 const res = yield ((_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.mintFile(selectedFile, license, {
                     progressCallback(percent) {
@@ -4754,8 +4826,15 @@ const useAuthState = () => {
     useEffect(() => {
         setAuthenticated(auth.isAuthenticated);
         auth.on("state", (state) => {
-            setAuthenticated(state === "authenticated");
-            setLoading(state === "loading");
+            if (state === "loading")
+                setLoading(true);
+            else {
+                if (state === "authenticated")
+                    setAuthenticated(true);
+                else if (state === "unauthenticated")
+                    setAuthenticated(false);
+                setLoading(false);
+            }
         });
     }, [auth]);
     return { authenticated, loading };

@@ -1,4 +1,4 @@
-import { Abi, encodeFunctionData, getAbiItem } from "viem";
+import { Abi, encodeFunctionData, getAbiItem, zeroAddress } from "viem";
 import constants from "../../../constants";
 import { APIError } from "../../../errors";
 import { uploadWithProgress } from "../../../utils";
@@ -24,7 +24,8 @@ import { buyAccess } from "./buyAccess";
 import { renewAccess } from "./renewAccess";
 import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
-import { createLicenseTerms, LicenseTerms } from "./utils";
+import { LicenseTerms } from "./utils";
+import { approveIfNeeded } from "./approveIfNeeded";
 
 interface OriginUsageReturnType {
   user: {
@@ -178,6 +179,9 @@ export class Origin {
       progressCallback?: (percent: number) => void;
     }
   ): Promise<string | null> => {
+    if (!this.viemClient) {
+      throw new Error("WalletClient not connected.");
+    }
     try {
       const info = await this.uploadFile(file, options);
       if (!info || !info.key) {
@@ -209,13 +213,6 @@ export class Origin {
         params: [],
       });
 
-      // const licenseTerms = createLicenseTerms(
-      //   BigInt(266), // price
-      //   10000000, // duration
-      //   0, // royaltyBps
-      //   "0x0000000000000000000000000000000000000000"
-      // );
-
       const signature = { v, r, s };
 
       const mintResult = await this.mintWithSignature(
@@ -227,8 +224,6 @@ export class Origin {
         deadline,
         signature
       );
-
-      console.log("Minting successful:", mintResult);
 
       return tokenId.toString();
     } catch (error) {
@@ -514,5 +509,59 @@ export class Origin {
       );
       return receipt;
     }
+  }
+
+  /**
+   * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
+   * @param {bigint} tokenId The token ID of the asset.
+   * @param {number} periods The number of periods to buy access for.
+   * @returns {Promise<any>} The result of the buyAccess call.
+   */
+  async buyAccessSmart(tokenId: bigint, periods: number): Promise<any> {
+    if (!this.viemClient) {
+      throw new Error("WalletClient not connected.");
+    }
+    const terms = await this.getTerms(tokenId);
+    if (!terms) throw new Error("Failed to fetch terms for asset");
+
+    const { price, paymentToken } = terms;
+    if (price === undefined || paymentToken === undefined) {
+      throw new Error("Terms missing price or paymentToken");
+    }
+
+    const totalCost = price * BigInt(periods);
+    const isNative = paymentToken === zeroAddress;
+    if (isNative) {
+      return this.buyAccess(tokenId, periods, totalCost);
+    }
+
+    const owner = await this.viemClient.getAddress();
+    await approveIfNeeded({
+      walletClient: this.viemClient,
+      publicClient: getPublicClient(),
+      tokenAddress: paymentToken,
+      owner,
+      spender: constants.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
+      amount: totalCost,
+    });
+
+    return this.buyAccess(tokenId, periods);
+  }
+
+  async getData(tokenId: bigint): Promise<any> {
+    const response = await fetch(
+      `${constants.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${this.jwt}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch data");
+    }
+    return response.json();
   }
 }

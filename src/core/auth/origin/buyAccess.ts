@@ -13,6 +13,6 @@ export function buyAccess(
     abi as Abi,
     "buyAccess",
     [tokenId, periods],
-    value !== undefined ? { value } : undefined
+    { waitForReceipt: true, value }
   );
 }

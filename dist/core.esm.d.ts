@@ -373,6 +373,14 @@ declare class Origin {
      * @throws {Error} - Throws an error if the wallet client is not connected and the method is not a view function.
      */
     callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
+    /**
+     * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
+     * @param {bigint} tokenId The token ID of the asset.
+     * @param {number} periods The number of periods to buy access for.
+     * @returns {Promise<any>} The result of the buyAccess call.
+     */
+    buyAccessSmart(tokenId: bigint, periods: number): Promise<any>;
+    getData(tokenId: bigint): Promise<any>;
 }
 
 declare global {

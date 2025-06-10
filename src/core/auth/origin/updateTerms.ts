@@ -13,6 +13,7 @@ export function updateTerms(
     constants.DATANFT_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "updateTerms",
-    [tokenId, newTerms]
+    [tokenId, newTerms],
+    { waitForReceipt: true }
   );
 }

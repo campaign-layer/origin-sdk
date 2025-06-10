@@ -1,3 +1,4 @@
+import { zeroAddress } from "viem";
 import constants from "../../constants";
 import { createLicenseTerms } from "../../core/auth/origin/utils";
 import { useToast } from "../toasts";
@@ -507,7 +508,7 @@ export const FileUpload = ({
           price, // price in wei
           licenseDuration, // duration in seconds
           royaltyBps, // royalty basis points
-          "0x0000000000000000000000000000000000000000" // payment token
+          zeroAddress // payment token
         );
         const res = await auth?.origin?.mintFile(selectedFile, license, {
           progressCallback(percent) {

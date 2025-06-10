@@ -229,10 +229,10 @@ class Auth {
         for (const p of providers) {
           try {
             const accounts = await p.provider.request({
-              method: "eth_accounts",
+              method: "eth_requestAccounts",
             });
             if (accounts[0]?.toLowerCase() === walletAddress.toLowerCase()) {
-              selectedProvider = p.provider;
+              selectedProvider = p;
               break;
             }
           } catch (err) {
@@ -242,20 +242,18 @@ class Auth {
       }
 
       if (selectedProvider) {
-        // this.viem = getClient(
-        //   selectedProvider,
-        //   new Date().getTime().toString(),
-        //   walletAddress
-        // );
-        // this.#trigger("viem", this.viem);
         this.setProvider({
-          provider: selectedProvider,
-          info: {
-            name: "reinitialized",
-            version: "1.0.0",
+          provider: selectedProvider.provider,
+          info: selectedProvider.info || {
+            name: "Unknown",
           },
           address: walletAddress,
         });
+      } else {
+        // await this.disconnect();
+        console.warn(
+          "No matching provider found for the stored wallet address. User disconnected."
+        );
       }
     } else {
       this.isAuthenticated = false;
@@ -392,6 +390,7 @@ class Auth {
     if (!this.isAuthenticated) {
       return;
     }
+    this.#trigger("state", "unauthenticated");
     this.isAuthenticated = false;
     this.walletAddress = null;
     this.userId = null;
@@ -400,11 +399,10 @@ class Auth {
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
-    this.#trigger("state", "unauthenticated");
-    await this.#sendAnalyticsEvent(
-      constants.ACKEE_EVENTS.USER_DISCONNECTED,
-      "User Disconnected"
-    );
+    // await this.#sendAnalyticsEvent(
+    //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
+    //   "User Disconnected"
+    // );
   }
 
   /**
@@ -832,7 +830,6 @@ class Auth {
       throw new APIError(data.message || "Failed to unlink Telegram account");
     }
   }
-
 }
 
 export { Auth };
