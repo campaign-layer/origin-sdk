@@ -1049,7 +1049,7 @@ const OriginSection = (): JSX.Element => {
 
         <div className={styles["divider"]} />
 
-        <Tooltip
+        {/* <Tooltip
           content={`Royalty Multiplier: ${royaltyMultiplier}x`}
           position="top"
           containerStyle={{ width: "100%" }}
@@ -1058,9 +1058,9 @@ const OriginSection = (): JSX.Element => {
             <span>{royaltyMultiplier}x</span>
             <span className={styles["origin-label"]}>Multiplier</span>
           </div>
-        </Tooltip>
+        </Tooltip> */}
 
-        <div className={styles["divider"]} />
+        {/* <div className={styles["divider"]} /> */}
 
         <Tooltip
           content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
@@ -1378,13 +1378,14 @@ const ImagesTab = () => {
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
         ) : (
-          <div className={styles["ip-tab-content-text"]}>
-            {
-              uploads.data.filter((item) => item.type.startsWith("image"))
-                .length
-            }{" "}
-            images uploaded
-          </div>
+          // <div className={styles["ip-tab-content-text"]}>
+          //   {
+          //     uploads.data.filter((item) => item.type.startsWith("image"))
+          //       .length
+          //   }{" "}
+          //   images uploaded
+          // </div>
+          <></>
         )}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
@@ -1405,13 +1406,14 @@ const AudioTab = () => {
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
         ) : (
-          <div className={styles["ip-tab-content-text"]}>
-            {
-              uploads.data.filter((item) => item.type.startsWith("audio"))
-                .length
-            }{" "}
-            audio files uploaded
-          </div>
+          // <div className={styles["ip-tab-content-text"]}>
+          //   {
+          //     uploads.data.filter((item) => item.type.startsWith("audio"))
+          //       .length
+          //   }{" "}
+          //   audio files uploaded
+          // </div>
+          <></>
         )}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
@@ -1432,13 +1434,14 @@ const VideosTab = () => {
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
         ) : (
-          <div className={styles["ip-tab-content-text"]}>
-            {
-              uploads.data.filter((item) => item.type.startsWith("video"))
-                .length
-            }{" "}
-            videos uploaded
-          </div>
+          // <div className={styles["ip-tab-content-text"]}>
+          //   {
+          //     uploads.data.filter((item) => item.type.startsWith("video"))
+          //       .length
+          //   }{" "}
+          //   videos uploaded
+          // </div>
+          <></>
         )}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
@@ -1459,10 +1462,11 @@ const TextTab = () => {
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
         ) : (
-          <div className={styles["ip-tab-content-text"]}>
-            {uploads.data.filter((item) => item.type.startsWith("text")).length}{" "}
-            text files uploaded
-          </div>
+          // <div className={styles["ip-tab-content-text"]}>
+          //   {uploads.data.filter((item) => item.type.startsWith("text")).length}{" "}
+          //   text files uploaded
+          // </div>
+          <></>
         )}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />

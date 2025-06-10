@@ -2,7 +2,7 @@ import { Origin } from ".";
 import constants from "../../../constants";
 import abi from "../../origin/contracts/DataNFT.json";
 import { Abi, Address } from "viem";
-import { LicenseTerms } from "./utils"
+import { LicenseTerms } from "./utils";
 
 export function updateTerms(
   this: Origin,

@@ -495,7 +495,9 @@ export const FileUpload = ({
   const { addToast } = useToast();
   const [price, setPrice] = useState<bigint>(BigInt(0)); // price in wei
   const [royaltyBps, setRoyaltyBps] = useState<number>(0); // royalty basis points (0-10000)
-  const [licenseExpiry, setLicenseExpiry] = useState<number | null>(null); // Unix timestamp in seconds
+  const [licenseDuration, setLicenseDuration] = useState<number>(
+    Math.floor(60 * 60 * 24 * 30) // 30 days in seconds
+  );
 
   const handleUpload = async () => {
     if (selectedFile) {
@@ -503,7 +505,7 @@ export const FileUpload = ({
       try {
         const license = createLicenseTerms(
           price, // price in wei
-          Number(licenseExpiry) - Math.floor(Date.now() / 1000), // duration in seconds
+          licenseDuration, // duration in seconds
           royaltyBps, // royalty basis points
           "0x0000000000000000000000000000000000000000" // payment token
         );
@@ -512,12 +514,10 @@ export const FileUpload = ({
             setUploadProgress(percent);
           },
         });
-        // console.log("File uploaded:", res);
-        console.log("Minted token ID:", res);
         if (onFileUpload) {
           onFileUpload([selectedFile]);
         }
-        addToast("File uploaded successfully", "success", 5000);
+        addToast(`File minted successfully. Token ID: ${res}`, "success", 5000);
         refetch();
       } catch (error) {
         addToast("Error uploading file", "error", 5000);
@@ -685,7 +685,7 @@ export const FileUpload = ({
           {renderFilePreview()}
           <span className={buttonStyles["file-name"]}>{selectedFile.name}</span>
           {isUploading && <LoadingBar progress={uploadProgress} />}
-          <div>
+          <div className={buttonStyles["price-input-container"]}>
             <input
               type="number"
               placeholder="Price in wei"
@@ -697,12 +697,18 @@ export const FileUpload = ({
               }}
             />
           </div>
-          <DatePicker
-            onChange={(unixTimestamp) => {
-              setLicenseExpiry(unixTimestamp);
-              console.log("License expiry set to:", unixTimestamp);
-            }}
-          />
+          <div className={buttonStyles["duration-input-container"]}>
+            <input
+              type="number"
+              placeholder="License duration (seconds)"
+              className={buttonStyles["duration-input"]}
+              value={licenseDuration > 0 ? licenseDuration.toString() : ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setLicenseDuration(value ? Number(value) : 0);
+              }}
+            />
+          </div>
           <PercentageSlider
             onChange={(value) => {
               const royaltyBps = Math.round((value / 100) * 10000);

@@ -54,15 +54,18 @@ const Tooltip = ({
       style={containerStyle}
     >
       {children}
-      {isVisible && tooltipPosition && typeof document !== "undefined" && ReactDOM.createPortal(
-        <div
-          className={`${styles.tooltip} ${styles[position]} ${styles["show"]}`}
-          style={tooltipStyles}
-        >
-          {content}
-        </div>,
-        document.body
-      )}
+      {isVisible &&
+        tooltipPosition &&
+        typeof document !== "undefined" &&
+        ReactDOM.createPortal(
+          <div
+            className={`${styles.tooltip} ${styles[position]} ${styles["show"]}`}
+            style={tooltipStyles}
+          >
+            {content}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
@@ -84,7 +87,9 @@ const getTooltipPosition = (
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  let top = 0, left = 0, transform = "";
+  let top = 0,
+    left = 0,
+    transform = "";
 
   switch (position) {
     case "top":

@@ -204,7 +204,10 @@ export class Origin {
         return null;
       }
 
-      const [account] = await this.viemClient.getAddresses();
+      const [account] = await this.viemClient.request({
+        method: "eth_requestAccounts",
+        params: [],
+      });
 
       // const licenseTerms = createLicenseTerms(
       //   BigInt(266), // price
@@ -476,7 +479,10 @@ export class Origin {
         })) || null;
       return result;
     } else {
-      const [account] = await this.viemClient.getAddresses();
+      const [account] = await this.viemClient.request({
+        method: "eth_requestAccounts",
+        params: [],
+      });
 
       const data = encodeFunctionData({
         abi,
