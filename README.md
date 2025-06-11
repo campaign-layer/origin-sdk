@@ -6,8 +6,8 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@campnetwork/origin"><img src="https://img.shields.io/npm/v/@campnetwork/origin?style=for-the-badge" alt="npm version"/></a>
   <img alt="GitHub License" src="https://img.shields.io/github/license/campaign-layer/camp-sdk?style=for-the-badge">
-  <img src="https://img.shields.io/npm/last-update/%40campnetwork%2Fsdk?style=for-the-badge" alt="npm last update"/>
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40campnetwork%2Fsdk?style=for-the-badge">
+  <img src="https://img.shields.io/npm/last-update/%40campnetwork%2Forigin?style=for-the-badge" alt="npm last update"/>
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40campnetwork%2Forigin?style=for-the-badge">
 </p>
 
 # Origin SDK

@@ -3,7 +3,7 @@ import {
   useAuthState,
   useLinkSocials,
   useSocials,
-} from "@campnetwork/sdk/react";
+} from "@campnetwork/origin/react";
 
 function App() {
   const { authenticated, loading } = useAuthState();

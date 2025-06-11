@@ -16,7 +16,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "paths": {
-      "@campnetwork/sdk": ["./src/index.ts"]
+      "@campnetwork/origin": ["./src/index.ts"]
     }
   },
   "include": ["src/**/*", "src/global.d.ts"],

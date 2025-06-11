@@ -1,6 +1,6 @@
 // Full list of methods: https://github.com/campaign-layer/camp-sdk#methods
 
-import { TwitterAPI } from "@campnetwork/sdk";
+import { TwitterAPI } from "@campnetwork/origin";
 
 // Create a new TwitterAPI instance
 const api = new TwitterAPI({

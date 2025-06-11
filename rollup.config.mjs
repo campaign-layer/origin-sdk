@@ -87,7 +87,7 @@ const config = [
       inlineDynamicImports: true,
       banner: "'use client';",
       paths: {
-        "@campnetwork/sdk": "../core.esm",
+        "@campnetwork/origin": "../core.esm",
       }
     },
     plugins: [
@@ -134,7 +134,7 @@ const config = [
       "viem",
       "viem/siwe",
       "@tanstack/react-query",
-      "@campnetwork/sdk",
+      "@campnetwork/origin",
       "viem/accounts",
     ],
   },

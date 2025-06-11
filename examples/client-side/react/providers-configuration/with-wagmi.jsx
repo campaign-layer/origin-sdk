@@ -1,5 +1,5 @@
 // The following examples work with any providers that support wagmi
-import { CampModal } from "@campnetwork/sdk/react";
+import { CampModal } from "@campnetwork/origin/react";
 
 /*
  * Show all providers

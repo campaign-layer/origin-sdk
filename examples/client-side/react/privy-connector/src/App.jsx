@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CampModal } from "@campnetwork/sdk/react";
+import { CampModal } from "@campnetwork/origin/react";
 
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useSetActiveWallet } from "@privy-io/wagmi";

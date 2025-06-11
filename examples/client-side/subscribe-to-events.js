@@ -1,4 +1,4 @@
-import { Auth } from "@campnetwork/sdk";
+import { Auth } from "@campnetwork/origin";
 
 // Create a new Auth instance
 const auth = new Auth({

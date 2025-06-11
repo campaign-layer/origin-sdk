@@ -1,4 +1,4 @@
-import { CampModal } from "@campnetwork/sdk/react";
+import { CampModal } from "@campnetwork/origin/react";
 
 /*
  * The following example shows how to set a custom provider

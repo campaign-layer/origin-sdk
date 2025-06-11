@@ -1,4 +1,4 @@
-import { CampModal } from "@campnetwork/sdk/react";
+import { CampModal } from "@campnetwork/origin/react";
 import { useWallets } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 

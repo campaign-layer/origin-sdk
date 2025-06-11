@@ -28,14 +28,14 @@
   "author": "Camp Network <campnetwork.xyz>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/campaign-layer/camp-sdk.git"
+    "url": "git+https://github.com/campaign-layer/origin-sdk.git"
   },
   "files": [
     "/dist"
   ],
   "type": "module",
   "license": "ISC",
-  "description": "Camp Network SDK",
+  "description": "Origin SDK",
   "dependencies": {
     "@tanstack/react-query": "^5",
     "@walletconnect/ethereum-provider": "^2.17.2",
