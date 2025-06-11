@@ -1,6 +1,6 @@
 import { Origin } from ".";
-import constants from "../../../constants";
-import abi from "../../origin/contracts/DataNFT.json";
+import constants from "../../constants";
+import abi from "./contracts/DataNFT.json";
 import { Abi, Address, Hex } from "viem";
 
 export function safeTransferFrom(

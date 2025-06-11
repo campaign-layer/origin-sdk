@@ -1,7 +1,7 @@
 import { Abi, Address, Hex } from "viem";
-import abi from "../../origin/contracts/DataNFT.json";
+import abi from "./contracts/DataNFT.json";
 import { Origin } from ".";
-import constants from "../../../constants";
+import constants from "../../constants";
 import { DataNFTSource, LicenseTerms } from "./utils";
 
 /**

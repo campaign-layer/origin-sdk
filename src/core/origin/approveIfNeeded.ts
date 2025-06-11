@@ -1,6 +1,6 @@
 import { erc20Abi } from "viem";
 import { Address, WalletClient, PublicClient } from "viem";
-import { testnet } from "../viem/chains";
+import { testnet } from "../auth/viem/chains";
 
 type ApproveParams = {
   walletClient: WalletClient;

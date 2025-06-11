@@ -1,6 +1,6 @@
 import { Origin } from ".";
-import constants from "../../../constants";
-import abi from "../../origin/contracts/Marketplace.json";
+import constants from "../../constants";
+import abi from "./contracts/Marketplace.json";
 import { Abi, Address } from "viem";
 export function hasAccess(
   this: Origin,

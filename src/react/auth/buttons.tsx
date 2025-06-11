@@ -1,10 +1,9 @@
 import { zeroAddress } from "viem";
 import constants from "../../constants";
-import { createLicenseTerms } from "../../core/auth/origin/utils";
+import { createLicenseTerms } from "../../core/origin/utils";
 import { useToast } from "../toasts";
 import { BinIcon, CampIcon, getIconBySocial, LinkIcon } from "./icons";
 import {
-  CampContext,
   ModalContext,
   useAuth,
   useAuthState,

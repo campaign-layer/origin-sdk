@@ -1,9 +1,9 @@
 import { Abi, encodeFunctionData, getAbiItem, zeroAddress } from "viem";
-import constants from "../../../constants";
-import { APIError } from "../../../errors";
-import { uploadWithProgress } from "../../../utils";
-import { getPublicClient } from "../viem/client";
-import { testnet } from "../viem/chains";
+import constants from "../../constants";
+import { APIError } from "../../errors";
+import { uploadWithProgress } from "../../utils";
+import { getPublicClient } from "../auth/viem/client";
+import { testnet } from "../auth/viem/chains";
 import { mintWithSignature, registerDataNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
 import { requestDelete } from "./requestDelete";

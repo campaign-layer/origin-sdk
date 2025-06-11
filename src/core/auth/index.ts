@@ -5,7 +5,7 @@ import constants from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
 // import { Ackee } from "../../index";
 // import { sendAnalyticsEvent } from "../../utils";
-import { Origin } from "./origin";
+import { Origin } from "../origin";
 
 declare global {
   interface Window {
