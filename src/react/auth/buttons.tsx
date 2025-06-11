@@ -521,7 +521,7 @@ export const FileUpload = ({
         addToast(`File minted successfully. Token ID: ${res}`, "success", 5000);
         refetch();
       } catch (error) {
-        addToast("Error uploading file", "error", 5000);
+        addToast(`Error minting file: ${error}`, "error", 5000);
         setIsUploading(false);
       } finally {
         setSelectedFile(null);
