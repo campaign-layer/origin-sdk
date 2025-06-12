@@ -114,9 +114,28 @@ this.buyAccess=at.bind(this),this.renewAccess=rt.bind(this),this.hasAccess=st.bi
 // return;
 if(!this.viemClient)throw new Error("WalletClient not connected.");let e=yield this.viemClient.request({method:"eth_chainId",params:[]});if("string"==typeof e&&(e=parseInt(e,16)),e!==t.id)try{yield this.viemClient.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x"+BigInt(t.id).toString(16)}]})}catch(e){
 // Unrecognized chain
-if(4902!==e.code)throw e;yield this.viemClient.request({method:"wallet_addEthereumChain",params:[{chainId:"0x"+BigInt(t.id).toString(16),chainName:t.name,rpcUrls:t.rpcUrls.default.http,nativeCurrency:t.nativeCurrency}]}),yield this.viemClient.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x"+BigInt(t.id).toString(16)}]})}}))};G=new WeakMap,V=new WeakMap,H=new WeakSet,Z=function(t,e){r(this,G,"f")[t]&&r(this,G,"f")[t].forEach((t=>t(e)))},Q=function(t){return a(this,void 0,void 0,(function*(){var e,n;if("undefined"==typeof localStorage)return;const i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),a=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),r=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");if(i&&a&&r){this.walletAddress=i,this.userId=a,this.jwt=r,this.origin=new dt(this.jwt),this.isAuthenticated=!0;let s=t;if(!s){const t=null!==(e=I())&&void 0!==e?e:[];for(const e of t)try{if((null===(n=(yield e.provider.request({method:"eth_requestAccounts"}))[0])||void 0===n?void 0:n.toLowerCase())===i.toLowerCase()){s=e;break}}catch(t){console.warn("Failed to fetch accounts from provider:",t)}}s?this.setProvider({provider:s.provider,info:s.info||{name:"Unknown"},address:i}):
-// await this.disconnect();
-console.warn("No matching provider found for the stored wallet address. User disconnected.")}else this.isAuthenticated=!1}))},Y=function(){return a(this,void 0,void 0,(function*(){try{const[t]=yield this.viem.requestAddresses();return this.walletAddress=t,t}catch(t){throw new o(t)}}))},X=function(){return a(this,void 0,void 0,(function*(){try{const t=yield fetch(`${w}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=yield t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}))},tt=function(t,e){return a(this,void 0,void 0,(function*(){try{const n=yield fetch(`${w}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=yield n.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(t){throw new o(t)}}))},et=function(t){return i.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:f,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})},nt=function(t,e){return a(this,arguments,void 0,(function*(t,e,n=1){
+if(4902!==e.code)throw e;yield this.viemClient.request({method:"wallet_addEthereumChain",params:[{chainId:"0x"+BigInt(t.id).toString(16),chainName:t.name,rpcUrls:t.rpcUrls.default.http,nativeCurrency:t.nativeCurrency}]}),yield this.viemClient.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x"+BigInt(t.id).toString(16)}]})}}))};G=new WeakMap,V=new WeakMap,H=new WeakSet,Z=function(t,e){r(this,G,"f")[t]&&r(this,G,"f")[t].forEach((t=>t(e)))},Q=function(t){return a(this,void 0,void 0,(function*(){if("undefined"==typeof localStorage)return;const e=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),n=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");e&&n&&i?(this.walletAddress=e,this.userId=n,this.jwt=i,this.origin=new dt(this.jwt),this.isAuthenticated=!0,
+/*
+            let selectedProvider = provider;
+      
+            if (!selectedProvider) {
+              const providers = providerStore.value() ?? [];
+              for (const p of providers) {
+                try {
+                  const accounts = await p.provider.request({
+                    method: "eth_requestAccounts",
+                  });
+                  if (accounts[0]?.toLowerCase() === walletAddress.toLowerCase()) {
+                    selectedProvider = p;
+                    break;
+                  }
+                } catch (err) {
+                  console.warn("Failed to fetch accounts from provider:", err);
+                }
+              }
+            }
+              */
+t?this.setProvider({provider:t.provider,info:t.info||{name:"Unknown"},address:e}):(console.warn("No matching provider was given for the stored wallet address. Trying to recover provider."),yield this.recoverProvider())):this.isAuthenticated=!1}))},Y=function(){return a(this,void 0,void 0,(function*(){try{const[t]=yield this.viem.requestAddresses();return this.walletAddress=t,t}catch(t){throw new o(t)}}))},X=function(){return a(this,void 0,void 0,(function*(){try{const t=yield fetch(`${w}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),e=yield t.json();return 200!==t.status?Promise.reject(e.message||"Failed to fetch nonce"):e.data}catch(t){throw new Error(t)}}))},tt=function(t,e){return a(this,void 0,void 0,(function*(){try{const n=yield fetch(`${w}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:t,signature:e,walletAddress:this.walletAddress})}),i=yield n.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(t){throw new o(t)}}))},et=function(t){return i.createSiweMessage({domain:window.location.host,address:this.walletAddress,statement:f,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:t})},nt=function(t,e){return a(this,arguments,void 0,(function*(t,e,n=1){
 // if (this.#ackeeInstance)
 //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
 // else return;
@@ -161,12 +180,14 @@ this.redirectUri=(t=>{const e=["twitter","discord","spotify"];return"object"==ty
      * @param {object} options The options object. Includes the provider and the provider info.
      * @returns {void}
      * @throws {APIError} - Throws an error if the provider is not provided.
-     */setProvider({provider:t,info:i,address:a}){if(!t)throw new o("provider is required");this.viem=((t,i="window.ethereum",a)=>{var r;if(!t&&!y)return console.warn("Provider is required to create a client."),null;if(!y||y.transport.name!==i&&t||a!==(null===(r=y.account)||void 0===r?void 0:r.address)&&t){const r={chain:c,transport:e.custom(t,{name:i})};a&&(r.account=n.toAccount(a)),y=e.createWalletClient(r)}return y})(t,i.name,a),this.origin&&this.origin.setViemClient(this.viem),r(this,H,"m",Z).call(this,"viem",this.viem),r(this,H,"m",Z).call(this,"provider",{provider:t,info:i})}
+     */setProvider({provider:t,info:i,address:a}){if(!t)throw new o("provider is required");this.viem=((t,i="window.ethereum",a)=>{var r;if(!t&&!y)return console.warn("Provider is required to create a client."),null;if(!y||y.transport.name!==i&&t||a!==(null===(r=y.account)||void 0===r?void 0:r.address)&&t){const r={chain:c,transport:e.custom(t,{name:i})};a&&(r.account=n.toAccount(a)),y=e.createWalletClient(r)}return y})(t,i.name,a),this.origin&&this.origin.setViemClient(this.viem),
+// TODO: only use one of these
+r(this,H,"m",Z).call(this,"viem",this.viem),r(this,H,"m",Z).call(this,"provider",{provider:t,info:i})}
 /**
      * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
      * @param {string} walletAddress The wallet address.
      * @returns {void}
-     */setWalletAddress(t){this.walletAddress=t}
+     */setWalletAddress(t){this.walletAddress=t}recoverProvider(){return a(this,void 0,void 0,(function*(){var t,e,n;if(!this.walletAddress)return void console.warn("No wallet address found in local storage. Please connect your wallet again.");let i;const a=null!==(t=I())&&void 0!==t?t:[];for(const t of a)try{if((null===(e=(yield t.provider.request({method:"eth_requestAccounts"}))[0])||void 0===e?void 0:e.toLowerCase())===(null===(n=this.walletAddress)||void 0===n?void 0:n.toLowerCase())){i=t;break}}catch(t){console.warn("Failed to fetch accounts from provider:",t)}i?this.setProvider({provider:i.provider,info:i.info||{name:"Unknown"},address:this.walletAddress}):console.warn("No matching provider found for the stored wallet address. Please connect your wallet again.")}))}
 /**
      * Disconnect the user.
      * @returns {Promise<void>}

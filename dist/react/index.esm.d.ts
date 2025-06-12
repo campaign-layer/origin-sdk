@@ -258,6 +258,7 @@ declare class Auth {
      * @returns {void}
      */
     setWalletAddress(walletAddress: string): void;
+    recoverProvider(): Promise<void>;
     /**
      * Disconnect the user.
      * @returns {Promise<void>}

@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useState, useRef, JSX } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  JSX,
+  ReactNode,
+} from "react";
 import {
   useAuthState,
   useConnect,
@@ -1142,6 +1149,8 @@ export const MyCampModal = ({
     "origin" | "socials" | "images" | "audio" | "videos" | "text"
   >("socials");
 
+  const { provider } = useProvider();
+
   if (!auth) {
     throw new Error(
       "Auth instance is not available. Make sure to wrap your component with CampProvider."
@@ -1266,6 +1275,17 @@ export const MyCampModal = ({
             {activeTab === "text" && <TextTab />}
           </div>
         </div>
+        {!provider.provider && (
+          <button
+            className={styles["no-provider-warning"]}
+            onClick={() => auth.recoverProvider()}
+            style={{ cursor: "pointer" }}
+            type="button"
+          >
+            Click to try reconnecting your wallet. <br />
+            If this doesn't work, please disconnect and connect again.
+          </button>
+        )}
         <button
           className={styles["disconnect-button"]}
           onClick={handleDisconnect}
@@ -1286,12 +1306,36 @@ export const MyCampModal = ({
   );
 };
 
+const TabContent = ({
+  children,
+  className,
+  requiresProvider = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  requiresProvider?: boolean;
+}) => {
+  const { provider } = useProvider();
+  const isProviderAvailable = provider?.provider;
+
+  return (
+    <div className={className} style={{ position: "relative" }}>
+      {requiresProvider && !isProviderAvailable && (
+        <div className={styles["tab-provider-required-overlay"]}>
+          You need to connect your wallet to use this feature.
+        </div>
+      )}
+      {children}
+    </div>
+  );
+};
+
 const OriginTab = () => {
   return (
-    <div className={styles["origin-tab"]}>
+    <TabContent className={styles["origin-tab"]}>
       <OriginSection />
       <GoToOriginDashboard />
-    </div>
+    </TabContent>
   );
 };
 
@@ -1309,7 +1353,7 @@ const SocialsTab = ({
   isLoadingSocials: boolean;
 }) => {
   return (
-    <div className={styles["socials-wrapper"]}>
+    <TabContent className={styles["socials-wrapper"]}>
       {isLoading || isLoadingSocials ? (
         <div
           className={styles.spinner}
@@ -1361,7 +1405,7 @@ const SocialsTab = ({
           </div>
         </>
       )}
-    </div>
+    </TabContent>
   );
 };
 
@@ -1369,7 +1413,7 @@ const ImagesTab = () => {
   const { uploads } = useOrigin();
   const { isLoading } = uploads;
   return (
-    <div className={styles["ip-tab-container"]}>
+    <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
@@ -1377,19 +1421,10 @@ const ImagesTab = () => {
       <div className={styles["ip-tab-content"]}>
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : (
-          // <div className={styles["ip-tab-content-text"]}>
-          //   {
-          //     uploads.data.filter((item) => item.type.startsWith("image"))
-          //       .length
-          //   }{" "}
-          //   images uploaded
-          // </div>
-          <></>
-        )}
+        ) : null}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
-    </div>
+    </TabContent>
   );
 };
 
@@ -1397,7 +1432,7 @@ const AudioTab = () => {
   const { uploads } = useOrigin();
   const { isLoading } = uploads;
   return (
-    <div className={styles["ip-tab-container"]}>
+    <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
         maxFileSize={1.573e7} // 15 MB
@@ -1405,19 +1440,10 @@ const AudioTab = () => {
       <div className={styles["ip-tab-content"]}>
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : (
-          // <div className={styles["ip-tab-content-text"]}>
-          //   {
-          //     uploads.data.filter((item) => item.type.startsWith("audio"))
-          //       .length
-          //   }{" "}
-          //   audio files uploaded
-          // </div>
-          <></>
-        )}
+        ) : null}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
-    </div>
+    </TabContent>
   );
 };
 
@@ -1425,7 +1451,7 @@ const VideosTab = () => {
   const { uploads } = useOrigin();
   const { isLoading } = uploads;
   return (
-    <div className={styles["ip-tab-container"]}>
+    <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
         maxFileSize={2.097e7} // 20 MB
@@ -1433,19 +1459,10 @@ const VideosTab = () => {
       <div className={styles["ip-tab-content"]}>
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : (
-          // <div className={styles["ip-tab-content-text"]}>
-          //   {
-          //     uploads.data.filter((item) => item.type.startsWith("video"))
-          //       .length
-          //   }{" "}
-          //   videos uploaded
-          // </div>
-          <></>
-        )}
+        ) : null}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
-    </div>
+    </TabContent>
   );
 };
 
@@ -1453,7 +1470,7 @@ const TextTab = () => {
   const { uploads } = useOrigin();
   const { isLoading } = uploads;
   return (
-    <div className={styles["ip-tab-container"]}>
+    <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_TEXT_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
@@ -1461,15 +1478,9 @@ const TextTab = () => {
       <div className={styles["ip-tab-content"]}>
         {isLoading ? (
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : (
-          // <div className={styles["ip-tab-content-text"]}>
-          //   {uploads.data.filter((item) => item.type.startsWith("text")).length}{" "}
-          //   text files uploaded
-          // </div>
-          <></>
-        )}
+        ) : null}
       </div>
       <GoToOriginDashboard text="Manage on Origin Dashboard" />
-    </div>
+    </TabContent>
   );
 };

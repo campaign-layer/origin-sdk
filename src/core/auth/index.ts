@@ -187,6 +187,7 @@ class Auth {
     if (this.origin) {
       this.origin.setViemClient(this.viem);
     }
+    // TODO: only use one of these
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
   }
@@ -198,6 +199,44 @@ class Auth {
    */
   setWalletAddress(walletAddress: string): void {
     this.walletAddress = walletAddress;
+  }
+
+  async recoverProvider(): Promise<void> {
+    if (!this.walletAddress) {
+      console.warn(
+        "No wallet address found in local storage. Please connect your wallet again."
+      );
+      return;
+    }
+    let provider: Provider | undefined;
+    const providers = providerStore.value() ?? [];
+    for (const p of providers) {
+      try {
+        const accounts = await p.provider.request({
+          method: "eth_requestAccounts",
+        });
+        if (accounts[0]?.toLowerCase() === this.walletAddress?.toLowerCase()) {
+          provider = p;
+          break;
+        }
+      } catch (err) {
+        console.warn("Failed to fetch accounts from provider:", err);
+      }
+    }
+
+    if (provider) {
+      this.setProvider({
+        provider: provider.provider,
+        info: provider.info || {
+          name: "Unknown",
+        },
+        address: this.walletAddress,
+      });
+    } else {
+      console.warn(
+        "No matching provider found for the stored wallet address. Please connect your wallet again."
+      );
+    }
   }
 
   /**
@@ -222,6 +261,7 @@ class Auth {
       this.origin = new Origin(this.jwt);
       this.isAuthenticated = true;
 
+      /*
       let selectedProvider = provider;
 
       if (!selectedProvider) {
@@ -240,20 +280,21 @@ class Auth {
           }
         }
       }
+        */
 
-      if (selectedProvider) {
+      if (provider) {
         this.setProvider({
-          provider: selectedProvider.provider,
-          info: selectedProvider.info || {
+          provider: provider.provider,
+          info: provider.info || {
             name: "Unknown",
           },
           address: walletAddress,
         });
       } else {
-        // await this.disconnect();
         console.warn(
-          "No matching provider found for the stored wallet address. User disconnected."
+          "No matching provider was given for the stored wallet address. Trying to recover provider."
         );
+        await this.recoverProvider();
       }
     } else {
       this.isAuthenticated = false;
