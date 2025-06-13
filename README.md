@@ -1028,13 +1028,14 @@ Buys access to an asset, handling payment approval if needed.
 - `periods`: Number of periods to buy.
 - **Returns:** Result of the buy access transaction.
 
+#### `getData(tokenId: bigint)`
+
+Fetches metadata for a given IpNFT.
+
+- `tokenId`: The IpNFT token ID.
+- **Returns:** Data object for the token.
+
 ### User Data & Stats
-
-#### `getOriginUploads()`
-
-Fetches the list of files uploaded by the user.
-
-- **Returns:** Array of uploaded file info.
 
 #### `getOriginUsage()`
 
@@ -1047,19 +1048,6 @@ Fetches the user's Origin stats (multiplier, consent, usage, etc).
 Sets the user's consent for Origin usage.
 
 - `consent`: `true` or `false`.
-
-#### `setOriginMultiplier(multiplier: number)`
-
-Sets the user's Origin multiplier.
-
-- `multiplier`: The multiplier value.
-
-#### `getData(tokenId: bigint)`
-
-Fetches metadata for a given IpNFT.
-
-- `tokenId`: The IpNFT token ID.
-- **Returns:** Data object for the token.
 
 ---
 
