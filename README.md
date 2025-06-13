@@ -970,6 +970,101 @@ The difference between the `openXModal` functions and the `linkX / unlinkX` func
 
 For example, if the user is linked to Twitter, calling `openTwitterModal` will open the modal to _unlink_ their Twitter account, while calling `linkTwitter` will not do anything, and calling `unlinkTwitter` will open the modal to unlink their Twitter account.
 
+## Origin Methods (`auth.origin`)
+
+The `Origin` class provides methods for interacting with Origin IpNFTs, uploading files, managing user stats, and more. You can access these methods via `auth.origin` after authentication.
+
+### Minting
+
+#### `mintFile(file: File, license: LicenseTerms, options?: { progressCallback?: (percent: number) => void })`
+
+Uploads a file and mints an IpNFT for it.
+
+- `file`: The file to upload and mint.
+- `license`: License terms for the IpNFT.
+- `options.progressCallback`: Optional progress callback.
+- **Returns:** The minted token ID as a string, or `null` on failure.
+
+#### `mintSocial(source: "spotify" | "twitter" | "tiktok")`
+
+Mints an IpNFT for a connected social account.
+
+- `source`: The social platform.
+- **Returns:** The minted token ID as a string, or `null` on failure.
+
+### IpNFT & Marketplace Methods
+
+The following methods are available for interacting with IpNFTs and the marketplace. All methods mirror the smart contract functions and require appropriate permissions.
+
+- `mintWithSignature(...)`
+- `registerDataNFT(...)`
+- `updateTerms(...)`
+- `requestDelete(...)`
+- `getTerms(tokenId: bigint)`
+- `ownerOf(tokenId: bigint)`
+- `balanceOf(owner: string)`
+- `contentHash(tokenId: bigint)`
+- `tokenURI(tokenId: bigint)`
+- `dataStatus(tokenId: bigint)`
+- `royaltyInfo(tokenId: bigint, value: bigint)`
+- `getApproved(tokenId: bigint)`
+- `isApprovedForAll(owner: string, operator: string)`
+- `transferFrom(from: string, to: string, tokenId: bigint)`
+- `safeTransferFrom(from: string, to: string, tokenId: bigint)`
+- `approve(to: string, tokenId: bigint)`
+- `setApprovalForAll(operator: string, approved: boolean)`
+- `buyAccess(tokenId: bigint, periods: number, value?: bigint)`
+- `renewAccess(tokenId: bigint, periods: number)`
+- `hasAccess(tokenId: bigint, user: string)`
+- `subscriptionExpiry(tokenId: bigint, user: string)`
+
+> See the SDK source or contract ABI for full parameter details.
+
+#### `buyAccessSmart(tokenId: bigint, periods: number)`
+
+Buys access to an asset, handling payment approval if needed.
+
+- `tokenId`: The IpNFT token ID.
+- `periods`: Number of periods to buy.
+- **Returns:** Result of the buy access transaction.
+
+### User Data & Stats
+
+#### `getOriginUploads()`
+
+Fetches the list of files uploaded by the user.
+
+- **Returns:** Array of uploaded file info.
+
+#### `getOriginUsage()`
+
+Fetches the user's Origin stats (multiplier, consent, usage, etc).
+
+- **Returns:** Object with user stats and usage.
+
+#### `setOriginConsent(consent: boolean)`
+
+Sets the user's consent for Origin usage.
+
+- `consent`: `true` or `false`.
+
+#### `setOriginMultiplier(multiplier: number)`
+
+Sets the user's Origin multiplier.
+
+- `multiplier`: The multiplier value.
+
+#### `getData(tokenId: bigint)`
+
+Fetches metadata for a given IpNFT.
+
+- `tokenId`: The IpNFT token ID.
+- **Returns:** Data object for the token.
+
+---
+
+You can call these methods as `await auth.origin.methodName(...)` after authenticating with the SDK. For more details, see the inline code documentation.
+
 # Contributing
 
 Install the dependencies.
