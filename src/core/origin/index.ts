@@ -194,16 +194,9 @@ export class Origin {
         deadline,
         info.key
       );
-      const { tokenId, signerAddress, hash, v, r, s } = registration;
+      const { tokenId, signerAddress, hash, signature } = registration;
 
-      if (
-        !tokenId ||
-        !signerAddress ||
-        !hash ||
-        v === undefined ||
-        r === undefined ||
-        s === undefined
-      ) {
+      if (!tokenId || !signerAddress || !hash || signature === undefined) {
         console.error("Invalid registration data:", registration);
         return null;
       }
@@ -212,8 +205,6 @@ export class Origin {
         method: "eth_requestAccounts",
         params: [],
       });
-
-      const signature = { v, r, s };
 
       const mintResult = await this.mintWithSignature(
         account,
@@ -486,28 +477,32 @@ export class Origin {
       });
 
       await this.#ensureChainId(testnet);
-
-      const txHash = await this.viemClient.sendTransaction({
-        to: contractAddress as `0x${string}`,
-        data,
-        account,
-        value: options.value,
-        gas: options.gas,
-      });
-
-      if (typeof txHash !== "string") {
-        throw new Error("Transaction failed to send.");
+      try {
+        const txHash = await this.viemClient.sendTransaction({
+          to: contractAddress as `0x${string}`,
+          data,
+          account,
+          value: options.value,
+          gas: options.gas,
+        });
+  
+        if (typeof txHash !== "string") {
+          throw new Error("Transaction failed to send.");
+        }
+  
+        if (!options.waitForReceipt) {
+          return txHash;
+        }
+  
+        const receipt = await this.#waitForTxReceipt.call(
+          this,
+          txHash as `0x${string}`
+        );
+        return receipt;
+      } catch (error) {
+        console.error("Transaction failed:", error);
+        throw new Error("Transaction failed: " + error);
       }
-
-      if (!options.waitForReceipt) {
-        return txHash;
-      }
-
-      const receipt = await this.#waitForTxReceipt.call(
-        this,
-        txHash as `0x${string}`
-      );
-      return receipt;
     }
   }
 

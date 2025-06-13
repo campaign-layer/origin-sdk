@@ -164,8 +164,8 @@ var constants = {
         TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
         TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
     },
-    DATANFT_CONTRACT_ADDRESS: "0xd064817Dc0Af032c3fb5dd4671fd10E0a5F0515D",
-    MARKETPLACE_CONTRACT_ADDRESS: "0x3B782d053de8910cC0EF3DC09EEA055229a70c6b",
+    DATANFT_CONTRACT_ADDRESS: "0x3bd5C81a8Adf3355078Dc5F73c41d3194B316690",
+    MARKETPLACE_CONTRACT_ADDRESS: "0xAc79E9Ef69021F9bf7Ccb175611F3115Ff65A44D",
 };
 
 let providers = [];
@@ -263,11 +263,6 @@ var abi$1 = [
 				internalType: "string",
 				name: "_symbol",
 				type: "string"
-			},
-			{
-				internalType: "string",
-				name: "_baseURI",
-				type: "string"
 			}
 		],
 		stateMutability: "nonpayable",
@@ -282,12 +277,139 @@ var abi$1 = [
 	{
 		inputs: [
 			{
+				internalType: "address",
+				name: "sender",
+				type: "address"
+			},
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				internalType: "address",
+				name: "owner",
+				type: "address"
+			}
+		],
+		name: "ERC721IncorrectOwner",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "operator",
+				type: "address"
+			},
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			}
+		],
+		name: "ERC721InsufficientApproval",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "approver",
+				type: "address"
+			}
+		],
+		name: "ERC721InvalidApprover",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "operator",
+				type: "address"
+			}
+		],
+		name: "ERC721InvalidOperator",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "owner",
+				type: "address"
+			}
+		],
+		name: "ERC721InvalidOwner",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "receiver",
+				type: "address"
+			}
+		],
+		name: "ERC721InvalidReceiver",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "sender",
+				type: "address"
+			}
+		],
+		name: "ERC721InvalidSender",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			}
+		],
+		name: "ERC721NonexistentToken",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "EnforcedPause",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "ExpectedPause",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "InvalidDeadline",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
 				internalType: "uint16",
 				name: "royaltyBps",
 				type: "uint16"
 			}
 		],
 		name: "InvalidRoyalty",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "InvalidSignature",
 		type: "error"
 	},
 	{
@@ -309,6 +431,34 @@ var abi$1 = [
 	{
 		inputs: [
 			{
+				internalType: "address",
+				name: "owner",
+				type: "address"
+			}
+		],
+		name: "OwnableInvalidOwner",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "account",
+				type: "address"
+			}
+		],
+		name: "OwnableUnauthorizedAccount",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "SignatureAlreadyUsed",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
 				internalType: "uint256",
 				name: "tokenId",
 				type: "uint256"
@@ -320,31 +470,7 @@ var abi$1 = [
 	{
 		inputs: [
 		],
-		name: "URIQueryForNonexistentToken",
-		type: "error"
-	},
-	{
-		inputs: [
-		],
 		name: "Unauthorized",
-		type: "error"
-	},
-	{
-		inputs: [
-		],
-		name: "Verifier_InvalidDeadline",
-		type: "error"
-	},
-	{
-		inputs: [
-		],
-		name: "Verifier_InvalidSignature",
-		type: "error"
-	},
-	{
-		inputs: [
-		],
-		name: "ZeroAddress",
 		type: "error"
 	},
 	{
@@ -370,9 +496,9 @@ var abi$1 = [
 			},
 			{
 				indexed: false,
-				internalType: "uint64",
+				internalType: "uint256",
 				name: "newExpiry",
-				type: "uint64"
+				type: "uint256"
 			},
 			{
 				indexed: false,
@@ -442,19 +568,6 @@ var abi$1 = [
 				internalType: "uint256",
 				name: "tokenId",
 				type: "uint256"
-			}
-		],
-		name: "DataDeleted",
-		type: "event"
-	},
-	{
-		anonymous: false,
-		inputs: [
-			{
-				indexed: true,
-				internalType: "uint256",
-				name: "tokenId",
-				type: "uint256"
 			},
 			{
 				indexed: true,
@@ -463,7 +576,7 @@ var abi$1 = [
 				type: "address"
 			}
 		],
-		name: "DataDeletionRequested",
+		name: "DataDeleted",
 		type: "event"
 	},
 	{
@@ -489,6 +602,38 @@ var abi$1 = [
 			}
 		],
 		name: "DataMinted",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "previousOwner",
+				type: "address"
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "newOwner",
+				type: "address"
+			}
+		],
+		name: "OwnershipTransferred",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: false,
+				internalType: "address",
+				name: "account",
+				type: "address"
+			}
+		],
+		name: "Paused",
 		type: "event"
 	},
 	{
@@ -585,32 +730,17 @@ var abi$1 = [
 		type: "event"
 	},
 	{
+		anonymous: false,
 		inputs: [
 			{
+				indexed: false,
 				internalType: "address",
-				name: "creator",
+				name: "account",
 				type: "address"
 			}
 		],
-		name: "addCreator",
-		outputs: [
-		],
-		stateMutability: "nonpayable",
-		type: "function"
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "pauser",
-				type: "address"
-			}
-		],
-		name: "addPauser",
-		outputs: [
-		],
-		stateMutability: "nonpayable",
-		type: "function"
+		name: "Unpaused",
+		type: "event"
 	},
 	{
 		inputs: [
@@ -635,7 +765,7 @@ var abi$1 = [
 		inputs: [
 			{
 				internalType: "address",
-				name: "owner_",
+				name: "owner",
 				type: "address"
 			}
 		],
@@ -645,20 +775,6 @@ var abi$1 = [
 				internalType: "uint256",
 				name: "",
 				type: "uint256"
-			}
-		],
-		stateMutability: "view",
-		type: "function"
-	},
-	{
-		inputs: [
-		],
-		name: "baseURI",
-		outputs: [
-			{
-				internalType: "string",
-				name: "",
-				type: "string"
 			}
 		],
 		stateMutability: "view",
@@ -686,25 +802,6 @@ var abi$1 = [
 	{
 		inputs: [
 			{
-				internalType: "address",
-				name: "",
-				type: "address"
-			}
-		],
-		name: "creators",
-		outputs: [
-			{
-				internalType: "bool",
-				name: "",
-				type: "bool"
-			}
-		],
-		stateMutability: "view",
-		type: "function"
-	},
-	{
-		inputs: [
-			{
 				internalType: "uint256",
 				name: "",
 				type: "uint256"
@@ -713,7 +810,7 @@ var abi$1 = [
 		name: "dataStatus",
 		outputs: [
 			{
-				internalType: "enum DataNFT.DataStatus",
+				internalType: "enum IpNFT.DataStatus",
 				name: "",
 				type: "uint8"
 			}
@@ -787,7 +884,7 @@ var abi$1 = [
 						type: "address"
 					}
 				],
-				internalType: "struct DataNFT.LicenseTerms",
+				internalType: "struct IpNFT.LicenseTerms",
 				name: "",
 				type: "tuple"
 			}
@@ -799,7 +896,7 @@ var abi$1 = [
 		inputs: [
 			{
 				internalType: "address",
-				name: "owner_",
+				name: "owner",
 				type: "address"
 			},
 			{
@@ -833,7 +930,7 @@ var abi$1 = [
 			},
 			{
 				internalType: "bytes32",
-				name: "hash",
+				name: "creatorContentHash",
 				type: "bytes32"
 			},
 			{
@@ -864,7 +961,7 @@ var abi$1 = [
 						type: "address"
 					}
 				],
-				internalType: "struct DataNFT.LicenseTerms",
+				internalType: "struct IpNFT.LicenseTerms",
 				name: "licenseTerms",
 				type: "tuple"
 			},
@@ -874,19 +971,9 @@ var abi$1 = [
 				type: "uint256"
 			},
 			{
-				internalType: "uint8",
-				name: "v",
-				type: "uint8"
-			},
-			{
-				internalType: "bytes32",
-				name: "r",
-				type: "bytes32"
-			},
-			{
-				internalType: "bytes32",
-				name: "s",
-				type: "bytes32"
+				internalType: "bytes",
+				name: "signature",
+				type: "bytes"
 			}
 		],
 		name: "mintWithSignature",
@@ -967,60 +1054,8 @@ var abi$1 = [
 	},
 	{
 		inputs: [
-			{
-				internalType: "address",
-				name: "",
-				type: "address"
-			}
 		],
-		name: "pausers",
-		outputs: [
-			{
-				internalType: "bool",
-				name: "",
-				type: "bool"
-			}
-		],
-		stateMutability: "view",
-		type: "function"
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "creator",
-				type: "address"
-			}
-		],
-		name: "removeCreator",
-		outputs: [
-		],
-		stateMutability: "nonpayable",
-		type: "function"
-	},
-	{
-		inputs: [
-			{
-				internalType: "address",
-				name: "pauser",
-				type: "address"
-			}
-		],
-		name: "removePauser",
-		outputs: [
-		],
-		stateMutability: "nonpayable",
-		type: "function"
-	},
-	{
-		inputs: [
-			{
-				internalType: "uint256",
-				name: "tokenId",
-				type: "uint256"
-			}
-		],
-		name: "requestDelete",
+		name: "renounceOwnership",
 		outputs: [
 		],
 		stateMutability: "nonpayable",
@@ -1167,6 +1202,25 @@ var abi$1 = [
 	},
 	{
 		inputs: [
+			{
+				internalType: "bytes4",
+				name: "interfaceId",
+				type: "bytes4"
+			}
+		],
+		name: "supportsInterface",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
 		],
 		name: "symbol",
 		outputs: [
@@ -1217,7 +1271,7 @@ var abi$1 = [
 		inputs: [
 			{
 				internalType: "uint256",
-				name: "",
+				name: "_tokenId",
 				type: "uint256"
 			}
 		],
@@ -1258,6 +1312,20 @@ var abi$1 = [
 	},
 	{
 		inputs: [
+			{
+				internalType: "address",
+				name: "newOwner",
+				type: "address"
+			}
+		],
+		name: "transferOwnership",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
 		],
 		name: "unpause",
 		outputs: [
@@ -1271,6 +1339,11 @@ var abi$1 = [
 				internalType: "uint256",
 				name: "tokenId",
 				type: "uint256"
+			},
+			{
+				internalType: "address",
+				name: "_royaltyReceiver",
+				type: "address"
 			},
 			{
 				components: [
@@ -1295,7 +1368,7 @@ var abi$1 = [
 						type: "address"
 					}
 				],
-				internalType: "struct DataNFT.LicenseTerms",
+				internalType: "struct IpNFT.LicenseTerms",
 				name: "newTerms",
 				type: "tuple"
 			}
@@ -1304,6 +1377,25 @@ var abi$1 = [
 		outputs: [
 		],
 		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "bytes32",
+				name: "",
+				type: "bytes32"
+			}
+		],
+		name: "usedNonces",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool"
+			}
+		],
+		stateMutability: "view",
 		type: "function"
 	}
 ];
@@ -1321,17 +1413,7 @@ var abi$1 = [
  */
 function mintWithSignature(to, tokenId, hash, uri, licenseTerms, deadline, signature) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [
-            to,
-            tokenId,
-            hash,
-            uri,
-            licenseTerms,
-            deadline,
-            signature.v,
-            signature.r,
-            signature.s,
-        ], { waitForReceipt: true });
+        return yield this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, signature], { waitForReceipt: true });
     });
 }
 /**
@@ -1433,530 +1515,571 @@ function setApprovalForAll(operator, approved) {
 
 var abi = [
 	{
-		type: "constructor",
 		inputs: [
 			{
+				internalType: "address",
 				name: "dataNFT_",
-				type: "address",
-				internalType: "address"
+				type: "address"
 			},
 			{
-				name: "router_",
-				type: "address",
-				internalType: "address"
-			},
-			{
+				internalType: "uint16",
 				name: "protocolFeeBps_",
-				type: "uint16",
-				internalType: "uint16"
-			}
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "addFeeManager",
-		inputs: [
-			{
-				name: "feeManager",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "addPauser",
-		inputs: [
-			{
-				name: "pauser",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "buyAccess",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				internalType: "uint256"
+				type: "uint16"
 			},
 			{
-				name: "periods",
-				type: "uint32",
-				internalType: "uint32"
+				internalType: "address",
+				name: "treasury_",
+				type: "address"
 			}
 		],
-		outputs: [
-		],
-		stateMutability: "payable"
+		stateMutability: "nonpayable",
+		type: "constructor"
 	},
 	{
-		type: "function",
-		name: "dataNFT",
 		inputs: [
 		],
-		outputs: [
-			{
-				name: "",
-				type: "address",
-				internalType: "contract DataNFT"
-			}
-		],
-		stateMutability: "view"
+		name: "EnforcedPause",
+		type: "error"
 	},
 	{
-		type: "function",
-		name: "feeManagers",
 		inputs: [
-			{
-				name: "",
-				type: "address",
-				internalType: "address"
-			}
 		],
-		outputs: [
-			{
-				name: "",
-				type: "bool",
-				internalType: "bool"
-			}
-		],
-		stateMutability: "view"
+		name: "ExpectedPause",
+		type: "error"
 	},
 	{
-		type: "function",
-		name: "hasAccess",
 		inputs: [
 			{
-				name: "user",
-				type: "address",
-				internalType: "address"
-			},
-			{
-				name: "tokenId",
-				type: "uint256",
-				internalType: "uint256"
-			}
-		],
-		outputs: [
-			{
-				name: "",
-				type: "bool",
-				internalType: "bool"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "owner",
-		inputs: [
-		],
-		outputs: [
-			{
-				name: "",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "pause",
-		inputs: [
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "paused",
-		inputs: [
-		],
-		outputs: [
-			{
-				name: "",
-				type: "bool",
-				internalType: "bool"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "pausers",
-		inputs: [
-			{
-				name: "",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-			{
-				name: "",
-				type: "bool",
-				internalType: "bool"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "protocolFeeBps",
-		inputs: [
-		],
-		outputs: [
-			{
-				name: "",
-				type: "uint16",
-				internalType: "uint16"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "removeFeeManager",
-		inputs: [
-			{
-				name: "feeManager",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "removePauser",
-		inputs: [
-			{
-				name: "pauser",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "renewAccess",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				internalType: "uint256"
-			},
-			{
-				name: "buyer",
-				type: "address",
-				internalType: "address"
-			},
-			{
-				name: "periods",
-				type: "uint32",
-				internalType: "uint32"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "payable"
-	},
-	{
-		type: "function",
-		name: "router",
-		inputs: [
-		],
-		outputs: [
-			{
-				name: "",
-				type: "address",
-				internalType: "contract RoyaltyRouter"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "subscriptionExpiry",
-		inputs: [
-			{
-				name: "",
-				type: "uint256",
-				internalType: "uint256"
-			},
-			{
-				name: "",
-				type: "address",
-				internalType: "address"
-			}
-		],
-		outputs: [
-			{
-				name: "",
-				type: "uint64",
-				internalType: "uint64"
-			}
-		],
-		stateMutability: "view"
-	},
-	{
-		type: "function",
-		name: "unpause",
-		inputs: [
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "function",
-		name: "updateProtocolFee",
-		inputs: [
-			{
-				name: "newFeeBps",
-				type: "uint16",
-				internalType: "uint16"
-			}
-		],
-		outputs: [
-		],
-		stateMutability: "nonpayable"
-	},
-	{
-		type: "event",
-		name: "AccessPurchased",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			},
-			{
-				name: "buyer",
-				type: "address",
-				indexed: true,
-				internalType: "address"
-			},
-			{
-				name: "periods",
-				type: "uint32",
-				indexed: false,
-				internalType: "uint32"
-			},
-			{
-				name: "newExpiry",
-				type: "uint64",
-				indexed: false,
-				internalType: "uint64"
-			},
-			{
-				name: "amountPaid",
-				type: "uint256",
-				indexed: false,
-				internalType: "uint256"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "event",
-		name: "DataDeleted",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "event",
-		name: "DataDeletionRequested",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			},
-			{
-				name: "creator",
-				type: "address",
-				indexed: true,
-				internalType: "address"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "event",
-		name: "DataMinted",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			},
-			{
-				name: "creator",
-				type: "address",
-				indexed: true,
-				internalType: "address"
-			},
-			{
-				name: "contentHash",
-				type: "bytes32",
-				indexed: false,
-				internalType: "bytes32"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "event",
-		name: "RoyaltyPaid",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			},
-			{
-				name: "royaltyAmount",
-				type: "uint256",
-				indexed: false,
-				internalType: "uint256"
-			},
-			{
-				name: "creator",
-				type: "address",
-				indexed: false,
-				internalType: "address"
-			},
-			{
-				name: "protocolAmount",
-				type: "uint256",
-				indexed: false,
-				internalType: "uint256"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "event",
-		name: "TermsUpdated",
-		inputs: [
-			{
-				name: "tokenId",
-				type: "uint256",
-				indexed: true,
-				internalType: "uint256"
-			},
-			{
-				name: "newPrice",
-				type: "uint128",
-				indexed: false,
-				internalType: "uint128"
-			},
-			{
-				name: "newDuration",
-				type: "uint32",
-				indexed: false,
-				internalType: "uint32"
-			},
-			{
-				name: "newRoyaltyBps",
-				type: "uint16",
-				indexed: false,
-				internalType: "uint16"
-			},
-			{
-				name: "paymentToken",
-				type: "address",
-				indexed: false,
-				internalType: "address"
-			}
-		],
-		anonymous: false
-	},
-	{
-		type: "error",
-		name: "DurationZero",
-		inputs: [
-		]
-	},
-	{
-		type: "error",
-		name: "InvalidPayment",
-		inputs: [
-			{
+				internalType: "uint256",
 				name: "expected",
-				type: "uint256",
-				internalType: "uint256"
+				type: "uint256"
 			},
 			{
+				internalType: "uint256",
 				name: "actual",
-				type: "uint256",
-				internalType: "uint256"
+				type: "uint256"
 			}
-		]
+		],
+		name: "InvalidPayment",
+		type: "error"
 	},
 	{
-		type: "error",
-		name: "InvalidPeriods",
 		inputs: [
 			{
+				internalType: "uint32",
 				name: "periods",
-				type: "uint32",
-				internalType: "uint32"
+				type: "uint32"
 			}
-		]
+		],
+		name: "InvalidPeriods",
+		type: "error"
 	},
 	{
-		type: "error",
-		name: "InvalidRoyalty",
 		inputs: [
 			{
+				internalType: "uint16",
 				name: "royaltyBps",
-				type: "uint16",
-				internalType: "uint16"
+				type: "uint16"
 			}
-		]
+		],
+		name: "InvalidRoyalty",
+		type: "error"
 	},
 	{
-		type: "error",
+		inputs: [
+			{
+				internalType: "address",
+				name: "owner",
+				type: "address"
+			}
+		],
+		name: "OwnableInvalidOwner",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "account",
+				type: "address"
+			}
+		],
+		name: "OwnableUnauthorizedAccount",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "TransferFailed",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
 		name: "Unauthorized",
-		inputs: [
-		]
+		type: "error"
 	},
 	{
-		type: "error",
-		name: "ZeroAddress",
 		inputs: [
-		]
+		],
+		name: "ZeroAddress",
+		type: "error"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				indexed: false,
+				internalType: "uint32",
+				name: "periods",
+				type: "uint32"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "newExpiry",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "amountPaid",
+				type: "uint256"
+			}
+		],
+		name: "AccessPurchased",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "creator",
+				type: "address"
+			}
+		],
+		name: "DataDeleted",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "creator",
+				type: "address"
+			},
+			{
+				indexed: false,
+				internalType: "bytes32",
+				name: "contentHash",
+				type: "bytes32"
+			}
+		],
+		name: "DataMinted",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "previousOwner",
+				type: "address"
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "newOwner",
+				type: "address"
+			}
+		],
+		name: "OwnershipTransferred",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: false,
+				internalType: "address",
+				name: "account",
+				type: "address"
+			}
+		],
+		name: "Paused",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "royaltyAmount",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "address",
+				name: "creator",
+				type: "address"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "protocolAmount",
+				type: "uint256"
+			}
+		],
+		name: "RoyaltyPaid",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint128",
+				name: "newPrice",
+				type: "uint128"
+			},
+			{
+				indexed: false,
+				internalType: "uint32",
+				name: "newDuration",
+				type: "uint32"
+			},
+			{
+				indexed: false,
+				internalType: "uint16",
+				name: "newRoyaltyBps",
+				type: "uint16"
+			},
+			{
+				indexed: false,
+				internalType: "address",
+				name: "paymentToken",
+				type: "address"
+			}
+		],
+		name: "TermsUpdated",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: false,
+				internalType: "address",
+				name: "account",
+				type: "address"
+			}
+		],
+		name: "Unpaused",
+		type: "event"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "feeManager",
+				type: "address"
+			}
+		],
+		name: "addFeeManager",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				internalType: "uint32",
+				name: "periods",
+				type: "uint32"
+			}
+		],
+		name: "buyAccess",
+		outputs: [
+		],
+		stateMutability: "payable",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "dataNFT",
+		outputs: [
+			{
+				internalType: "contract IpNFT",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address"
+			}
+		],
+		name: "feeManagers",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "user",
+				type: "address"
+			},
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			}
+		],
+		name: "hasAccess",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "owner",
+		outputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "pause",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "paused",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "protocolFeeBps",
+		outputs: [
+			{
+				internalType: "uint16",
+				name: "",
+				type: "uint16"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "feeManager",
+				type: "address"
+			}
+		],
+		name: "removeFeeManager",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "renounceOwnership",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256"
+			},
+			{
+				internalType: "address",
+				name: "",
+				type: "address"
+			}
+		],
+		name: "subscriptionExpiry",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "newOwner",
+				type: "address"
+			}
+		],
+		name: "transferOwnership",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "treasury",
+		outputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "unpause",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint16",
+				name: "newFeeBps",
+				type: "uint16"
+			}
+		],
+		name: "updateProtocolFee",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "newTreasury",
+				type: "address"
+			}
+		],
+		name: "updateTreasury",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		stateMutability: "payable",
+		type: "receive"
 	}
 ];
 
@@ -2070,13 +2193,8 @@ class Origin {
                 }
                 const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
                 const registration = yield this.registerDataNFT("file", deadline, info.key);
-                const { tokenId, signerAddress, hash, v, r, s } = registration;
-                if (!tokenId ||
-                    !signerAddress ||
-                    !hash ||
-                    v === undefined ||
-                    r === undefined ||
-                    s === undefined) {
+                const { tokenId, signerAddress, hash, signature } = registration;
+                if (!tokenId || !signerAddress || !hash || signature === undefined) {
                     console.error("Invalid registration data:", registration);
                     return null;
                 }
@@ -2084,7 +2202,6 @@ class Origin {
                     method: "eth_requestAccounts",
                     params: [],
                 });
-                const signature = { v, r, s };
                 const mintResult = yield this.mintWithSignature(account, tokenId, hash, info.url, license, deadline, signature);
                 return tokenId.toString();
             }
@@ -2277,21 +2394,27 @@ class Origin {
                     args: params,
                 });
                 yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, testnet);
-                const txHash = yield this.viemClient.sendTransaction({
-                    to: contractAddress,
-                    data,
-                    account,
-                    value: options.value,
-                    gas: options.gas,
-                });
-                if (typeof txHash !== "string") {
-                    throw new Error("Transaction failed to send.");
+                try {
+                    const txHash = yield this.viemClient.sendTransaction({
+                        to: contractAddress,
+                        data,
+                        account,
+                        value: options.value,
+                        gas: options.gas,
+                    });
+                    if (typeof txHash !== "string") {
+                        throw new Error("Transaction failed to send.");
+                    }
+                    if (!options.waitForReceipt) {
+                        return txHash;
+                    }
+                    const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
+                    return receipt;
                 }
-                if (!options.waitForReceipt) {
-                    return txHash;
+                catch (error) {
+                    console.error("Transaction failed:", error);
+                    throw new Error("Transaction failed: " + error);
                 }
-                const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
-                return receipt;
             }
         });
     }

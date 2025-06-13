@@ -2,8 +2,7 @@
   {
     "inputs": [
       { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_symbol", "type": "string" },
-      { "internalType": "string", "name": "_baseURI", "type": "string" }
+      { "internalType": "string", "name": "_symbol", "type": "string" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -11,11 +10,74 @@
   { "inputs": [], "name": "DurationZero", "type": "error" },
   {
     "inputs": [
+      { "internalType": "address", "name": "sender", "type": "address" },
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "ERC721IncorrectOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "operator", "type": "address" },
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+    ],
+    "name": "ERC721InsufficientApproval",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "approver", "type": "address" }
+    ],
+    "name": "ERC721InvalidApprover",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "operator", "type": "address" }
+    ],
+    "name": "ERC721InvalidOperator",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "ERC721InvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "receiver", "type": "address" }
+    ],
+    "name": "ERC721InvalidReceiver",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "sender", "type": "address" }
+    ],
+    "name": "ERC721InvalidSender",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+    ],
+    "name": "ERC721NonexistentToken",
+    "type": "error"
+  },
+  { "inputs": [], "name": "EnforcedPause", "type": "error" },
+  { "inputs": [], "name": "ExpectedPause", "type": "error" },
+  { "inputs": [], "name": "InvalidDeadline", "type": "error" },
+  {
+    "inputs": [
       { "internalType": "uint16", "name": "royaltyBps", "type": "uint16" }
     ],
     "name": "InvalidRoyalty",
     "type": "error"
   },
+  { "inputs": [], "name": "InvalidSignature", "type": "error" },
   {
     "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
@@ -26,16 +88,27 @@
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  { "inputs": [], "name": "SignatureAlreadyUsed", "type": "error" },
+  {
+    "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
     "name": "TokenAlreadyExists",
     "type": "error"
   },
-  { "inputs": [], "name": "URIQueryForNonexistentToken", "type": "error" },
   { "inputs": [], "name": "Unauthorized", "type": "error" },
-  { "inputs": [], "name": "Verifier_InvalidDeadline", "type": "error" },
-  { "inputs": [], "name": "Verifier_InvalidSignature", "type": "error" },
-  { "inputs": [], "name": "ZeroAddress", "type": "error" },
   {
     "anonymous": false,
     "inputs": [
@@ -59,9 +132,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint64",
+        "internalType": "uint256",
         "name": "newExpiry",
-        "type": "uint64"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -131,19 +204,6 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
-      }
-    ],
-    "name": "DataDeleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
       },
       {
         "indexed": true,
@@ -152,7 +212,7 @@
         "type": "address"
       }
     ],
-    "name": "DataDeletionRequested",
+    "name": "DataDeleted",
     "type": "event"
   },
   {
@@ -178,6 +238,38 @@
       }
     ],
     "name": "DataMinted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
     "type": "event"
   },
   {
@@ -274,22 +366,17 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
-      { "internalType": "address", "name": "creator", "type": "address" }
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
-    "name": "addCreator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "pauser", "type": "address" }
-    ],
-    "name": "addPauser",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "Unpaused",
+    "type": "event"
   },
   {
     "inputs": [
@@ -303,17 +390,10 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner_", "type": "address" }
+      { "internalType": "address", "name": "owner", "type": "address" }
     ],
     "name": "balanceOf",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "baseURI",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -325,17 +405,10 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "creators",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "name": "dataStatus",
     "outputs": [
-      { "internalType": "enum DataNFT.DataStatus", "name": "", "type": "uint8" }
+      { "internalType": "enum IpNFT.DataStatus", "name": "", "type": "uint8" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -375,7 +448,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataNFT.LicenseTerms",
+        "internalType": "struct IpNFT.LicenseTerms",
         "name": "",
         "type": "tuple"
       }
@@ -385,7 +458,7 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner_", "type": "address" },
+      { "internalType": "address", "name": "owner", "type": "address" },
       { "internalType": "address", "name": "operator", "type": "address" }
     ],
     "name": "isApprovedForAll",
@@ -397,7 +470,11 @@
     "inputs": [
       { "internalType": "address", "name": "to", "type": "address" },
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "internalType": "bytes32", "name": "hash", "type": "bytes32" },
+      {
+        "internalType": "bytes32",
+        "name": "creatorContentHash",
+        "type": "bytes32"
+      },
       { "internalType": "string", "name": "uri", "type": "string" },
       {
         "components": [
@@ -410,14 +487,12 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataNFT.LicenseTerms",
+        "internalType": "struct IpNFT.LicenseTerms",
         "name": "licenseTerms",
         "type": "tuple"
       },
       { "internalType": "uint256", "name": "deadline", "type": "uint256" },
-      { "internalType": "uint8", "name": "v", "type": "uint8" },
-      { "internalType": "bytes32", "name": "r", "type": "bytes32" },
-      { "internalType": "bytes32", "name": "s", "type": "bytes32" }
+      { "internalType": "bytes", "name": "signature", "type": "bytes" }
     ],
     "name": "mintWithSignature",
     "outputs": [],
@@ -462,35 +537,8 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "pausers",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "creator", "type": "address" }
-    ],
-    "name": "removeCreator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "pauser", "type": "address" }
-    ],
-    "name": "removePauser",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "requestDelete",
+    "inputs": [],
+    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -556,6 +604,15 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+    ],
+    "name": "supportsInterface",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "symbol",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
@@ -575,7 +632,9 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" }
+    ],
     "name": "tokenURI",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
@@ -593,6 +652,15 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "unpause",
     "outputs": [],
@@ -602,6 +670,11 @@
   {
     "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      {
+        "internalType": "address",
+        "name": "_royaltyReceiver",
+        "type": "address"
+      },
       {
         "components": [
           { "internalType": "uint128", "name": "price", "type": "uint128" },
@@ -613,7 +686,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataNFT.LicenseTerms",
+        "internalType": "struct IpNFT.LicenseTerms",
         "name": "newTerms",
         "type": "tuple"
       }
@@ -621,6 +694,13 @@
     "name": "updateTerms",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "usedNonces",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

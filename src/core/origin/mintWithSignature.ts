@@ -23,23 +23,13 @@ export async function mintWithSignature(
   uri: string,
   licenseTerms: LicenseTerms,
   deadline: bigint,
-  signature: { v: number; r: Hex; s: Hex }
+  signature: Hex
 ): Promise<any> {
   return await this.callContractMethod(
     constants.DATANFT_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "mintWithSignature",
-    [
-      to,
-      tokenId,
-      hash,
-      uri,
-      licenseTerms,
-      deadline,
-      signature.v,
-      signature.r,
-      signature.s,
-    ],
+    [to, tokenId, hash, uri, licenseTerms, deadline, signature],
     { waitForReceipt: true }
   );
 }
