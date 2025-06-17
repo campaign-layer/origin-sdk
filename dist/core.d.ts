@@ -221,10 +221,10 @@ declare enum DataStatus {
     DELETED = 2
 }
 /**
- * Represents the source of a Data NFT.
+ * Represents the source of an IpNFT.
  * This can be one of the supported social media platforms or a file upload.
  */
-type DataNFTSource = "spotify" | "twitter" | "tiktok" | "file";
+type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
 
 /**
  * Mints a Data NFT with a signature.
@@ -245,7 +245,7 @@ declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, h
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
  */
-declare function registerDataNFT(this: Origin, source: DataNFTSource, deadline: bigint, fileKey?: string | string[]): Promise<any>;
+declare function registerIpNFT(this: Origin, source: IpNFTSource, deadline: bigint, licenseTerms: LicenseTerms, fileKey?: string | string[]): Promise<any>;
 
 declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTerms): Promise<any>;
 
@@ -306,7 +306,7 @@ type CallOptions = {
 declare class Origin {
     #private;
     mintWithSignature: typeof mintWithSignature;
-    registerDataNFT: typeof registerDataNFT;
+    registerIpNFT: typeof registerIpNFT;
     updateTerms: typeof updateTerms;
     requestDelete: typeof requestDelete;
     getTerms: typeof getTerms;
@@ -337,7 +337,7 @@ declare class Origin {
     mintFile: (file: File, license: LicenseTerms, options?: {
         progressCallback?: (percent: number) => void;
     }) => Promise<string | null>;
-    mintSocial: (source: "spotify" | "twitter" | "tiktok") => Promise<string | null>;
+    mintSocial: (source: "spotify" | "twitter" | "tiktok", license: LicenseTerms) => Promise<string | null>;
     getOriginUploads: () => Promise<any>;
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).

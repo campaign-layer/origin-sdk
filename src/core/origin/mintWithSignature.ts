@@ -2,7 +2,7 @@ import { Abi, Address, Hex } from "viem";
 import abi from "./contracts/DataNFT.json";
 import { Origin } from ".";
 import constants from "../../constants";
-import { DataNFTSource, LicenseTerms } from "./utils";
+import { IpNFTSource, LicenseTerms } from "./utils";
 
 /**
  * Mints a Data NFT with a signature.
@@ -41,19 +41,27 @@ export async function mintWithSignature(
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
  */
-export async function registerDataNFT(
+export async function registerIpNFT(
   this: Origin,
-  source: DataNFTSource,
+  source: IpNFTSource,
   deadline: bigint,
+  licenseTerms: LicenseTerms,
   fileKey?: string | string[]
 ): Promise<any> {
   const body: Record<string, unknown> = {
     source,
-    deadline: deadline.toString(),
+    deadline: Number(deadline),
+    licenseTerms: {
+      price: licenseTerms.price.toString(),
+      duration: licenseTerms.duration,
+      royaltyBps: licenseTerms.royaltyBps,
+      paymentToken: licenseTerms.paymentToken,
+    },
   };
   if (fileKey !== undefined) {
     body.fileKey = fileKey;
   }
+
   const res = await fetch(
     `${constants.AUTH_HUB_BASE_API}/auth/origin/register`,
     {

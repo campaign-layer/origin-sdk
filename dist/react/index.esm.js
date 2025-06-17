@@ -164,8 +164,8 @@ var constants = {
         TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
         TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
     },
-    DATANFT_CONTRACT_ADDRESS: "0x3bd5C81a8Adf3355078Dc5F73c41d3194B316690",
-    MARKETPLACE_CONTRACT_ADDRESS: "0xAc79E9Ef69021F9bf7Ccb175611F3115Ff65A44D",
+    DATANFT_CONTRACT_ADDRESS: "0xb55066f2793773B3784f8c57c415a8b5932B33Cd",
+    MARKETPLACE_CONTRACT_ADDRESS: "0x977fdEF62CE095Ae8750Fd3496730F24F60dea7a",
 };
 
 let providers = [];
@@ -1423,11 +1423,17 @@ function mintWithSignature(to, tokenId, hash, uri, licenseTerms, deadline, signa
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
  */
-function registerDataNFT(source, deadline, fileKey) {
+function registerIpNFT(source, deadline, licenseTerms, fileKey) {
     return __awaiter(this, void 0, void 0, function* () {
         const body = {
             source,
-            deadline: deadline.toString(),
+            deadline: Number(deadline),
+            licenseTerms: {
+                price: licenseTerms.price.toString(),
+                duration: licenseTerms.duration,
+                royaltyBps: licenseTerms.royaltyBps,
+                paymentToken: licenseTerms.paymentToken,
+            },
         };
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
@@ -2185,45 +2191,44 @@ class Origin {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
-            try {
-                const info = yield this.uploadFile(file, options);
-                if (!info || !info.key) {
-                    console.error("Invalid upload info:", info);
-                    return null;
-                }
-                const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-                const registration = yield this.registerDataNFT("file", deadline, info.key);
-                const { tokenId, signerAddress, hash, signature } = registration;
-                if (!tokenId || !signerAddress || !hash || signature === undefined) {
-                    console.error("Invalid registration data:", registration);
-                    return null;
-                }
-                const [account] = yield this.viemClient.request({
-                    method: "eth_requestAccounts",
-                    params: [],
-                });
-                const mintResult = yield this.mintWithSignature(account, tokenId, hash, info.url, license, deadline, signature);
-                return tokenId.toString();
+            const info = yield this.uploadFile(file, options);
+            if (!info || !info.key) {
+                throw new Error("Failed to upload file or get upload info.");
             }
-            catch (error) {
-                console.error("Failed to upload file:", error);
-                return null;
+            const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now
+            const registration = yield this.registerIpNFT("file", deadline, license, info.key);
+            const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
+            if (!tokenId ||
+                !signerAddress ||
+                !creatorContentHash ||
+                signature === undefined ||
+                !uri) {
+                throw new Error("Failed to register IpNFT: Missing required fields in registration response.");
             }
+            const [account] = yield this.viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
+            const mintResult = yield this.mintWithSignature(account, tokenId, creatorContentHash, uri, license, deadline, signature);
+            if (mintResult.status !== "0x1") {
+                throw new Error(`Minting failed with status: ${mintResult.status}`);
+            }
+            return tokenId.toString();
         });
-        this.mintSocial = (source) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now (temp)
-                const registration = yield this.registerDataNFT(source, deadline);
-                if (!registration) {
-                    console.error("Failed to register DataNFT");
-                    return null;
-                }
-                return registration.tokenId.toString();
+        this.mintSocial = (source, license) => __awaiter(this, void 0, void 0, function* () {
+            // try {
+            const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now (temp)
+            const registration = yield this.registerIpNFT(source, deadline, license);
+            if (!registration) {
+                // console.error("Failed to register IpNFT");
+                // return null;
+                throw new Error("Failed to register Social IpNFT");
             }
-            catch (error) {
-                console.error("Failed to mint social DataNFT:", error);
-                return null;
-            }
+            return registration.tokenId.toString();
+            // } catch (error) {
+            //   console.error("Failed to mint social IpNFT:", error);
+            //   return null;
+            // }
         });
         this.getOriginUploads = () => __awaiter(this, void 0, void 0, function* () {
             const res = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/files`, {
@@ -2243,7 +2248,7 @@ class Origin {
         this.viemClient = viemClient;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
-        this.registerDataNFT = registerDataNFT.bind(this);
+        this.registerIpNFT = registerIpNFT.bind(this);
         this.updateTerms = updateTerms.bind(this);
         this.requestDelete = requestDelete.bind(this);
         this.getTerms = getTerms.bind(this);

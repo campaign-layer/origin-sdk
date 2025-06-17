@@ -997,7 +997,7 @@ Mints an IpNFT for a connected social account.
 The following methods are available for interacting with IpNFTs and the marketplace. All methods mirror the smart contract functions and require appropriate permissions.
 
 - `mintWithSignature(...)`
-- `registerDataNFT(...)`
+- `registerIpNFT(...)`
 - `updateTerms(...)`
 - `requestDelete(...)`
 - `getTerms(tokenId: bigint)`

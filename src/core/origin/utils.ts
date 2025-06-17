@@ -49,7 +49,7 @@ export const createLicenseTerms = (
 };
 
 /**
- * Represents the source of a Data NFT.
+ * Represents the source of an IpNFT.
  * This can be one of the supported social media platforms or a file upload.
  */
-export type DataNFTSource = "spotify" | "twitter" | "tiktok" | "file";
+export type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
