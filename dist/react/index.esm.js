@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress, checksumAddress } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -2734,6 +2734,7 @@ class Auth {
                 if (!this.walletAddress) {
                     yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_requestAccount).call(this);
                 }
+                this.walletAddress = checksumAddress(this.walletAddress);
                 const nonce = yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_fetchNonce).call(this);
                 const message = __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_createMessage).call(this, nonce);
                 const signature = yield this.viem.signMessage({
@@ -3168,10 +3169,6 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
                     address: walletAddress,
                 });
             }
-            else {
-                console.warn("No matching provider was given for the stored wallet address. Trying to recover provider.");
-                yield this.recoverProvider();
-            }
         }
         else {
             this.isAuthenticated = false;
@@ -3181,8 +3178,8 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const [account] = yield this.viem.requestAddresses();
-            this.walletAddress = account;
-            return account;
+            this.walletAddress = checksumAddress(account);
+            return this.walletAddress;
         }
         catch (e) {
             throw new APIError(e);

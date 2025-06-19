@@ -6,6 +6,7 @@ import { Provider, providerStore } from "./viem/providers";
 // import { Ackee } from "../../index";
 // import { sendAnalyticsEvent } from "../../utils";
 import { Origin } from "../origin";
+import { checksumAddress } from "viem";
 
 declare global {
   interface Window {
@@ -291,10 +292,11 @@ class Auth {
           address: walletAddress,
         });
       } else {
-        console.warn(
-          "No matching provider was given for the stored wallet address. Trying to recover provider."
-        );
-        await this.recoverProvider();
+        // console.warn(
+        //   "No matching provider was given for the stored wallet address. Trying to recover provider."
+        // );
+        // await this.recoverProvider();
+        // TODO: do this but less aggressively (check provider info instead of addresses)
       }
     } else {
       this.isAuthenticated = false;
@@ -310,8 +312,8 @@ class Auth {
   async #requestAccount(): Promise<string> {
     try {
       const [account] = await this.viem.requestAddresses();
-      this.walletAddress = account;
-      return account;
+      this.walletAddress = checksumAddress(account);
+      return this.walletAddress;
     } catch (e: any) {
       throw new APIError(e);
     }
@@ -461,6 +463,7 @@ class Auth {
       if (!this.walletAddress) {
         await this.#requestAccount();
       }
+      this.walletAddress = checksumAddress(this.walletAddress as `0x${string}`);
       const nonce = await this.#fetchNonce();
       const message = this.#createMessage(nonce);
       const signature = await this.viem.signMessage({
