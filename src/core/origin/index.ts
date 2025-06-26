@@ -174,7 +174,9 @@ export class Origin {
 
   mintFile = async (
     file: File,
+    metadata: Record<string, unknown>,
     license: LicenseTerms,
+    parentId?: bigint,
     options?: {
       progressCallback?: (percent: number) => void;
     }
@@ -191,7 +193,9 @@ export class Origin {
       "file",
       deadline,
       license,
-      info.key
+      metadata,
+      info.key,
+      parentId
     );
     const { tokenId, signerAddress, creatorContentHash, signature, uri } =
       registration;
@@ -216,6 +220,7 @@ export class Origin {
     const mintResult = await this.mintWithSignature(
       account,
       tokenId,
+      parentId || BigInt(0),
       creatorContentHash,
       uri,
       license,
@@ -236,7 +241,16 @@ export class Origin {
   ): Promise<string | null> => {
     // try {
     const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now (temp)
-    const registration = await this.registerIpNFT(source, deadline, license);
+    const metadata = {
+      name: `${source} IpNFT`,
+      description: `This is a ${source} IpNFT`,
+    };
+    const registration = await this.registerIpNFT(
+      source,
+      deadline,
+      license,
+      metadata
+    );
     if (!registration) {
       // console.error("Failed to register IpNFT");
       // return null;

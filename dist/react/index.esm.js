@@ -164,8 +164,8 @@ var constants = {
         TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
         TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
     },
-    DATANFT_CONTRACT_ADDRESS: "0xb55066f2793773B3784f8c57c415a8b5932B33Cd",
-    MARKETPLACE_CONTRACT_ADDRESS: "0x977fdEF62CE095Ae8750Fd3496730F24F60dea7a",
+    DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
+    MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
 };
 
 let providers = [];
@@ -256,13 +256,23 @@ var abi$1 = [
 		inputs: [
 			{
 				internalType: "string",
-				name: "_name",
+				name: "name_",
 				type: "string"
 			},
 			{
 				internalType: "string",
-				name: "_symbol",
+				name: "symbol_",
 				type: "string"
+			},
+			{
+				internalType: "uint256",
+				name: "maxTermDuration_",
+				type: "uint256"
+			},
+			{
+				internalType: "address",
+				name: "signer_",
+				type: "address"
 			}
 		],
 		stateMutability: "nonpayable",
@@ -393,6 +403,12 @@ var abi$1 = [
 		inputs: [
 		],
 		name: "InvalidDeadline",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "InvalidDuration",
 		type: "error"
 	},
 	{
@@ -918,6 +934,20 @@ var abi$1 = [
 	},
 	{
 		inputs: [
+		],
+		name: "maxTermDuration",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
 			{
 				internalType: "address",
 				name: "to",
@@ -926,6 +956,11 @@ var abi$1 = [
 			{
 				internalType: "uint256",
 				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				internalType: "uint256",
+				name: "parentId",
 				type: "uint256"
 			},
 			{
@@ -1024,6 +1059,25 @@ var abi$1 = [
 				internalType: "address",
 				name: "",
 				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256"
+			}
+		],
+		name: "parentIpOf",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256"
 			}
 		],
 		stateMutability: "view",
@@ -1198,6 +1252,34 @@ var abi$1 = [
 		outputs: [
 		],
 		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_signer",
+				type: "address"
+			}
+		],
+		name: "setSigner",
+		outputs: [
+		],
+		stateMutability: "nonpayable",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "signer",
+		outputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
 		type: "function"
 	},
 	{
@@ -1404,6 +1486,7 @@ var abi$1 = [
  * Mints a Data NFT with a signature.
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
+ * @param parentId The ID of the parent NFT, if applicable.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -1411,9 +1494,9 @@ var abi$1 = [
  * @param signature The signature for the minting operation.
  * @returns A promise that resolves when the minting is complete.
  */
-function mintWithSignature(to, tokenId, hash, uri, licenseTerms, deadline, signature) {
+function mintWithSignature(to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, signature], { waitForReceipt: true });
+        return yield this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature], { waitForReceipt: true });
     });
 }
 /**
@@ -1423,7 +1506,7 @@ function mintWithSignature(to, tokenId, hash, uri, licenseTerms, deadline, signa
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
  */
-function registerIpNFT(source, deadline, licenseTerms, fileKey) {
+function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parentId) {
     return __awaiter(this, void 0, void 0, function* () {
         const body = {
             source,
@@ -1434,6 +1517,8 @@ function registerIpNFT(source, deadline, licenseTerms, fileKey) {
                 royaltyBps: licenseTerms.royaltyBps,
                 paymentToken: licenseTerms.paymentToken,
             },
+            metadata,
+            parentId: Number(parentId) || 0,
         };
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
@@ -2187,7 +2272,7 @@ class Origin {
             yield __classPrivateFieldGet(this, _Origin_setOriginStatus, "f").call(this, uploadInfo.key, "success");
             return uploadInfo;
         });
-        this.mintFile = (file, license, options) => __awaiter(this, void 0, void 0, function* () {
+        this.mintFile = (file, metadata, license, parentId, options) => __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
@@ -2196,7 +2281,7 @@ class Origin {
                 throw new Error("Failed to upload file or get upload info.");
             }
             const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now
-            const registration = yield this.registerIpNFT("file", deadline, license, info.key);
+            const registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parentId);
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
             if (!tokenId ||
                 !signerAddress ||
@@ -2209,7 +2294,7 @@ class Origin {
                 method: "eth_requestAccounts",
                 params: [],
             });
-            const mintResult = yield this.mintWithSignature(account, tokenId, creatorContentHash, uri, license, deadline, signature);
+            const mintResult = yield this.mintWithSignature(account, tokenId, parentId || BigInt(0), creatorContentHash, uri, license, deadline, signature);
             if (mintResult.status !== "0x1") {
                 throw new Error(`Minting failed with status: ${mintResult.status}`);
             }
@@ -2218,7 +2303,11 @@ class Origin {
         this.mintSocial = (source, license) => __awaiter(this, void 0, void 0, function* () {
             // try {
             const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now (temp)
-            const registration = yield this.registerIpNFT(source, deadline, license);
+            const metadata = {
+                name: `${source} IpNFT`,
+                description: `This is a ${source} IpNFT`,
+            };
+            const registration = yield this.registerIpNFT(source, deadline, license, metadata);
             if (!registration) {
                 // console.error("Failed to register IpNFT");
                 // return null;
@@ -3933,7 +4022,11 @@ const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
                 royaltyBps, // royalty basis points
                 zeroAddress // payment token
                 );
-                const res = yield ((_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.mintFile(selectedFile, license, {
+                const metadata = {
+                    name: selectedFile.name,
+                    description: `This is a file uploaded by ${auth === null || auth === void 0 ? void 0 : auth.walletAddress}`,
+                };
+                const res = yield ((_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.mintFile(selectedFile, metadata, license, BigInt(0), {
                     progressCallback(percent) {
                         setUploadProgress(percent);
                     },

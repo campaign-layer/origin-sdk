@@ -1,8 +1,14 @@
 [
   {
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_symbol", "type": "string" }
+      { "internalType": "string", "name": "name_", "type": "string" },
+      { "internalType": "string", "name": "symbol_", "type": "string" },
+      {
+        "internalType": "uint256",
+        "name": "maxTermDuration_",
+        "type": "uint256"
+      },
+      { "internalType": "address", "name": "signer_", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
@@ -70,6 +76,7 @@
   { "inputs": [], "name": "EnforcedPause", "type": "error" },
   { "inputs": [], "name": "ExpectedPause", "type": "error" },
   { "inputs": [], "name": "InvalidDeadline", "type": "error" },
+  { "inputs": [], "name": "InvalidDuration", "type": "error" },
   {
     "inputs": [
       { "internalType": "uint16", "name": "royaltyBps", "type": "uint16" }
@@ -467,9 +474,17 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "maxTermDuration",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "address", "name": "to", "type": "address" },
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "internalType": "uint256", "name": "parentId", "type": "uint256" },
       {
         "internalType": "bytes32",
         "name": "creatorContentHash",
@@ -519,6 +534,13 @@
     ],
     "name": "ownerOf",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "parentIpOf",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -601,6 +623,22 @@
     "name": "setApprovalForAll",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_signer", "type": "address" }
+    ],
+    "name": "setSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "signer",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {

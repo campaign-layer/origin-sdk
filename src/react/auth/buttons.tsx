@@ -509,11 +509,21 @@ export const FileUpload = ({
           royaltyBps, // royalty basis points
           zeroAddress // payment token
         );
-        const res = await auth?.origin?.mintFile(selectedFile, license, {
-          progressCallback(percent) {
-            setUploadProgress(percent);
-          },
-        });
+        const metadata = {
+          name: selectedFile.name,
+          description: `This is a file uploaded by ${auth?.walletAddress}`,
+        };
+        const res = await auth?.origin?.mintFile(
+          selectedFile,
+          metadata,
+          license,
+          BigInt(0),
+          {
+            progressCallback(percent: number) {
+              setUploadProgress(percent);
+            },
+          }
+        );
         if (onFileUpload) {
           onFileUpload([selectedFile]);
         }

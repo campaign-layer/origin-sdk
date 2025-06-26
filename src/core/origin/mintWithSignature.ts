@@ -8,6 +8,7 @@ import { IpNFTSource, LicenseTerms } from "./utils";
  * Mints a Data NFT with a signature.
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
+ * @param parentId The ID of the parent NFT, if applicable.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -19,6 +20,7 @@ export async function mintWithSignature(
   this: Origin,
   to: Address,
   tokenId: bigint,
+  parentId: bigint,
   hash: Hex,
   uri: string,
   licenseTerms: LicenseTerms,
@@ -29,7 +31,7 @@ export async function mintWithSignature(
     constants.DATANFT_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "mintWithSignature",
-    [to, tokenId, hash, uri, licenseTerms, deadline, signature],
+    [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
     { waitForReceipt: true }
   );
 }
@@ -46,7 +48,9 @@ export async function registerIpNFT(
   source: IpNFTSource,
   deadline: bigint,
   licenseTerms: LicenseTerms,
-  fileKey?: string | string[]
+  metadata: Record<string, unknown>,
+  fileKey?: string | string[],
+  parentId?: bigint
 ): Promise<any> {
   const body: Record<string, unknown> = {
     source,
@@ -57,6 +61,8 @@ export async function registerIpNFT(
       royaltyBps: licenseTerms.royaltyBps,
       paymentToken: licenseTerms.paymentToken,
     },
+    metadata,
+    parentId: Number(parentId) || 0,
   };
   if (fileKey !== undefined) {
     body.fileKey = fileKey;
