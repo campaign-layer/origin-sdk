@@ -67,6 +67,10 @@
 
 .container.linking-container {
   max-width: 300px;
+
+  @media screen and (max-width: 440px) {
+    max-width: 100%;
+  }
 }
 
 .origin-tab {
