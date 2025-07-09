@@ -188,7 +188,7 @@ export class Origin {
     if (!info || !info.key) {
       throw new Error("Failed to upload file or get upload info.");
     }
-    const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
     const registration = await this.registerIpNFT(
       "file",
       deadline,
@@ -239,8 +239,11 @@ export class Origin {
     source: "spotify" | "twitter" | "tiktok",
     license: LicenseTerms
   ): Promise<string | null> => {
-    // try {
-    const deadline = BigInt(Math.floor(Date.now()) + 600); // 10 minutes from now (temp)
+    if (!this.viemClient) {
+      throw new Error("WalletClient not connected.");
+    }
+
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
     const metadata = {
       name: `${source} IpNFT`,
       description: `This is a ${source} IpNFT`,
@@ -251,16 +254,45 @@ export class Origin {
       license,
       metadata
     );
-    if (!registration) {
-      // console.error("Failed to register IpNFT");
-      // return null;
-      throw new Error("Failed to register Social IpNFT");
+
+    const { tokenId, signerAddress, creatorContentHash, signature, uri } =
+      registration;
+
+    if (
+      !tokenId ||
+      !signerAddress ||
+      !creatorContentHash ||
+      signature === undefined ||
+      !uri
+    ) {
+      throw new Error(
+        "Failed to register Social IpNFT: Missing required fields in registration response."
+      );
     }
-    return registration.tokenId.toString();
-    // } catch (error) {
-    //   console.error("Failed to mint social IpNFT:", error);
-    //   return null;
-    // }
+
+    const [account] = await this.viemClient.request({
+      method: "eth_requestAccounts",
+      params: [],
+    });
+
+    const mintResult = await this.mintWithSignature(
+      account,
+      tokenId,
+      BigInt(0), // parentId is not applicable for social IpNFTs
+      creatorContentHash,
+      uri,
+      license,
+      deadline,
+      signature
+    );
+
+    if (mintResult.status !== "0x1") {
+      throw new Error(
+        `Minting Social IpNFT failed with status: ${mintResult.status}`
+      );
+    }
+
+    return tokenId.toString();
   };
 
   getOriginUploads = async () => {
