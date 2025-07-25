@@ -2540,21 +2540,24 @@ class Origin {
             if (price === undefined || paymentToken === undefined) {
                 throw new Error("Terms missing price or paymentToken");
             }
-            const addr = yield this.viemClient.getAddress();
+            const [account] = yield this.viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
             const totalCost = price * BigInt(periods);
             const isNative = paymentToken === zeroAddress;
             if (isNative) {
-                return this.buyAccess(addr, tokenId, periods, totalCost);
+                return this.buyAccess(account, tokenId, periods, totalCost);
             }
             yield approveIfNeeded({
                 walletClient: this.viemClient,
                 publicClient: getPublicClient(),
                 tokenAddress: paymentToken,
-                owner: addr,
+                owner: account,
                 spender: constants.MARKETPLACE_CONTRACT_ADDRESS,
                 amount: totalCost,
             });
-            return this.buyAccess(addr, tokenId, periods);
+            return this.buyAccess(account, tokenId, periods);
         });
     }
     getData(tokenId) {
