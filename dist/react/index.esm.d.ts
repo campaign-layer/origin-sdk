@@ -84,7 +84,7 @@ declare function approve(this: Origin, to: Address, tokenId: bigint): Promise<an
 
 declare function setApprovalForAll(this: Origin, operator: Address, approved: boolean): Promise<any>;
 
-declare function buyAccess(this: Origin, tokenId: bigint, periods: number, value?: bigint): Promise<any>;
+declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, periods: number, value?: bigint): Promise<any>;
 
 declare function renewAccess(this: Origin, tokenId: bigint, buyer: Address, periods: number, value?: bigint): Promise<any>;
 
