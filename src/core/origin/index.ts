@@ -578,24 +578,27 @@ export class Origin {
     if (price === undefined || paymentToken === undefined) {
       throw new Error("Terms missing price or paymentToken");
     }
-    const addr = await this.viemClient.getAddress();
+    const [account] = await this.viemClient.request({
+      method: "eth_requestAccounts",
+      params: [],
+    });
 
     const totalCost = price * BigInt(periods);
     const isNative = paymentToken === zeroAddress;
     if (isNative) {
-      return this.buyAccess(addr, tokenId, periods, totalCost);
+      return this.buyAccess(account, tokenId, periods, totalCost);
     }
 
     await approveIfNeeded({
       walletClient: this.viemClient,
       publicClient: getPublicClient(),
       tokenAddress: paymentToken,
-      owner: addr,
+      owner: account,
       spender: constants.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
       amount: totalCost,
     });
 
-    return this.buyAccess(addr, tokenId, periods);
+    return this.buyAccess(account, tokenId, periods);
   }
 
   async getData(tokenId: bigint): Promise<any> {
