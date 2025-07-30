@@ -2300,15 +2300,11 @@ class Origin {
             }
             return tokenId.toString();
         });
-        this.mintSocial = (source, license) => __awaiter(this, void 0, void 0, function* () {
+        this.mintSocial = (source, metadata, license) => __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
             const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-            const metadata = {
-                name: `${source} IpNFT`,
-                description: `This is a ${source} IpNFT`,
-            };
             const registration = yield this.registerIpNFT(source, deadline, license, metadata);
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
             if (!tokenId ||

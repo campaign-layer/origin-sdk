@@ -338,7 +338,7 @@ declare class Origin {
     mintFile: (file: File, metadata: Record<string, unknown>, license: LicenseTerms, parentId?: bigint, options?: {
         progressCallback?: (percent: number) => void;
     }) => Promise<string | null>;
-    mintSocial: (source: "spotify" | "twitter" | "tiktok", license: LicenseTerms) => Promise<string | null>;
+    mintSocial: (source: "spotify" | "twitter" | "tiktok", metadata: Record<string, unknown>, license: LicenseTerms) => Promise<string | null>;
     getOriginUploads: () => Promise<any>;
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).

@@ -237,6 +237,7 @@ export class Origin {
 
   mintSocial = async (
     source: "spotify" | "twitter" | "tiktok",
+    metadata: Record<string, unknown>,
     license: LicenseTerms
   ): Promise<string | null> => {
     if (!this.viemClient) {
@@ -244,10 +245,6 @@ export class Origin {
     }
 
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-    const metadata = {
-      name: `${source} IpNFT`,
-      description: `This is a ${source} IpNFT`,
-    };
     const registration = await this.registerIpNFT(
       source,
       deadline,
