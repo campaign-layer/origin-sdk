@@ -1546,7 +1546,7 @@ function updateTerms(tokenId, royaltyReceiver, newTerms) {
 }
 
 function requestDelete(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "requestDelete", [tokenId]);
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "finalizeDelete", [tokenId]);
 }
 
 function getTerms(tokenId) {
