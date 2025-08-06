@@ -1541,8 +1541,8 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
     });
 }
 
-function updateTerms(tokenId, newTerms) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, newTerms], { waitForReceipt: true });
+function updateTerms(tokenId, royaltyReceiver, newTerms) {
+    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, royaltyReceiver, newTerms], { waitForReceipt: true });
 }
 
 function requestDelete(tokenId) {

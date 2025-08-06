@@ -7,13 +7,14 @@ import { LicenseTerms } from "./utils";
 export function updateTerms(
   this: Origin,
   tokenId: bigint,
+  royaltyReceiver: Address,
   newTerms: LicenseTerms
 ) {
   return this.callContractMethod(
     constants.DATANFT_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "updateTerms",
-    [tokenId, newTerms],
+    [tokenId, royaltyReceiver, newTerms],
     { waitForReceipt: true }
   );
 }

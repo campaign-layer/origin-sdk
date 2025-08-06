@@ -54,7 +54,7 @@ declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, p
  */
 declare function registerIpNFT(this: Origin, source: IpNFTSource, deadline: bigint, licenseTerms: LicenseTerms, metadata: Record<string, unknown>, fileKey?: string | string[], parentId?: bigint): Promise<any>;
 
-declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTerms): Promise<any>;
+declare function updateTerms(this: Origin, tokenId: bigint, royaltyReceiver: Address, newTerms: LicenseTerms): Promise<any>;
 
 declare function requestDelete(this: Origin, tokenId: bigint): Promise<any>;
 
