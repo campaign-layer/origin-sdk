@@ -1,0 +1,122 @@
+import React, { useState, useContext, createContext, useEffect } from "react";
+import { AuthRN } from "../auth/AuthRN";
+import { ModalProvider } from "./ModalContext";
+import { SocialsProvider } from "./SocialsContext";
+import { OriginProvider } from "./OriginContext";
+import constants from "../../constants";
+
+/**
+ * CampContext for React Native
+ * @type {React.Context}
+ * @property {string} clientId The Camp client ID
+ * @property {AuthRN} auth The Camp Auth instance
+ * @property {function} setAuth The function to set the Camp Auth instance
+ * @property {boolean} wagmiAvailable Whether Wagmi is available (always false in RN)
+ */
+interface CampContextType {
+  clientId: string | null;
+  auth: AuthRN | null;
+  setAuth: React.Dispatch<React.SetStateAction<AuthRN | null>>;
+  wagmiAvailable: boolean;
+}
+
+import React, { useState, useContext, createContext, useEffect, ReactNode } from "react";
+import { AuthRN } from "../auth/AuthRN";
+import constants from "../../constants";
+
+/**
+ * CampContext for React Native
+ */
+export const CampContext = createContext<{
+  auth: AuthRN | null;
+  setAuth: React.Dispatch<React.SetStateAction<AuthRN | null>>;
+  clientId: string;
+}>({
+  auth: null,
+  setAuth: () => {},
+  clientId: "",
+});
+
+interface CampProviderProps {
+  children: ReactNode;
+  clientId: string;
+  redirectUri?: string | Record<string, string>;
+}
+
+export const CampProvider = ({ children, clientId, redirectUri }: CampProviderProps) => {
+  const [auth, setAuth] = useState<AuthRN | null>(null);
+
+  useEffect(() => {
+    if (!clientId) {
+      console.error("CampProvider: clientId is required");
+      return;
+    }
+
+    try {
+      const authInstance = new AuthRN(clientId, { redirectUri });
+      setAuth(authInstance);
+    } catch (error) {
+      console.error("Failed to create AuthRN instance:", error);
+    }
+  }, [clientId, redirectUri]);
+
+  return (
+    <CampContext.Provider
+      value={{
+        auth,
+        setAuth,
+        clientId,
+      }}
+    >
+      {children}
+    </CampContext.Provider>
+  );
+};
+
+/**
+ * CampProvider for React Native
+ * @param {Object} props The props
+ * @param {string} props.clientId The Camp client ID
+ * @param {string} props.redirectUri The redirect URI to use after social oauths
+ * @param {React.ReactNode} props.children The children components
+ * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
+ * @returns {JSX.Element} The CampProvider component
+ */
+const CampProvider = ({
+  clientId,
+  redirectUri,
+  children,
+  allowAnalytics = true,
+}: {
+  clientId: string;
+  redirectUri?: string;
+  children: React.ReactNode;
+  allowAnalytics?: boolean;
+}) => {
+  const [auth, setAuth] = useState(
+    new AuthRN({
+      clientId,
+      redirectUri: redirectUri || "app://redirect",
+      allowAnalytics,
+    })
+  );
+
+  return (
+    <CampContext.Provider
+      value={{
+        clientId,
+        auth,
+        setAuth,
+        wagmiAvailable: false, // Wagmi is not available in React Native
+      }}
+    >
+      <SocialsProvider>
+        <OriginProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </OriginProvider>
+      </SocialsProvider>
+    </CampContext.Provider>
+  );
+};
+
+export { CampContext, CampProvider };

@@ -8,11 +8,14 @@
       "require": "./dist/core.cjs",
       "types": "./dist/core.d.ts"
     },
-    "./react": "./dist/react/index.esm.js"
+    "./react": "./dist/react/index.esm.js",
+    "./react-native": "./dist/react-native/index.js"
   },
   "scripts": {
     "build": "rollup -c",
+    "build:rn": "rollup -c rollup.config.rn.mjs",
     "dev": "rollup -c -w",
+    "dev:rn": "rollup -c rollup.config.rn.mjs -w",
     "prepare": "husky",
     "test": "jest"
   },
@@ -46,7 +49,20 @@
   "peerDependencies": {
     "@tanstack/react-query": "^5",
     "react": ">=18 <20",
-    "react-dom": ">=18 <20"
+    "react-dom": ">=18 <20",
+    "@react-native-async-storage/async-storage": "^1.19.0",
+    "react-native": ">=0.70.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.25.8",

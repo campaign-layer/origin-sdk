@@ -19,6 +19,7 @@ The Origin SDK currently exposes the following modules:
   - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
   - `Auth` - For authenticating users with the Origin SDK
 - `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via the Camp Auth Hub
+- `"@campnetwork/origin/react-native"` - React Native compatibility with AppKit integration for wallet operations and mobile authentication
 
 # Installation
 

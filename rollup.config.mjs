@@ -138,6 +138,51 @@ const config = [
       "viem/accounts",
     ],
   },
+  // React Native
+  {
+    input: "src/react-native/index.ts",
+    output: {
+      file: "dist/react-native/index.js",
+      format: "cjs",
+      exports: "auto",
+      inlineDynamicImports: true,
+    },
+    plugins: [
+      typescript({
+        tsconfig: "./tsconfig.json",
+        declaration: false,
+        rootDir: "src",
+      }),
+      resolve({
+        preferBuiltins: false,
+        browser: false,
+      }),
+      babel({
+        exclude: "node_modules/**",
+        babelHelpers: "bundled",
+        presets: [
+          ["@babel/preset-react", { runtime: "classic" }],
+          [
+            "@babel/preset-env",
+            {
+              targets: { node: "14" },
+            },
+          ],
+        ],
+      }),
+      json(),
+    ],
+    external: [
+      "react",
+      "react-native", 
+      "@react-native-async-storage/async-storage",
+      "@tanstack/react-query",
+      "axios",
+      "viem",
+      "viem/siwe",
+      "viem/accounts",
+    ],
+  },
   // Core types
   {
     input: "src/index.ts",
