@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Camp Network",
+    "slug": "camp-network",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6D01"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.campnetwork.app"
+    },
+    "android": {
+      "package": "com.campnetwork.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [],
+    "extra": {
+      "campClientId": "your-camp-client-id-here"
+    }
+  }
+}

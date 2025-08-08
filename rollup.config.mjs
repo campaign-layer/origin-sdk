@@ -9,6 +9,8 @@ import dts from "rollup-plugin-dts";
 import fs from "fs";
 import path from "path";
 import json from "@rollup/plugin-json";
+import multi from '@rollup/plugin-multi-entry';
+import copy from 'rollup-plugin-copy';
 
 const cleanupDtsPlugin = () => {
   return {
@@ -200,6 +202,86 @@ const config = [
       format: "esm",
     },
     plugins: [dts(), cleanupDtsPlugin()],
+  },
+
+  // React Native submodules: emit all .ts/.tsx as .js for Metro/Expo
+  {
+    input: [
+      "src/react-native/types.ts",
+      "src/react-native/storage.ts",
+      "src/react-native/index.ts",
+      "src/react-native/errors.ts",
+      "src/react-native/hooks/index.ts",
+      "src/react-native/example/CampAppExample.tsx",
+      "src/react-native/context/SocialsContext.tsx",
+      "src/react-native/context/OriginContext.tsx",
+      "src/react-native/context/ModalContext.tsx",
+      "src/react-native/context/CampContextNew.tsx",
+      "src/react-native/context/CampContext.tsx",
+      "src/react-native/components/icons.tsx",
+      "src/react-native/components/icons-new.tsx",
+      "src/react-native/components/CampModal.tsx",
+      "src/react-native/components/CampButton.tsx",
+      "src/react-native/auth/modals.tsx",
+      "src/react-native/auth/hooksNew.ts",
+      "src/react-native/auth/hooks.ts",
+      "src/react-native/auth/buttons.tsx",
+      "src/react-native/auth/AuthRN.ts",
+      "src/react-native/appkit/index.tsx",
+      "src/react-native/appkit/index.ts",
+      "src/react-native/appkit/config.ts",
+      "src/react-native/appkit/AppKitProvider.tsx",
+      "src/react-native/appkit/AppKitButton.tsx"
+    ],
+    output: {
+      dir: 'dist/react-native',
+      format: 'cjs',
+      exports: 'auto',
+      preserveModules: true,
+      preserveModulesRoot: 'src/react-native',
+      entryFileNames: '[name].js',
+    },
+    plugins: [
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: false,
+        rootDir: 'src',
+        outDir: 'dist/react-native',
+      }),
+      resolve({
+        preferBuiltins: false,
+        browser: false,
+      }),
+      babel({
+        exclude: 'node_modules/**',
+        babelHelpers: 'bundled',
+        presets: [
+          ['@babel/preset-react', { runtime: 'classic' }],
+          [
+            '@babel/preset-env',
+            {
+              targets: { node: '14' },
+            },
+          ],
+        ],
+      }),
+      json(),
+      copy({
+        targets: [
+          { src: 'src/react-native/appkit/*.css', dest: 'dist/react-native/appkit' }
+        ]
+      })
+    ],
+    external: [
+      'react',
+      'react-native',
+      '@react-native-async-storage/async-storage',
+      '@tanstack/react-query',
+      'axios',
+      'viem',
+      'viem/siwe',
+      'viem/accounts',
+    ],
   },
 ];
 
