@@ -13,8 +13,20 @@
       "types": "./dist/react/index.esm.d.ts"
     },
     "./react-native": {
-      "import": "./dist/react-native/index.esm.js",
-      "types": "./dist/react-native/index.esm.d.ts"
+      "import": "./dist/react-native/index.js",
+      "types": "./dist/react-native/index.d.ts"
+    },
+    "./react-native/appkit": {
+      "import": "./dist/react-native/appkit/index.js",
+      "types": "./dist/react-native/appkit/index.d.ts"
+    },
+    "./react-native/auth": {
+      "import": "./dist/react-native/auth",
+      "types": "./dist/react-native/auth"
+    },
+    "./react-native/components": {
+      "import": "./dist/react-native/components",
+      "types": "./dist/react-native/components"
     }
   },
   "scripts": {
