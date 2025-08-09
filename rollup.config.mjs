@@ -9,6 +9,8 @@ import dts from "rollup-plugin-dts";
 import fs from "fs";
 import path from "path";
 import json from "@rollup/plugin-json";
+import multi from '@rollup/plugin-multi-entry';
+import copy from 'rollup-plugin-copy';
 
 const cleanupDtsPlugin = () => {
   return {
@@ -138,6 +140,12 @@ const config = [
       "viem/accounts",
     ],
   },
+  // React Native - Single bundle like React (LEGACY REMOVAL)
+  // Remove old React Native build
+  // {
+  //   input: "src/react-native/index.ts",
+  //   ...
+  // },
   // Core types
   {
     input: "src/index.ts",
@@ -155,6 +163,101 @@ const config = [
       format: "esm",
     },
     plugins: [dts(), cleanupDtsPlugin()],
+  },
+  // React Native types - using same approach as React
+  {
+    input: 'src/react-native/index.ts',
+    output: {
+      file: 'dist/react-native/index.d.ts',
+      format: 'esm',
+    },
+    plugins: [dts()],
+  },
+
+  // React Native - Proper file structure like TypeScript build
+  {
+    input: {
+      'index': 'src/react-native/index.ts',
+      'storage': 'src/react-native/storage.ts',
+      'types': 'src/react-native/types.ts',
+      'errors': 'src/react-native/errors.ts',
+      'appkit/index': 'src/react-native/appkit/index.ts',
+      'appkit/AppKitProvider': 'src/react-native/appkit/AppKitProvider.tsx',
+      'appkit/AppKitButton': 'src/react-native/appkit/AppKitButton.tsx',
+      'appkit/config': 'src/react-native/appkit/config.ts',
+      'auth/AuthRN': 'src/react-native/auth/AuthRN.ts',
+      'auth/buttons': 'src/react-native/auth/buttons.tsx',
+      'auth/modals': 'src/react-native/auth/modals.tsx',
+      'auth/hooks': 'src/react-native/auth/hooks.ts',
+      'components/CampButton': 'src/react-native/components/CampButton.tsx',
+      'components/CampModal': 'src/react-native/components/CampModal.tsx',
+      'components/icons': 'src/react-native/components/icons.tsx',
+      'context/CampContext': 'src/react-native/context/CampContext.tsx',
+      'context/OriginContext': 'src/react-native/context/OriginContext.tsx',
+      'context/SocialsContext': 'src/react-native/context/SocialsContext.tsx',
+      'context/ModalContext': 'src/react-native/context/ModalContext.tsx',
+      'hooks/index': 'src/react-native/hooks/index.ts',
+      'example/CampAppExample': 'src/react-native/example/CampAppExample.tsx'
+    },
+    output: {
+      dir: 'dist/react-native',
+      format: 'esm',
+      exports: 'auto',
+      preserveModules: false,
+      entryFileNames: '[name].js',
+      chunkFileNames: '[name].js',
+    },
+    plugins: [
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: true,
+        rootDir: 'src',
+        outDir: 'dist/react-native',
+      }),
+      resolve({
+        preferBuiltins: false,
+        browser: false,
+      }),
+      babel({
+        exclude: 'node_modules/**',
+        babelHelpers: 'bundled',
+        presets: [
+          ['@babel/preset-react', { runtime: 'classic' }],
+          [
+            '@babel/preset-env',
+            {
+              targets: { node: '14' },
+            },
+          ],
+        ],
+      }),
+      json(),
+    ],
+    external: [
+      'react',
+      'react-native', 
+      '@react-native-async-storage/async-storage',
+      '@tanstack/react-query',
+      'viem',
+      'viem/siwe',
+      'viem/accounts',
+      // Internal module references
+      './storage',
+      './types',
+      './errors',
+      './auth/AuthRN',
+      './appkit/AppKitProvider',
+      './appkit/AppKitButton',
+      './context/CampContext',
+      './hooks/index',
+      '../core/origin',
+      '../core/twitter',
+      '../core/spotify',
+      '../core/tiktok',
+      '../constants',
+      '../utils',
+      '../errors',
+    ],
   },
 ];
 

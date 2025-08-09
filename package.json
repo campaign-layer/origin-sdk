@@ -8,11 +8,32 @@
       "require": "./dist/core.cjs",
       "types": "./dist/core.d.ts"
     },
-    "./react": "./dist/react/index.esm.js"
+    "./react": {
+      "import": "./dist/react/index.esm.js",
+      "types": "./dist/react/index.esm.d.ts"
+    },
+    "./react-native": {
+      "import": "./dist/react-native/index.js",
+      "types": "./dist/react-native/index.d.ts"
+    },
+    "./react-native/appkit": {
+      "import": "./dist/react-native/appkit/index.js",
+      "types": "./dist/react-native/appkit/index.d.ts"
+    },
+    "./react-native/auth": {
+      "import": "./dist/react-native/auth",
+      "types": "./dist/react-native/auth"
+    },
+    "./react-native/components": {
+      "import": "./dist/react-native/components",
+      "types": "./dist/react-native/components"
+    }
   },
   "scripts": {
     "build": "rollup -c",
+    "build:rn": "rollup -c rollup.config.rn.mjs",
     "dev": "rollup -c -w",
+    "dev:rn": "rollup -c rollup.config.rn.mjs -w",
     "prepare": "husky",
     "test": "jest"
   },
@@ -37,16 +58,31 @@
   "license": "ISC",
   "description": "Origin SDK",
   "dependencies": {
+    "@rollup/plugin-multi-entry": "^6.0.1",
     "@tanstack/react-query": "^5",
     "@walletconnect/ethereum-provider": "^2.17.2",
-    "axios": "^1.7.7",
+    "glob": "^11.0.3",
+    "rollup-plugin-copy": "^3.5.0",
     "viem": "^2.21.37",
     "wagmi": "^2.12.33"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5",
     "react": ">=18 <20",
-    "react-dom": ">=18 <20"
+    "react-dom": ">=18 <20",
+    "@react-native-async-storage/async-storage": "^1.19.0",
+    "react-native": ">=0.70.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.25.8",
@@ -57,11 +93,13 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
+    "@types/minimatch": "^6.0.0",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
     "husky": "^9.1.6",
     "jest": "^29.7.0",
+    "minimatch": "^10.0.3",
     "rollup": "^4.24.3",
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",

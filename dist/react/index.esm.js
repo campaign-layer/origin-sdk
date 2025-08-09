@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect, useLayoutEffect,
 import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress, checksumAddress } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
-import axios from 'axios';
 import { WagmiContext, useAccount, useConnectorClient } from 'wagmi';
 import ReactDOM, { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -227,27 +226,53 @@ const formatCampAmount = (amount) => {
  */
 const uploadWithProgress = (file, url, onProgress) => {
     return new Promise((resolve, reject) => {
-        axios
-            .put(url, file, Object.assign({ headers: {
-                "Content-Type": file.type,
-            } }, (typeof window !== "undefined" && typeof onProgress === "function"
-            ? {
-                onUploadProgress: (progressEvent) => {
-                    if (progressEvent.total) {
-                        const percent = (progressEvent.loaded / progressEvent.total) * 100;
-                        onProgress(percent);
-                    }
+        // Try to use XMLHttpRequest for progress tracking if available
+        if (typeof XMLHttpRequest !== 'undefined' && typeof onProgress === "function") {
+            const xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percent = (event.loaded / event.total) * 100;
+                    onProgress(percent);
+                }
+            });
+            xhr.addEventListener('load', () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.responseText || 'Upload successful');
+                }
+                else {
+                    reject(new Error(`Upload failed with status ${xhr.status}`));
+                }
+            });
+            xhr.addEventListener('error', () => {
+                reject(new Error('Upload failed due to network error'));
+            });
+            xhr.open('PUT', url);
+            xhr.setRequestHeader('Content-Type', file.type);
+            xhr.send(file);
+        }
+        else {
+            // Fallback to fetch for React Native or environments without XMLHttpRequest
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': file.type,
                 },
-            }
-            : {})))
-            .then((res) => {
-            resolve(res.data);
-        })
-            .catch((error) => {
-            var _a;
-            const message = ((_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data) || (error === null || error === void 0 ? void 0 : error.message) || "Upload failed";
-            reject(message);
-        });
+                body: file,
+            })
+                .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Upload failed with status ${response.status}`);
+                }
+                return response.text();
+            })
+                .then((data) => {
+                resolve(data || 'Upload successful');
+            })
+                .catch((error) => {
+                const message = (error === null || error === void 0 ? void 0 : error.message) || 'Upload failed';
+                reject(new Error(message));
+            });
+        }
     });
 };
 

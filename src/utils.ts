@@ -1,5 +1,4 @@
 // @ts-ignore-line
-import axios from "axios";
 import { APIError } from "./errors";
 
 /**
@@ -15,14 +14,23 @@ async function fetchData(
   headers: Record<string, string> = {}
 ): Promise<object> {
   try {
-    const response = await axios.get(url, { headers });
-    return response.data;
-  } catch (error: any) {
-    if (error.response) {
+    const response = await fetch(url, { 
+      method: 'GET',
+      headers 
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
       throw new APIError(
-        error.response.data.message || "API request failed",
-        error.response.status
+        errorData.message || "API request failed",
+        response.status
       );
+    }
+    
+    return await response.json();
+  } catch (error: any) {
+    if (error instanceof APIError) {
+      throw error;
     }
     throw new APIError("Network error or server is unavailable", 500);
   }
@@ -162,31 +170,55 @@ export const uploadWithProgress: UploadWithProgress = (
   onProgress
 ) => {
   return new Promise((resolve, reject) => {
-    axios
-      .put(url, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
-        ...(typeof window !== "undefined" && typeof onProgress === "function"
-          ? {
-              onUploadProgress: (progressEvent) => {
-                if (progressEvent.total) {
-                  const percent =
-                    (progressEvent.loaded / progressEvent.total) * 100;
-                  onProgress(percent);
-                }
-              },
-            }
-          : {}),
-      })
-      .then((res) => {
-        resolve(res.data);
-      })
-      .catch((error) => {
-        const message =
-          error?.response?.data || error?.message || "Upload failed";
-        reject(message);
+    // Try to use XMLHttpRequest for progress tracking if available
+    if (typeof XMLHttpRequest !== 'undefined' && typeof onProgress === "function") {
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percent = (event.loaded / event.total) * 100;
+          onProgress(percent);
+        }
       });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(xhr.responseText || 'Upload successful');
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed due to network error'));
+      });
+      
+      xhr.open('PUT', url);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.send(file);
+    } else {
+      // Fallback to fetch for React Native or environments without XMLHttpRequest
+      fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+          }
+          return response.text();
+        })
+        .then((data) => {
+          resolve(data || 'Upload successful');
+        })
+        .catch((error: any) => {
+          const message = error?.message || 'Upload failed';
+          reject(new Error(message));
+        });
+    }
   });
 };
 
