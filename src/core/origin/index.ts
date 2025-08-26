@@ -111,41 +111,65 @@ export class Origin {
   }
 
   #generateURL = async (file: File) => {
-    const uploadRes = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          name: file.name,
-          type: file.type,
-        }),
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-        },
+    try {
+      const uploadRes = await fetch(
+        `${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: file.name,
+            type: file.type,
+          }),
+          headers: {
+            Authorization: `Bearer ${this.jwt}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!uploadRes.ok) {
+        throw new Error(`HTTP ${uploadRes.status}: ${uploadRes.statusText}`);
       }
-    );
-    const data = await uploadRes.json();
-    return data.isError ? data.message : data.data;
+
+      const data = await uploadRes.json();
+
+      if (data.isError) {
+        throw new Error(data.message || "Failed to generate upload URL");
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error("Failed to generate upload URL:", error);
+      throw error;
+    }
   };
 
   #setOriginStatus = async (key: string, status: string) => {
-    const res = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/update-status`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({
-          status,
-          fileKey: key,
-        }),
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-          "Content-Type": "application/json",
-        },
+    try {
+      const res = await fetch(
+        `${constants.AUTH_HUB_BASE_API}/auth/origin/update-status`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            status,
+            fileKey: key,
+          }),
+          headers: {
+            Authorization: `Bearer ${this.jwt}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "Unknown error");
+        throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
-    );
-    if (!res.ok) {
-      console.error("Failed to update origin status");
-      return;
+
+      return true;
+    } catch (error) {
+      console.error("Failed to update origin status:", error);
+      throw error;
     }
   };
 
@@ -153,11 +177,23 @@ export class Origin {
     file: File,
     options?: { progressCallback?: (percent: number) => void }
   ) => {
-    const uploadInfo = await this.#generateURL(file);
-    if (!uploadInfo) {
-      console.error("Failed to generate upload URL");
-      return;
+    let uploadInfo;
+
+    try {
+      uploadInfo = await this.#generateURL(file);
+    } catch (error) {
+      console.error("Failed to generate upload URL:", error);
+      throw new Error(
+        `Failed to generate upload URL: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
+
+    if (!uploadInfo) {
+      throw new Error("Failed to generate upload URL: No upload info returned");
+    }
+
     try {
       await uploadWithProgress(
         file,
@@ -165,10 +201,23 @@ export class Origin {
         options?.progressCallback || (() => {})
       );
     } catch (error) {
-      await this.#setOriginStatus(uploadInfo.key, "failed");
-      throw new Error("Failed to upload file: " + error);
+      try {
+        await this.#setOriginStatus(uploadInfo.key, "failed");
+      } catch (statusError) {
+        console.error("Failed to update status to failed:", statusError);
+      }
+
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to upload file: ${errorMessage}`);
     }
-    await this.#setOriginStatus(uploadInfo.key, "success");
+
+    try {
+      await this.#setOriginStatus(uploadInfo.key, "success");
+    } catch (statusError) {
+      console.error("Failed to update status to success:", statusError);
+    }
+
     return uploadInfo;
   };
 
