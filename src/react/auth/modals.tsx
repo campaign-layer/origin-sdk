@@ -338,6 +338,7 @@ export const CampModal = ({
     const recoverProvider = async () => {
       try {
         if (auth) {
+          console.log(defaultProvider, walletConnectProvider);
           if (defaultProvider && defaultProvider.provider) {
             const provider = defaultProvider.provider;
             const [address] = await provider.request({
@@ -380,7 +381,13 @@ export const CampModal = ({
     if (authenticated) {
       recoverProvider();
     }
-  }, [authenticated, defaultProvider, defaultProvider?.provider, auth]);
+  }, [
+    authenticated,
+    defaultProvider,
+    defaultProvider?.provider,
+    auth,
+    walletConnectProvider,
+  ]);
 
   // Cases where the button should be disabled
   useEffect(() => {

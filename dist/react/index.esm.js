@@ -4434,6 +4434,7 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
             var _a, _b;
             try {
                 if (auth) {
+                    console.log(defaultProvider, walletConnectProvider);
                     if (defaultProvider && defaultProvider.provider) {
                         const provider = defaultProvider.provider;
                         const [address] = yield provider.request({
@@ -4472,7 +4473,13 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
         if (authenticated) {
             recoverProvider();
         }
-    }, [authenticated, defaultProvider, defaultProvider === null || defaultProvider === void 0 ? void 0 : defaultProvider.provider, auth]);
+    }, [
+        authenticated,
+        defaultProvider,
+        defaultProvider === null || defaultProvider === void 0 ? void 0 : defaultProvider.provider,
+        auth,
+        walletConnectProvider,
+    ]);
     // Cases where the button should be disabled
     useEffect(() => {
         const noProvider = !provider.provider;
