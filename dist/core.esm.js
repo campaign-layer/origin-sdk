@@ -35,7 +35,7 @@ PERFORMANCE OF THIS SOFTWARE.
  * @param {object} params - An object representing query parameters.
  * @returns {string} - The complete URL with query string.
  */
-function w(e,t={}){const n=function(e={}){return Object.keys(e).map((t=>`${encodeURIComponent(t)}=${encodeURIComponent(e[t])}`)).join("&")}(t);return n?`${e}?${n}`:e}const T="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",v="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
+function w(e,t={}){const n=function(e={}){return Object.keys(e).map((t=>`${encodeURIComponent(t)}=${encodeURIComponent(e[t])}`)).join("&")}(t);return n?`${e}?${n}`:e}const v="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter",T="https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
 /**
  * The TwitterAPI class.
  * @class
@@ -53,7 +53,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {string} twitterUserName - The Twitter username.
      * @returns {Promise<object>} - The user details.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchUserByUsername(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/user`,{twitterUserName:e});return this._fetchDataWithAuth(t)}))}
+     */fetchUserByUsername(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/user`,{twitterUserName:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch tweets by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -61,7 +61,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The tweets.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTweetsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/tweets`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchTweetsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/tweets`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch followers by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -69,7 +69,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The followers.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchFollowersByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/followers`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchFollowersByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/followers`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch following by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -77,13 +77,13 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The following.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchFollowingByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/following`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchFollowingByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/following`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch tweet by tweet ID.
      * @param {string} tweetId - The tweet ID.
      * @returns {Promise<object>} - The tweet.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTweetById(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/getTweetById`,{tweetId:e});return this._fetchDataWithAuth(t)}))}
+     */fetchTweetById(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/getTweetById`,{tweetId:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch user by wallet address.
      * @param {string} walletAddress - The wallet address.
@@ -91,7 +91,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The user data.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchUserByWalletAddress(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/wallet-twitter-data`,{walletAddress:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchUserByWalletAddress(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/wallet-twitter-data`,{walletAddress:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch reposted tweets by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -99,7 +99,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The reposted tweets.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchRepostedByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/reposted`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchRepostedByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/reposted`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch replies by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -107,7 +107,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The replies.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchRepliesByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/replies`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchRepliesByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/replies`,{twitterUserName:e,page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch likes by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -115,7 +115,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The likes.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchLikesByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/event/likes/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchLikesByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/event/likes/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch follows by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -123,7 +123,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The follows.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchFollowsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/event/follows/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchFollowsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/event/follows/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Fetch viewed tweets by Twitter username.
      * @param {string} twitterUserName - The Twitter username.
@@ -131,7 +131,7 @@ constructor({apiKey:e}){this.apiKey=e}
      * @param {number} limit - The number of items per page.
      * @returns {Promise<object>} - The viewed tweets.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchViewedTweetsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${T}/event/viewed-tweets/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
+     */fetchViewedTweetsByUsername(e){return c(this,arguments,void 0,(function*(e,t=1,n=10){const i=w(`${v}/event/viewed-tweets/${e}`,{page:t,limit:n});return this._fetchDataWithAuth(i)}))}
 /**
      * Private method to fetch data with authorization header.
      * @param {string} url - The URL to fetch.
@@ -155,45 +155,45 @@ constructor(e){this.apiKey=e.apiKey}
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved tracks.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedTracksById(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/save-tracks`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
+     */fetchSavedTracksById(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/save-tracks`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch the played tracks of a user by Spotify ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The played tracks.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchPlayedTracksById(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/played-tracks`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
+     */fetchPlayedTracksById(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/played-tracks`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch the user's saved albums by Spotify user ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved albums.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedAlbumsById(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/saved-albums`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
+     */fetchSavedAlbumsById(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/saved-albums`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch the user's saved playlists by Spotify user ID.
      * @param {string} spotifyId - The user's Spotify ID.
      * @returns {Promise<object>} - The saved playlists.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchSavedPlaylistsById(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/saved-playlists`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
+     */fetchSavedPlaylistsById(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/saved-playlists`,{spotifyId:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Fetch the tracks of an album by album ID.
      * @param {string} spotifyId - The Spotify ID of the user.
      * @param {string} albumId - The album ID.
      * @returns {Promise<object>} - The tracks in the album.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTracksInAlbum(e,t){return c(this,void 0,void 0,(function*(){const n=w(`${v}/album/tracks`,{spotifyId:e,albumId:t});return this._fetchDataWithAuth(n)}))}
+     */fetchTracksInAlbum(e,t){return c(this,void 0,void 0,(function*(){const n=w(`${T}/album/tracks`,{spotifyId:e,albumId:t});return this._fetchDataWithAuth(n)}))}
 /**
      * Fetch the tracks in a playlist by playlist ID.
      * @param {string} spotifyId - The Spotify ID of the user.
      * @param {string} playlistId - The playlist ID.
      * @returns {Promise<object>} - The tracks in the playlist.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchTracksInPlaylist(e,t){return c(this,void 0,void 0,(function*(){const n=w(`${v}/playlist/tracks`,{spotifyId:e,playlistId:t});return this._fetchDataWithAuth(n)}))}
+     */fetchTracksInPlaylist(e,t){return c(this,void 0,void 0,(function*(){const n=w(`${T}/playlist/tracks`,{spotifyId:e,playlistId:t});return this._fetchDataWithAuth(n)}))}
 /**
      * Fetch the user's Spotify data by wallet address.
      * @param {string} walletAddress - The wallet address.
      * @returns {Promise<object>} - The user's Spotify data.
      * @throws {APIError} - Throws an error if the request fails.
-     */fetchUserByWalletAddress(e){return c(this,void 0,void 0,(function*(){const t=w(`${v}/wallet-spotify-data`,{walletAddress:e});return this._fetchDataWithAuth(t)}))}
+     */fetchUserByWalletAddress(e){return c(this,void 0,void 0,(function*(){const t=w(`${T}/wallet-spotify-data`,{walletAddress:e});return this._fetchDataWithAuth(t)}))}
 /**
      * Private method to fetch data with authorization header.
      * @param {string} url - The URL to fetch.
@@ -220,7 +220,7 @@ let k=null,A=null;const C=()=>(A||(A=i({chain:I,transport:a()})),A);var E="Conne
  * @param deadline The deadline for the registration operation.
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
- */function N(e,t,n,i,a,r){return c(this,void 0,void 0,(function*(){const s={source:e,deadline:Number(t),licenseTerms:{price:n.price.toString(),duration:n.duration,royaltyBps:n.royaltyBps,paymentToken:n.paymentToken},metadata:i,parentId:Number(r)||0};void 0!==a&&(s.fileKey=a);const o=yield fetch(`${x}/auth/origin/register`,{method:"POST",headers:{Authorization:`Bearer ${this.getJwt()}`,"Content-Type":"application/json"},body:JSON.stringify(s)});if(!o.ok)throw new Error(`Failed to get signature: ${o.statusText}`);const d=yield o.json();if(d.isError)throw new Error(`Failed to get signature: ${d.message}`);return d.data}))}function B(e,t,n){return this.callContractMethod(S,P,"updateTerms",[e,t,n],{waitForReceipt:!0})}function D(e){return this.callContractMethod(S,P,"finalizeDelete",[e])}function _(e){return this.callContractMethod(S,P,"getTerms",[e])}function R(e){return this.callContractMethod(S,P,"ownerOf",[e])}function W(e){return this.callContractMethod(S,P,"balanceOf",[e])}function q(e){return this.callContractMethod(S,P,"contentHash",[e])}function z(e){return this.callContractMethod(S,P,"tokenURI",[e])}function L(e){return this.callContractMethod(S,P,"dataStatus",[e])}function K(e,t){return c(this,void 0,void 0,(function*(){return this.callContractMethod(S,P,"royaltyInfo",[e,t])}))}function J(e){return this.callContractMethod(S,P,"getApproved",[e])}function H(e,t){return this.callContractMethod(S,P,"isApprovedForAll",[e,t])}function G(e,t,n){return this.callContractMethod(S,P,"transferFrom",[e,t,n])}function V(e,t,n,i){const a=i?[e,t,n,i]:[e,t,n];return this.callContractMethod(S,P,"safeTransferFrom",a)}function Z(e,t){return this.callContractMethod(S,P,"approve",[e,t])}function Y(e,t){return this.callContractMethod(S,P,"setApprovalForAll",[e,t])}var Q,X,ee,te,ne,ie,ae,re,se,oe,de,ue,le,pe,ce,ye=[{inputs:[{internalType:"address",name:"dataNFT_",type:"address"},{internalType:"uint16",name:"protocolFeeBps_",type:"uint16"},{internalType:"address",name:"treasury_",type:"address"}],stateMutability:"nonpayable",type:"constructor"},{inputs:[],name:"EnforcedPause",type:"error"},{inputs:[],name:"ExpectedPause",type:"error"},{inputs:[{internalType:"uint256",name:"expected",type:"uint256"},{internalType:"uint256",name:"actual",type:"uint256"}],name:"InvalidPayment",type:"error"},{inputs:[{internalType:"uint32",name:"periods",type:"uint32"}],name:"InvalidPeriods",type:"error"},{inputs:[{internalType:"uint16",name:"royaltyBps",type:"uint16"}],name:"InvalidRoyalty",type:"error"},{inputs:[{internalType:"address",name:"owner",type:"address"}],name:"OwnableInvalidOwner",type:"error"},{inputs:[{internalType:"address",name:"account",type:"address"}],name:"OwnableUnauthorizedAccount",type:"error"},{inputs:[],name:"TransferFailed",type:"error"},{inputs:[],name:"Unauthorized",type:"error"},{inputs:[],name:"ZeroAddress",type:"error"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"buyer",type:"address"},{indexed:!1,internalType:"uint32",name:"periods",type:"uint32"},{indexed:!1,internalType:"uint256",name:"newExpiry",type:"uint256"},{indexed:!1,internalType:"uint256",name:"amountPaid",type:"uint256"}],name:"AccessPurchased",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"creator",type:"address"}],name:"DataDeleted",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"creator",type:"address"},{indexed:!1,internalType:"bytes32",name:"contentHash",type:"bytes32"}],name:"DataMinted",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"address",name:"previousOwner",type:"address"},{indexed:!0,internalType:"address",name:"newOwner",type:"address"}],name:"OwnershipTransferred",type:"event"},{anonymous:!1,inputs:[{indexed:!1,internalType:"address",name:"account",type:"address"}],name:"Paused",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!1,internalType:"uint256",name:"royaltyAmount",type:"uint256"},{indexed:!1,internalType:"address",name:"creator",type:"address"},{indexed:!1,internalType:"uint256",name:"protocolAmount",type:"uint256"}],name:"RoyaltyPaid",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!1,internalType:"uint128",name:"newPrice",type:"uint128"},{indexed:!1,internalType:"uint32",name:"newDuration",type:"uint32"},{indexed:!1,internalType:"uint16",name:"newRoyaltyBps",type:"uint16"},{indexed:!1,internalType:"address",name:"paymentToken",type:"address"}],name:"TermsUpdated",type:"event"},{anonymous:!1,inputs:[{indexed:!1,internalType:"address",name:"account",type:"address"}],name:"Unpaused",type:"event"},{inputs:[{internalType:"address",name:"feeManager",type:"address"}],name:"addFeeManager",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"address",name:"buyer",type:"address"},{internalType:"uint256",name:"tokenId",type:"uint256"},{internalType:"uint32",name:"periods",type:"uint32"}],name:"buyAccess",outputs:[],stateMutability:"payable",type:"function"},{inputs:[],name:"dataNFT",outputs:[{internalType:"contract IpNFT",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"",type:"address"}],name:"feeManagers",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"user",type:"address"},{internalType:"uint256",name:"tokenId",type:"uint256"}],name:"hasAccess",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[],name:"owner",outputs:[{internalType:"address",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[],name:"pause",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"paused",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[],name:"protocolFeeBps",outputs:[{internalType:"uint16",name:"",type:"uint16"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"feeManager",type:"address"}],name:"removeFeeManager",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"renounceOwnership",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"uint256",name:"",type:"uint256"},{internalType:"address",name:"",type:"address"}],name:"subscriptionExpiry",outputs:[{internalType:"uint256",name:"",type:"uint256"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"newOwner",type:"address"}],name:"transferOwnership",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"treasury",outputs:[{internalType:"address",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[],name:"unpause",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"uint16",name:"newFeeBps",type:"uint16"}],name:"updateProtocolFee",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"address",name:"newTreasury",type:"address"}],name:"updateTreasury",outputs:[],stateMutability:"nonpayable",type:"function"},{stateMutability:"payable",type:"receive"}];function he(e,t,n,i){return this.callContractMethod($,ye,"buyAccess",[e,t,n],{waitForReceipt:!0,value:i})}function me(e,t,n,i){return this.callContractMethod($,ye,"renewAccess",[e,t,n],void 0!==i?{value:i}:void 0)}function fe(e,t){return this.callContractMethod($,ye,"hasAccess",[e,t])}function we(e,t){return this.callContractMethod($,ye,"subscriptionExpiry",[e,t])}
+ */function N(e,t,n,i,a,r){return c(this,void 0,void 0,(function*(){const s={source:e,deadline:Number(t),licenseTerms:{price:n.price.toString(),duration:n.duration,royaltyBps:n.royaltyBps,paymentToken:n.paymentToken},metadata:i,parentId:Number(r)||0};void 0!==a&&(s.fileKey=a);const o=yield fetch(`${x}/auth/origin/register`,{method:"POST",headers:{Authorization:`Bearer ${this.getJwt()}`,"Content-Type":"application/json"},body:JSON.stringify(s)});if(!o.ok)throw new Error(`Failed to get signature: ${o.statusText}`);const d=yield o.json();if(d.isError)throw new Error(`Failed to get signature: ${d.message}`);return d.data}))}function B(e,t,n){return this.callContractMethod(S,P,"updateTerms",[e,t,n],{waitForReceipt:!0})}function D(e){return this.callContractMethod(S,P,"finalizeDelete",[e])}function _(e){return this.callContractMethod(S,P,"getTerms",[e])}function R(e){return this.callContractMethod(S,P,"ownerOf",[e])}function W(e){return this.callContractMethod(S,P,"balanceOf",[e])}function q(e){return this.callContractMethod(S,P,"contentHash",[e])}function L(e){return this.callContractMethod(S,P,"tokenURI",[e])}function z(e){return this.callContractMethod(S,P,"dataStatus",[e])}function J(e,t){return c(this,void 0,void 0,(function*(){return this.callContractMethod(S,P,"royaltyInfo",[e,t])}))}function K(e){return this.callContractMethod(S,P,"getApproved",[e])}function H(e,t){return this.callContractMethod(S,P,"isApprovedForAll",[e,t])}function G(e,t,n){return this.callContractMethod(S,P,"transferFrom",[e,t,n])}function V(e,t,n,i){const a=i?[e,t,n,i]:[e,t,n];return this.callContractMethod(S,P,"safeTransferFrom",a)}function Z(e,t){return this.callContractMethod(S,P,"approve",[e,t])}function Y(e,t){return this.callContractMethod(S,P,"setApprovalForAll",[e,t])}var Q,X,ee,te,ne,ie,ae,re,se,oe,de,ue,le,pe,ce,ye=[{inputs:[{internalType:"address",name:"dataNFT_",type:"address"},{internalType:"uint16",name:"protocolFeeBps_",type:"uint16"},{internalType:"address",name:"treasury_",type:"address"}],stateMutability:"nonpayable",type:"constructor"},{inputs:[],name:"EnforcedPause",type:"error"},{inputs:[],name:"ExpectedPause",type:"error"},{inputs:[{internalType:"uint256",name:"expected",type:"uint256"},{internalType:"uint256",name:"actual",type:"uint256"}],name:"InvalidPayment",type:"error"},{inputs:[{internalType:"uint32",name:"periods",type:"uint32"}],name:"InvalidPeriods",type:"error"},{inputs:[{internalType:"uint16",name:"royaltyBps",type:"uint16"}],name:"InvalidRoyalty",type:"error"},{inputs:[{internalType:"address",name:"owner",type:"address"}],name:"OwnableInvalidOwner",type:"error"},{inputs:[{internalType:"address",name:"account",type:"address"}],name:"OwnableUnauthorizedAccount",type:"error"},{inputs:[],name:"TransferFailed",type:"error"},{inputs:[],name:"Unauthorized",type:"error"},{inputs:[],name:"ZeroAddress",type:"error"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"buyer",type:"address"},{indexed:!1,internalType:"uint32",name:"periods",type:"uint32"},{indexed:!1,internalType:"uint256",name:"newExpiry",type:"uint256"},{indexed:!1,internalType:"uint256",name:"amountPaid",type:"uint256"}],name:"AccessPurchased",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"creator",type:"address"}],name:"DataDeleted",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!0,internalType:"address",name:"creator",type:"address"},{indexed:!1,internalType:"bytes32",name:"contentHash",type:"bytes32"}],name:"DataMinted",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"address",name:"previousOwner",type:"address"},{indexed:!0,internalType:"address",name:"newOwner",type:"address"}],name:"OwnershipTransferred",type:"event"},{anonymous:!1,inputs:[{indexed:!1,internalType:"address",name:"account",type:"address"}],name:"Paused",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!1,internalType:"uint256",name:"royaltyAmount",type:"uint256"},{indexed:!1,internalType:"address",name:"creator",type:"address"},{indexed:!1,internalType:"uint256",name:"protocolAmount",type:"uint256"}],name:"RoyaltyPaid",type:"event"},{anonymous:!1,inputs:[{indexed:!0,internalType:"uint256",name:"tokenId",type:"uint256"},{indexed:!1,internalType:"uint128",name:"newPrice",type:"uint128"},{indexed:!1,internalType:"uint32",name:"newDuration",type:"uint32"},{indexed:!1,internalType:"uint16",name:"newRoyaltyBps",type:"uint16"},{indexed:!1,internalType:"address",name:"paymentToken",type:"address"}],name:"TermsUpdated",type:"event"},{anonymous:!1,inputs:[{indexed:!1,internalType:"address",name:"account",type:"address"}],name:"Unpaused",type:"event"},{inputs:[{internalType:"address",name:"feeManager",type:"address"}],name:"addFeeManager",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"address",name:"buyer",type:"address"},{internalType:"uint256",name:"tokenId",type:"uint256"},{internalType:"uint32",name:"periods",type:"uint32"}],name:"buyAccess",outputs:[],stateMutability:"payable",type:"function"},{inputs:[],name:"dataNFT",outputs:[{internalType:"contract IpNFT",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"",type:"address"}],name:"feeManagers",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"user",type:"address"},{internalType:"uint256",name:"tokenId",type:"uint256"}],name:"hasAccess",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[],name:"owner",outputs:[{internalType:"address",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[],name:"pause",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"paused",outputs:[{internalType:"bool",name:"",type:"bool"}],stateMutability:"view",type:"function"},{inputs:[],name:"protocolFeeBps",outputs:[{internalType:"uint16",name:"",type:"uint16"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"feeManager",type:"address"}],name:"removeFeeManager",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"renounceOwnership",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"uint256",name:"",type:"uint256"},{internalType:"address",name:"",type:"address"}],name:"subscriptionExpiry",outputs:[{internalType:"uint256",name:"",type:"uint256"}],stateMutability:"view",type:"function"},{inputs:[{internalType:"address",name:"newOwner",type:"address"}],name:"transferOwnership",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[],name:"treasury",outputs:[{internalType:"address",name:"",type:"address"}],stateMutability:"view",type:"function"},{inputs:[],name:"unpause",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"uint16",name:"newFeeBps",type:"uint16"}],name:"updateProtocolFee",outputs:[],stateMutability:"nonpayable",type:"function"},{inputs:[{internalType:"address",name:"newTreasury",type:"address"}],name:"updateTreasury",outputs:[],stateMutability:"nonpayable",type:"function"},{stateMutability:"payable",type:"receive"}];function he(e,t,n,i){return this.callContractMethod($,ye,"buyAccess",[e,t,n],{waitForReceipt:!0,value:i})}function me(e,t,n,i){return this.callContractMethod($,ye,"renewAccess",[e,t,n],void 0!==i?{value:i}:void 0)}function fe(e,t){return this.callContractMethod($,ye,"hasAccess",[e,t])}function we(e,t){return this.callContractMethod($,ye,"subscriptionExpiry",[e,t])}
 /**
  * Approves a spender to spend a specified amount of tokens on behalf of the owner.
  * If the current allowance is less than the specified amount, it will perform the approval.
@@ -230,12 +230,12 @@ let k=null,A=null;const C=()=>(A||(A=i({chain:I,transport:a()})),A);var E="Conne
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
-class Te{constructor(t,n){Q.add(this),X.set(this,(e=>c(this,void 0,void 0,(function*(){try{const t=yield fetch(`${x}/auth/origin/upload-url`,{method:"POST",body:JSON.stringify({name:e.name,type:e.type}),headers:{Authorization:`Bearer ${this.jwt}`,"Content-Type":"application/json"}});if(!t.ok)throw new Error(`HTTP ${t.status}: ${t.statusText}`);const n=yield t.json();if(n.isError)throw new Error(n.message||"Failed to generate upload URL");return n.data}catch(e){throw console.error("Failed to generate upload URL:",e),e}})))),ee.set(this,((e,t)=>c(this,void 0,void 0,(function*(){try{const n=yield fetch(`${x}/auth/origin/update-status`,{method:"PATCH",body:JSON.stringify({status:t,fileKey:e}),headers:{Authorization:`Bearer ${this.jwt}`,"Content-Type":"application/json"}});if(!n.ok){const e=yield n.text().catch((()=>"Unknown error"));throw new Error(`HTTP ${n.status}: ${e}`)}return!0}catch(e){throw console.error("Failed to update origin status:",e),e}})))),this.uploadFile=(t,n)=>c(this,void 0,void 0,(function*(){let i;try{i=yield y(this,X,"f").call(this,t)}catch(e){throw console.error("Failed to generate upload URL:",e),new Error(`Failed to generate upload URL: ${e instanceof Error?e.message:String(e)}`)}if(!i)throw new Error("Failed to generate upload URL: No upload info returned");try{yield((t,n,i)=>new Promise(((a,r)=>{e.put(n,t,Object.assign({headers:{"Content-Type":t.type}},"undefined"!=typeof window&&"function"==typeof i?{onUploadProgress:e=>{if(e.total){const t=e.loaded/e.total*100;i(t)}}}:{})).then((e=>{a(e.data)})).catch((e=>{var t;const n=(null===(t=null==e?void 0:e.response)||void 0===t?void 0:t.data)||(null==e?void 0:e.message)||"Upload failed";r(n)}))})))(t,i.url,(null==n?void 0:n.progressCallback)||(()=>{}))}catch(e){try{yield y(this,ee,"f").call(this,i.key,"failed")}catch(e){console.error("Failed to update status to failed:",e)}const t=e instanceof Error?e.message:String(e);throw new Error(`Failed to upload file: ${t}`)}try{yield y(this,ee,"f").call(this,i.key,"success")}catch(e){console.error("Failed to update status to success:",e)}return i})),this.mintFile=(e,t,n,i,a)=>c(this,void 0,void 0,(function*(){if(!this.viemClient)throw new Error("WalletClient not connected.");const r=yield this.uploadFile(e,a);if(!r||!r.key)throw new Error("Failed to upload file or get upload info.");const s=BigInt(Math.floor(Date.now()/1e3)+600),o=yield this.registerIpNFT("file",s,n,t,r.key,i),{tokenId:d,signerAddress:u,creatorContentHash:l,signature:p,uri:c}=o;// 10 minutes from now
+class ve{constructor(t,n){Q.add(this),X.set(this,(e=>c(this,void 0,void 0,(function*(){try{const t=yield fetch(`${x}/auth/origin/upload-url`,{method:"POST",body:JSON.stringify({name:e.name,type:e.type}),headers:{Authorization:`Bearer ${this.jwt}`,"Content-Type":"application/json"}});if(!t.ok)throw new Error(`HTTP ${t.status}: ${t.statusText}`);const n=yield t.json();if(n.isError)throw new Error(n.message||"Failed to generate upload URL");return n.data}catch(e){throw console.error("Failed to generate upload URL:",e),e}})))),ee.set(this,((e,t)=>c(this,void 0,void 0,(function*(){try{const n=yield fetch(`${x}/auth/origin/update-status`,{method:"PATCH",body:JSON.stringify({status:t,fileKey:e}),headers:{Authorization:`Bearer ${this.jwt}`,"Content-Type":"application/json"}});if(!n.ok){const e=yield n.text().catch((()=>"Unknown error"));throw new Error(`HTTP ${n.status}: ${e}`)}return!0}catch(e){throw console.error("Failed to update origin status:",e),e}})))),this.uploadFile=(t,n)=>c(this,void 0,void 0,(function*(){let i;try{i=yield y(this,X,"f").call(this,t)}catch(e){throw console.error("Failed to generate upload URL:",e),new Error(`Failed to generate upload URL: ${e instanceof Error?e.message:String(e)}`)}if(!i)throw new Error("Failed to generate upload URL: No upload info returned");try{yield((t,n,i)=>new Promise(((a,r)=>{e.put(n,t,Object.assign({headers:{"Content-Type":t.type}},"undefined"!=typeof window&&"function"==typeof i?{onUploadProgress:e=>{if(e.total){const t=e.loaded/e.total*100;i(t)}}}:{})).then((e=>{a(e.data)})).catch((e=>{var t;const n=(null===(t=null==e?void 0:e.response)||void 0===t?void 0:t.data)||(null==e?void 0:e.message)||"Upload failed";r(n)}))})))(t,i.url,(null==n?void 0:n.progressCallback)||(()=>{}))}catch(e){try{yield y(this,ee,"f").call(this,i.key,"failed")}catch(e){console.error("Failed to update status to failed:",e)}const t=e instanceof Error?e.message:String(e);throw new Error(`Failed to upload file: ${t}`)}try{yield y(this,ee,"f").call(this,i.key,"success")}catch(e){console.error("Failed to update status to success:",e)}return i})),this.mintFile=(e,t,n,i,a)=>c(this,void 0,void 0,(function*(){if(!this.viemClient)throw new Error("WalletClient not connected.");const r=yield this.uploadFile(e,a);if(!r||!r.key)throw new Error("Failed to upload file or get upload info.");const s=BigInt(Math.floor(Date.now()/1e3)+600),o=yield this.registerIpNFT("file",s,n,t,r.key,i),{tokenId:d,signerAddress:u,creatorContentHash:l,signature:p,uri:c}=o;// 10 minutes from now
 if(!(d&&u&&l&&void 0!==p&&c))throw new Error("Failed to register IpNFT: Missing required fields in registration response.");const[y]=yield this.viemClient.request({method:"eth_requestAccounts",params:[]}),h=yield this.mintWithSignature(y,d,i||BigInt(0),l,c,n,s,p);if("0x1"!==h.status)throw new Error(`Minting failed with status: ${h.status}`);return d.toString()})),this.mintSocial=(e,t,n)=>c(this,void 0,void 0,(function*(){if(!this.viemClient)throw new Error("WalletClient not connected.");const i=BigInt(Math.floor(Date.now()/1e3)+600),a=yield this.registerIpNFT(e,i,n,t),{tokenId:r,signerAddress:s,creatorContentHash:o,signature:d,uri:u}=a;// 10 minutes from now
 if(!(r&&s&&o&&void 0!==d&&u))throw new Error("Failed to register Social IpNFT: Missing required fields in registration response.");const[l]=yield this.viemClient.request({method:"eth_requestAccounts",params:[]}),p=yield this.mintWithSignature(l,r,BigInt(0),// parentId is not applicable for social IpNFTs
 o,u,n,i,d);if("0x1"!==p.status)throw new Error(`Minting Social IpNFT failed with status: ${p.status}`);return r.toString()})),this.getOriginUploads=()=>c(this,void 0,void 0,(function*(){const e=yield fetch(`${x}/auth/origin/files`,{method:"GET",headers:{Authorization:`Bearer ${this.jwt}`}});if(!e.ok)return console.error("Failed to get origin uploads"),null;return(yield e.json()).data})),this.jwt=t,this.viemClient=n,
 // DataNFT methods
-this.mintWithSignature=U.bind(this),this.registerIpNFT=N.bind(this),this.updateTerms=B.bind(this),this.requestDelete=D.bind(this),this.getTerms=_.bind(this),this.ownerOf=R.bind(this),this.balanceOf=W.bind(this),this.contentHash=q.bind(this),this.tokenURI=z.bind(this),this.dataStatus=L.bind(this),this.royaltyInfo=K.bind(this),this.getApproved=J.bind(this),this.isApprovedForAll=H.bind(this),this.transferFrom=G.bind(this),this.safeTransferFrom=V.bind(this),this.approve=Z.bind(this),this.setApprovalForAll=Y.bind(this),
+this.mintWithSignature=U.bind(this),this.registerIpNFT=N.bind(this),this.updateTerms=B.bind(this),this.requestDelete=D.bind(this),this.getTerms=_.bind(this),this.ownerOf=R.bind(this),this.balanceOf=W.bind(this),this.contentHash=q.bind(this),this.tokenURI=L.bind(this),this.dataStatus=z.bind(this),this.royaltyInfo=J.bind(this),this.getApproved=K.bind(this),this.isApprovedForAll=H.bind(this),this.transferFrom=G.bind(this),this.safeTransferFrom=V.bind(this),this.approve=Z.bind(this),this.setApprovalForAll=Y.bind(this),
 // Marketplace methods
 this.buyAccess=he.bind(this),this.renewAccess=me.bind(this),this.hasAccess=fe.bind(this),this.subscriptionExpiry=we.bind(this)}getJwt(){return this.jwt}setViemClient(e){this.viemClient=e}
 /**
@@ -285,7 +285,7 @@ if(4902!==t.code)throw t;yield this.viemClient.request({method:"wallet_addEthere
  * @class
  * @classdesc The Auth class is used to authenticate the user.
  */
-class ve{
+class Te{
 /**
      * Constructor for the Auth class.
      * @param {object} options The options object.
@@ -322,12 +322,25 @@ this.redirectUri=(e=>{const t=["twitter","discord","spotify"];return"object"==ty
      * @throws {APIError} - Throws an error if the provider is not provided.
      */setProvider({provider:e,info:i,address:a}){if(!e)throw new m("provider is required");this.viem=((e,i="window.ethereum",a)=>{var r;if(!e&&!k)return console.warn("Provider is required to create a client."),null;if(!k||k.transport.name!==i&&e||a!==(null===(r=k.account)||void 0===r?void 0:r.address)&&e){const r={chain:I,transport:t(e,{name:i})};a&&(r.account=l(a)),k=n(r)}return k})(e,i.name,a),this.origin&&this.origin.setViemClient(this.viem),
 // TODO: only use one of these
-y(this,ie,"m",se).call(this,"viem",this.viem),y(this,ie,"m",se).call(this,"provider",{provider:e,info:i})}
+y(this,ie,"m",se).call(this,"viem",this.viem),y(this,ie,"m",se).call(this,"provider",{provider:e,info:i}),localStorage.setItem("camp-sdk:provider",JSON.stringify(i))}
 /**
      * Set the wallet address. This is useful for edge cases where the provider can't return the wallet address. Don't use this unless you know what you're doing.
      * @param {string} walletAddress The wallet address.
      * @returns {void}
-     */setWalletAddress(e){this.walletAddress=e}recoverProvider(){return c(this,void 0,void 0,(function*(){var e,t,n;if(!this.walletAddress)return void console.warn("No wallet address found in local storage. Please connect your wallet again.");let i;const a=null!==(e=O())&&void 0!==e?e:[];for(const e of a)try{if((null===(t=(yield e.provider.request({method:"eth_requestAccounts"}))[0])||void 0===t?void 0:t.toLowerCase())===(null===(n=this.walletAddress)||void 0===n?void 0:n.toLowerCase())){i=e;break}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}i?this.setProvider({provider:i.provider,info:i.info||{name:"Unknown"},address:this.walletAddress}):console.warn("No matching provider found for the stored wallet address. Please connect your wallet again.")}))}
+     */setWalletAddress(e){this.walletAddress=e}recoverProvider(){return c(this,void 0,void 0,(function*(){var e,t,n,i,a,r,s,o,d,u,l,p,c,y,h;if(!this.walletAddress)return void console.warn("No wallet address found in local storage. Please connect your wallet again.");const m=JSON.parse(localStorage.getItem("camp-sdk:provider")||"{}");let f;const w=null!==(e=O())&&void 0!==e?e:[];
+// first pass: try to find provider by UUID/name and check if it has the right address
+// without prompting (using eth_accounts)
+for(const e of w)try{if(m.uuid&&(null===(t=e.info)||void 0===t?void 0:t.uuid)===m.uuid||m.name&&(null===(n=e.info)||void 0===n?void 0:n.name)===m.name){
+// silently check if the wallet address matches first
+const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(i=t[0])||void 0===i?void 0:i.toLowerCase())===(null===(a=this.walletAddress)||void 0===a?void 0:a.toLowerCase())){f=e;break}}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
+// second pass: If no provider found by UUID/name match, try to find by address only
+// but still avoid prompting
+if(!f)for(const e of w)try{
+// skip providers we already checked in the first pass
+if(m.uuid&&(null===(r=e.info)||void 0===r?void 0:r.uuid)===m.uuid||m.name&&(null===(s=e.info)||void 0===s?void 0:s.name)===m.name)continue;const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(o=t[0])||void 0===o?void 0:o.toLowerCase())===(null===(d=this.walletAddress)||void 0===d?void 0:d.toLowerCase())){f=e;break}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
+// third pass: if still no provider found and we have UUID/name info,
+// try prompting the user (only for the stored provider)
+if(!f&&(m.uuid||m.name))for(const e of w)try{if(m.uuid&&(null===(u=e.info)||void 0===u?void 0:u.uuid)===m.uuid||m.name&&(null===(l=e.info)||void 0===l?void 0:l.name)===m.name){console.log("Attempting to reconnect to stored provider:",(null===(p=e.info)||void 0===p?void 0:p.name)||(null===(c=e.info)||void 0===c?void 0:c.uuid));const t=yield e.provider.request({method:"eth_requestAccounts"});if(t.length>0&&(null===(y=t[0])||void 0===y?void 0:y.toLowerCase())===(null===(h=this.walletAddress)||void 0===h?void 0:h.toLowerCase())){f=e;break}}}catch(e){console.warn("Failed to reconnect to stored provider:",e)}f?this.setProvider({provider:f.provider,info:f.info||{name:"Unknown"},address:this.walletAddress}):console.warn("No matching provider found for the stored wallet address. Please connect your wallet again.")}))}
 /**
      * Disconnect the user.
      * @returns {Promise<void>}
@@ -336,7 +349,7 @@ y(this,ie,"m",se).call(this,"viem",this.viem),y(this,ie,"m",se).call(this,"provi
      * Connect the user's wallet and sign the message.
      * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
      * @throws {APIError} - Throws an error if the user cannot be authenticated.
-     */connect(){return c(this,void 0,void 0,(function*(){y(this,ie,"m",se).call(this,"state","loading");try{this.walletAddress||(yield y(this,ie,"m",de).call(this)),this.walletAddress=u(this.walletAddress);const e=yield y(this,ie,"m",ue).call(this),t=y(this,ie,"m",pe).call(this,e),n=yield this.viem.signMessage({account:this.walletAddress,message:t}),i=yield y(this,ie,"m",le).call(this,t,n);if(i.success)return this.isAuthenticated=!0,this.userId=i.userId,this.jwt=i.token,this.origin=new Te(this.jwt,this.viem),localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),y(this,ie,"m",se).call(this,"state","authenticated"),yield y(this,ie,"m",ce).call(this,M.USER_CONNECTED,"User Connected"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,y(this,ie,"m",se).call(this,"state","unauthenticated"),new m("Failed to authenticate")}catch(e){throw this.isAuthenticated=!1,y(this,ie,"m",se).call(this,"state","unauthenticated"),new m(e)}}))}
+     */connect(){return c(this,void 0,void 0,(function*(){y(this,ie,"m",se).call(this,"state","loading");try{this.walletAddress||(yield y(this,ie,"m",de).call(this)),this.walletAddress=u(this.walletAddress);const e=yield y(this,ie,"m",ue).call(this),t=y(this,ie,"m",pe).call(this,e),n=yield this.viem.signMessage({account:this.walletAddress,message:t}),i=yield y(this,ie,"m",le).call(this,t,n);if(i.success)return this.isAuthenticated=!0,this.userId=i.userId,this.jwt=i.token,this.origin=new ve(this.jwt,this.viem),localStorage.setItem("camp-sdk:jwt",this.jwt),localStorage.setItem("camp-sdk:wallet-address",this.walletAddress),localStorage.setItem("camp-sdk:user-id",this.userId),y(this,ie,"m",se).call(this,"state","authenticated"),yield y(this,ie,"m",ce).call(this,M.USER_CONNECTED,"User Connected"),{success:!0,message:"Successfully authenticated",walletAddress:this.walletAddress};throw this.isAuthenticated=!1,y(this,ie,"m",se).call(this,"state","unauthenticated"),new m("Failed to authenticate")}catch(e){throw this.isAuthenticated=!1,y(this,ie,"m",se).call(this,"state","unauthenticated"),new m(e)}}))}
 /**
      * Get the user's linked social accounts.
      * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
@@ -425,29 +438,8 @@ window.location.href=`${x}/spotify/connect?clientId=${this.clientId}&userId=${th
      * @returns {Promise<any>} A promise that resolves with the unlink result.
      * @throws {Error} - Throws an error if the user is not authenticated.
      * @throws {APIError} - Throws an error if the request fails.
-     */unlinkTelegram(){return c(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new m("User needs to be authenticated");const e=yield fetch(`${x}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((e=>e.json()));if(e.isError)throw new m(e.message||"Failed to unlink Telegram account");return e.data}))}}ae=new WeakMap,re=new WeakMap,ie=new WeakSet,se=function(e,t){y(this,ae,"f")[e]&&y(this,ae,"f")[e].forEach((e=>e(t)))},oe=function(e){return c(this,void 0,void 0,(function*(){if("undefined"==typeof localStorage)return;const t=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),n=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");t&&n&&i?(this.walletAddress=t,this.userId=n,this.jwt=i,this.origin=new Te(this.jwt),this.isAuthenticated=!0,
-/*
-            let selectedProvider = provider;
-      
-            if (!selectedProvider) {
-              const providers = providerStore.value() ?? [];
-              for (const p of providers) {
-                try {
-                  const accounts = await p.provider.request({
-                    method: "eth_requestAccounts",
-                  });
-                  if (accounts[0]?.toLowerCase() === walletAddress.toLowerCase()) {
-                    selectedProvider = p;
-                    break;
-                  }
-                } catch (err) {
-                  console.warn("Failed to fetch accounts from provider:", err);
-                }
-              }
-            }
-              */
-e&&this.setProvider({provider:e.provider,info:e.info||{name:"Unknown"},address:t})):this.isAuthenticated=!1}))},de=function(){return c(this,void 0,void 0,(function*(){try{const[e]=yield this.viem.requestAddresses();return this.walletAddress=u(e),this.walletAddress}catch(e){throw new m(e)}}))},ue=function(){return c(this,void 0,void 0,(function*(){try{const e=yield fetch(`${x}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),t=yield e.json();return 200!==e.status?Promise.reject(t.message||"Failed to fetch nonce"):t.data}catch(e){throw new Error(e)}}))},le=function(e,t){return c(this,void 0,void 0,(function*(){try{const n=yield fetch(`${x}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:e,signature:t,walletAddress:this.walletAddress})}),i=yield n.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(e){throw new m(e)}}))},pe=function(e){return p({domain:window.location.host,address:this.walletAddress,statement:E,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:e})},ce=function(e,t){return c(this,arguments,void 0,(function*(e,t,n=1){
+     */unlinkTelegram(){return c(this,void 0,void 0,(function*(){if(!this.isAuthenticated)throw new m("User needs to be authenticated");const e=yield fetch(`${x}/telegram/disconnect-sdk`,{method:"POST",redirect:"follow",headers:{Authorization:`Bearer ${this.jwt}`,"x-client-id":this.clientId,"Content-Type":"application/json"},body:JSON.stringify({userId:this.userId})}).then((e=>e.json()));if(e.isError)throw new m(e.message||"Failed to unlink Telegram account");return e.data}))}}ae=new WeakMap,re=new WeakMap,ie=new WeakSet,se=function(e,t){y(this,ae,"f")[e]&&y(this,ae,"f")[e].forEach((e=>e(t)))},oe=function(e){return c(this,void 0,void 0,(function*(){if("undefined"==typeof localStorage)return;const t=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:wallet-address"),n=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:user-id"),i=null===localStorage||void 0===localStorage?void 0:localStorage.getItem("camp-sdk:jwt");t&&n&&i?(this.walletAddress=t,this.userId=n,this.jwt=i,this.origin=new ve(this.jwt),this.isAuthenticated=!0,e?this.setProvider({provider:e.provider,info:e.info||{name:"Unknown"},address:t}):(console.warn("No matching provider was given for the stored wallet address. Trying to recover provider."),yield this.recoverProvider())):this.isAuthenticated=!1}))},de=function(){return c(this,void 0,void 0,(function*(){try{const[e]=yield this.viem.requestAddresses();return this.walletAddress=u(e),this.walletAddress}catch(e){throw new m(e)}}))},ue=function(){return c(this,void 0,void 0,(function*(){try{const e=yield fetch(`${x}/auth/client-user/nonce`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({walletAddress:this.walletAddress})}),t=yield e.json();return 200!==e.status?Promise.reject(t.message||"Failed to fetch nonce"):t.data}catch(e){throw new Error(e)}}))},le=function(e,t){return c(this,void 0,void 0,(function*(){try{const n=yield fetch(`${x}/auth/client-user/verify`,{method:"POST",headers:{"Content-Type":"application/json","x-client-id":this.clientId},body:JSON.stringify({message:e,signature:t,walletAddress:this.walletAddress})}),i=yield n.json(),a=i.data.split(".")[1],r=JSON.parse(atob(a));return{success:!i.isError,userId:r.id,token:i.data}}catch(e){throw new m(e)}}))},pe=function(e){return p({domain:window.location.host,address:this.walletAddress,statement:E,uri:window.location.origin,version:"1",chainId:this.viem.chain.id,nonce:e})},ce=function(e,t){return c(this,arguments,void 0,(function*(e,t,n=1){
 // if (this.#ackeeInstance)
 //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
 // else return;
-}))};export{ve as Auth,g as SpotifyAPI,b as TwitterAPI};
+}))};export{Te as Auth,g as SpotifyAPI,b as TwitterAPI};

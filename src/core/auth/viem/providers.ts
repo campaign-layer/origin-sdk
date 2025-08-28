@@ -1,6 +1,8 @@
 export interface Provider {
   info: {
     uuid: string;
+    name?: string;
+    icon?: string;
   };
   provider: any;
 }

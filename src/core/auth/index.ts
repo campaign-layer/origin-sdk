@@ -191,6 +191,8 @@ class Auth {
     // TODO: only use one of these
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
+
+    localStorage.setItem("camp-sdk:provider", JSON.stringify(info));
   }
 
   /**
@@ -209,19 +211,95 @@ class Auth {
       );
       return;
     }
+
+    const lastProvider = JSON.parse(
+      localStorage.getItem("camp-sdk:provider") || "{}"
+    ) as { uuid?: string; name?: string };
+
     let provider: Provider | undefined;
     const providers = providerStore.value() ?? [];
+
+    // first pass: try to find provider by UUID/name and check if it has the right address
+    // without prompting (using eth_accounts)
     for (const p of providers) {
       try {
-        const accounts = await p.provider.request({
-          method: "eth_requestAccounts",
-        });
-        if (accounts[0]?.toLowerCase() === this.walletAddress?.toLowerCase()) {
-          provider = p;
-          break;
+        if (
+          (lastProvider.uuid && p.info?.uuid === lastProvider.uuid) ||
+          (lastProvider.name && p.info?.name === lastProvider.name)
+        ) {
+          // silently check if the wallet address matches first
+          const accounts = await p.provider.request({
+            method: "eth_accounts",
+          });
+          if (
+            accounts.length > 0 &&
+            accounts[0]?.toLowerCase() === this.walletAddress?.toLowerCase()
+          ) {
+            provider = p;
+            break;
+          }
         }
       } catch (err) {
         console.warn("Failed to fetch accounts from provider:", err);
+      }
+    }
+
+    // second pass: if no provider found by UUID/name match, try to find by address only
+    // but still avoid prompting
+    if (!provider) {
+      for (const p of providers) {
+        try {
+          // skip providers we already checked in the first pass
+          if (
+            (lastProvider.uuid && p.info?.uuid === lastProvider.uuid) ||
+            (lastProvider.name && p.info?.name === lastProvider.name)
+          ) {
+            continue;
+          }
+
+          const accounts = await p.provider.request({
+            method: "eth_accounts",
+          });
+          if (
+            accounts.length > 0 &&
+            accounts[0]?.toLowerCase() === this.walletAddress?.toLowerCase()
+          ) {
+            provider = p;
+            break;
+          }
+        } catch (err) {
+          console.warn("Failed to fetch accounts from provider:", err);
+        }
+      }
+    }
+
+    // third pass: if still no provider found and we have UUID/name info,
+    // try prompting the user (only for the stored provider)
+    if (!provider && (lastProvider.uuid || lastProvider.name)) {
+      for (const p of providers) {
+        try {
+          if (
+            (lastProvider.uuid && p.info?.uuid === lastProvider.uuid) ||
+            (lastProvider.name && p.info?.name === lastProvider.name)
+          ) {
+            console.log(
+              "Attempting to reconnect to stored provider:",
+              p.info?.name || p.info?.uuid
+            );
+            const accounts = await p.provider.request({
+              method: "eth_requestAccounts",
+            });
+            if (
+              accounts.length > 0 &&
+              accounts[0]?.toLowerCase() === this.walletAddress?.toLowerCase()
+            ) {
+              provider = p;
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn("Failed to reconnect to stored provider:", err);
+        }
       }
     }
 
@@ -262,27 +340,6 @@ class Auth {
       this.origin = new Origin(this.jwt);
       this.isAuthenticated = true;
 
-      /*
-      let selectedProvider = provider;
-
-      if (!selectedProvider) {
-        const providers = providerStore.value() ?? [];
-        for (const p of providers) {
-          try {
-            const accounts = await p.provider.request({
-              method: "eth_requestAccounts",
-            });
-            if (accounts[0]?.toLowerCase() === walletAddress.toLowerCase()) {
-              selectedProvider = p;
-              break;
-            }
-          } catch (err) {
-            console.warn("Failed to fetch accounts from provider:", err);
-          }
-        }
-      }
-        */
-
       if (provider) {
         this.setProvider({
           provider: provider.provider,
@@ -292,11 +349,10 @@ class Auth {
           address: walletAddress,
         });
       } else {
-        // console.warn(
-        //   "No matching provider was given for the stored wallet address. Trying to recover provider."
-        // );
-        // await this.recoverProvider();
-        // TODO: do this but less aggressively (check provider info instead of addresses)
+        console.warn(
+          "No matching provider was given for the stored wallet address. Trying to recover provider."
+        );
+        await this.recoverProvider();
       }
     } else {
       this.isAuthenticated = false;

@@ -333,6 +333,8 @@ export const CampModal = ({
   }, [authenticated]);
 
   useEffect(() => {
+    // handles recovering the provider if it was passed as a defaultProvider or if WalletConnect was used
+    // the core module handles the other cases (injected providers) automatically
     const recoverProvider = async () => {
       try {
         if (auth) {

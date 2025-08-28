@@ -407,6 +407,8 @@ declare const ModalContext: React.Context<ModalContextProps>;
 interface Provider {
     info: {
         uuid: string;
+        name?: string;
+        icon?: string;
     };
     provider: any;
 }
