@@ -111,6 +111,15 @@ declare class TwitterAPI {
      */
     fetchViewedTweetsByUsername(twitterUserName: string, page?: number, limit?: number): Promise<object>;
     /**
+     * Private method to validate username, page, and limit parameters.
+     * @param {string} twitterUserName - The Twitter username.
+     * @param {number} page - The page number.
+     * @param {number} limit - The limit number.
+     * @returns {object} - Validated parameters.
+     * @throws {ValidationError} - Throws an error if validation fails.
+     */
+    private _validateUsernamePageLimit;
+    /**
      * Private method to fetch data with authorization header.
      * @param {string} url - The URL to fetch.
      * @returns {Promise<object>} - The response data.

@@ -1,5 +1,5 @@
 import { fetchData, buildURL, baseTwitterURL as baseURL } from "../utils";
-import { APIError } from "../errors";
+import { APIError, ValidationError } from "../errors";
 
 /**
  * The TwitterAPI class.
@@ -14,7 +14,10 @@ class TwitterAPI {
    * @param {string} options.apiKey - The API key. (Needed for data fetching)
    */
   constructor({ apiKey }: { apiKey: string }) {
-    this.apiKey = apiKey;
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim() === '') {
+      throw new ValidationError("API key is required and must be a non-empty string");
+    }
+    this.apiKey = apiKey.trim();
   }
 
   /**
@@ -24,7 +27,15 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchUserByUsername(twitterUserName: string): Promise<object> {
-    const url = buildURL(`${baseURL}/user`, { twitterUserName });
+    if (!twitterUserName || typeof twitterUserName !== 'string' || twitterUserName.trim() === '') {
+      throw new ValidationError("Twitter username is required and must be a non-empty string");
+    }
+    const trimmedUsername = twitterUserName.trim();
+    // Basic Twitter(X) username validation (no @ symbol, alphanumeric + underscore)
+    if (!/^[a-zA-Z0-9_]{1,15}$/.test(trimmedUsername)) {
+      throw new ValidationError("Invalid Twitter username format");
+    }
+    const url = buildURL(`${baseURL}/user`, { twitterUserName: trimmedUsername });
     return this._fetchDataWithAuth(url);
   }
 
@@ -41,8 +52,21 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    if (!twitterUserName || typeof twitterUserName !== 'string' || twitterUserName.trim() === '') {
+      throw new ValidationError("Twitter username is required and must be a non-empty string");
+    }
+    const trimmedUsername = twitterUserName.trim();
+    if (!/^[a-zA-Z0-9_]{1,15}$/.test(trimmedUsername)) {
+      throw new ValidationError("Invalid Twitter username format");
+    }
+    if (!Number.isInteger(page) || page < 1) {
+      throw new ValidationError("Page must be a positive integer");
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new ValidationError("Limit must be a positive integer between 1 and 100");
+    }
     const url = buildURL(`${baseURL}/tweets`, {
-      twitterUserName,
+      twitterUserName: trimmedUsername,
       page,
       limit,
     });
@@ -62,10 +86,11 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
     const url = buildURL(`${baseURL}/followers`, {
-      twitterUserName,
-      page,
-      limit,
+      twitterUserName: validatedUsername,
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -83,10 +108,11 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
     const url = buildURL(`${baseURL}/following`, {
-      twitterUserName,
-      page,
-      limit,
+      twitterUserName: validatedUsername,
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -98,7 +124,15 @@ class TwitterAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchTweetById(tweetId: string): Promise<object> {
-    const url = buildURL(`${baseURL}/getTweetById`, { tweetId });
+    if (!tweetId || typeof tweetId !== 'string' || tweetId.trim() === '') {
+      throw new ValidationError("Tweet ID is required and must be a non-empty string");
+    }
+    const trimmedTweetId = tweetId.trim();
+    // Basic tweet ID validation (should be numeric)
+    if (!/^\d+$/.test(trimmedTweetId)) {
+      throw new ValidationError("Invalid tweet ID format");
+    }
+    const url = buildURL(`${baseURL}/getTweetById`, { tweetId: trimmedTweetId });
     return this._fetchDataWithAuth(url);
   }
 
@@ -115,8 +149,21 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    if (!walletAddress || typeof walletAddress !== 'string' || walletAddress.trim() === '') {
+      throw new ValidationError("Wallet address is required and must be a non-empty string");
+    }
+    const trimmedAddress = walletAddress.trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(trimmedAddress)) {
+      throw new ValidationError("Invalid wallet address format");
+    }
+    if (!Number.isInteger(page) || page < 1) {
+      throw new ValidationError("Page must be a positive integer");
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new ValidationError("Limit must be a positive integer between 1 and 100");
+    }
     const url = buildURL(`${baseURL}/wallet-twitter-data`, {
-      walletAddress,
+      walletAddress: trimmedAddress,
       page,
       limit,
     });
@@ -136,10 +183,11 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
     const url = buildURL(`${baseURL}/reposted`, {
-      twitterUserName,
-      page,
-      limit,
+      twitterUserName: validatedUsername,
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -157,10 +205,11 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
     const url = buildURL(`${baseURL}/replies`, {
-      twitterUserName,
-      page,
-      limit,
+      twitterUserName: validatedUsername,
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -178,9 +227,10 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
-    const url = buildURL(`${baseURL}/event/likes/${twitterUserName}`, {
-      page,
-      limit,
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
+    const url = buildURL(`${baseURL}/event/likes/${validatedUsername}`, {
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -198,9 +248,10 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
-    const url = buildURL(`${baseURL}/event/follows/${twitterUserName}`, {
-      page,
-      limit,
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
+    const url = buildURL(`${baseURL}/event/follows/${validatedUsername}`, {
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
   }
@@ -218,11 +269,41 @@ class TwitterAPI {
     page: number = 1,
     limit: number = 10
   ): Promise<object> {
-    const url = buildURL(`${baseURL}/event/viewed-tweets/${twitterUserName}`, {
-      page,
-      limit,
+    const { validatedUsername, validatedPage, validatedLimit } = this._validateUsernamePageLimit(twitterUserName, page, limit);
+    const url = buildURL(`${baseURL}/event/viewed-tweets/${validatedUsername}`, {
+      page: validatedPage,
+      limit: validatedLimit,
     });
     return this._fetchDataWithAuth(url);
+  }
+
+  /**
+   * Private method to validate username, page, and limit parameters.
+   * @param {string} twitterUserName - The Twitter username.
+   * @param {number} page - The page number.
+   * @param {number} limit - The limit number.
+   * @returns {object} - Validated parameters.
+   * @throws {ValidationError} - Throws an error if validation fails.
+   */
+  private _validateUsernamePageLimit(twitterUserName: string, page: number, limit: number) {
+    if (!twitterUserName || typeof twitterUserName !== 'string' || twitterUserName.trim() === '') {
+      throw new ValidationError("Twitter username is required and must be a non-empty string");
+    }
+    const trimmedUsername = twitterUserName.trim();
+    if (!/^[a-zA-Z0-9_]{1,15}$/.test(trimmedUsername)) {
+      throw new ValidationError("Invalid Twitter username format");
+    }
+    if (!Number.isInteger(page) || page < 1) {
+      throw new ValidationError("Page must be a positive integer");
+    }
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      throw new ValidationError("Limit must be a positive integer between 1 and 100");
+    }
+    return {
+      validatedUsername: trimmedUsername,
+      validatedPage: page,
+      validatedLimit: limit
+    };
   }
 
   /**
