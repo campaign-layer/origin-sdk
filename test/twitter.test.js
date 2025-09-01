@@ -48,22 +48,22 @@ describe("TwitterAPI", () => {
   });
 
   test("fetchTweetById should fetch a tweet by ID", async () => {
-    const mockResponse = { id: "tweet123", text: "Hello World" };
+    const mockResponse = { id: "1234567890123456789", text: "Hello World" };
     jest
       .spyOn(twitterAPI, "_fetchDataWithAuth")
       .mockResolvedValue(mockResponse);
 
-    const result = await twitterAPI.fetchTweetById("tweet123");
+    const result = await twitterAPI.fetchTweetById("1234567890123456789");
     expect(result).toEqual(mockResponse);
   });
 
   test("fetchUserByWalletAddress should fetch user data by wallet address", async () => {
-    const mockResponse = { id: "user123", walletAddress: "0x123" };
+    const mockResponse = { id: "user123", walletAddress: "0x1234567890abcdef1234567890abcdef12345678" };
     jest
       .spyOn(twitterAPI, "_fetchDataWithAuth")
       .mockResolvedValue(mockResponse);
 
-    const result = await twitterAPI.fetchUserByWalletAddress("0x123");
+    const result = await twitterAPI.fetchUserByWalletAddress("0x1234567890abcdef1234567890abcdef12345678");
     expect(result).toEqual(mockResponse);
   });
 

@@ -5,7 +5,7 @@ describe('SpotifyAPI', () => {
   let spotifyAPI;
   const apiKey = 'test-api-key';
   const spotifyId = 'test-spotify-id';
-  const walletAddress = 'test-wallet-address';
+  const walletAddress = '0x1234567890abcdef1234567890abcdef12345678';
 
   beforeEach(() => {
     spotifyAPI = new SpotifyAPI({ apiKey });

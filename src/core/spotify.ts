@@ -1,5 +1,5 @@
 import { fetchData, buildURL, baseSpotifyURL as baseURL } from "../utils";
-import { APIError } from "../errors";
+import { APIError, ValidationError } from "../errors";
 
 interface SpotifyAPIOptions {
   apiKey: string;
@@ -20,7 +20,10 @@ class SpotifyAPI {
    * @throws {Error} - Throws an error if the API key is not provided.
    */
   constructor(options: SpotifyAPIOptions) {
-    this.apiKey = options.apiKey;
+    if (!options || !options.apiKey || typeof options.apiKey !== 'string' || options.apiKey.trim() === '') {
+      throw new ValidationError("API key is required and must be a non-empty string");
+    }
+    this.apiKey = options.apiKey.trim();
   }
 
   /**
@@ -30,8 +33,11 @@ class SpotifyAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchSavedTracksById(spotifyId: string): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/save-tracks`, {
-      spotifyId,
+      spotifyId: spotifyId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -43,8 +49,11 @@ class SpotifyAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchPlayedTracksById(spotifyId: string): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/played-tracks`, {
-      spotifyId,
+      spotifyId: spotifyId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -56,8 +65,11 @@ class SpotifyAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchSavedAlbumsById(spotifyId: string): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/saved-albums`, {
-      spotifyId,
+      spotifyId: spotifyId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -69,8 +81,11 @@ class SpotifyAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchSavedPlaylistsById(spotifyId: string): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/saved-playlists`, {
-      spotifyId,
+      spotifyId: spotifyId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -86,9 +101,15 @@ class SpotifyAPI {
     spotifyId: string,
     albumId: string
   ): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
+    if (!albumId || typeof albumId !== 'string' || albumId.trim() === '') {
+      throw new ValidationError("Album ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/album/tracks`, {
-      spotifyId,
-      albumId,
+      spotifyId: spotifyId.trim(),
+      albumId: albumId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -104,9 +125,15 @@ class SpotifyAPI {
     spotifyId: string,
     playlistId: string
   ): Promise<object> {
+    if (!spotifyId || typeof spotifyId !== 'string' || spotifyId.trim() === '') {
+      throw new ValidationError("Spotify ID is required and must be a non-empty string");
+    }
+    if (!playlistId || typeof playlistId !== 'string' || playlistId.trim() === '') {
+      throw new ValidationError("Playlist ID is required and must be a non-empty string");
+    }
     const url = buildURL(`${baseURL}/playlist/tracks`, {
-      spotifyId,
-      playlistId,
+      spotifyId: spotifyId.trim(),
+      playlistId: playlistId.trim(),
     });
     return this._fetchDataWithAuth(url);
   }
@@ -118,7 +145,15 @@ class SpotifyAPI {
    * @throws {APIError} - Throws an error if the request fails.
    */
   async fetchUserByWalletAddress(walletAddress: string): Promise<object> {
-    const url = buildURL(`${baseURL}/wallet-spotify-data`, { walletAddress });
+    if (!walletAddress || typeof walletAddress !== 'string' || walletAddress.trim() === '') {
+      throw new ValidationError("Wallet address is required and must be a non-empty string");
+    }
+    // Basic evm address format validation
+    const trimmedAddress = walletAddress.trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(trimmedAddress)) {
+      throw new ValidationError("Invalid wallet address format");
+    }
+    const url = buildURL(`${baseURL}/wallet-spotify-data`, { walletAddress: trimmedAddress });
     return this._fetchDataWithAuth(url);
   }
 
