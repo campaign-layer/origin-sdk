@@ -493,19 +493,55 @@ export const FileUpload = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
-  const [price, setPrice] = useState<bigint>(BigInt(0)); // price in wei
-  const [royaltyBps, setRoyaltyBps] = useState<number>(0); // royalty basis points (0-10000)
-  const [licenseDuration, setLicenseDuration] = useState<number>(
-    Math.floor(60 * 60 * 24 * 30) // 30 days in seconds
-  );
+  const [price, setPrice] = useState<string>("");
+  const [royaltyBps, setRoyaltyBps] = useState<number>(0);
+  const [licenseDuration, setLicenseDuration] = useState<number>(24);
+  const [durationUnit, setDurationUnit] = useState<string>("hours");
 
   const handleUpload = async () => {
     if (selectedFile) {
       setIsUploading(true);
       try {
+        // convert duration to seconds based on selected unit
+        let durationInSeconds = licenseDuration;
+        switch (durationUnit) {
+          case "hours":
+            durationInSeconds = licenseDuration * 3600; // 60 * 60
+            break;
+          case "days":
+            durationInSeconds = licenseDuration * 86400; // 60 * 60 * 24
+            break;
+          case "weeks":
+            durationInSeconds = licenseDuration * 604800; // 60 * 60 * 24 * 7
+            break;
+        }
+
+        if (durationInSeconds > constants.MAX_LICENSE_DURATION) {
+          addToast(
+            `License duration exceeds maximum limit of ${constants.MAX_LICENSE_DURATION} seconds`
+          );
+          return;
+        }
+
+        if (durationInSeconds < constants.MIN_LICENSE_DURATION) {
+          addToast(
+            `License duration must be at least ${constants.MIN_LICENSE_DURATION} seconds`
+          );
+          return;
+        }
+
+        const priceInWei = price
+          ? BigInt(Math.floor(parseFloat(price) * Math.pow(10, 18)))
+          : BigInt(0);
+
+        if (priceInWei < 0) {
+          addToast(`Invalid price`, "error", 5000);
+          return;
+        }
+
         const license = createLicenseTerms(
-          price, // price in wei
-          licenseDuration, // duration in seconds
+          priceInWei, // price in wei
+          durationInSeconds, // duration in seconds
           royaltyBps, // royalty basis points
           zeroAddress // payment token
         );
@@ -698,19 +734,24 @@ export const FileUpload = ({
           <div className={buttonStyles["price-input-container"]}>
             <input
               type="number"
-              placeholder="Price in wei"
+              step="0.000000000000000001"
+              placeholder="Price in CAMP"
               className={buttonStyles["price-input"]}
-              value={price > 0 ? price.toString() : ""}
+              value={price}
               onChange={(e) => {
                 const value = e.target.value;
-                setPrice(value ? BigInt(value) : BigInt(0));
+                setPrice(value);
               }}
             />
+            <div className={buttonStyles["price-divider"]}></div>
+            <div className={buttonStyles["camp-icon-container"]}>
+              <CampIcon />
+            </div>
           </div>
           <div className={buttonStyles["duration-input-container"]}>
             <input
               type="number"
-              placeholder="License duration (seconds)"
+              placeholder="Duration"
               className={buttonStyles["duration-input"]}
               value={licenseDuration > 0 ? licenseDuration.toString() : ""}
               onChange={(e) => {
@@ -718,13 +759,24 @@ export const FileUpload = ({
                 setLicenseDuration(value ? Number(value) : 0);
               }}
             />
+            <select
+              className={buttonStyles["duration-unit-select"]}
+              value={durationUnit}
+              onChange={(e) => {
+                setDurationUnit(e.target.value);
+              }}
+            >
+              <option value="hours">Hours</option>
+              <option value="days">Days</option>
+              <option value="weeks">Weeks</option>
+            </select>
           </div>
-          <PercentageSlider
+          {/* <PercentageSlider
             onChange={(value) => {
               const royaltyBps = Math.round((value / 100) * 10000);
               setRoyaltyBps(royaltyBps);
             }}
-          />
+          /> */}
           <div className={buttonStyles["upload-buttons"]}>
             <button
               className={buttonStyles["remove-file-button"]}

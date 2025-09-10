@@ -453,6 +453,11 @@
   cursor: pointer;
 }
 
+.remove-file-button:disabled {
+  background-color: #b8b8b8;
+  cursor: not-allowed;
+}
+
 .upload-file-button {
   color: white;
   background-color: #ff6f00;
@@ -468,6 +473,10 @@
 .upload-file-button:hover {
   background-color: #cc4e02;
   cursor: pointer;
+}
+.upload-file-button:disabled {
+  background-color: #b8b8b8;
+  cursor: not-allowed;
 }
 
 .file-preview {
@@ -565,30 +574,100 @@
 .price-input-container {
   width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  position: relative;
+  gap: 0;
   font-family: sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .price-input {
   font-family: sans-serif;
   padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent;
 }
 
+.price-divider {
+  width: 1px;
+  height: 24px;
+  background-color: #ccc;
+  margin: 0;
+}
+
+.camp-icon-container {
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  min-width: 40px;
+}
+
+.camp-icon-container svg {
+  width: 16px;
+  height: 16px;
+}
 
 .duration-input-container {
   width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: stretch;
+  gap: 0;
   font-family: sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .duration-input {
   font-family: sans-serif;
   padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.duration-unit-select {
+  font-family: sans-serif;
+  padding: 6px 10px;
+  border: none;
+  outline: none;
+  background-color: #f8f9fa;
+  border-left: 1px solid #ccc;
+  cursor: pointer;
+  flex: 0 0 auto;
+  width: auto;
+  box-sizing: border-box;
+}
+
+.price-input-container:focus-within {
+  border-color: #ff6f00;
+  box-shadow: 0 0 0 1px #ff6f00;
+}
+
+.duration-input-container:focus-within {
+  border-color: #ff6f00;
+  box-shadow: 0 0 0 1px #ff6f00;
+}
+
+.price-input-container:hover,
+.duration-input-container:hover {
+  border-color: #999;
+}
+
+.duration-unit-select:hover {
+  background-color: #e9ecef;
+}
+
+.duration-unit-select:focus {
+  background-color: #e9ecef;
 }

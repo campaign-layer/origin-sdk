@@ -333,7 +333,7 @@ y(this,ie,"m",se).call(this,"viem",this.viem),y(this,ie,"m",se).call(this,"provi
 for(const e of w)try{if(m.uuid&&(null===(t=e.info)||void 0===t?void 0:t.uuid)===m.uuid||m.name&&(null===(n=e.info)||void 0===n?void 0:n.name)===m.name){
 // silently check if the wallet address matches first
 const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(i=t[0])||void 0===i?void 0:i.toLowerCase())===(null===(a=this.walletAddress)||void 0===a?void 0:a.toLowerCase())){f=e;break}}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
-// second pass: If no provider found by UUID/name match, try to find by address only
+// second pass: if no provider found by UUID/name match, try to find by address only
 // but still avoid prompting
 if(!f)for(const e of w)try{
 // skip providers we already checked in the first pass
