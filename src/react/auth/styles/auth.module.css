@@ -221,6 +221,13 @@
   color: #777;
   font-weight: normal;
   margin-top: 0.2rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+}
+.container .header .wallet-address:hover {
+  cursor: pointer;
+  color: #555;
 }
 
 .container .close-button {
@@ -342,6 +349,28 @@
 
 .container a.footer-text:hover {
   text-decoration: underline;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.environment-indicator {
+  position: absolute;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.environment-tooltip {
+  position: absolute !important;
+  right: 0 !important;
+  display: block !important;
 }
 
 .disconnect-button {

@@ -42,6 +42,7 @@ import {
   TelegramIcon,
   CheckMarkIcon,
   XMarkIcon,
+  CopyIcon,
 } from "./icons.js";
 import constants from "../../constants.js";
 import { useToast } from "../toasts.js";
@@ -71,7 +72,7 @@ const AuthModal = ({
 }: AuthModalProps) => {
   const { connect } = useConnect();
   const { setProvider } = useProvider();
-  const { auth, wagmiAvailable } = useContext(CampContext);
+  const { auth, wagmiAvailable, environment } = useContext(CampContext);
   const [customProvider, setCustomProvider] = useState<any>(null);
   const providers = useProviders();
   const [customConnector, setCustomConnector] = useState<any>(null);
@@ -272,14 +273,29 @@ const AuthModal = ({
             />
           )}
         </div>
-        <a
-          href="https://campnetwork.xyz"
-          className={styles["footer-text"]}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by Camp Network
-        </a>
+        <div className={styles["footer-container"]}>
+          <a
+            href="https://campnetwork.xyz"
+            className={styles["footer-text"]}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Powered by Camp Network
+          </a>
+          <Tooltip
+            content={`${environment.NAME}`}
+            position="top"
+            containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
+          >
+            <div
+              className={styles["environment-indicator"]}
+              style={{
+                backgroundColor:
+                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+              }}
+            />
+          </Tooltip>
+        </div>
       </div>
     </div>
   );
@@ -835,6 +851,7 @@ const BasicFlow = () => {
 const LinkingModal = () => {
   const { isLoading: isSocialsLoading } = useSocials();
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
+  const { environment } = useContext(CampContext);
 
   const [flow, setFlow] = useState<"basic" | "tiktok" | "telegram">("basic");
 
@@ -899,15 +916,34 @@ const LinkingModal = () => {
               {flow === "telegram" && <TelegramFlow />}
             </div>
           )}
-          <a
-            href="https://campnetwork.xyz"
-            className={styles["footer-text"]}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ marginTop: 0 }}
-          >
-            Powered by Camp Network
-          </a>
+          <div className={styles["footer-container"]}>
+            <a
+              href="https://campnetwork.xyz"
+              className={styles["footer-text"]}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginTop: 0 }}
+            >
+              Powered by Camp Network
+            </a>
+            <Tooltip
+              content={`${environment.NAME}`}
+              position="top"
+              containerStyle={{
+                position: "absolute",
+                right: 0,
+                top: "0.25rem",
+              }}
+            >
+              <div
+                className={styles["environment-indicator"]}
+                style={{
+                  backgroundColor:
+                    environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+                }}
+              />
+            </Tooltip>
+          </div>
         </div>
       </div>
     </div>
@@ -1063,7 +1099,7 @@ const OriginSection = (): JSX.Element => {
           </div>
         </Tooltip>
 
-        <div className={styles["divider"]} />
+        {/* <div className={styles["divider"]} /> */}
 
         {/* <Tooltip
           content={`Royalty Multiplier: ${royaltyMultiplier}x`}
@@ -1077,7 +1113,7 @@ const OriginSection = (): JSX.Element => {
         </Tooltip> */}
 
         {/* <div className={styles["divider"]} /> */}
-
+        {/* 
         <Tooltip
           content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
           position="top"
@@ -1087,7 +1123,7 @@ const OriginSection = (): JSX.Element => {
             <span>{formatCampAmount(royaltyCredits)}</span>
             <span className={styles["origin-label"]}>Credits</span>
           </div>
-        </Tooltip>
+        </Tooltip> */}
       </div>
       <div className={styles["origin-section"]}>
         <Tooltip
@@ -1148,7 +1184,7 @@ export const MyCampModal = ({
 }: {
   wcProvider: any;
 }): JSX.Element => {
-  const { auth } = useContext(CampContext);
+  const { auth, environment } = useContext(CampContext);
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
   const { socials, isLoading, refetch } = useSocials();
@@ -1157,6 +1193,7 @@ export const MyCampModal = ({
   const [activeTab, setActiveTab] = useState<
     "origin" | "socials" | "images" | "audio" | "videos" | "text"
   >("socials");
+  const { addToast: toast } = useToast();
 
   const { provider } = useProvider();
 
@@ -1230,8 +1267,21 @@ export const MyCampModal = ({
         </div>
         <div className={styles.header}>
           <span>My Origin</span>
-          <span className={styles["wallet-address"]}>
+          <span
+            className={styles["wallet-address"]}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(
+                  auth.walletAddress as string
+                );
+                toast("Address copied to clipboard", "success", 3000);
+              } catch (error) {
+                toast("Failed to copy address", "error", 3000);
+              }
+            }}
+          >
             {formatAddress(auth.walletAddress as string, 6)}
+            <CopyIcon w={16} h={16} />
           </span>
         </div>
         <div className={styles["vertical-tabs-container"]}>
@@ -1301,15 +1351,30 @@ export const MyCampModal = ({
         >
           Disconnect
         </button>
-        <a
-          href="https://campnetwork.xyz"
-          className={styles["footer-text"]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ marginTop: 0 }}
-        >
-          Powered by Camp Network
-        </a>
+        <div className={styles["footer-container"]}>
+          <a
+            href="https://campnetwork.xyz"
+            className={styles["footer-text"]}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginTop: 0 }}
+          >
+            Powered by Camp Network
+          </a>
+          <Tooltip
+            content={`${environment.NAME}`}
+            position="top"
+            containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
+          >
+            <div
+              className={styles["environment-indicator"]}
+              style={{
+                backgroundColor:
+                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+              }}
+            />
+          </Tooltip>
+        </div>
       </div>
     </div>
   );
