@@ -283,7 +283,12 @@ const AuthModal = ({
             Powered by Camp Network
           </a>
           <Tooltip
-            content={`${environment.NAME}`}
+            content={
+              <span>
+                Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
+                environment
+              </span>
+            }
             position="top"
             containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
           >
@@ -291,7 +296,9 @@ const AuthModal = ({
               className={styles["environment-indicator"]}
               style={{
                 backgroundColor:
-                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "transparent",
+                borderColor:
+                  environment.NAME === "PRODUCTION" ? "transparent" : "#ff8c00",
               }}
             />
           </Tooltip>
@@ -927,7 +934,12 @@ const LinkingModal = () => {
               Powered by Camp Network
             </a>
             <Tooltip
-              content={`${environment.NAME}`}
+              content={
+                <span>
+                  Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
+                  environment
+                </span>
+              }
               position="top"
               containerStyle={{
                 position: "absolute",
@@ -939,7 +951,13 @@ const LinkingModal = () => {
                 className={styles["environment-indicator"]}
                 style={{
                   backgroundColor:
-                    environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+                    environment.NAME === "PRODUCTION"
+                      ? "#ff8c00"
+                      : "transparent",
+                  borderColor:
+                    environment.NAME === "PRODUCTION"
+                      ? "transparent"
+                      : "#ff8c00",
                 }}
               />
             </Tooltip>
@@ -1362,7 +1380,12 @@ export const MyCampModal = ({
             Powered by Camp Network
           </a>
           <Tooltip
-            content={`${environment.NAME}`}
+            content={
+              <span>
+                Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
+                environment
+              </span>
+            }
             position="top"
             containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
           >
@@ -1370,7 +1393,9 @@ export const MyCampModal = ({
               className={styles["environment-indicator"]}
               style={{
                 backgroundColor:
-                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "#22c55e",
+                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "transparent",
+                borderColor:
+                  environment.NAME === "PRODUCTION" ? "transparent" : "#ff8c00",
               }}
             />
           </Tooltip>
