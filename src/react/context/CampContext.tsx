@@ -1,11 +1,10 @@
-import React, { useState, useContext, createContext, useEffect } from "react";
+import React, { useState, useContext, createContext } from "react";
 import { Auth } from "../../core/auth";
 import { ModalProvider } from "./ModalContext";
 import { WagmiContext } from "wagmi";
-// import { Ackee } from "../../index";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../toasts";
-import constants from "../../constants";
+import { Environment, ENVIRONMENTS } from "../../constants";
 import { OriginProvider } from "./OriginContext";
 
 /**
@@ -23,6 +22,7 @@ interface CampContextType {
   wagmiAvailable: boolean;
   ackee: any;
   setAckee: any;
+  environment: Environment;
 }
 
 const CampContext = createContext<CampContextType>({
@@ -32,6 +32,7 @@ const CampContext = createContext<CampContextType>({
   wagmiAvailable: false,
   ackee: null,
   setAckee: () => {},
+  environment: ENVIRONMENTS.DEVELOPMENT,
 });
 
 /**
@@ -47,41 +48,32 @@ const CampProvider = ({
   clientId,
   redirectUri,
   children,
-  allowAnalytics = true,
+  environment = "DEVELOPMENT",
 }: {
   clientId: string;
   redirectUri?: string;
   children: React.ReactNode;
   allowAnalytics?: boolean;
+  environment?: "DEVELOPMENT" | "PRODUCTION";
 }) => {
   const isServer = typeof window === "undefined";
 
-  // const ackeeInstance =
-  //   allowAnalytics && !isServer
-  //     ? Ackee.create(constants.ACKEE_INSTANCE, {
-  //         detailed: false,
-  //         ignoreLocalhost: true,
-  //         ignoreOwnVisits: false,
-  //       })
-  //     : null;
-  // const [ackee, setAckee] = useState(ackeeInstance);
-
   const [auth, setAuth] = useState(
-    !isServer ? new Auth({
-      clientId,
-      redirectUri: redirectUri
-        ? redirectUri
-        : !isServer
-        ? window.location.href
-        : "",
-      // ackeeInstance,
-    }) : null
+    !isServer
+      ? new Auth({
+          clientId,
+          redirectUri: redirectUri
+            ? redirectUri
+            : !isServer
+            ? window.location.href
+            : "",
+          environment: environment,
+        })
+      : null
   );
 
-  // const wagmiContext = useContext(WagmiContext);
-
-  const wagmiContext = typeof window !== "undefined" ? useContext(WagmiContext) : undefined;
-
+  const wagmiContext =
+    typeof window !== "undefined" ? useContext(WagmiContext) : undefined;
 
   return (
     <CampContext.Provider
@@ -91,7 +83,8 @@ const CampProvider = ({
         setAuth,
         wagmiAvailable: wagmiContext !== undefined,
         ackee: null,
-        setAckee : () => {},
+        setAckee: () => {},
+        environment: ENVIRONMENTS[environment],
       }}
     >
       <SocialsProvider>

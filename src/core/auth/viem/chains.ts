@@ -21,3 +21,24 @@ export const testnet = {
     },
   },
 };
+
+export const mainnet = {
+  id: 484,
+  name: "Camp Network",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Camp",
+    symbol: "CAMP",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.camp.raas.gelato.cloud/"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://camp.cloud.blockscout.com/",
+    },
+  },
+};

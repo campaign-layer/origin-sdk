@@ -2,6 +2,15 @@ import React, { JSX } from 'react';
 import { Address, Hex, Abi } from 'viem';
 import { UseQueryResult } from '@tanstack/react-query';
 
+interface Environment {
+    NAME: string;
+    AUTH_HUB_BASE_API: string;
+    ORIGIN_DASHBOARD: string;
+    DATANFT_CONTRACT_ADDRESS: string;
+    MARKETPLACE_CONTRACT_ADDRESS: string;
+    CHAIN: any;
+}
+
 /**
  * Represents the terms of a license for a digital asset.
  * @property price - The price of the asset in wei.
@@ -134,8 +143,9 @@ declare class Origin {
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
     private jwt;
+    environment: any;
     private viemClient?;
-    constructor(jwt: string, viemClient?: any);
+    constructor(jwt: string, environment: any, viemClient?: any);
     getJwt(): string;
     setViemClient(client: any): void;
     uploadFile: (file: File, options?: {
@@ -206,6 +216,7 @@ declare class Auth {
     userId: string | null;
     viem: any;
     origin: Origin | null;
+    environment: Environment;
     /**
      * Constructor for the Auth class.
      * @param {object} options The options object.
@@ -213,13 +224,15 @@ declare class Auth {
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
      * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
      * @param {object} [options.ackeeInstance] The Ackee instance.
+     * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, allowAnalytics, ackeeInstance, }: {
+    constructor({ clientId, redirectUri, allowAnalytics, ackeeInstance, environment, }: {
         clientId: string;
         redirectUri: string | Record<string, string>;
         allowAnalytics?: boolean;
         ackeeInstance?: any;
+        environment?: "DEVELOPMENT" | "PRODUCTION";
     });
     /**
      * Subscribe to an event. Possible events are "state", "provider", "providers", and "viem".
@@ -374,6 +387,7 @@ interface CampContextType {
     wagmiAvailable: boolean;
     ackee: any;
     setAckee: any;
+    environment: Environment;
 }
 declare const CampContext: React.Context<CampContextType>;
 /**
@@ -385,11 +399,12 @@ declare const CampContext: React.Context<CampContextType>;
  * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
  * @returns {JSX.Element} The CampProvider component
  */
-declare const CampProvider: ({ clientId, redirectUri, children, allowAnalytics, }: {
+declare const CampProvider: ({ clientId, redirectUri, children, environment, }: {
     clientId: string;
     redirectUri?: string;
     children: React.ReactNode;
     allowAnalytics?: boolean;
+    environment?: "DEVELOPMENT" | "PRODUCTION";
 }) => React.JSX.Element;
 
 interface ModalContextProps {

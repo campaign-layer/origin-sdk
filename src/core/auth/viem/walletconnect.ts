@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { testnet } from "./chains";
 
-const getWalletConnectProvider = async (projectId: string): Promise<any> => {
+const getWalletConnectProvider = async (
+  projectId: string,
+  chain: any
+): Promise<any> => {
   const { EthereumProvider } = await import("@walletconnect/ethereum-provider");
   const provider = await EthereumProvider.init({
-    optionalChains: [testnet.id],
-    chains: [testnet.id],
+    optionalChains: [chain.id],
+    chains: [chain.id],
     projectId,
     showQrModal: true,
     methods: ["personal_sign"],
@@ -13,7 +15,10 @@ const getWalletConnectProvider = async (projectId: string): Promise<any> => {
   return provider;
 };
 
-export const useWalletConnectProvider = (projectId: string): any | null => {
+export const useWalletConnectProvider = (
+  projectId: string,
+  chain: any
+): any | null => {
   const [walletConnectProvider, setWalletConnectProvider] = useState<
     any | null
   >(null);
@@ -21,7 +26,7 @@ export const useWalletConnectProvider = (projectId: string): any | null => {
   useEffect(() => {
     const fetchWalletConnectProvider = async () => {
       try {
-        const provider = await getWalletConnectProvider(projectId);
+        const provider = await getWalletConnectProvider(projectId, chain);
         setWalletConnectProvider(provider);
       } catch (error) {
         console.error("Error getting WalletConnect provider:", error);

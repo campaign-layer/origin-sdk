@@ -304,7 +304,7 @@ export const CampModal = ({
   defaultProvider,
 }: CampModalProps) => {
   // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const { auth } = useContext(CampContext);
+  const { auth, environment } = useContext(CampContext);
   const { authenticated, loading } = useAuthState();
   const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } =
     useContext(ModalContext);
@@ -318,7 +318,7 @@ export const CampModal = ({
   }
 
   const walletConnectProvider = wcProjectId
-    ? useWalletConnectProvider(wcProjectId)
+    ? useWalletConnectProvider(wcProjectId, environment.CHAIN)
     : null;
 
   const handleModalButton = () => {

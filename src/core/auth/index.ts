@@ -1,7 +1,7 @@
 import { APIError } from "../../errors";
 import { getClient, getPublicClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
-import constants from "../../constants";
+import constants, { Environment, ENVIRONMENTS } from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
 // import { Ackee } from "../../index";
 // import { sendAnalyticsEvent } from "../../utils";
@@ -54,6 +54,7 @@ class Auth {
   userId: string | null;
   viem: any;
   origin: Origin | null;
+  environment: Environment;
   #triggers: Record<string, Function[]>;
   #ackeeInstance: any;
 
@@ -64,6 +65,7 @@ class Auth {
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
    * @param {object} [options.ackeeInstance] The Ackee instance.
+   * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   constructor({
@@ -71,17 +73,20 @@ class Auth {
     redirectUri,
     allowAnalytics = true,
     ackeeInstance,
+    environment = "DEVELOPMENT",
   }: {
     clientId: string;
     redirectUri: string | Record<string, string>;
     allowAnalytics?: boolean;
     ackeeInstance?: any;
+    environment?: "DEVELOPMENT" | "PRODUCTION";
   }) {
     if (!clientId) {
       throw new Error("clientId is required");
     }
 
     this.viem = null;
+    this.environment = ENVIRONMENTS[environment];
 
     // if (typeof window !== "undefined") {
     //   if (window.ethereum) this.viem = getClient(window.ethereum);
@@ -184,7 +189,7 @@ class Auth {
     if (!provider) {
       throw new APIError("provider is required");
     }
-    this.viem = getClient(provider, info.name, address);
+    this.viem = getClient(provider, info.name, this.environment.CHAIN, address);
     if (this.origin) {
       this.origin.setViemClient(this.viem);
     }
@@ -332,12 +337,18 @@ class Auth {
     const walletAddress = localStorage?.getItem("camp-sdk:wallet-address");
     const userId = localStorage?.getItem("camp-sdk:user-id");
     const jwt = localStorage?.getItem("camp-sdk:jwt");
+    const lastEnvironment = localStorage?.getItem("camp-sdk:environment");
 
-    if (walletAddress && userId && jwt) {
+    if (
+      walletAddress &&
+      userId &&
+      jwt &&
+      (lastEnvironment === this.environment.NAME || !lastEnvironment)
+    ) {
       this.walletAddress = walletAddress;
       this.userId = userId;
       this.jwt = jwt;
-      this.origin = new Origin(this.jwt);
+      this.origin = new Origin(this.jwt, this.environment);
       this.isAuthenticated = true;
 
       if (provider) {
@@ -498,6 +509,7 @@ class Auth {
     localStorage.removeItem("camp-sdk:wallet-address");
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
+    localStorage.removeItem("camp-sdk:environment");
     // await this.#sendAnalyticsEvent(
     //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
     //   "User Disconnected"
@@ -531,13 +543,14 @@ class Auth {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
-        this.origin = new Origin(this.jwt, this.viem);
+        this.origin = new Origin(this.jwt, this.environment, this.viem);
         localStorage.setItem("camp-sdk:jwt", this.jwt);
         localStorage.setItem(
           "camp-sdk:wallet-address",
           this.walletAddress as string
         );
         localStorage.setItem("camp-sdk:user-id", this.userId);
+        localStorage.setItem("camp-sdk:environment", this.environment.NAME);
         this.#trigger("state", "authenticated");
         await this.#sendAnalyticsEvent(
           constants.ACKEE_EVENTS.USER_CONNECTED,

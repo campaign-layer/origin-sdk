@@ -1,7 +1,6 @@
 import { Abi, Address, Hex } from "viem";
 import abi from "./contracts/DataNFT.json";
 import { Origin } from ".";
-import constants from "../../constants";
 import { IpNFTSource, LicenseTerms } from "./utils";
 
 /**
@@ -28,7 +27,7 @@ export async function mintWithSignature(
   signature: Hex
 ): Promise<any> {
   return await this.callContractMethod(
-    constants.DATANFT_CONTRACT_ADDRESS as Address,
+    this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "mintWithSignature",
     [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
@@ -69,7 +68,7 @@ export async function registerIpNFT(
   }
 
   const res = await fetch(
-    `${constants.AUTH_HUB_BASE_API}/auth/origin/register`,
+    `${this.environment.AUTH_HUB_BASE_API}/auth/origin/register`,
     {
       method: "POST",
       headers: {

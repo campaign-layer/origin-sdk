@@ -1,5 +1,4 @@
 import { Origin } from ".";
-import constants from "../../constants";
 import abi from "./contracts/Marketplace.json";
 import { Abi, Address } from "viem";
 export function renewAccess(
@@ -10,7 +9,7 @@ export function renewAccess(
   value?: bigint
 ) {
   return this.callContractMethod(
-    constants.MARKETPLACE_CONTRACT_ADDRESS as Address,
+    this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
     abi as Abi,
     "renewAccess",
     [tokenId, buyer, periods],

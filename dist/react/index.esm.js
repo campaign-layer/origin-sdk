@@ -104,11 +104,31 @@ const testnet = {
         },
     },
 };
+const mainnet = {
+    id: 484,
+    name: "Camp Network",
+    nativeCurrency: {
+        decimals: 18,
+        name: "Camp",
+        symbol: "CAMP",
+    },
+    rpcUrls: {
+        default: {
+            http: ["https://rpc.camp.raas.gelato.cloud/"],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: "Explorer",
+            url: "https://camp.cloud.blockscout.com/",
+        },
+    },
+};
 
 // @ts-ignore
 let client = null;
 let publicClient = null;
-const getClient = (provider, name = "window.ethereum", address) => {
+const getClient = (provider, name = "window.ethereum", chain = "testnet", address) => {
     var _a;
     if (!provider && !client) {
         console.warn("Provider is required to create a client.");
@@ -118,7 +138,7 @@ const getClient = (provider, name = "window.ethereum", address) => {
         (client.transport.name !== name && provider) ||
         (address !== ((_a = client.account) === null || _a === void 0 ? void 0 : _a.address) && provider)) {
         const obj = {
-            chain: testnet,
+            chain: chain === "mainnet" ? mainnet : testnet,
             transport: custom(provider, {
                 name: name,
             }),
@@ -168,6 +188,24 @@ var constants = {
     MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
     MAX_LICENSE_DURATION: 2628000, // 30 days in seconds
     MIN_LICENSE_DURATION: 3600, // 1 hour in seconds
+};
+const ENVIRONMENTS = {
+    DEVELOPMENT: {
+        NAME: "DEVELOPMENT",
+        AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+        ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
+        DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
+        MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
+        CHAIN: testnet,
+    },
+    PRODUCTION: {
+        NAME: "PRODUCTION",
+        AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev", // to be updated
+        ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
+        DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E", // to be updated
+        MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5", // to be updated
+        CHAIN: mainnet,
+    },
 };
 
 let providers = [];
@@ -1498,7 +1536,7 @@ var abi$1 = [
  */
 function mintWithSignature(to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature], { waitForReceipt: true });
+        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "mintWithSignature", [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature], { waitForReceipt: true });
     });
 }
 /**
@@ -1525,7 +1563,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
         }
-        const res = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/register`, {
+        const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/register`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${this.getJwt()}`,
@@ -1545,66 +1583,66 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
 }
 
 function updateTerms(tokenId, royaltyReceiver, newTerms) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, royaltyReceiver, newTerms], { waitForReceipt: true });
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "updateTerms", [tokenId, royaltyReceiver, newTerms], { waitForReceipt: true });
 }
 
 function requestDelete(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "finalizeDelete", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "finalizeDelete", [tokenId]);
 }
 
 function getTerms(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "getTerms", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "getTerms", [tokenId]);
 }
 
 function ownerOf(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "ownerOf", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "ownerOf", [tokenId]);
 }
 
 function balanceOf(owner) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "balanceOf", [owner]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "balanceOf", [owner]);
 }
 
 function contentHash(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "contentHash", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "contentHash", [tokenId]);
 }
 
 function tokenURI(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "tokenURI", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "tokenURI", [tokenId]);
 }
 
 function dataStatus(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "dataStatus", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "dataStatus", [tokenId]);
 }
 
 function royaltyInfo(tokenId, salePrice) {
     return __awaiter(this, void 0, void 0, function* () {
-        return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "royaltyInfo", [tokenId, salePrice]);
+        return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "royaltyInfo", [tokenId, salePrice]);
     });
 }
 
 function getApproved(tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "getApproved", [tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "getApproved", [tokenId]);
 }
 
 function isApprovedForAll(owner, operator) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "isApprovedForAll", [owner, operator]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "isApprovedForAll", [owner, operator]);
 }
 
 function transferFrom(from, to, tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "transferFrom", [from, to, tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "transferFrom", [from, to, tokenId]);
 }
 
 function safeTransferFrom(from, to, tokenId, data) {
     const args = data ? [from, to, tokenId, data] : [from, to, tokenId];
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "safeTransferFrom", args);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "safeTransferFrom", args);
 }
 
 function approve(to, tokenId) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "approve", [to, tokenId]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "approve", [to, tokenId]);
 }
 
 function setApprovalForAll(operator, approved) {
-    return this.callContractMethod(constants.DATANFT_CONTRACT_ADDRESS, abi$1, "setApprovalForAll", [operator, approved]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, abi$1, "setApprovalForAll", [operator, approved]);
 }
 
 var abi = [
@@ -2179,19 +2217,19 @@ var abi = [
 
 function buyAccess(buyer, tokenId, periods, value // only for native token payments
 ) {
-    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "buyAccess", [buyer, tokenId, periods], { waitForReceipt: true, value });
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, abi, "buyAccess", [buyer, tokenId, periods], { waitForReceipt: true, value });
 }
 
 function renewAccess(tokenId, buyer, periods, value) {
-    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "renewAccess", [tokenId, buyer, periods], value !== undefined ? { value } : undefined);
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, abi, "renewAccess", [tokenId, buyer, periods], value !== undefined ? { value } : undefined);
 }
 
 function hasAccess(user, tokenId) {
-    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "hasAccess", [user, tokenId]);
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, abi, "hasAccess", [user, tokenId]);
 }
 
 function subscriptionExpiry(tokenId, user) {
-    return this.callContractMethod(constants.MARKETPLACE_CONTRACT_ADDRESS, abi, "subscriptionExpiry", [tokenId, user]);
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, abi, "subscriptionExpiry", [tokenId, user]);
 }
 
 /**
@@ -2226,11 +2264,11 @@ var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_wai
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 class Origin {
-    constructor(jwt, viemClient) {
+    constructor(jwt, environment, viemClient) {
         _Origin_instances.add(this);
         _Origin_generateURL.set(this, (file) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const uploadRes = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`, {
+                const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/upload-url`, {
                     method: "POST",
                     body: JSON.stringify({
                         name: file.name,
@@ -2257,7 +2295,7 @@ class Origin {
         }));
         _Origin_setOriginStatus.set(this, (key, status) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const res = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/update-status`, {
+                const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/update-status`, {
                     method: "PATCH",
                     body: JSON.stringify({
                         status,
@@ -2366,7 +2404,7 @@ class Origin {
             return tokenId.toString();
         });
         this.getOriginUploads = () => __awaiter(this, void 0, void 0, function* () {
-            const res = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/files`, {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/files`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2381,6 +2419,7 @@ class Origin {
         });
         this.jwt = jwt;
         this.viemClient = viemClient;
+        this.environment = environment;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
         this.registerIpNFT = registerIpNFT.bind(this);
@@ -2417,7 +2456,7 @@ class Origin {
      */
     getOriginUsage() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/usage`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/usage`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2444,7 +2483,7 @@ class Origin {
             if (consent === undefined) {
                 throw new APIError("Consent is required");
             }
-            const data = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/status`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/status`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2474,7 +2513,7 @@ class Origin {
             if (multiplier === undefined) {
                 throw new APIError("Multiplier is required");
             }
-            const data = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/multiplier`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/multiplier`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2533,7 +2572,7 @@ class Origin {
                     functionName: methodName,
                     args: params,
                 });
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, testnet);
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
                 try {
                     const txHash = yield this.viemClient.sendTransaction({
                         to: contractAddress,
@@ -2590,7 +2629,7 @@ class Origin {
                 publicClient: getPublicClient(),
                 tokenAddress: paymentToken,
                 owner: account,
-                spender: constants.MARKETPLACE_CONTRACT_ADDRESS,
+                spender: this.environment.MARKETPLACE_CONTRACT_ADDRESS,
                 amount: totalCost,
             });
             return this.buyAccess(account, tokenId, periods);
@@ -2598,7 +2637,7 @@ class Origin {
     }
     getData(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${constants.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`, {
+            const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2711,9 +2750,10 @@ class Auth {
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
      * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
      * @param {object} [options.ackeeInstance] The Ackee instance.
+     * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, allowAnalytics = true, ackeeInstance, }) {
+    constructor({ clientId, redirectUri, allowAnalytics = true, ackeeInstance, environment = "DEVELOPMENT", }) {
         _Auth_instances.add(this);
         _Auth_triggers.set(this, void 0);
         _Auth_ackeeInstance.set(this, void 0);
@@ -2721,6 +2761,7 @@ class Auth {
             throw new Error("clientId is required");
         }
         this.viem = null;
+        this.environment = ENVIRONMENTS[environment];
         // if (typeof window !== "undefined") {
         //   if (window.ethereum) this.viem = getClient(window.ethereum);
         // }
@@ -2783,7 +2824,7 @@ class Auth {
         if (!provider) {
             throw new APIError("provider is required");
         }
-        this.viem = getClient(provider, info.name, address);
+        this.viem = getClient(provider, info.name, this.environment.CHAIN, address);
         if (this.origin) {
             this.origin.setViemClient(this.viem);
         }
@@ -2910,6 +2951,7 @@ class Auth {
             localStorage.removeItem("camp-sdk:wallet-address");
             localStorage.removeItem("camp-sdk:user-id");
             localStorage.removeItem("camp-sdk:jwt");
+            localStorage.removeItem("camp-sdk:environment");
             // await this.#sendAnalyticsEvent(
             //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
             //   "User Disconnected"
@@ -2940,10 +2982,11 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt, this.viem);
+                    this.origin = new Origin(this.jwt, this.environment, this.viem);
                     localStorage.setItem("camp-sdk:jwt", this.jwt);
                     localStorage.setItem("camp-sdk:wallet-address", this.walletAddress);
                     localStorage.setItem("camp-sdk:user-id", this.userId);
+                    localStorage.setItem("camp-sdk:environment", this.environment.NAME);
                     __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "authenticated");
                     yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.USER_CONNECTED, "User Connected");
                     return {
@@ -3328,11 +3371,15 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
         const walletAddress = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("camp-sdk:wallet-address");
         const userId = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("camp-sdk:user-id");
         const jwt = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("camp-sdk:jwt");
-        if (walletAddress && userId && jwt) {
+        const lastEnvironment = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("camp-sdk:environment");
+        if (walletAddress &&
+            userId &&
+            jwt &&
+            (lastEnvironment === this.environment.NAME || !lastEnvironment)) {
             this.walletAddress = walletAddress;
             this.userId = userId;
             this.jwt = jwt;
-            this.origin = new Origin(this.jwt);
+            this.origin = new Origin(this.jwt, this.environment);
             this.isAuthenticated = true;
             if (provider) {
                 this.setProvider({
@@ -3808,6 +3855,7 @@ const CampContext = createContext({
     wagmiAvailable: false,
     ackee: null,
     setAckee: () => { },
+    environment: ENVIRONMENTS.DEVELOPMENT,
 });
 /**
  * CampProvider
@@ -3818,27 +3866,19 @@ const CampContext = createContext({
  * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
  * @returns {JSX.Element} The CampProvider component
  */
-const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, }) => {
+const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPMENT", }) => {
     const isServer = typeof window === "undefined";
-    // const ackeeInstance =
-    //   allowAnalytics && !isServer
-    //     ? Ackee.create(constants.ACKEE_INSTANCE, {
-    //         detailed: false,
-    //         ignoreLocalhost: true,
-    //         ignoreOwnVisits: false,
-    //       })
-    //     : null;
-    // const [ackee, setAckee] = useState(ackeeInstance);
-    const [auth, setAuth] = useState(!isServer ? new Auth({
-        clientId,
-        redirectUri: redirectUri
-            ? redirectUri
-            : !isServer
-                ? window.location.href
-                : "",
-        // ackeeInstance,
-    }) : null);
-    // const wagmiContext = useContext(WagmiContext);
+    const [auth, setAuth] = useState(!isServer
+        ? new Auth({
+            clientId,
+            redirectUri: redirectUri
+                ? redirectUri
+                : !isServer
+                    ? window.location.href
+                    : "",
+            environment: environment,
+        })
+        : null);
     const wagmiContext = typeof window !== "undefined" ? useContext(WagmiContext) : undefined;
     return (React.createElement(CampContext.Provider, { value: {
             clientId,
@@ -3847,6 +3887,7 @@ const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, 
             wagmiAvailable: wagmiContext !== undefined,
             ackee: null,
             setAckee: () => { },
+            environment: ENVIRONMENTS[environment],
         } },
         React.createElement(SocialsProvider, null,
             React.createElement(OriginProvider, null,
@@ -3854,23 +3895,23 @@ const CampProvider = ({ clientId, redirectUri, children, allowAnalytics = true, 
                     React.createElement(ModalProvider, null, children))))));
 };
 
-const getWalletConnectProvider = (projectId) => __awaiter(void 0, void 0, void 0, function* () {
+const getWalletConnectProvider = (projectId, chain) => __awaiter(void 0, void 0, void 0, function* () {
     const { EthereumProvider } = yield import('@walletconnect/ethereum-provider');
     const provider = yield EthereumProvider.init({
-        optionalChains: [testnet.id],
-        chains: [testnet.id],
+        optionalChains: [chain.id],
+        chains: [chain.id],
         projectId,
         showQrModal: true,
         methods: ["personal_sign"],
     });
     return provider;
 });
-const useWalletConnectProvider = (projectId) => {
+const useWalletConnectProvider = (projectId, chain) => {
     const [walletConnectProvider, setWalletConnectProvider] = useState(null);
     useEffect(() => {
         const fetchWalletConnectProvider = () => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const provider = yield getWalletConnectProvider(projectId);
+                const provider = yield getWalletConnectProvider(projectId, chain);
                 setWalletConnectProvider(provider);
             }
             catch (error) {
@@ -4425,7 +4466,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
  */
 const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaultProvider, }) => {
     // const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-    const { auth } = useContext(CampContext);
+    const { auth, environment } = useContext(CampContext);
     const { authenticated, loading } = useAuthState();
     const { isVisible, setIsVisible, isButtonDisabled, setIsButtonDisabled } = useContext(ModalContext);
     const { isLinkingVisible } = useContext(ModalContext);
@@ -4437,7 +4478,7 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
         customAccount = useAccount();
     }
     const walletConnectProvider = wcProjectId
-        ? useWalletConnectProvider(wcProjectId)
+        ? useWalletConnectProvider(wcProjectId, environment.CHAIN)
         : null;
     const handleModalButton = () => {
         setIsVisible(true);

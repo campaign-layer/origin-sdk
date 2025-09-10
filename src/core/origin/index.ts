@@ -1,9 +1,7 @@
 import { Abi, encodeFunctionData, getAbiItem, zeroAddress } from "viem";
-import constants from "../../constants";
 import { APIError } from "../../errors";
 import { uploadWithProgress } from "../../utils";
 import { getPublicClient } from "../auth/viem/client";
-import { testnet } from "../auth/viem/chains";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
 import { requestDelete } from "./requestDelete";
@@ -73,10 +71,12 @@ export class Origin {
   subscriptionExpiry!: typeof subscriptionExpiry;
 
   private jwt: string;
+  environment: any;
   private viemClient?: any;
-  constructor(jwt: string, viemClient?: any) {
+  constructor(jwt: string, environment: any, viemClient?: any) {
     this.jwt = jwt;
     this.viemClient = viemClient;
+    this.environment = environment;
     // DataNFT methods
     this.mintWithSignature = mintWithSignature.bind(this);
     this.registerIpNFT = registerIpNFT.bind(this);
@@ -113,7 +113,7 @@ export class Origin {
   #generateURL = async (file: File) => {
     try {
       const uploadRes = await fetch(
-        `${constants.AUTH_HUB_BASE_API}/auth/origin/upload-url`,
+        `${this.environment.AUTH_HUB_BASE_API}/auth/origin/upload-url`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -147,7 +147,7 @@ export class Origin {
   #setOriginStatus = async (key: string, status: string) => {
     try {
       const res = await fetch(
-        `${constants.AUTH_HUB_BASE_API}/auth/origin/update-status`,
+        `${this.environment.AUTH_HUB_BASE_API}/auth/origin/update-status`,
         {
           method: "PATCH",
           body: JSON.stringify({
@@ -343,7 +343,7 @@ export class Origin {
 
   getOriginUploads = async () => {
     const res = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/files`,
+      `${this.environment.AUTH_HUB_BASE_API}/auth/origin/files`,
       {
         method: "GET",
         headers: {
@@ -366,7 +366,7 @@ export class Origin {
 
   async getOriginUsage(): Promise<OriginUsageReturnType> {
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/usage`,
+      `${this.environment.AUTH_HUB_BASE_API}/auth/origin/usage`,
       {
         method: "GET",
         headers: {
@@ -396,7 +396,7 @@ export class Origin {
       throw new APIError("Consent is required");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/status`,
+      `${this.environment.AUTH_HUB_BASE_API}/auth/origin/status`,
       {
         method: "PATCH",
         headers: {
@@ -429,7 +429,7 @@ export class Origin {
       throw new APIError("Multiplier is required");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/multiplier`,
+      `${this.environment.AUTH_HUB_BASE_API}/auth/origin/multiplier`,
       {
         method: "PATCH",
         headers: {
@@ -577,7 +577,7 @@ export class Origin {
         args: params,
       });
 
-      await this.#ensureChainId(testnet);
+      await this.#ensureChainId(this.environment.CHAIN);
       try {
         const txHash = await this.viemClient.sendTransaction({
           to: contractAddress as `0x${string}`,
@@ -640,7 +640,7 @@ export class Origin {
       publicClient: getPublicClient(),
       tokenAddress: paymentToken,
       owner: account,
-      spender: constants.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
+      spender: this.environment.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
       amount: totalCost,
     });
 
@@ -649,7 +649,7 @@ export class Origin {
 
   async getData(tokenId: bigint): Promise<any> {
     const response = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`,
+      `${this.environment.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`,
       {
         method: "GET",
         headers: {
