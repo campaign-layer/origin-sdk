@@ -9,7 +9,7 @@ export async function royaltyInfo(
 ): Promise<[Address, bigint]> {
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "royaltyInfo",
     [tokenId, salePrice]
   );

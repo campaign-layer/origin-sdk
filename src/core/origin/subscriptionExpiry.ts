@@ -9,7 +9,7 @@ export function subscriptionExpiry(
 ): Promise<bigint> {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.MARKETPLACE_ABI as Abi,
     "subscriptionExpiry",
     [tokenId, user]
   );

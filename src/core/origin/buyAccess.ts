@@ -10,7 +10,7 @@ export function buyAccess(
 ) {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.MARKETPLACE_ABI as Abi,
     "buyAccess",
     [buyer, tokenId, periods],
     { waitForReceipt: true, value }

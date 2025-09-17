@@ -12,7 +12,7 @@ export function safeTransferFrom(
   const args = data ? [from, to, tokenId, data] : [from, to, tokenId];
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "safeTransferFrom",
     args
   );

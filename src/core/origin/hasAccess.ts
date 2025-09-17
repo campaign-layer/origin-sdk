@@ -8,7 +8,7 @@ export function hasAccess(
 ): Promise<boolean> {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.MARKETPLACE_ABI as Abi,
     "hasAccess",
     [user, tokenId]
   );

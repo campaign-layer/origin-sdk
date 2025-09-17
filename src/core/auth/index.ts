@@ -190,6 +190,7 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name, this.environment.CHAIN, address);
+    console.log("setProvider", this.viem);
     if (this.origin) {
       this.origin.setViemClient(this.viem);
     }
@@ -395,7 +396,7 @@ class Auth {
   async #fetchNonce(): Promise<string> {
     try {
       const res = await fetch(
-        `${constants.AUTH_HUB_BASE_API}/auth/client-user/nonce`,
+        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/nonce`,
         {
           method: "POST",
           headers: {
@@ -429,7 +430,7 @@ class Auth {
   ): Promise<{ success: boolean; userId: string; token: string }> {
     try {
       const res = await fetch(
-        `${constants.AUTH_HUB_BASE_API}/auth/client-user/verify`,
+        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/verify`,
         {
           method: "POST",
           headers: {
@@ -586,7 +587,7 @@ class Auth {
     if (!this.isAuthenticated)
       throw new Error("User needs to be authenticated");
     const connections = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/auth/client-user/connections-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/connections-sdk`,
       {
         method: "GET",
         headers: {
@@ -620,7 +621,7 @@ class Auth {
     //   constants.ACKEE_EVENTS.TWITTER_LINKED,
     //   "Twitter Linked"
     // );
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
+    window.location.href = `${this.environment.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
 
   /**
@@ -636,7 +637,7 @@ class Auth {
     //   constants.ACKEE_EVENTS.DISCORD_LINKED,
     //   "Discord Linked"
     // );
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
+    window.location.href = `${this.environment.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
 
   /**
@@ -652,7 +653,7 @@ class Auth {
     //   constants.ACKEE_EVENTS.SPOTIFY_LINKED,
     //   "Spotify Linked"
     // );
-    window.location.href = `${constants.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
+    window.location.href = `${this.environment.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 
   /**
@@ -666,7 +667,7 @@ class Auth {
       throw new Error("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -712,7 +713,7 @@ class Auth {
     if (!phoneNumber) throw new APIError("Phone number is required");
     await this.unlinkTelegram();
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -752,7 +753,7 @@ class Auth {
     if (!phoneNumber || !otp || !phoneCodeHash)
       throw new APIError("Phone number, OTP, and phone code hash are required");
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/telegram/signIn-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/telegram/signIn-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -793,7 +794,7 @@ class Auth {
       throw new Error("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -825,7 +826,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/discord/disconnect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/discord/disconnect-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -857,7 +858,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -889,7 +890,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`,
       {
         method: "POST",
         redirect: "follow",
@@ -922,7 +923,7 @@ class Auth {
       throw new APIError("User needs to be authenticated");
     }
     const data = await fetch(
-      `${constants.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`,
       {
         method: "POST",
         redirect: "follow",

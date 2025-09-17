@@ -8,6 +8,7 @@ import {
   createPublicClient,
   type PublicClient,
   http,
+  Chain,
 } from "viem";
 import { mainnet, testnet } from "./chains";
 import { toAccount } from "viem/accounts";
@@ -17,7 +18,8 @@ let publicClient: PublicClient | null = null;
 const getClient = (
   provider: any,
   name: string = "window.ethereum",
-  chain: "mainnet" | "testnet" = "testnet",
+  // chain: "mainnet" | "testnet" = "testnet",
+  chain?: Chain,
   address?: string
 ): WalletClient | null => {
   if (!provider && !client) {
@@ -30,7 +32,8 @@ const getClient = (
     (address !== client.account?.address && provider)
   ) {
     const obj = {
-      chain: chain === "mainnet" ? mainnet : testnet,
+      // chain: chain === "mainnet" ? mainnet : testnet,
+      chain: chain || testnet,
       transport: custom(provider, {
         name: name,
       }),

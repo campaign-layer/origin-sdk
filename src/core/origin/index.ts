@@ -24,6 +24,7 @@ import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
 import { LicenseTerms } from "./utils";
 import { approveIfNeeded } from "./approveIfNeeded";
+import { Environment } from "../../constants";
 
 interface OriginUsageReturnType {
   user: {
@@ -71,9 +72,10 @@ export class Origin {
   subscriptionExpiry!: typeof subscriptionExpiry;
 
   private jwt: string;
-  environment: any;
+  environment: Environment;
   private viemClient?: any;
-  constructor(jwt: string, environment: any, viemClient?: any) {
+  constructor(jwt: string, environment: Environment, viemClient?: any) {
+    console.log("environment", environment);
     this.jwt = jwt;
     this.viemClient = viemClient;
     this.environment = environment;
@@ -108,6 +110,7 @@ export class Origin {
 
   setViemClient(client: any) {
     this.viemClient = client;
+    console.log("Origin setViemClient", this.viemClient);
   }
 
   #generateURL = async (file: File) => {
@@ -278,6 +281,7 @@ export class Origin {
     );
 
     if (mintResult.status !== "0x1") {
+      console.error("Minting failed:", mintResult);
       throw new Error(`Minting failed with status: ${mintResult.status}`);
     }
 

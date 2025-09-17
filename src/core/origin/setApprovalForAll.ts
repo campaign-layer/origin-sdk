@@ -9,7 +9,7 @@ export function setApprovalForAll(
 ) {
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "setApprovalForAll",
     [operator, approved]
   );

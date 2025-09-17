@@ -1,5 +1,8 @@
 import { mainnet, testnet } from "./core/auth/viem/chains";
 
+import ipnftMainnetAbi from "./core/origin/contracts/mainnet/IPNFT.json";
+import marketplaceMainnetAbi from "./core/origin/contracts/mainnet/Marketplace.json";
+
 export default {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
   AUTH_HUB_BASE_API:
@@ -34,10 +37,13 @@ export default {
 export interface Environment {
   NAME: string;
   AUTH_HUB_BASE_API: string;
+  AUTH_ENDPOINT: string;
   ORIGIN_DASHBOARD: string;
   DATANFT_CONTRACT_ADDRESS: string;
   MARKETPLACE_CONTRACT_ADDRESS: string;
   CHAIN: any;
+  IPNFT_ABI?: any;
+  MARKETPLACE_ABI?: any;
 }
 
 export const ENVIRONMENTS = {
@@ -45,6 +51,7 @@ export const ENVIRONMENTS = {
     NAME: "DEVELOPMENT",
     AUTH_HUB_BASE_API:
       "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+    AUTH_ENDPOINT: "auth",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
     MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
@@ -53,10 +60,13 @@ export const ENVIRONMENTS = {
   PRODUCTION: {
     NAME: "PRODUCTION",
     AUTH_HUB_BASE_API:
-      "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev", // to be updated
+      "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
+    AUTH_ENDPOINT: "auth-mainnet",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
-    DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E", // to be updated
-    MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5", // to be updated
+    DATANFT_CONTRACT_ADDRESS: "0x36207dC084076C2C77f3dA645cC7A85E96cB1237",
+    MARKETPLACE_CONTRACT_ADDRESS: "0xcCc91BD4FfE8FB74D13Abd4b56d5238902776B30",
     CHAIN: mainnet,
+    IPNFT_ABI: ipnftMainnetAbi,
+    MARKETPLACE_ABI: marketplaceMainnetAbi,
   },
 };

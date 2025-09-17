@@ -26,11 +26,13 @@ export async function mintWithSignature(
   deadline: bigint,
   signature: Hex
 ): Promise<any> {
+  console.log("mintWithSignature", this.environment);
   return await this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "mintWithSignature",
-    [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
+    // [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
+    [to, tokenId, hash, uri, licenseTerms, deadline, [parentId], signature],
     { waitForReceipt: true }
   );
 }

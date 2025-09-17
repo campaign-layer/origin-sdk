@@ -9,7 +9,7 @@ export function isApprovedForAll(
 ): Promise<boolean> {
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "isApprovedForAll",
     [owner, operator]
   );

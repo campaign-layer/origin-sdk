@@ -10,7 +10,7 @@ export function renewAccess(
 ) {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.MARKETPLACE_ABI as Abi,
     "renewAccess",
     [tokenId, buyer, periods],
     value !== undefined ? { value } : undefined

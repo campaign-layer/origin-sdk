@@ -199,10 +199,13 @@ declare class SpotifyAPI {
 interface Environment {
     NAME: string;
     AUTH_HUB_BASE_API: string;
+    AUTH_ENDPOINT: string;
     ORIGIN_DASHBOARD: string;
     DATANFT_CONTRACT_ADDRESS: string;
     MARKETPLACE_CONTRACT_ADDRESS: string;
     CHAIN: any;
+    IPNFT_ABI?: any;
+    MARKETPLACE_ABI?: any;
 }
 
 /**
@@ -337,9 +340,9 @@ declare class Origin {
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
     private jwt;
-    environment: any;
+    environment: Environment;
     private viemClient?;
-    constructor(jwt: string, environment: any, viemClient?: any);
+    constructor(jwt: string, environment: Environment, viemClient?: any);
     getJwt(): string;
     setViemClient(client: any): void;
     uploadFile: (file: File, options?: {

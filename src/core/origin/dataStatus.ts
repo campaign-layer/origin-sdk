@@ -6,7 +6,7 @@ import { DataStatus } from "./utils";
 export function dataStatus(this: Origin, tokenId: bigint): Promise<DataStatus> {
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
-    abi as Abi,
+    this.environment.IPNFT_ABI as Abi,
     "dataStatus",
     [tokenId]
   );
