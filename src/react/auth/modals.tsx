@@ -30,6 +30,7 @@ import {
   TabButton,
   GoToOriginDashboard,
   FileUpload,
+  Button,
 } from "./buttons";
 import {
   DiscordIcon,
@@ -43,9 +44,11 @@ import {
   CheckMarkIcon,
   XMarkIcon,
   CopyIcon,
+  CornerSVG,
+  ArrowCorners,
 } from "./icons.js";
 import constants from "../../constants.js";
-import { useToast } from "../toasts.js";
+import { useToast } from "../components/toasts.js";
 import Tooltip from "../components/Tooltip";
 import StorageABI from "../../core/origin/contracts/Storage.json";
 import { Abi } from "viem";
@@ -195,6 +198,7 @@ const AuthModal = ({
   return (
     <div className={styles["outer-container"]}>
       <div className={`${styles.container} ${styles["linking-container"]}`}>
+        <ArrowCorners padding={8} color="#AAA" />
         <div
           className={styles["close-button"]}
           onClick={() => setIsVisible(false)}
@@ -225,7 +229,7 @@ const AuthModal = ({
                       getIconByConnectorName(customAccount.connector.name),
                   },
                 }}
-                label={formatAddress(customAccount.address)}
+                label={formatAddress(customAccount.address, 6)}
                 handleConnect={handleConnect}
                 loading={loading}
               />
@@ -282,26 +286,6 @@ const AuthModal = ({
           >
             Powered by Camp Network
           </a>
-          <Tooltip
-            content={
-              <span>
-                Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
-                environment
-              </span>
-            }
-            position="top"
-            containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
-          >
-            <div
-              className={styles["environment-indicator"]}
-              style={{
-                backgroundColor:
-                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "transparent",
-                borderColor:
-                  environment.NAME === "PRODUCTION" ? "transparent" : "#ff8c00",
-              }}
-            />
-          </Tooltip>
         </div>
       </div>
     </div>
@@ -496,6 +480,7 @@ const TikTokFlow = () => {
   const { auth } = useContext(CampContext);
   const [IsLoading, setIsLoading] = useState(false);
   const [handleInput, setHandleInput] = useState("");
+  const { addToast: toast } = useToast();
 
   if (!auth) {
     throw new Error(
@@ -518,14 +503,20 @@ const TikTokFlow = () => {
       } catch (error) {
         resetState();
         console.error(error);
+        toast("Error unlinking TikTok account", "error", 5000);
         return;
       }
     } else {
       if (!handleInput) return;
       try {
         await auth.linkTikTok(handleInput);
-      } catch (error) {
+      } catch (error: Error | any) {
         resetState();
+        toast(
+          error.message ? error.message : "Error linking TikTok account",
+          "error",
+          5000
+        );
         console.error(error);
         return;
       }
@@ -557,8 +548,8 @@ const TikTokFlow = () => {
           </div>
         )}
       </div>
-      <button
-        className={styles["linking-button"]}
+      <Button
+        // className={styles["linking-button"]}
         onClick={handleLink}
         disabled={IsLoading}
       >
@@ -571,7 +562,7 @@ const TikTokFlow = () => {
         ) : (
           <div className={styles.spinner} />
         )}
-      </button>
+      </Button>
     </div>
   );
 };
@@ -750,8 +741,8 @@ const TelegramFlow = () => {
           </div>
         )}
       </div>
-      <button
-        className={styles["linking-button"]}
+      <Button
+        // className={styles["linking-button"]}
         onClick={handleAction}
         disabled={
           IsLoading ||
@@ -771,7 +762,7 @@ const TelegramFlow = () => {
         ) : (
           <div className={styles.spinner} />
         )}
-      </button>
+      </Button>
     </div>
   );
 };
@@ -832,8 +823,8 @@ const BasicFlow = () => {
           </div>
         )}
       </div>
-      <button
-        className={styles["linking-button"]}
+      <Button
+        // className={styles["linking-button"]}
         onClick={handleLink}
         disabled={isUnlinking}
       >
@@ -846,7 +837,7 @@ const BasicFlow = () => {
         ) : (
           <div className={styles.spinner} />
         )}
-      </button>
+      </Button>
     </div>
   );
 };
@@ -858,7 +849,6 @@ const BasicFlow = () => {
 const LinkingModal = () => {
   const { isLoading: isSocialsLoading } = useSocials();
   const { setIsLinkingVisible, currentlyLinking } = useContext(ModalContext);
-  const { environment } = useContext(CampContext);
 
   const [flow, setFlow] = useState<"basic" | "tiktok" | "telegram">("basic");
 
@@ -888,6 +878,7 @@ const LinkingModal = () => {
     >
       <div className={styles["outer-container"]}>
         <div className={`${styles.container} ${styles["linking-container"]}`}>
+          <ArrowCorners padding={8} color="#AAA" />
           <div
             className={styles["close-button"]}
             onClick={() => setIsLinkingVisible(false)}
@@ -933,34 +924,6 @@ const LinkingModal = () => {
             >
               Powered by Camp Network
             </a>
-            <Tooltip
-              content={
-                <span>
-                  Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
-                  environment
-                </span>
-              }
-              position="top"
-              containerStyle={{
-                position: "absolute",
-                right: 0,
-                top: "0.25rem",
-              }}
-            >
-              <div
-                className={styles["environment-indicator"]}
-                style={{
-                  backgroundColor:
-                    environment.NAME === "PRODUCTION"
-                      ? "#ff8c00"
-                      : "transparent",
-                  borderColor:
-                    environment.NAME === "PRODUCTION"
-                      ? "transparent"
-                      : "#ff8c00",
-                }}
-              />
-            </Tooltip>
           </div>
         </div>
       </div>
@@ -1042,9 +1005,10 @@ const ContractInteraction = () => {
  */
 const OriginSection = (): JSX.Element => {
   const { stats, uploads } = useOrigin();
-  const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
-  const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
-  const [royaltyCredits, setRoyaltyCredits] = useState(0);
+  // const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
+  // const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
+  // const [royaltyCredits, setRoyaltyCredits] = useState(0);
+  const { environment } = useContext(CampContext);
 
   const [uploadedImages, setUploadedImages] = useState(0);
   const [uploadedVideos, setUploadedVideos] = useState(0);
@@ -1053,14 +1017,14 @@ const OriginSection = (): JSX.Element => {
 
   useEffect(() => {
     if (!stats.isLoading && !stats.isError) {
-      setIsOriginAuthorized((stats.data as any)?.data?.user?.active ?? true);
-      setRoyaltyMultiplier((stats.data as any)?.data?.user?.multiplier ?? 1);
-      setRoyaltyCredits((stats.data as any)?.data?.user?.points ?? 0);
+      // setIsOriginAuthorized((stats.data as any)?.data?.user?.active ?? true);
+      // setRoyaltyMultiplier((stats.data as any)?.data?.user?.multiplier ?? 1);
+      // setRoyaltyCredits((stats.data as any)?.data?.user?.points ?? 0);
     }
     if (stats.isError) {
-      setIsOriginAuthorized(true);
-      setRoyaltyMultiplier(1);
-      setRoyaltyCredits(0);
+      // setIsOriginAuthorized(true);
+      // setRoyaltyMultiplier(1);
+      // setRoyaltyCredits(0);
     }
   }, [stats.data, stats.isError, stats.isLoading]);
 
@@ -1094,55 +1058,6 @@ const OriginSection = (): JSX.Element => {
     </div>
   ) : (
     <div className={styles["origin-wrapper"]}>
-      {/* <ContractInteraction /> */}
-      <div className={styles["origin-section"]}>
-        <Tooltip
-          content={
-            isOriginAuthorized ? "Origin Authorized" : "Origin Unauthorized"
-          }
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>
-              {isOriginAuthorized ? (
-                <CheckMarkIcon w="1.2rem" h="1.2rem" />
-              ) : (
-                <XMarkIcon w="1.2rem" h="1.2rem" />
-              )}
-            </span>
-            <span className={styles["origin-label"]}>
-              {isOriginAuthorized ? "Authorized" : "Unauthorized"}
-            </span>
-          </div>
-        </Tooltip>
-
-        {/* <div className={styles["divider"]} /> */}
-
-        {/* <Tooltip
-          content={`Royalty Multiplier: ${royaltyMultiplier}x`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{royaltyMultiplier}x</span>
-            <span className={styles["origin-label"]}>Multiplier</span>
-          </div>
-        </Tooltip> */}
-
-        {/* <div className={styles["divider"]} /> */}
-        {/* 
-        <Tooltip
-          content={`Royalty Credits: ${royaltyCredits.toLocaleString()}`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{formatCampAmount(royaltyCredits)}</span>
-            <span className={styles["origin-label"]}>Credits</span>
-          </div>
-        </Tooltip> */}
-      </div>
       <div className={styles["origin-section"]}>
         <Tooltip
           content={`Images uploaded: ${uploadedImages.toLocaleString()}`}
@@ -1185,6 +1100,26 @@ const OriginSection = (): JSX.Element => {
           <div className={styles["origin-container"]}>
             <span>{formatCampAmount(uploadedText)}</span>
             <span className={styles["origin-label"]}>Text</span>
+          </div>
+        </Tooltip>
+      </div>
+      <div className={styles["origin-section"]}>
+        <Tooltip
+          content={
+            environment.NAME === "PRODUCTION"
+              ? "You are connected to Camp Mainnet"
+              : "You are connected to Camp Testnet"
+          }
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>
+              {environment.NAME === "PRODUCTION"
+                ? "Camp Mainnet"
+                : "Camp Testnet"}
+            </span>
+            <span className={styles["origin-label"]}>Chain</span>
           </div>
         </Tooltip>
       </div>
@@ -1277,6 +1212,7 @@ export const MyCampModal = ({
   return (
     <div className={styles["outer-container"]}>
       <div className={styles.container}>
+        <ArrowCorners padding={8} color="#AAA" />
         <div
           className={styles["close-button"]}
           onClick={() => setIsVisible(false)}
@@ -1284,7 +1220,8 @@ export const MyCampModal = ({
           <CloseIcon />
         </div>
         <div className={styles.header}>
-          <span>My Origin</span>
+          <CampIcon customStyles={{ marginRight: "0.5rem" }} />
+          {/* <span>My Origin</span> */}
           <span
             className={styles["wallet-address"]}
             onClick={async () => {
@@ -1350,6 +1287,7 @@ export const MyCampModal = ({
             {activeTab === "audio" && <AudioTab />}
             {activeTab === "videos" && <VideosTab />}
             {activeTab === "text" && <TextTab />}
+            <ArrowCorners padding={8} color="#DDD" />
           </div>
         </div>
         {!provider.provider && (
@@ -1363,12 +1301,13 @@ export const MyCampModal = ({
             If this doesn't work, please disconnect and connect again.
           </button>
         )}
-        <button
+        {/* <button
           className={styles["disconnect-button"]}
           onClick={handleDisconnect}
         >
           Disconnect
-        </button>
+        </button> */}
+        <Button onClick={handleDisconnect}>Disconnect</Button>
         <div className={styles["footer-container"]}>
           <a
             href="https://campnetwork.xyz"
@@ -1379,26 +1318,6 @@ export const MyCampModal = ({
           >
             Powered by Camp Network
           </a>
-          <Tooltip
-            content={
-              <span>
-                Running on the <u>{environment.NAME.toLowerCase()}</u>{" "}
-                environment
-              </span>
-            }
-            position="top"
-            containerStyle={{ position: "absolute", right: 0, top: "0.25rem" }}
-          >
-            <div
-              className={styles["environment-indicator"]}
-              style={{
-                backgroundColor:
-                  environment.NAME === "PRODUCTION" ? "#ff8c00" : "transparent",
-                borderColor:
-                  environment.NAME === "PRODUCTION" ? "transparent" : "#ff8c00",
-              }}
-            />
-          </Tooltip>
         </div>
       </div>
     </div>

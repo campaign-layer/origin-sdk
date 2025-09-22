@@ -1,19 +1,50 @@
+.button {
+  position: relative;
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 0;
+  padding: 1rem;
+  padding-block: 0;
+  font-size: 1rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
+  height: 2.5rem;
+  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+
+  font-family: "Geist Mono", monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+.button:hover {
+  background-color: #cc4e02;
+  cursor: pointer;
+}
+
+.button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 .connect-button {
   position: relative;
   background-color: #ff6f00;
   color: white;
   border: none;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   padding-inline: 2.5rem;
   padding-left: 5rem;
   height: 2.75rem;
   line-height: 1.333rem;
   font-size: 1rem;
   font-weight: 600;
-  width: 12rem;
-  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-    sans-serif;
+  width: 13rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
   box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
     rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
   transition: background-color 0.15s;
@@ -33,7 +64,7 @@
   display: grid;
   place-items: center;
   transition: background-color 0.15s;
-  border-radius: 0.75rem 0 0 0.75rem;
+  /* border-radius: 0.75rem 0 0 0.75rem; */
 }
 
 .connect-button .button-icon svg {
@@ -61,29 +92,31 @@
 }
 
 .provider-button {
+  position: relative;
   display: flex;
   padding: 0.5rem;
   border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: #fefefe;
+  /* border-radius: 0.5rem; */
+  /* background-color: #fefefe; */
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
   width: 100%;
-  transition: background-color 0.15s;
-  font-family: inherit;
+  transition: border-color 0.15s;
 }
 
 .provider-button:focus {
-  outline: 1px solid #43b7c4;
+  outline: 1px solid #ff6f00;
+  outline-offset: 2px;
 }
 
 .provider-button:hover {
-  border-color: #43b7c4;
+  border-color: #ff6f00;
+  /* background-color: #eee; */
 }
 
 .provider-button:hover:not(:disabled) {
-  background-color: #ddd;
+  /* background-color: #ddd; */
   cursor: pointer;
 }
 
@@ -109,6 +142,8 @@
 .provider-button span.provider-label {
   color: #777;
   font-size: 0.7rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 }
 
 /* "default" variant */
@@ -119,7 +154,7 @@
   width: 7rem;
   height: 2.6rem;
   background-color: #ff6f00;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
     rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
   cursor: pointer;
@@ -257,7 +292,7 @@
   border: none;
   padding: 0rem;
   background-color: #ff6f00;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
     rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
   cursor: pointer;
@@ -379,7 +414,7 @@
 .file-upload-container {
   box-sizing: border-box;
   border: 2px dashed #ccc;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   padding: 1rem;
   text-align: center;
   color: #777;
@@ -437,12 +472,14 @@
 .remove-file-button {
   color: white;
   border: 1px solid #ff6f00;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
   padding: 0.5rem;
   font-size: 0.875rem;
   cursor: pointer;
   transition: background-color 0.2s;
   text-align: center;
+  margin-bottom: 0.75rem;
+  margin-top: 1rem;
   color: #ff6f00;
 }
 
@@ -482,7 +519,7 @@
 .file-preview {
   max-width: 100%;
   max-height: 8rem;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
 }
 
 .file-preview-text {
@@ -579,7 +616,7 @@
   gap: 0;
   font-family: sans-serif;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   overflow: hidden;
 }
 
@@ -620,7 +657,7 @@
   gap: 0;
   font-family: sans-serif;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   overflow: hidden;
   box-sizing: border-box;
 }

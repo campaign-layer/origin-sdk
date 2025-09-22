@@ -75,7 +75,6 @@ export class Origin {
   environment: Environment;
   private viemClient?: any;
   constructor(jwt: string, environment: Environment, viemClient?: any) {
-    console.log("environment", environment);
     this.jwt = jwt;
     this.viemClient = viemClient;
     this.environment = environment;
@@ -110,7 +109,6 @@ export class Origin {
 
   setViemClient(client: any) {
     this.viemClient = client;
-    console.log("Origin setViemClient", this.viemClient);
   }
 
   #generateURL = async (file: File) => {

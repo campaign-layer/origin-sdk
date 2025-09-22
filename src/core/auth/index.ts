@@ -1,10 +1,8 @@
 import { APIError } from "../../errors";
-import { getClient, getPublicClient } from "./viem/client";
+import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants, { Environment, ENVIRONMENTS } from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
-// import { Ackee } from "../../index";
-// import { sendAnalyticsEvent } from "../../utils";
 import { Origin } from "../origin";
 import { checksumAddress } from "viem";
 
@@ -84,27 +82,13 @@ class Auth {
     if (!clientId) {
       throw new Error("clientId is required");
     }
-
+    if (["PRODUCTION", "DEVELOPMENT"].indexOf(environment) === -1) {
+      throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");
+    }
     this.viem = null;
     this.environment = ENVIRONMENTS[environment];
 
-    // if (typeof window !== "undefined") {
-    //   if (window.ethereum) this.viem = getClient(window.ethereum);
-    // }
     this.redirectUri = createRedirectUriObject(redirectUri);
-
-    if (ackeeInstance) this.#ackeeInstance = ackeeInstance;
-    if (
-      allowAnalytics &&
-      !this.#ackeeInstance &&
-      typeof window !== "undefined"
-    ) {
-      // this.#ackeeInstance = Ackee.create(constants.ACKEE_INSTANCE, {
-      //   detailed: false,
-      //   ignoreLocalhost: true,
-      //   ignoreOwnVisits: false,
-      // });
-    }
 
     this.clientId = clientId;
     this.isAuthenticated = false;
@@ -190,7 +174,6 @@ class Auth {
       throw new APIError("provider is required");
     }
     this.viem = getClient(provider, info.name, this.environment.CHAIN, address);
-    console.log("setProvider", this.viem);
     if (this.origin) {
       this.origin.setViemClient(this.viem);
     }
@@ -210,6 +193,10 @@ class Auth {
     this.walletAddress = walletAddress;
   }
 
+  /**
+   * Recover the provider from local storage.
+   * @returns {Promise<void>}
+   */
   async recoverProvider(): Promise<void> {
     if (!this.walletAddress) {
       console.warn(
@@ -617,10 +604,6 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    // await this.#sendAnalyticsEvent(
-    //   constants.ACKEE_EVENTS.TWITTER_LINKED,
-    //   "Twitter Linked"
-    // );
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
 
@@ -633,10 +616,6 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    // await this.#sendAnalyticsEvent(
-    //   constants.ACKEE_EVENTS.DISCORD_LINKED,
-    //   "Discord Linked"
-    // );
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
 
@@ -649,10 +628,6 @@ class Auth {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
     }
-    // await this.#sendAnalyticsEvent(
-    //   constants.ACKEE_EVENTS.SPOTIFY_LINKED,
-    //   "Spotify Linked"
-    // );
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }
 

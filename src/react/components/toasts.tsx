@@ -1,7 +1,7 @@
 import React, { useState, useRef, ReactNode, useLayoutEffect } from "react";
 // import { createPortal } from "react-dom";
-import styles from "./toasts.module.css";
-import { /*createWrapperAndAppendToBody,*/ ClientOnly, ReactPortal } from "./utils";
+import styles from "./styles/toasts.module.css";
+import { /*createWrapperAndAppendToBody,*/ ClientOnly, ReactPortal } from "../utils";
 
 interface Toast {
   id: number;

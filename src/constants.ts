@@ -31,7 +31,8 @@ export default {
   DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
   MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
   MAX_LICENSE_DURATION: 2628000, // 30 days in seconds
-  MIN_LICENSE_DURATION: 3600, // 1 hour in seconds
+  MIN_LICENSE_DURATION: 86400, // 1 day in seconds
+  MIN_PRICE: 1000000000000000, // 0.001 ETH in wei
 };
 
 export interface Environment {
@@ -51,10 +52,10 @@ export const ENVIRONMENTS = {
     NAME: "DEVELOPMENT",
     AUTH_HUB_BASE_API:
       "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-    AUTH_ENDPOINT: "auth",
+    AUTH_ENDPOINT: "auth-testnet",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
-    DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
-    MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
+    DATANFT_CONTRACT_ADDRESS: "0x57346ed72A6e0f9D56b52f050c61803fF7d107E4",
+    MARKETPLACE_CONTRACT_ADDRESS: "0xb9f217362Fbef0f1384E5a25a66EFF933cdf4201",
     CHAIN: testnet,
   },
   PRODUCTION: {
@@ -69,4 +70,4 @@ export const ENVIRONMENTS = {
     IPNFT_ABI: ipnftMainnetAbi,
     MARKETPLACE_ABI: marketplaceMainnetAbi,
   },
-};
+} as { [key: string]: Environment };

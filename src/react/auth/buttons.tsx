@@ -1,8 +1,16 @@
 import { zeroAddress } from "viem";
 import constants from "../../constants";
 import { createLicenseTerms } from "../../core/origin/utils";
-import { useToast } from "../toasts";
-import { BinIcon, CampIcon, getIconBySocial, LinkIcon } from "./icons";
+import { useToast } from "../components/toasts";
+import {
+  BinIcon,
+  CampIcon,
+  CornerSquare,
+  CornerSVG,
+  getIconBySocial,
+  LinkIcon,
+  SquareCorners,
+} from "./icons";
 import {
   ModalContext,
   useAuth,
@@ -38,6 +46,7 @@ export const CampButton = ({
       onClick={onClick}
       disabled={disabled}
     >
+      <SquareCorners />
       <div className={buttonStyles["button-icon"]}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -165,6 +174,7 @@ export const ProviderButton = ({
       onClick={handleClick}
       disabled={loading}
     >
+      <SquareCorners color="#ddd" />
       <img
         src={
           provider.info.icon ||
@@ -272,6 +282,7 @@ export const ConnectorButton = ({
           disabled={isConnected}
         >
           {icon}
+          <SquareCorners color="#ddd" />
           <span>{name}</span>
         </button>
       )}
@@ -344,6 +355,7 @@ export const LinkButton = ({
     >
       {variant === "icon" ? (
         <div className={buttonStyles["icon-container"]}>
+          <SquareCorners color="#ffffffaa" />
           <Icon />
           <div
             className={`${buttonStyles["camp-logo"]} ${
@@ -355,6 +367,7 @@ export const LinkButton = ({
         </div>
       ) : (
         <div className={buttonStyles["button-container"]}>
+          <SquareCorners color="#ffffffaa" />
           <div
             className={`${buttonStyles["camp-logo"]} ${
               !isLinked ? buttonStyles["not-linked"] : ""
@@ -497,6 +510,42 @@ export const FileUpload = ({
   const [royaltyBps, setRoyaltyBps] = useState<number>(0);
   const [licenseDuration, setLicenseDuration] = useState<number>(24);
   const [durationUnit, setDurationUnit] = useState<string>("hours");
+  const [isValidInput, setIsValidInput] = useState<boolean>(false);
+
+  const validateInputs = () => {
+    let durationInSeconds = licenseDuration;
+    switch (durationUnit) {
+      case "hours":
+        durationInSeconds = licenseDuration * 3600; // 60 * 60
+        break;
+      case "days":
+        durationInSeconds = licenseDuration * 86400; // 60 * 60 * 24
+        break;
+      case "weeks":
+        durationInSeconds = licenseDuration * 604800; // 60 * 60 * 24 * 7
+        break;
+    }
+
+    const isDurationValid =
+      durationInSeconds >= constants.MIN_LICENSE_DURATION &&
+      durationInSeconds <= constants.MAX_LICENSE_DURATION;
+
+    let isPriceValid = true;
+    if (price && price.trim() !== "") {
+      const priceInWei = BigInt(
+        Math.floor(parseFloat(price) * Math.pow(10, 18))
+      );
+      isPriceValid = priceInWei >= BigInt(constants.MIN_PRICE);
+    } else {
+      isPriceValid = false;
+    }
+
+    setIsValidInput(isDurationValid && isPriceValid);
+  };
+
+  useEffect(() => {
+    validateInputs();
+  }, [price, licenseDuration, durationUnit]);
 
   const handleUpload = async () => {
     if (selectedFile) {
@@ -516,28 +565,9 @@ export const FileUpload = ({
             break;
         }
 
-        if (durationInSeconds > constants.MAX_LICENSE_DURATION) {
-          addToast(
-            `License duration exceeds maximum limit of ${constants.MAX_LICENSE_DURATION} seconds`
-          );
-          return;
-        }
-
-        if (durationInSeconds < constants.MIN_LICENSE_DURATION) {
-          addToast(
-            `License duration must be at least ${constants.MIN_LICENSE_DURATION} seconds`
-          );
-          return;
-        }
-
         const priceInWei = price
           ? BigInt(Math.floor(parseFloat(price) * Math.pow(10, 18)))
           : BigInt(0);
-
-        if (priceInWei < 0) {
-          addToast(`Invalid price`, "error", 5000);
-          return;
-        }
 
         const license = createLicenseTerms(
           priceInWei, // price in wei
@@ -576,6 +606,14 @@ export const FileUpload = ({
       }
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (selectedFile && selectedFile.type.startsWith("image/")) {
+        URL.revokeObjectURL(URL.createObjectURL(selectedFile));
+      }
+    };
+  }, [selectedFile]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -784,15 +822,15 @@ export const FileUpload = ({
               disabled={isUploading}
               onClick={handleRemoveFile}
             >
-              <BinIcon w="1rem" h="1rem" />
+              <BinIcon w="1.25rem" h="1.25rem" />
             </button>
-            <button
-              className={buttonStyles["upload-file-button"]}
+            <Button
+              // className={buttonStyles["upload-file-button"]}
               onClick={handleUpload}
-              disabled={!selectedFile || isUploading}
+              disabled={!selectedFile || isUploading || !isValidInput}
             >
               Mint
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -818,5 +856,29 @@ export const FileUpload = ({
         </p>
       )}
     </div>
+  );
+};
+
+export const Button = ({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) => {
+  return (
+    <button
+      className={buttonStyles["button"]}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <CornerSquare position="top-left" padding={4} />
+      <CornerSquare position="top-right" padding={4} />
+      <CornerSquare position="bottom-left" padding={4} />
+      <CornerSquare position="bottom-right" padding={4} />
+      {children}
+    </button>
   );
 };

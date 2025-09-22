@@ -3,7 +3,7 @@ import { Auth } from "../../core/auth";
 import { ModalProvider } from "./ModalContext";
 import { WagmiContext } from "wagmi";
 import { SocialsProvider } from "./SocialsContext";
-import { ToastProvider } from "../toasts";
+import { ToastProvider } from "../components/toasts";
 import { Environment, ENVIRONMENTS } from "../../constants";
 import { OriginProvider } from "./OriginContext";
 

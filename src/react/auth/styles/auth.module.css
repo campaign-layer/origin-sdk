@@ -1,4 +1,6 @@
 @import url("https://api.fontshare.com/v2/css?f[]=satoshi@1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
 .modal {
   position: fixed;
@@ -16,7 +18,10 @@
 
 .modal .outer-container {
   box-sizing: border-box;
-  font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
+  /* font-family: "Satoshi", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif; */
+  font-family: "Work Sans", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
     sans-serif;
   display: flex;
@@ -45,7 +50,7 @@
   box-sizing: border-box;
   background-color: #fefefe;
   border: 1px solid #888;
-  border-radius: 1.5rem;
+  /* border-radius: 1.5rem; */
   width: 400px; /* temporary */
   padding: 1.5rem;
   flex-direction: column;
@@ -111,18 +116,21 @@
 .origin-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+  height: 100%;
 }
 
 .origin-container .origin-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 400;
   color: #777777;
   text-align: center;
   margin-bottom: 0.25rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 }
 
 .horizontal-divider {
@@ -184,8 +192,10 @@
   align-items: center;
   margin-bottom: 1rem;
   /* margin-top: -0.6rem; */
-  font-weight: bold;
+  /* font-weight: bold; */
   gap: 0.5rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 
   @media screen and (max-width: 440px) {
     margin-top: 0;
@@ -206,7 +216,10 @@
   width: 100%;
   text-align: center;
   margin-bottom: 1rem;
-  font-weight: bold;
+  /* font-weight: bold; */
+  gap: 0.5rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 }
 
 .container .header .small-modal-icon {
@@ -220,10 +233,12 @@
   font-size: 0.75rem;
   color: #777;
   font-weight: normal;
-  margin-top: 0.2rem;
+  /* margin-top: 0.2rem; */
   display: flex;
   flex-direction: row;
   gap: 0.25rem;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 }
 .container .header .wallet-address:hover {
   cursor: pointer;
@@ -235,8 +250,9 @@
   top: 1rem;
   right: 1rem;
   background-color: white;
-  border: 2px solid #ddd;
-  border-radius: 100%;
+  border: 1px solid #ddd;
+  /* border-radius: 100%; */
+  padding: 0.075rem;
   font-size: 1.5rem;
   color: #aaa;
   width: 1.25rem;
@@ -253,8 +269,8 @@
 }
 
 .container .close-button:hover {
-  background-color: #ddd;
-  color: #888;
+  border-color: #ff6f00;
+  color: #ff6f00;
   cursor: pointer;
 }
 
@@ -277,6 +293,8 @@
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: #ccc #f1f1f1;
 }
@@ -455,7 +473,7 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.75rem;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   font-size: 0.875rem;
   background-color: #fefefe;
   color: #333;
@@ -491,7 +509,7 @@
   padding-bottom: 0.5rem;
   font-size: 0.875rem;
   background-color: #eee;
-  border-radius: 0.25rem;
+  /* border-radius: 0.25rem; */
   color: #333;
   border: 1px solid #ddd;
   width: 100%;
@@ -508,6 +526,9 @@
 .socials-container h3 {
   color: #333;
   margin: 0;
+  font-family: "Geist Mono";
+  text-transform: uppercase;
+  font-size: small;
 }
 
 .connector-button .connector-checkmark {
@@ -525,32 +546,34 @@
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   padding-right: 0.675rem;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
   text-align: center;
-  background-color: #999;
-  color: white;
+  /* background-color: #999; */
+  color: #333;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
-    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px;
+  /* box-shadow: hsla(0, 0%, 100%, 0.15) 0 2px 0 inset,
+    rgba(0, 0, 0, 0.05) 0 -2px 4px inset, rgba(46, 54, 80, 0.075) 0 1px 1px; */
   transition: background-color 0.15s;
 }
 
 .unlink-connector-button svg {
-  stroke: white !important;
+  stroke: #333 !important;
   width: 0.875rem !important;
   height: 0.875rem !important;
   margin-right: 0 !important;
 }
 
 .unlink-connector-button:hover {
-  background-color: #888;
+  /* background-color: #888; */
+  color: #000;
   cursor: pointer;
 }
 
 .unlink-connector-button:disabled {
-  background-color: #ccc;
+  /* background-color: #ccc; */
+  color: #777;
   cursor: not-allowed;
 }
 
@@ -612,7 +635,7 @@
 
 input.tiktok-input {
   border: 1px solid gray;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   color: black;
   font-family: Satoshi, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI,
     Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
@@ -643,7 +666,7 @@ input.tiktok-input.invalid {
   text-align: center;
   font-size: 1.5rem;
   border: 1px solid #ccc;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
   outline: none;
   transition: border-color 0.2s;
 }
@@ -672,23 +695,19 @@ input.tiktok-input.invalid {
   background-color: #fefefe;
   border: 2px transparent;
   border-right: 2px solid #ddd;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.825rem;
   font-weight: 400;
   cursor: pointer;
   transition: background-color 0.2s;
   text-align: left;
   color: #333;
+  font-family: "Geist Mono", monospace;
+  text-transform: uppercase;
 }
 
 .tab-button:hover {
   background-color: #eee;
-  border-color: #ddd;
-}
-
-.tab-button:focus {
-  outline: none;
-  border-color: #ff6f00;
 }
 
 .active-tab {
@@ -721,14 +740,15 @@ input.tiktok-input.invalid {
 }
 
 .vertical-tab-content {
+  position: relative;
   flex: 1 1 0%;
   overflow: hidden;
   min-height: 22rem;
   height: 22rem;
   border: 1px solid #ddd;
-  border-radius: 0.25rem;
+  /* border-radius: 0.25rem; */
   padding: 1rem;
-  background-color: #f9f9f9;
+  background-color: #f9f7f4;
   max-width: 100%;
 }
 
@@ -767,47 +787,11 @@ input.tiktok-input.invalid {
   margin-top: 1rem;
 }
 
-.contract-input {
-  width: 100%;
-  max-width: 300px;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  outline: none;
-  transition: border-color 0.2s;
-  color: #333;
-}
-
-.contract-input:focus {
-  border-color: #ff6f00;
-}
-
-.contract-button {
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.contract-button:hover {
-  background-color: #cc4e02;
-}
-
-.contract-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
 .no-provider-warning {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   padding: 0.5rem;
   font-size: 1rem;
   width: 100%;
@@ -858,4 +842,39 @@ input.tiktok-input.invalid {
   color: #333;
   text-align: center;
   border-radius: inherit;
+}
+
+/* Corner SVG styles */
+.corner-svg {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.corner-top-left {
+  top: 2px;
+  left: 2px;
+}
+
+.corner-top-right {
+  top: 2px;
+  right: 2px;
+}
+
+.corner-bottom-left {
+  bottom: 2px;
+  left: 2px;
+}
+
+.corner-bottom-right {
+  bottom: 2px;
+  right: 2px;
+}
+
+.corner-square {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
 }

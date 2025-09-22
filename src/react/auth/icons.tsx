@@ -197,3 +197,206 @@ export const CopyIcon = ({ w, h }: { w: number; h: number }) => (
     />
   </svg>
 );
+
+export const CornerSVG = ({
+  position,
+  padding = 2,
+  color = "currentColor",
+  thickness = 1,
+  width = 12,
+  height = 12,
+  className = "",
+}: {
+  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  padding?: number | string;
+  color?: string;
+  thickness?: number | string;
+  width?: number;
+  height?: number;
+  className?: string;
+}) => {
+  let rotation = 0;
+  if (position === "top-right") rotation = 90;
+  if (position === "bottom-right") rotation = 180;
+  if (position === "bottom-left") rotation = 270;
+
+  const strokeWidth =
+    typeof thickness === "number" ? thickness : parseFloat(thickness);
+
+  const positionClass = styles[`corner-${position.replace("-", "-")}`];
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 25 25"
+      fill="none"
+      className={`${styles["corner-svg"]} ${positionClass} ${className}`}
+      style={{
+        transform: `rotate(${rotation}deg)`,
+        color,
+        width: typeof width === "number" ? `${width}px` : width,
+        height: typeof height === "number" ? `${height}px` : height,
+        ...(typeof padding === "number"
+          ? {
+              [position.includes("top") ? "top" : "bottom"]: `${padding}px`,
+              [position.includes("left") ? "left" : "right"]: `${padding}px`,
+            }
+          : {
+              [position.includes("top") ? "top" : "bottom"]: padding,
+              [position.includes("left") ? "left" : "right"]: padding,
+            }),
+      }}
+    >
+      <path
+        d="M1 25L0.999999 1L25 1"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+      ></path>
+    </svg>
+  );
+};
+
+export const CornerSquare = ({
+  position,
+  padding = 4,
+  color = "white",
+  size = 4,
+  className = "",
+  opacity = 0.5,
+}: {
+  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  padding?: number | string;
+  color?: string;
+  size?: number | string;
+  className?: string;
+  opacity?: number;
+}) => {
+  const positionClass = styles[`corner-${position.replace("-", "-")}`];
+
+  return (
+    <div
+      className={`${styles["corner-square"]} ${positionClass} ${className}`}
+      style={{
+        backgroundColor: color,
+        width: typeof size === "number" ? `${size}px` : size,
+        height: typeof size === "number" ? `${size}px` : size,
+        opacity,
+        ...(typeof padding === "number"
+          ? {
+              [position.includes("top") ? "top" : "bottom"]: `${padding}px`,
+              [position.includes("left") ? "left" : "right"]: `${padding}px`,
+            }
+          : {
+              [position.includes("top") ? "top" : "bottom"]: padding,
+              [position.includes("left") ? "left" : "right"]: padding,
+            }),
+      }}
+    />
+  );
+};
+
+export const SquareCorners = ({
+  padding = 2,
+  color = "white",
+  size = 4,
+  className = "",
+  opacity = 0.5,
+}: {
+  padding?: number | string;
+  color?: string;
+  size?: number | string;
+  className?: string;
+  opacity?: number;
+}) => {
+  return (
+    <>
+      <CornerSquare
+        position="top-left"
+        padding={padding}
+        color={color}
+        size={size}
+        className={className}
+        opacity={opacity}
+      />
+      <CornerSquare
+        position="top-right"
+        padding={padding}
+        color={color}
+        size={size}
+        className={className}
+        opacity={opacity}
+      />
+      <CornerSquare
+        position="bottom-left"
+        padding={padding}
+        color={color}
+        size={size}
+        className={className}
+        opacity={opacity}
+      />
+      <CornerSquare
+        position="bottom-right"
+        padding={padding}
+        color={color}
+        size={size}
+        className={className}
+        opacity={opacity}
+      />
+    </>
+  );
+};
+
+export const ArrowCorners = ({
+  padding = 2,
+  color = "currentColor",
+  thickness = 1,
+  size = 12,
+  className = "",
+}: {
+  padding?: number | string;
+  color?: string;
+  thickness?: number | string;
+  size?: number;
+  className?: string;
+}) => {
+  return (
+    <>
+      <CornerSVG
+        position="top-left"
+        padding={padding}
+        color={color}
+        thickness={thickness}
+        width={size}
+        height={size}
+        className={className}
+      />
+      <CornerSVG
+        position="top-right"
+        padding={padding}
+        color={color}
+        thickness={thickness}
+        width={size}
+        height={size}
+        className={className}
+      />
+      <CornerSVG
+        position="bottom-left"
+        padding={padding}
+        color={color}
+        thickness={thickness}
+        width={size}
+        height={size}
+        className={className}
+      />
+      <CornerSVG
+        position="bottom-right"
+        padding={padding}
+        color={color}
+        thickness={thickness}
+        width={size}
+        height={size}
+        className={className}
+      />
+    </>
+  );
+};
