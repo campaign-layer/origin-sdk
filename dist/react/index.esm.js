@@ -2571,7 +2571,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
         }
-        const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/register`, {
+        const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/register`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${this.getJwt()}`,
@@ -2706,7 +2706,7 @@ class Origin {
         _Origin_instances.add(this);
         _Origin_generateURL.set(this, (file) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/upload-url`, {
+                const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`, {
                     method: "POST",
                     body: JSON.stringify({
                         name: file.name,
@@ -2733,7 +2733,7 @@ class Origin {
         }));
         _Origin_setOriginStatus.set(this, (key, status) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/update-status`, {
+                const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`, {
                     method: "PATCH",
                     body: JSON.stringify({
                         status,
@@ -2851,7 +2851,7 @@ class Origin {
             return tokenId.toString();
         });
         this.getOriginUploads = () => __awaiter(this, void 0, void 0, function* () {
-            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/files`, {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/files`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2903,7 +2903,7 @@ class Origin {
      */
     getOriginUsage() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/usage`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/usage`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2930,7 +2930,7 @@ class Origin {
             if (consent === undefined) {
                 throw new APIError("Consent is required");
             }
-            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/status`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/status`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -2960,7 +2960,7 @@ class Origin {
             if (multiplier === undefined) {
                 throw new APIError("Multiplier is required");
             }
-            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/multiplier`, {
+            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/multiplier`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -3084,7 +3084,7 @@ class Origin {
     }
     getData(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/auth/origin/data/${tokenId}`, {
+            const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,

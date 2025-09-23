@@ -67,7 +67,7 @@ export async function registerIpNFT(
   }
 
   const res = await fetch(
-    `${this.environment.AUTH_HUB_BASE_API}/auth/origin/register`,
+    `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/register`,
     {
       method: "POST",
       headers: {
