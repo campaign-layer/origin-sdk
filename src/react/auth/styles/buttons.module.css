@@ -493,6 +493,8 @@
 .remove-file-button:disabled {
   background-color: #b8b8b8;
   cursor: not-allowed;
+  border-color: #b8b8b8;
+  color: white;
 }
 
 .upload-file-button {

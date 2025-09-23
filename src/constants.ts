@@ -54,9 +54,11 @@ export const ENVIRONMENTS = {
       "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
     AUTH_ENDPOINT: "auth-testnet",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
-    DATANFT_CONTRACT_ADDRESS: "0x57346ed72A6e0f9D56b52f050c61803fF7d107E4",
-    MARKETPLACE_CONTRACT_ADDRESS: "0xb9f217362Fbef0f1384E5a25a66EFF933cdf4201",
+    DATANFT_CONTRACT_ADDRESS: "0x8EB0E8C3bA99c04F05ab01A5BED34F00c6c3BE4D",
+    MARKETPLACE_CONTRACT_ADDRESS: "0x2947eE8a352158fda08F2cf5c0AE8e5b1DFCfDc9",
     CHAIN: testnet,
+    IPNFT_ABI: ipnftMainnetAbi,
+    MARKETPLACE_ABI: marketplaceMainnetAbi,
   },
   PRODUCTION: {
     NAME: "PRODUCTION",

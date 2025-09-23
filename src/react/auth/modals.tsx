@@ -1114,23 +1114,25 @@ const OriginSection = (): JSX.Element => {
         >
           <div className={styles["origin-container"]}>
             <span>
-              {environment.NAME === "PRODUCTION"
-                ? "Camp Mainnet"
-                : "Camp Testnet"}
+              {environment.NAME === "PRODUCTION" ? "Mainnet" : "Testnet"}
             </span>
             <span className={styles["origin-label"]}>Chain</span>
           </div>
         </Tooltip>
+        <div className={styles["divider"]} />
         <Tooltip
           content={environment.DATANFT_CONTRACT_ADDRESS}
           position="top"
           containerStyle={{ width: "100%" }}
         >
           <div className={styles["origin-container"]}>
-            <span>{formatAddress(environment.DATANFT_CONTRACT_ADDRESS, 4)}</span>
+            <span>
+              {formatAddress(environment.DATANFT_CONTRACT_ADDRESS, 4)}
+            </span>
             <span className={styles["origin-label"]}>IP NFT</span>
           </div>
         </Tooltip>
+        <div className={styles["divider"]} />
         <Tooltip
           content={environment.MARKETPLACE_CONTRACT_ADDRESS}
           position="top"
