@@ -552,6 +552,12 @@ var ipnftMainnetAbi = [
 				internalType: "bytes32",
 				name: "contentHash",
 				type: "bytes32"
+			},
+			{
+				indexed: false,
+				internalType: "uint256[]",
+				name: "parents",
+				type: "uint256[]"
 			}
 		],
 		name: "DataMinted",
@@ -2433,8 +2439,8 @@ const ENVIRONMENTS = {
         AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
         AUTH_ENDPOINT: "auth-mainnet",
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
-        DATANFT_CONTRACT_ADDRESS: "0x36207dC084076C2C77f3dA645cC7A85E96cB1237",
-        MARKETPLACE_CONTRACT_ADDRESS: "0xcCc91BD4FfE8FB74D13Abd4b56d5238902776B30",
+        DATANFT_CONTRACT_ADDRESS: "0x54d8490f034e3A4D07CD220a7Dc88D9B91B82c25",
+        MARKETPLACE_CONTRACT_ADDRESS: "0x5D2be63c94931f82B602Ecd1538064ab4196F8e7",
         CHAIN: mainnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
@@ -2528,7 +2534,7 @@ const uploadWithProgress = (file, url, onProgress) => {
  * Mints a Data NFT with a signature.
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
- * @param parentId The ID of the parent NFT, if applicable.
+ * @param parents The IDs of the parent NFTs, if applicable.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -2536,12 +2542,9 @@ const uploadWithProgress = (file, url, onProgress) => {
  * @param signature The signature for the minting operation.
  * @returns A promise that resolves when the minting is complete.
  */
-function mintWithSignature(to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature) {
+function mintWithSignature(to, tokenId, parents, hash, uri, licenseTerms, deadline, signature) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log("mintWithSignature", this.environment);
-        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", 
-        // [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
-        [to, tokenId, hash, uri, licenseTerms, deadline, [parentId], signature], { waitForReceipt: true });
+        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, parents, signature], { waitForReceipt: true });
     });
 }
 /**
@@ -2551,7 +2554,7 @@ function mintWithSignature(to, tokenId, parentId, hash, uri, licenseTerms, deadl
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
  */
-function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parentId) {
+function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parents) {
     return __awaiter(this, void 0, void 0, function* () {
         const body = {
             source,
@@ -2563,7 +2566,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
                 paymentToken: licenseTerms.paymentToken,
             },
             metadata,
-            parentId: Number(parentId) || 0,
+            parentId: parents || [],
         };
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
@@ -2785,7 +2788,7 @@ class Origin {
             }
             return uploadInfo;
         });
-        this.mintFile = (file, metadata, license, parentId, options) => __awaiter(this, void 0, void 0, function* () {
+        this.mintFile = (file, metadata, license, parents, options) => __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
@@ -2793,9 +2796,18 @@ class Origin {
             if (!info || !info.key) {
                 throw new Error("Failed to upload file or get upload info.");
             }
-            const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-            const registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parentId);
+            const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
+            const registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parents);
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
+            console.log("[Origin MintFile] Sent payload:", {
+                type: "file",
+                deadline,
+                license,
+                metadata,
+                key: info.key,
+                parents,
+            });
+            console.log("[Origin MintFile] Registration response:", registration);
             if (!tokenId ||
                 !signerAddress ||
                 !creatorContentHash ||
@@ -2807,7 +2819,7 @@ class Origin {
                 method: "eth_requestAccounts",
                 params: [],
             });
-            const mintResult = yield this.mintWithSignature(account, tokenId, parentId || BigInt(0), creatorContentHash, uri, license, deadline, signature);
+            const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
             if (mintResult.status !== "0x1") {
                 console.error("Minting failed:", mintResult);
                 throw new Error(`Minting failed with status: ${mintResult.status}`);
@@ -2832,8 +2844,7 @@ class Origin {
                 method: "eth_requestAccounts",
                 params: [],
             });
-            const mintResult = yield this.mintWithSignature(account, tokenId, BigInt(0), // parentId is not applicable for social IpNFTs
-            creatorContentHash, uri, license, deadline, signature);
+            const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
             if (mintResult.status !== "0x1") {
                 throw new Error(`Minting Social IpNFT failed with status: ${mintResult.status}`);
             }
@@ -4105,7 +4116,7 @@ const CloseIcon = () => (React.createElement("svg", { className: styles["close-i
     React.createElement("path", { d: "M18 6L6 18", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }),
     React.createElement("path", { d: "M6 6L18 18", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" })));
 const CopyIcon = ({ w, h }) => (React.createElement("svg", { clipRule: "evenodd", fillRule: "evenodd", strokeLinejoin: "round", strokeMiterlimit: "2", width: w, height: h, viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg" },
-    React.createElement("path", { d: "m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z", "fill-rule": "nonzero" })));
+    React.createElement("path", { d: "m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z", fillRule: "nonzero" })));
 const CornerSVG = ({ position, padding = 2, color = "currentColor", thickness = 1, width = 12, height = 12, className = "", }) => {
     let rotation = 0;
     if (position === "top-right")
@@ -4598,7 +4609,7 @@ const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
     const fileInputRef = useRef(null);
     const { addToast } = useToast();
     const [price, setPrice] = useState("");
-    const [royaltyBps, setRoyaltyBps] = useState(0);
+    const [royaltyBps, setRoyaltyBps] = useState(10); // default 10 bps = 0.1%
     const [licenseDuration, setLicenseDuration] = useState(24);
     const [durationUnit, setDurationUnit] = useState("hours");
     const [isValidInput, setIsValidInput] = useState(false);
@@ -4660,7 +4671,7 @@ const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
                     name: selectedFile.name,
                     description: `This is a file uploaded by ${auth === null || auth === void 0 ? void 0 : auth.walletAddress}`,
                 };
-                const res = yield ((_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.mintFile(selectedFile, metadata, license, BigInt(0), {
+                const res = yield ((_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.mintFile(selectedFile, metadata, license, [], {
                     progressCallback(percent) {
                         setUploadProgress(percent);
                     },
@@ -5008,7 +5019,6 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
             var _a, _b;
             try {
                 if (auth) {
-                    console.log(defaultProvider, walletConnectProvider);
                     if (defaultProvider && defaultProvider.provider) {
                         const provider = defaultProvider.provider;
                         const [address] = yield provider.request({
@@ -5467,7 +5477,15 @@ const OriginSection = () => {
                     React.createElement("span", null, environment.NAME === "PRODUCTION"
                         ? "Camp Mainnet"
                         : "Camp Testnet"),
-                    React.createElement("span", { className: styles["origin-label"] }, "Chain"))))));
+                    React.createElement("span", { className: styles["origin-label"] }, "Chain"))),
+            React.createElement(Tooltip, { content: environment.DATANFT_CONTRACT_ADDRESS, position: "top", containerStyle: { width: "100%" } },
+                React.createElement("div", { className: styles["origin-container"] },
+                    React.createElement("span", null, formatAddress(environment.DATANFT_CONTRACT_ADDRESS, 4)),
+                    React.createElement("span", { className: styles["origin-label"] }, "IP NFT"))),
+            React.createElement(Tooltip, { content: environment.MARKETPLACE_CONTRACT_ADDRESS, position: "top", containerStyle: { width: "100%" } },
+                React.createElement("div", { className: styles["origin-container"] },
+                    React.createElement("span", null, formatAddress(environment.MARKETPLACE_CONTRACT_ADDRESS, 4)),
+                    React.createElement("span", { className: styles["origin-label"] }, "Marketplace"))))));
 };
 /**
  * The MyCampModal component.

@@ -507,7 +507,7 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
   const [price, setPrice] = useState<string>("");
-  const [royaltyBps, setRoyaltyBps] = useState<number>(0);
+  const [royaltyBps, setRoyaltyBps] = useState<number>(10); // default 10 bps = 0.1%
   const [licenseDuration, setLicenseDuration] = useState<number>(24);
   const [durationUnit, setDurationUnit] = useState<string>("hours");
   const [isValidInput, setIsValidInput] = useState<boolean>(false);
@@ -583,7 +583,7 @@ export const FileUpload = ({
           selectedFile,
           metadata,
           license,
-          BigInt(0),
+          [],
           {
             progressCallback(percent: number) {
               setUploadProgress(percent);

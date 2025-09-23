@@ -345,7 +345,6 @@ export const CampModal = ({
     const recoverProvider = async () => {
       try {
         if (auth) {
-          console.log(defaultProvider, walletConnectProvider);
           if (defaultProvider && defaultProvider.provider) {
             const provider = defaultProvider.provider;
             const [address] = await provider.request({
@@ -1120,6 +1119,28 @@ const OriginSection = (): JSX.Element => {
                 : "Camp Testnet"}
             </span>
             <span className={styles["origin-label"]}>Chain</span>
+          </div>
+        </Tooltip>
+        <Tooltip
+          content={environment.DATANFT_CONTRACT_ADDRESS}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>{formatAddress(environment.DATANFT_CONTRACT_ADDRESS, 4)}</span>
+            <span className={styles["origin-label"]}>IP NFT</span>
+          </div>
+        </Tooltip>
+        <Tooltip
+          content={environment.MARKETPLACE_CONTRACT_ADDRESS}
+          position="top"
+          containerStyle={{ width: "100%" }}
+        >
+          <div className={styles["origin-container"]}>
+            <span>
+              {formatAddress(environment.MARKETPLACE_CONTRACT_ADDRESS, 4)}
+            </span>
+            <span className={styles["origin-label"]}>Marketplace</span>
           </div>
         </Tooltip>
       </div>

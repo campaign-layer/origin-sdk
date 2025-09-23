@@ -226,7 +226,7 @@ export class Origin {
     file: File,
     metadata: Record<string, unknown>,
     license: LicenseTerms,
-    parentId?: bigint,
+    parents?: bigint[],
     options?: {
       progressCallback?: (percent: number) => void;
     }
@@ -238,18 +238,28 @@ export class Origin {
     if (!info || !info.key) {
       throw new Error("Failed to upload file or get upload info.");
     }
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
+    const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
     const registration = await this.registerIpNFT(
       "file",
       deadline,
       license,
       metadata,
       info.key,
-      parentId
+      parents
     );
     const { tokenId, signerAddress, creatorContentHash, signature, uri } =
       registration;
 
+    console.log("[Origin MintFile] Sent payload:", {
+      type: "file",
+      deadline,
+      license,
+      metadata,
+      key: info.key,
+      parents,
+    });
+
+    console.log("[Origin MintFile] Registration response:", registration);
     if (
       !tokenId ||
       !signerAddress ||
@@ -270,7 +280,7 @@ export class Origin {
     const mintResult = await this.mintWithSignature(
       account,
       tokenId,
-      parentId || BigInt(0),
+      parents || [],
       creatorContentHash,
       uri,
       license,
@@ -326,7 +336,7 @@ export class Origin {
     const mintResult = await this.mintWithSignature(
       account,
       tokenId,
-      BigInt(0), // parentId is not applicable for social IpNFTs
+      [],
       creatorContentHash,
       uri,
       license,

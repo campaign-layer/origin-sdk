@@ -256,6 +256,12 @@
         "internalType": "bytes32",
         "name": "contentHash",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "parents",
+        "type": "uint256[]"
       }
     ],
     "name": "DataMinted",

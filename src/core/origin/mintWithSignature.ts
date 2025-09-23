@@ -1,5 +1,4 @@
 import { Abi, Address, Hex } from "viem";
-import abi from "./contracts/DataNFT.json";
 import { Origin } from ".";
 import { IpNFTSource, LicenseTerms } from "./utils";
 
@@ -7,7 +6,7 @@ import { IpNFTSource, LicenseTerms } from "./utils";
  * Mints a Data NFT with a signature.
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
- * @param parentId The ID of the parent NFT, if applicable.
+ * @param parents The IDs of the parent NFTs, if applicable.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -19,20 +18,18 @@ export async function mintWithSignature(
   this: Origin,
   to: Address,
   tokenId: bigint,
-  parentId: bigint,
+  parents: bigint[],
   hash: Hex,
   uri: string,
   licenseTerms: LicenseTerms,
   deadline: bigint,
   signature: Hex
 ): Promise<any> {
-  console.log("mintWithSignature", this.environment);
   return await this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     this.environment.IPNFT_ABI as Abi,
     "mintWithSignature",
-    // [to, tokenId, parentId, hash, uri, licenseTerms, deadline, signature],
-    [to, tokenId, hash, uri, licenseTerms, deadline, [parentId], signature],
+    [to, tokenId, hash, uri, licenseTerms, deadline, parents, signature],
     { waitForReceipt: true }
   );
 }
@@ -51,7 +48,7 @@ export async function registerIpNFT(
   licenseTerms: LicenseTerms,
   metadata: Record<string, unknown>,
   fileKey?: string | string[],
-  parentId?: bigint
+  parents?: bigint[]
 ): Promise<any> {
   const body: Record<string, unknown> = {
     source,
@@ -63,7 +60,7 @@ export async function registerIpNFT(
       paymentToken: licenseTerms.paymentToken,
     },
     metadata,
-    parentId: Number(parentId) || 0,
+    parentId: parents || [],
   };
   if (fileKey !== undefined) {
     body.fileKey = fileKey;
