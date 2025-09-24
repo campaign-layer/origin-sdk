@@ -5,14 +5,16 @@ export function buyAccess(
   this: Origin,
   buyer: Address,
   tokenId: bigint,
-  periods: number,
+  expectedPrice: bigint,
+  expectedDuration: bigint,
+  expectedPaymentToken: Address,
   value?: bigint // only for native token payments
 ) {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
     this.environment.MARKETPLACE_ABI as Abi,
     "buyAccess",
-    [buyer, tokenId, periods],
+    [buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken],
     { waitForReceipt: true, value }
   );
 }

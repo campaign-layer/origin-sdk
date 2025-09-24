@@ -622,29 +622,40 @@ export class Origin {
   /**
    * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
    * @param {bigint} tokenId The token ID of the asset.
-   * @param {number} periods The number of periods to buy access for.
    * @returns {Promise<any>} The result of the buyAccess call.
    */
-  async buyAccessSmart(tokenId: bigint, periods: number): Promise<any> {
+  async buyAccessSmart(tokenId: bigint): Promise<any> {
     if (!this.viemClient) {
       throw new Error("WalletClient not connected.");
     }
     const terms = await this.getTerms(tokenId);
     if (!terms) throw new Error("Failed to fetch terms for asset");
 
-    const { price, paymentToken } = terms;
-    if (price === undefined || paymentToken === undefined) {
-      throw new Error("Terms missing price or paymentToken");
+    const { price, paymentToken, duration } = terms;
+    if (
+      price === undefined ||
+      paymentToken === undefined ||
+      duration === undefined
+    ) {
+      throw new Error("Terms missing price, paymentToken, or duration");
     }
     const [account] = await this.viemClient.request({
       method: "eth_requestAccounts",
       params: [],
     });
 
-    const totalCost = price * BigInt(periods);
+    const totalCost = price;
     const isNative = paymentToken === zeroAddress;
     if (isNative) {
-      return this.buyAccess(account, tokenId, periods, totalCost);
+      // return this.buyAccess(account, tokenId, periods, totalCost);
+      return this.buyAccess(
+        account,
+        tokenId,
+        totalCost,
+        duration,
+        paymentToken,
+        totalCost
+      );
     }
 
     await approveIfNeeded({
@@ -656,7 +667,7 @@ export class Origin {
       amount: totalCost,
     });
 
-    return this.buyAccess(account, tokenId, periods);
+    return this.buyAccess(account, tokenId, totalCost, duration, paymentToken);
   }
 
   async getData(tokenId: bigint): Promise<any> {

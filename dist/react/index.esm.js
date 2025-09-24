@@ -2655,9 +2655,9 @@ function setApprovalForAll(operator, approved) {
     return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "setApprovalForAll", [operator, approved]);
 }
 
-function buyAccess(buyer, tokenId, periods, value // only for native token payments
+function buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, value // only for native token payments
 ) {
-    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, this.environment.MARKETPLACE_ABI, "buyAccess", [buyer, tokenId, periods], { waitForReceipt: true, value });
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, this.environment.MARKETPLACE_ABI, "buyAccess", [buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken], { waitForReceipt: true, value });
 }
 
 function renewAccess(tokenId, buyer, periods, value) {
@@ -3049,10 +3049,9 @@ class Origin {
     /**
      * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
      * @param {bigint} tokenId The token ID of the asset.
-     * @param {number} periods The number of periods to buy access for.
      * @returns {Promise<any>} The result of the buyAccess call.
      */
-    buyAccessSmart(tokenId, periods) {
+    buyAccessSmart(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
@@ -3060,18 +3059,21 @@ class Origin {
             const terms = yield this.getTerms(tokenId);
             if (!terms)
                 throw new Error("Failed to fetch terms for asset");
-            const { price, paymentToken } = terms;
-            if (price === undefined || paymentToken === undefined) {
-                throw new Error("Terms missing price or paymentToken");
+            const { price, paymentToken, duration } = terms;
+            if (price === undefined ||
+                paymentToken === undefined ||
+                duration === undefined) {
+                throw new Error("Terms missing price, paymentToken, or duration");
             }
             const [account] = yield this.viemClient.request({
                 method: "eth_requestAccounts",
                 params: [],
             });
-            const totalCost = price * BigInt(periods);
+            const totalCost = price;
             const isNative = paymentToken === zeroAddress;
             if (isNative) {
-                return this.buyAccess(account, tokenId, periods, totalCost);
+                // return this.buyAccess(account, tokenId, periods, totalCost);
+                return this.buyAccess(account, tokenId, totalCost, duration, paymentToken, totalCost);
             }
             yield approveIfNeeded({
                 walletClient: this.viemClient,
@@ -3081,7 +3083,7 @@ class Origin {
                 spender: this.environment.MARKETPLACE_CONTRACT_ADDRESS,
                 amount: totalCost,
             });
-            return this.buyAccess(account, tokenId, periods);
+            return this.buyAccess(account, tokenId, totalCost, duration, paymentToken);
         });
     }
     getData(tokenId) {

@@ -96,7 +96,7 @@ declare function approve(this: Origin, to: Address, tokenId: bigint): Promise<an
 
 declare function setApprovalForAll(this: Origin, operator: Address, approved: boolean): Promise<any>;
 
-declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, periods: number, value?: bigint): Promise<any>;
+declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, expectedPrice: bigint, expectedDuration: bigint, expectedPaymentToken: Address, value?: bigint): Promise<any>;
 
 declare function renewAccess(this: Origin, tokenId: bigint, buyer: Address, periods: number, value?: bigint): Promise<any>;
 
@@ -192,10 +192,9 @@ declare class Origin {
     /**
      * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
      * @param {bigint} tokenId The token ID of the asset.
-     * @param {number} periods The number of periods to buy access for.
      * @returns {Promise<any>} The result of the buyAccess call.
      */
-    buyAccessSmart(tokenId: bigint, periods: number): Promise<any>;
+    buyAccessSmart(tokenId: bigint): Promise<any>;
     getData(tokenId: bigint): Promise<any>;
 }
 
