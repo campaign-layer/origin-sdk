@@ -236,7 +236,7 @@ let g=null,E=null;const _=()=>(E||(E=i({chain:b,transport:a()})),E);var C=[{inpu
  * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
  * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
  * @returns The address of the royalty vault associated with the specified token owner.
- */function $(e){return c(this,void 0,void 0,(function*(){const t=yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e],{waitForReceipt:!0,simulate:!0});return console.log("Royalty Vault Tx:",t),t.simulatedResult}))}
+ */function $(e){return c(this,void 0,void 0,(function*(){const t=yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e],{waitForReceipt:!0,simulate:!1});return console.log("Royalty Vault Tx:",t),t.simulatedResult}))}
 /**
  * Returns the license terms associated with a specific token ID.
  * @param tokenId The token ID to query.

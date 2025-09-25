@@ -2730,7 +2730,7 @@ function finalizeDelete(tokenId) {
  */
 function getOrCreateRoyaltyVault(tokenOwner) {
     return __awaiter(this, void 0, void 0, function* () {
-        const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: true });
+        const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: false });
         console.log("Royalty Vault Tx:", royaltyVaultTx);
         return royaltyVaultTx.simulatedResult;
     });

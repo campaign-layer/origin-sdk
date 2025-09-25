@@ -15,7 +15,7 @@ export async function getOrCreateRoyaltyVault(
     this.environment.IPNFT_ABI as Abi,
     "getOrCreateRoyaltyVault",
     [tokenOwner],
-    { waitForReceipt: true, simulate: true }
+    { waitForReceipt: true, simulate: false }
   );
 
   console.log("Royalty Vault Tx:", royaltyVaultTx);
