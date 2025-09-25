@@ -2729,7 +2729,7 @@ function finalizeDelete(tokenId) {
  * @returns The address of the royalty vault associated with the specified token owner.
  */
 function getOrCreateRoyaltyVault(tokenOwner) {
-    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner]);
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true });
 }
 
 /**
@@ -3203,6 +3203,7 @@ class Origin {
             const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
             try {
                 const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress);
+                console.log("Royalty Vault Address:", royaltyVaultAddress);
                 const publicClient = getPublicClient();
                 let balance;
                 let balanceFormatted;

@@ -236,7 +236,7 @@ let E=null,_=null;const C=()=>(_||(_=i({chain:g,transport:a()})),_);var k=[{inpu
  * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
  * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
  * @returns The address of the royalty vault associated with the specified token owner.
- */function H(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e])}
+ */function H(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e],{waitForReceipt:!0})}
 /**
  * Returns the license terms associated with a specific token ID.
  * @param tokenId The token ID to query.
@@ -337,7 +337,7 @@ if(!(r&&s&&o&&void 0!==d&&u))throw new Error("Failed to register Social IpNFT: M
      * // Get royalties for specific address
      * const royalties = await origin.getRoyalties("0x1234...");
      * ```
-     */getRoyalties(e,t){return h(this,void 0,void 0,(function*(){const n=yield m(this,ee,"m",re).call(this,t);try{const t=yield this.getOrCreateRoyaltyVault(n),i=C();let a,r;if(e&&e!==d){
+     */getRoyalties(e,t){return h(this,void 0,void 0,(function*(){const n=yield m(this,ee,"m",re).call(this,t);try{const t=yield this.getOrCreateRoyaltyVault(n);console.log("Royalty Vault Address:",t);const i=C();let a,r;if(e&&e!==d){
 // erc20 (wrapped camp)
 const n=[{inputs:[{name:"owner",type:"address"}],name:"balanceOf",outputs:[{name:"",type:"uint256"}],stateMutability:"view",type:"function"},{inputs:[],name:"decimals",outputs:[{name:"",type:"uint8"}],stateMutability:"view",type:"function"}];a=yield this.callContractMethod(e,n,"balanceOf",[t]);const i=yield this.callContractMethod(e,n,"decimals",[]);r=p(a,i)}else a=yield i.getBalance({address:t}),r=u(a);return{royaltyVault:t,balance:a,balanceFormatted:r}}catch(e){throw new Error(`Failed to retrieve royalties for address ${n}: ${e instanceof Error?e.message:String(e)}`)}}))}
 /**

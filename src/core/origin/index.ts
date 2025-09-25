@@ -668,6 +668,7 @@ export class Origin {
       const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
         walletAddress
       );
+      console.log("Royalty Vault Address:", royaltyVaultAddress);
       const publicClient = getPublicClient();
 
       let balance: bigint;

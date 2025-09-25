@@ -14,6 +14,7 @@ export function getOrCreateRoyaltyVault(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     this.environment.IPNFT_ABI as Abi,
     "getOrCreateRoyaltyVault",
-    [tokenOwner]
+    [tokenOwner],
+    { waitForReceipt: true }
   );
 }
