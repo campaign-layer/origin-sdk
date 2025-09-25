@@ -4,22 +4,18 @@ import { uploadWithProgress } from "../../utils";
 import { getPublicClient } from "../auth/viem/client";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
-import { requestDelete } from "./requestDelete";
+import { finalizeDelete } from "./finalizeDelete";
 import { getTerms } from "./getTerms";
 import { ownerOf } from "./ownerOf";
 import { balanceOf } from "./balanceOf";
-import { contentHash } from "./contentHash";
 import { tokenURI } from "./tokenURI";
 import { dataStatus } from "./dataStatus";
-import { royaltyInfo } from "./royaltyInfo";
-import { getApproved } from "./getApproved";
 import { isApprovedForAll } from "./isApprovedForAll";
 import { transferFrom } from "./transferFrom";
 import { safeTransferFrom } from "./safeTransferFrom";
 import { approve } from "./approve";
 import { setApprovalForAll } from "./setApprovalForAll";
 import { buyAccess } from "./buyAccess";
-import { renewAccess } from "./renewAccess";
 import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
 import { LicenseTerms } from "./utils";
@@ -51,15 +47,12 @@ export class Origin {
   mintWithSignature!: typeof mintWithSignature;
   registerIpNFT!: typeof registerIpNFT;
   updateTerms!: typeof updateTerms;
-  requestDelete!: typeof requestDelete;
+  finalizeDelete!: typeof finalizeDelete;
   getTerms!: typeof getTerms;
   ownerOf!: typeof ownerOf;
   balanceOf!: typeof balanceOf;
-  contentHash!: typeof contentHash;
   tokenURI!: typeof tokenURI;
   dataStatus!: typeof dataStatus;
-  royaltyInfo!: typeof royaltyInfo;
-  getApproved!: typeof getApproved;
   isApprovedForAll!: typeof isApprovedForAll;
   transferFrom!: typeof transferFrom;
   safeTransferFrom!: typeof safeTransferFrom;
@@ -67,7 +60,6 @@ export class Origin {
   setApprovalForAll!: typeof setApprovalForAll;
   // Marketplace methods
   buyAccess!: typeof buyAccess;
-  renewAccess!: typeof renewAccess;
   hasAccess!: typeof hasAccess;
   subscriptionExpiry!: typeof subscriptionExpiry;
 
@@ -82,15 +74,12 @@ export class Origin {
     this.mintWithSignature = mintWithSignature.bind(this);
     this.registerIpNFT = registerIpNFT.bind(this);
     this.updateTerms = updateTerms.bind(this);
-    this.requestDelete = requestDelete.bind(this);
+    this.finalizeDelete = finalizeDelete.bind(this);
     this.getTerms = getTerms.bind(this);
     this.ownerOf = ownerOf.bind(this);
     this.balanceOf = balanceOf.bind(this);
-    this.contentHash = contentHash.bind(this);
     this.tokenURI = tokenURI.bind(this);
     this.dataStatus = dataStatus.bind(this);
-    this.royaltyInfo = royaltyInfo.bind(this);
-    this.getApproved = getApproved.bind(this);
     this.isApprovedForAll = isApprovedForAll.bind(this);
     this.transferFrom = transferFrom.bind(this);
     this.safeTransferFrom = safeTransferFrom.bind(this);
@@ -98,7 +87,6 @@ export class Origin {
     this.setApprovalForAll = setApprovalForAll.bind(this);
     // Marketplace methods
     this.buyAccess = buyAccess.bind(this);
-    this.renewAccess = renewAccess.bind(this);
     this.hasAccess = hasAccess.bind(this);
     this.subscriptionExpiry = subscriptionExpiry.bind(this);
   }
@@ -250,16 +238,6 @@ export class Origin {
     const { tokenId, signerAddress, creatorContentHash, signature, uri } =
       registration;
 
-    console.log("[Origin MintFile] Sent payload:", {
-      type: "file",
-      deadline,
-      license,
-      metadata,
-      key: info.key,
-      parents,
-    });
-
-    console.log("[Origin MintFile] Registration response:", registration);
     if (
       !tokenId ||
       !signerAddress ||
@@ -383,7 +361,6 @@ export class Origin {
         method: "GET",
         headers: {
           Authorization: `Bearer ${this.jwt}`,
-          // "x-client-id": this.clientId,
           "Content-Type": "application/json",
         },
       }
@@ -413,7 +390,6 @@ export class Origin {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${this.jwt}`,
-          // "x-client-id": this.clientId,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -426,39 +402,6 @@ export class Origin {
       return;
     } else {
       throw new APIError(data.message || "Failed to set Origin consent");
-    }
-  }
-
-  /**
-   * Set the user's Origin multiplier.
-   * @param {number} multiplier The user's Origin multiplier.
-   * @returns {Promise<void>}
-   * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the multiplier is not provided.
-   */
-
-  async setOriginMultiplier(multiplier: number): Promise<void> {
-    if (multiplier === undefined) {
-      throw new APIError("Multiplier is required");
-    }
-    const data = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/multiplier`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-          // "x-client-id": this.clientId,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          multiplier,
-        }),
-      }
-    ).then((res) => res.json());
-
-    if (!data.isError) {
-      return;
-    } else {
-      throw new APIError(data.message || "Failed to set Origin multiplier");
     }
   }
 

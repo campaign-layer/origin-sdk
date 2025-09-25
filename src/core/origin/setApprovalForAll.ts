@@ -1,5 +1,4 @@
 import { Origin } from ".";
-import abi from "./contracts/DataNFT.json";
 import { Abi, Address } from "viem";
 
 export function setApprovalForAll(

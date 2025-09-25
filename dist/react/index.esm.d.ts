@@ -66,26 +66,62 @@ declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, p
  */
 declare function registerIpNFT(this: Origin, source: IpNFTSource, deadline: bigint, licenseTerms: LicenseTerms, metadata: Record<string, unknown>, fileKey?: string | string[], parents?: bigint[]): Promise<any>;
 
-declare function updateTerms(this: Origin, tokenId: bigint, royaltyReceiver: Address, newTerms: LicenseTerms): Promise<any>;
+/**
+ * Updates the license terms of a specified IPNFT.
+ * @param tokenId The ID of the IPNFT to update.
+ * @param newTerms The new license terms to set.
+ * @returns A promise that resolves when the transaction is complete.
+ */
+declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTerms): Promise<any>;
 
-declare function requestDelete(this: Origin, tokenId: bigint): Promise<any>;
+/**
+ * Sets the IPNFT as deleted
+ * @param tokenId The token ID to set as deleted.
+ * @returns A promise that resolves when the transaction is complete.
+ */
+declare function finalizeDelete(this: Origin, tokenId: bigint): Promise<any>;
 
+/**
+ * Returns the license terms associated with a specific token ID.
+ * @param tokenId The token ID to query.
+ * @returns The license terms of the token ID.
+ */
 declare function getTerms(this: Origin, tokenId: bigint): Promise<any>;
 
+/**
+ * Returns the owner of the specified IPNFT.
+ * @param tokenId The ID of the IPNFT to query.
+ * @returns The address of the owner of the IPNFT.
+ */
 declare function ownerOf(this: Origin, tokenId: bigint): Promise<any>;
 
+/**
+ * Returns the number of IPNFTs owned by the given address.
+ * @param owner The address to query.
+ * @returns The number of IPNFTs owned by the address.
+ */
 declare function balanceOf(this: Origin, owner: Address): Promise<any>;
 
-declare function contentHash(this: Origin, tokenId: bigint): Promise<any>;
-
+/**
+ * Returns the metadata URI associated with a specific token ID.
+ * @param tokenId The token ID to query.
+ * @returns The metadata URI of the token ID.
+ */
 declare function tokenURI(this: Origin, tokenId: bigint): Promise<any>;
 
+/**
+ * Returns the data status of the given token ID.
+ * @param tokenId The token ID to query.
+ * @returns The data status of the token ID.
+ */
 declare function dataStatus(this: Origin, tokenId: bigint): Promise<DataStatus>;
 
-declare function royaltyInfo(this: Origin, tokenId: bigint, salePrice: bigint): Promise<[Address, bigint]>;
-
-declare function getApproved(this: Origin, tokenId: bigint): Promise<Address>;
-
+/**
+ * Checks if an operator is approved to manage all assets of a given owner.
+ * @param owner The address of the asset owner.
+ * @param operator The address of the operator to check.
+ * @return A promise that resolves to a boolean indicating if the operator is approved for all assets of the owner.
+ */
 declare function isApprovedForAll(this: Origin, owner: Address, operator: Address): Promise<boolean>;
 
 declare function transferFrom(this: Origin, from: Address, to: Address, tokenId: bigint): Promise<any>;
@@ -96,10 +132,24 @@ declare function approve(this: Origin, to: Address, tokenId: bigint): Promise<an
 
 declare function setApprovalForAll(this: Origin, operator: Address, approved: boolean): Promise<any>;
 
+/**
+ * Buys access to a data NFT for a specified duration.
+ * @param buyer The address of the buyer.
+ * @param tokenId The ID of the data NFT.
+ * @param expectedPrice The expected price for the access.
+ * @param expectedDuration The expected duration of the access in seconds.
+ * @param expectedPaymentToken The address of the payment token (use zero address for native token).
+ * @param value The amount of native token to send (only required if paying with native token).
+ * @returns A promise that resolves when the transaction is confirmed.
+ */
 declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, expectedPrice: bigint, expectedDuration: bigint, expectedPaymentToken: Address, value?: bigint): Promise<any>;
 
-declare function renewAccess(this: Origin, tokenId: bigint, buyer: Address, periods: number, value?: bigint): Promise<any>;
-
+/**
+ * Checks if a user has access to a specific token based on subscription expiry.
+ * @param user - The address of the user.
+ * @param tokenId - The ID of the token.
+ * @returns A promise that resolves to a boolean indicating if the user has access.
+ */
 declare function hasAccess(this: Origin, user: Address, tokenId: bigint): Promise<boolean>;
 
 declare function subscriptionExpiry(this: Origin, tokenId: bigint, user: Address): Promise<bigint>;
@@ -127,22 +177,18 @@ declare class Origin {
     mintWithSignature: typeof mintWithSignature;
     registerIpNFT: typeof registerIpNFT;
     updateTerms: typeof updateTerms;
-    requestDelete: typeof requestDelete;
+    finalizeDelete: typeof finalizeDelete;
     getTerms: typeof getTerms;
     ownerOf: typeof ownerOf;
     balanceOf: typeof balanceOf;
-    contentHash: typeof contentHash;
     tokenURI: typeof tokenURI;
     dataStatus: typeof dataStatus;
-    royaltyInfo: typeof royaltyInfo;
-    getApproved: typeof getApproved;
     isApprovedForAll: typeof isApprovedForAll;
     transferFrom: typeof transferFrom;
     safeTransferFrom: typeof safeTransferFrom;
     approve: typeof approve;
     setApprovalForAll: typeof setApprovalForAll;
     buyAccess: typeof buyAccess;
-    renewAccess: typeof renewAccess;
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
     private jwt;
@@ -171,13 +217,6 @@ declare class Origin {
      * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
      */
     setOriginConsent(consent: boolean): Promise<void>;
-    /**
-     * Set the user's Origin multiplier.
-     * @param {number} multiplier The user's Origin multiplier.
-     * @returns {Promise<void>}
-     * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the multiplier is not provided.
-     */
-    setOriginMultiplier(multiplier: number): Promise<void>;
     /**
      * Call a contract method.
      * @param {string} contractAddress The contract address.

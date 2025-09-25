@@ -1,5 +1,4 @@
 import { Origin } from ".";
-import abi from "./contracts/Marketplace.json";
 import { Abi, Address } from "viem";
 
 export function subscriptionExpiry(

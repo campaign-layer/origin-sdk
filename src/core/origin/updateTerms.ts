@@ -1,19 +1,23 @@
 import { Origin } from ".";
-import abi from "./contracts/DataNFT.json";
 import { Abi, Address } from "viem";
 import { LicenseTerms } from "./utils";
 
+/**
+ * Updates the license terms of a specified IPNFT.
+ * @param tokenId The ID of the IPNFT to update.
+ * @param newTerms The new license terms to set.
+ * @returns A promise that resolves when the transaction is complete.
+ */
 export function updateTerms(
   this: Origin,
   tokenId: bigint,
-  royaltyReceiver: Address,
   newTerms: LicenseTerms
 ) {
   return this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     this.environment.IPNFT_ABI as Abi,
     "updateTerms",
-    [tokenId, royaltyReceiver, newTerms],
+    [tokenId, newTerms],
     { waitForReceipt: true }
   );
 }
