@@ -86,6 +86,7 @@ const AuthModal = ({
     wagmiConnectorClient = useConnectorClient();
     wagmiAccount = useAccount();
   }
+  const { addToast: toast } = useToast();
 
   if (!auth) {
     throw new Error(
@@ -171,7 +172,7 @@ const AuthModal = ({
     };
   }, [wcProvider]);
 
-  const handleConnect = (provider: any) => {
+  const handleConnect = async (provider: any) => {
     if (provider) {
       let addr = null;
       if (provider?.provider?.uid === customProvider?.uid) {
@@ -193,7 +194,12 @@ const AuthModal = ({
     ) {
       auth.setWalletAddress(customAccount?.address);
     }
-    connect();
+    try {
+      await connect();
+    } catch (error) {
+      console.error("Error during connect:", error);
+      toast("Error connecting wallet. Please try again.", "error", 5000);
+    }
   };
   return (
     <div className={styles["outer-container"]}>

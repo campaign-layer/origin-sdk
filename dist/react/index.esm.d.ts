@@ -12,6 +12,7 @@ interface Environment {
     CHAIN: any;
     IPNFT_ABI?: any;
     MARKETPLACE_ABI?: any;
+    ROYALTY_VAULT_ABI?: any;
 }
 
 /**
@@ -80,6 +81,13 @@ declare function updateTerms(this: Origin, tokenId: bigint, newTerms: LicenseTer
  * @returns A promise that resolves when the transaction is complete.
  */
 declare function finalizeDelete(this: Origin, tokenId: bigint): Promise<any>;
+
+/**
+ * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
+ * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
+ * @returns The address of the royalty vault associated with the specified token owner.
+ */
+declare function getOrCreateRoyaltyVault(this: Origin, tokenOwner: Address): Promise<Address>;
 
 /**
  * Returns the license terms associated with a specific token ID.
@@ -163,6 +171,11 @@ interface OriginUsageReturnType {
     teams: Array<any>;
     dataSources: Array<any>;
 }
+interface RoyaltyInfo {
+    royaltyVault: Address;
+    balance: bigint;
+    balanceFormatted: string;
+}
 type CallOptions = {
     value?: bigint;
     gas?: bigint;
@@ -178,6 +191,7 @@ declare class Origin {
     registerIpNFT: typeof registerIpNFT;
     updateTerms: typeof updateTerms;
     finalizeDelete: typeof finalizeDelete;
+    getOrCreateRoyaltyVault: typeof getOrCreateRoyaltyVault;
     getTerms: typeof getTerms;
     ownerOf: typeof ownerOf;
     balanceOf: typeof balanceOf;
@@ -197,14 +211,14 @@ declare class Origin {
     constructor(jwt: string, environment: Environment, viemClient?: any);
     getJwt(): string;
     setViemClient(client: any): void;
-    uploadFile: (file: File, options?: {
+    uploadFile(file: File, options?: {
         progressCallback?: (percent: number) => void;
-    }) => Promise<any>;
-    mintFile: (file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
+    }): Promise<any>;
+    mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
         progressCallback?: (percent: number) => void;
-    }) => Promise<string | null>;
-    mintSocial: (source: "spotify" | "twitter" | "tiktok", metadata: Record<string, unknown>, license: LicenseTerms) => Promise<string | null>;
-    getOriginUploads: () => Promise<any>;
+    }): Promise<string | null>;
+    mintSocial(source: "spotify" | "twitter" | "tiktok", metadata: Record<string, unknown>, license: LicenseTerms): Promise<string | null>;
+    getOriginUploads(): Promise<any[] | null>;
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).
      * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
@@ -235,6 +249,29 @@ declare class Origin {
      */
     buyAccessSmart(tokenId: bigint): Promise<any>;
     getData(tokenId: bigint): Promise<any>;
+    /**
+     * Get royalty information for a wallet address, including the royalty vault address and its balance.
+     * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
+     * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
+     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     * @example
+     * ```typescript
+     * // Get royalties for connected wallet
+     * const royalties = await origin.getRoyalties();
+     *
+     * // Get royalties for specific address
+     * const royalties = await origin.getRoyalties("0x1234...");
+     * ```
+     */
+    getRoyalties(token?: Address, owner?: Address): Promise<RoyaltyInfo>;
+    /**
+     * Claim royalties from the royalty vault.
+     * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
+     * @param {Address} [owner] - Optional wallet address to claim royalties for. If not provided, uses the connected wallet.
+     * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
+     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     */
+    claimRoyalties(token?: Address, owner?: Address): Promise<any>;
 }
 
 declare global {

@@ -1,10 +1,19 @@
-import { Abi, encodeFunctionData, getAbiItem, zeroAddress } from "viem";
+import {
+  Abi,
+  Address,
+  encodeFunctionData,
+  getAbiItem,
+  zeroAddress,
+  formatEther,
+  formatUnits,
+} from "viem";
 import { APIError } from "../../errors";
 import { uploadWithProgress } from "../../utils";
 import { getPublicClient } from "../auth/viem/client";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
 import { finalizeDelete } from "./finalizeDelete";
+import { getOrCreateRoyaltyVault } from "./getOrCreateRoyaltyVault";
 import { getTerms } from "./getTerms";
 import { ownerOf } from "./ownerOf";
 import { balanceOf } from "./balanceOf";
@@ -32,6 +41,12 @@ interface OriginUsageReturnType {
   dataSources: Array<any>;
 }
 
+interface RoyaltyInfo {
+  royaltyVault: Address;
+  balance: bigint;
+  balanceFormatted: string;
+}
+
 type CallOptions = {
   value?: bigint;
   gas?: bigint;
@@ -48,6 +63,7 @@ export class Origin {
   registerIpNFT!: typeof registerIpNFT;
   updateTerms!: typeof updateTerms;
   finalizeDelete!: typeof finalizeDelete;
+  getOrCreateRoyaltyVault!: typeof getOrCreateRoyaltyVault;
   getTerms!: typeof getTerms;
   ownerOf!: typeof ownerOf;
   balanceOf!: typeof balanceOf;
@@ -75,6 +91,7 @@ export class Origin {
     this.registerIpNFT = registerIpNFT.bind(this);
     this.updateTerms = updateTerms.bind(this);
     this.finalizeDelete = finalizeDelete.bind(this);
+    this.getOrCreateRoyaltyVault = getOrCreateRoyaltyVault.bind(this);
     this.getTerms = getTerms.bind(this);
     this.ownerOf = ownerOf.bind(this);
     this.balanceOf = balanceOf.bind(this);
@@ -99,7 +116,7 @@ export class Origin {
     this.viemClient = client;
   }
 
-  #generateURL = async (file: File) => {
+  async #generateURL(file: File) {
     try {
       const uploadRes = await fetch(
         `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`,
@@ -131,9 +148,9 @@ export class Origin {
       console.error("Failed to generate upload URL:", error);
       throw error;
     }
-  };
+  }
 
-  #setOriginStatus = async (key: string, status: string) => {
+  async #setOriginStatus(key: string, status: string) {
     try {
       const res = await fetch(
         `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`,
@@ -160,12 +177,12 @@ export class Origin {
       console.error("Failed to update origin status:", error);
       throw error;
     }
-  };
+  }
 
-  uploadFile = async (
+  async uploadFile(
     file: File,
     options?: { progressCallback?: (percent: number) => void }
-  ) => {
+  ) {
     let uploadInfo;
 
     try {
@@ -208,9 +225,9 @@ export class Origin {
     }
 
     return uploadInfo;
-  };
+  }
 
-  mintFile = async (
+  async mintFile(
     file: File,
     metadata: Record<string, unknown>,
     license: LicenseTerms,
@@ -218,7 +235,7 @@ export class Origin {
     options?: {
       progressCallback?: (percent: number) => void;
     }
-  ): Promise<string | null> => {
+  ): Promise<string | null> {
     if (!this.viemClient) {
       throw new Error("WalletClient not connected.");
     }
@@ -272,13 +289,13 @@ export class Origin {
     }
 
     return tokenId.toString();
-  };
+  }
 
-  mintSocial = async (
+  async mintSocial(
     source: "spotify" | "twitter" | "tiktok",
     metadata: Record<string, unknown>,
     license: LicenseTerms
-  ): Promise<string | null> => {
+  ): Promise<string | null> {
     if (!this.viemClient) {
       throw new Error("WalletClient not connected.");
     }
@@ -329,9 +346,9 @@ export class Origin {
     }
 
     return tokenId.toString();
-  };
+  }
 
-  getOriginUploads = async () => {
+  async getOriginUploads(): Promise<any[] | null> {
     const res = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/files`,
       {
@@ -347,7 +364,7 @@ export class Origin {
     }
     const data = await res.json();
     return data.data;
-  };
+  }
 
   /**
    * Get the user's Origin stats (multiplier, consent, usage, etc.).
@@ -628,5 +645,153 @@ export class Origin {
       throw new Error("Failed to fetch data");
     }
     return response.json();
+  }
+
+  /**
+   * Get royalty information for a wallet address, including the royalty vault address and its balance.
+   * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
+   * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
+   * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+   * @example
+   * ```typescript
+   * // Get royalties for connected wallet
+   * const royalties = await origin.getRoyalties();
+   *
+   * // Get royalties for specific address
+   * const royalties = await origin.getRoyalties("0x1234...");
+   * ```
+   */
+  async getRoyalties(token?: Address, owner?: Address): Promise<RoyaltyInfo> {
+    const walletAddress = await this.#resolveWalletAddress(owner);
+
+    try {
+      const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
+        walletAddress
+      );
+      const publicClient = getPublicClient();
+
+      let balance: bigint;
+      let balanceFormatted: string;
+
+      if (!token || token === zeroAddress) {
+        balance = await publicClient.getBalance({
+          address: royaltyVaultAddress,
+        });
+        balanceFormatted = formatEther(balance);
+      } else {
+        // erc20 (wrapped camp)
+        const erc20Abi = [
+          {
+            inputs: [{ name: "owner", type: "address" }],
+            name: "balanceOf",
+            outputs: [{ name: "", type: "uint256" }],
+            stateMutability: "view",
+            type: "function",
+          },
+          {
+            inputs: [],
+            name: "decimals",
+            outputs: [{ name: "", type: "uint8" }],
+            stateMutability: "view",
+            type: "function",
+          },
+        ] as Abi;
+
+        balance = await this.callContractMethod(token, erc20Abi, "balanceOf", [
+          royaltyVaultAddress,
+        ]);
+
+        const decimals = await this.callContractMethod(
+          token,
+          erc20Abi,
+          "decimals",
+          []
+        );
+
+        balanceFormatted = formatUnits(balance, decimals);
+      }
+
+      return {
+        royaltyVault: royaltyVaultAddress,
+        balance,
+        balanceFormatted,
+      };
+    } catch (error) {
+      throw new Error(
+        `Failed to retrieve royalties for address ${walletAddress}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+  /**
+   * Claim royalties from the royalty vault.
+   * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
+   * @param {Address} [owner] - Optional wallet address to claim royalties for. If not provided, uses the connected wallet.
+   * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
+   * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+   */
+  async claimRoyalties(token?: Address, owner?: Address): Promise<any> {
+    const walletAddress = await this.#resolveWalletAddress(owner);
+    const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
+      walletAddress
+    );
+    return this.callContractMethod(
+      royaltyVaultAddress,
+      this.environment.ROYALTY_VAULT_ABI as Abi,
+      "claimRoyalties",
+      [token ?? zeroAddress],
+      { waitForReceipt: true }
+    );
+  }
+
+  /**
+   * Resolve wallet address from owner parameter or connected wallet.
+   * @private
+   * @param {Address} [owner] - Optional wallet address.
+   * @returns {Promise<Address>} The resolved wallet address.
+   * @throws {Error} Throws an error if no wallet address can be resolved.
+   */
+  async #resolveWalletAddress(owner?: Address): Promise<Address> {
+    if (owner) {
+      return owner;
+    }
+
+    if (!this.viemClient) {
+      throw new Error(
+        "No wallet address provided and no wallet client connected. Please provide an owner address or connect a wallet."
+      );
+    }
+
+    try {
+      const accounts = await this.viemClient.request({
+        method: "eth_requestAccounts",
+        params: [],
+      });
+
+      if (!accounts || accounts.length === 0) {
+        throw new Error("No accounts found in connected wallet.");
+      }
+
+      return accounts[0] as Address;
+    } catch (error) {
+      throw new Error(
+        `Failed to get wallet address: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  /**
+   * Format balance from wei to a more readable format.
+   * @private
+   * @param {bigint} balance - Balance in wei.
+   * @returns {string} Formatted balance string.
+   */
+  #formatBalance(balance: bigint): string {
+    // Convert wei to ether (assuming 18 decimals)
+    const etherBalance = Number(balance) / 1e18;
+    return etherBalance.toFixed(6);
   }
 }

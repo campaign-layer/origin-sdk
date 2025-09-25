@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress, checksumAddress } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress, formatEther, formatUnits, checksumAddress } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -2394,6 +2394,116 @@ var marketplaceMainnetAbi = [
 	}
 ];
 
+var royaltyVaultAbi = [
+	{
+		type: "constructor",
+		inputs: [
+			{
+				name: "_owner",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "receive",
+		stateMutability: "payable"
+	},
+	{
+		type: "function",
+		name: "claimRoyalty",
+		inputs: [
+			{
+				name: "token",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "owner",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "renounceOwnership",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "transferOwnership",
+		inputs: [
+			{
+				name: "newOwner",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "event",
+		name: "OwnershipTransferred",
+		inputs: [
+			{
+				name: "previousOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "newOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "error",
+		name: "OwnableInvalidOwner",
+		inputs: [
+			{
+				name: "owner",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "OwnableUnauthorizedAccount",
+		inputs: [
+			{
+				name: "account",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	}
+];
+
 var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
     AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
@@ -2435,6 +2545,7 @@ const ENVIRONMENTS = {
         CHAIN: testnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
+        ROYALTY_VAULT_ABI: royaltyVaultAbi,
     },
     PRODUCTION: {
         NAME: "PRODUCTION",
@@ -2446,6 +2557,7 @@ const ENVIRONMENTS = {
         CHAIN: mainnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
+        ROYALTY_VAULT_ABI: royaltyVaultAbi,
     },
 };
 
@@ -2612,6 +2724,15 @@ function finalizeDelete(tokenId) {
 }
 
 /**
+ * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
+ * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
+ * @returns The address of the royalty vault associated with the specified token owner.
+ */
+function getOrCreateRoyaltyVault(tokenOwner) {
+    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner]);
+}
+
+/**
  * Returns the license terms associated with a specific token ID.
  * @param tokenId The token ID to query.
  * @returns The license terms of the token ID.
@@ -2747,7 +2868,7 @@ function approveIfNeeded(_a) {
     });
 }
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId;
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
@@ -2755,61 +2876,41 @@ var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_wai
 class Origin {
     constructor(jwt, environment, viemClient) {
         _Origin_instances.add(this);
-        _Origin_generateURL.set(this, (file) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        name: file.name,
-                        type: file.type,
-                    }),
-                    headers: {
-                        Authorization: `Bearer ${this.jwt}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (!uploadRes.ok) {
-                    throw new Error(`HTTP ${uploadRes.status}: ${uploadRes.statusText}`);
-                }
-                const data = yield uploadRes.json();
-                if (data.isError) {
-                    throw new Error(data.message || "Failed to generate upload URL");
-                }
-                return data.data;
-            }
-            catch (error) {
-                console.error("Failed to generate upload URL:", error);
-                throw error;
-            }
-        }));
-        _Origin_setOriginStatus.set(this, (key, status) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`, {
-                    method: "PATCH",
-                    body: JSON.stringify({
-                        status,
-                        fileKey: key,
-                    }),
-                    headers: {
-                        Authorization: `Bearer ${this.jwt}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (!res.ok) {
-                    const errorText = yield res.text().catch(() => "Unknown error");
-                    throw new Error(`HTTP ${res.status}: ${errorText}`);
-                }
-                return true;
-            }
-            catch (error) {
-                console.error("Failed to update origin status:", error);
-                throw error;
-            }
-        }));
-        this.uploadFile = (file, options) => __awaiter(this, void 0, void 0, function* () {
+        this.jwt = jwt;
+        this.viemClient = viemClient;
+        this.environment = environment;
+        // DataNFT methods
+        this.mintWithSignature = mintWithSignature.bind(this);
+        this.registerIpNFT = registerIpNFT.bind(this);
+        this.updateTerms = updateTerms.bind(this);
+        this.finalizeDelete = finalizeDelete.bind(this);
+        this.getOrCreateRoyaltyVault = getOrCreateRoyaltyVault.bind(this);
+        this.getTerms = getTerms.bind(this);
+        this.ownerOf = ownerOf.bind(this);
+        this.balanceOf = balanceOf.bind(this);
+        this.tokenURI = tokenURI.bind(this);
+        this.dataStatus = dataStatus.bind(this);
+        this.isApprovedForAll = isApprovedForAll.bind(this);
+        this.transferFrom = transferFrom.bind(this);
+        this.safeTransferFrom = safeTransferFrom.bind(this);
+        this.approve = approve.bind(this);
+        this.setApprovalForAll = setApprovalForAll.bind(this);
+        // Marketplace methods
+        this.buyAccess = buyAccess.bind(this);
+        this.hasAccess = hasAccess.bind(this);
+        this.subscriptionExpiry = subscriptionExpiry.bind(this);
+    }
+    getJwt() {
+        return this.jwt;
+    }
+    setViemClient(client) {
+        this.viemClient = client;
+    }
+    uploadFile(file, options) {
+        return __awaiter(this, void 0, void 0, function* () {
             let uploadInfo;
             try {
-                uploadInfo = yield __classPrivateFieldGet(this, _Origin_generateURL, "f").call(this, file);
+                uploadInfo = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_generateURL).call(this, file);
             }
             catch (error) {
                 console.error("Failed to generate upload URL:", error);
@@ -2823,7 +2924,7 @@ class Origin {
             }
             catch (error) {
                 try {
-                    yield __classPrivateFieldGet(this, _Origin_setOriginStatus, "f").call(this, uploadInfo.key, "failed");
+                    yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "failed");
                 }
                 catch (statusError) {
                     console.error("Failed to update status to failed:", statusError);
@@ -2832,14 +2933,16 @@ class Origin {
                 throw new Error(`Failed to upload file: ${errorMessage}`);
             }
             try {
-                yield __classPrivateFieldGet(this, _Origin_setOriginStatus, "f").call(this, uploadInfo.key, "success");
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "success");
             }
             catch (statusError) {
                 console.error("Failed to update status to success:", statusError);
             }
             return uploadInfo;
         });
-        this.mintFile = (file, metadata, license, parents, options) => __awaiter(this, void 0, void 0, function* () {
+    }
+    mintFile(file, metadata, license, parents, options) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
@@ -2868,7 +2971,9 @@ class Origin {
             }
             return tokenId.toString();
         });
-        this.mintSocial = (source, metadata, license) => __awaiter(this, void 0, void 0, function* () {
+    }
+    mintSocial(source, metadata, license) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (!this.viemClient) {
                 throw new Error("WalletClient not connected.");
             }
@@ -2892,7 +2997,9 @@ class Origin {
             }
             return tokenId.toString();
         });
-        this.getOriginUploads = () => __awaiter(this, void 0, void 0, function* () {
+    }
+    getOriginUploads() {
+        return __awaiter(this, void 0, void 0, function* () {
             const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/files`, {
                 method: "GET",
                 headers: {
@@ -2906,34 +3013,6 @@ class Origin {
             const data = yield res.json();
             return data.data;
         });
-        this.jwt = jwt;
-        this.viemClient = viemClient;
-        this.environment = environment;
-        // DataNFT methods
-        this.mintWithSignature = mintWithSignature.bind(this);
-        this.registerIpNFT = registerIpNFT.bind(this);
-        this.updateTerms = updateTerms.bind(this);
-        this.finalizeDelete = finalizeDelete.bind(this);
-        this.getTerms = getTerms.bind(this);
-        this.ownerOf = ownerOf.bind(this);
-        this.balanceOf = balanceOf.bind(this);
-        this.tokenURI = tokenURI.bind(this);
-        this.dataStatus = dataStatus.bind(this);
-        this.isApprovedForAll = isApprovedForAll.bind(this);
-        this.transferFrom = transferFrom.bind(this);
-        this.safeTransferFrom = safeTransferFrom.bind(this);
-        this.approve = approve.bind(this);
-        this.setApprovalForAll = setApprovalForAll.bind(this);
-        // Marketplace methods
-        this.buyAccess = buyAccess.bind(this);
-        this.hasAccess = hasAccess.bind(this);
-        this.subscriptionExpiry = subscriptionExpiry.bind(this);
-    }
-    getJwt() {
-        return this.jwt;
-    }
-    setViemClient(client) {
-        this.viemClient = client;
     }
     /**
      * Get the user's Origin stats (multiplier, consent, usage, etc.).
@@ -3105,8 +3184,138 @@ class Origin {
             return response.json();
         });
     }
+    /**
+     * Get royalty information for a wallet address, including the royalty vault address and its balance.
+     * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
+     * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
+     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     * @example
+     * ```typescript
+     * // Get royalties for connected wallet
+     * const royalties = await origin.getRoyalties();
+     *
+     * // Get royalties for specific address
+     * const royalties = await origin.getRoyalties("0x1234...");
+     * ```
+     */
+    getRoyalties(token, owner) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
+            try {
+                const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress);
+                const publicClient = getPublicClient();
+                let balance;
+                let balanceFormatted;
+                if (!token || token === zeroAddress) {
+                    balance = yield publicClient.getBalance({
+                        address: royaltyVaultAddress,
+                    });
+                    balanceFormatted = formatEther(balance);
+                }
+                else {
+                    // erc20 (wrapped camp)
+                    const erc20Abi = [
+                        {
+                            inputs: [{ name: "owner", type: "address" }],
+                            name: "balanceOf",
+                            outputs: [{ name: "", type: "uint256" }],
+                            stateMutability: "view",
+                            type: "function",
+                        },
+                        {
+                            inputs: [],
+                            name: "decimals",
+                            outputs: [{ name: "", type: "uint8" }],
+                            stateMutability: "view",
+                            type: "function",
+                        },
+                    ];
+                    balance = yield this.callContractMethod(token, erc20Abi, "balanceOf", [
+                        royaltyVaultAddress,
+                    ]);
+                    const decimals = yield this.callContractMethod(token, erc20Abi, "decimals", []);
+                    balanceFormatted = formatUnits(balance, decimals);
+                }
+                return {
+                    royaltyVault: royaltyVaultAddress,
+                    balance,
+                    balanceFormatted,
+                };
+            }
+            catch (error) {
+                throw new Error(`Failed to retrieve royalties for address ${walletAddress}: ${error instanceof Error ? error.message : String(error)}`);
+            }
+        });
+    }
+    /**
+     * Claim royalties from the royalty vault.
+     * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
+     * @param {Address} [owner] - Optional wallet address to claim royalties for. If not provided, uses the connected wallet.
+     * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
+     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     */
+    claimRoyalties(token, owner) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
+            const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress);
+            return this.callContractMethod(royaltyVaultAddress, this.environment.ROYALTY_VAULT_ABI, "claimRoyalties", [token !== null && token !== void 0 ? token : zeroAddress], { waitForReceipt: true });
+        });
+    }
 }
-_Origin_generateURL = new WeakMap(), _Origin_setOriginStatus = new WeakMap(), _Origin_instances = new WeakSet(), _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
+_Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_generateURL(file) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`, {
+                method: "POST",
+                body: JSON.stringify({
+                    name: file.name,
+                    type: file.type,
+                }),
+                headers: {
+                    Authorization: `Bearer ${this.jwt}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!uploadRes.ok) {
+                throw new Error(`HTTP ${uploadRes.status}: ${uploadRes.statusText}`);
+            }
+            const data = yield uploadRes.json();
+            if (data.isError) {
+                throw new Error(data.message || "Failed to generate upload URL");
+            }
+            return data.data;
+        }
+        catch (error) {
+            console.error("Failed to generate upload URL:", error);
+            throw error;
+        }
+    });
+}, _Origin_setOriginStatus = function _Origin_setOriginStatus(key, status) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    status,
+                    fileKey: key,
+                }),
+                headers: {
+                    Authorization: `Bearer ${this.jwt}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!res.ok) {
+                const errorText = yield res.text().catch(() => "Unknown error");
+                throw new Error(`HTTP ${res.status}: ${errorText}`);
+            }
+            return true;
+        }
+        catch (error) {
+            console.error("Failed to update origin status:", error);
+            throw error;
+        }
+    });
+}, _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!this.viemClient)
             throw new Error("WalletClient not connected.");
@@ -3163,6 +3372,28 @@ _Origin_generateURL = new WeakMap(), _Origin_setOriginStatus = new WeakMap(), _O
                     throw switchError;
                 }
             }
+        }
+    });
+}, _Origin_resolveWalletAddress = function _Origin_resolveWalletAddress(owner) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (owner) {
+            return owner;
+        }
+        if (!this.viemClient) {
+            throw new Error("No wallet address provided and no wallet client connected. Please provide an owner address or connect a wallet.");
+        }
+        try {
+            const accounts = yield this.viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
+            if (!accounts || accounts.length === 0) {
+                throw new Error("No accounts found in connected wallet.");
+            }
+            return accounts[0];
+        }
+        catch (error) {
+            throw new Error(`Failed to get wallet address: ${error instanceof Error ? error.message : String(error)}`);
         }
     });
 };
@@ -4856,6 +5087,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
         wagmiConnectorClient = useConnectorClient();
         wagmiAccount = useAccount();
     }
+    const { addToast: toast } = useToast();
     if (!auth) {
         throw new Error("Auth instance is not available. Make sure to wrap your component with CampProvider.");
     }
@@ -4928,7 +5160,7 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
             }
         };
     }, [wcProvider]);
-    const handleConnect = (provider) => {
+    const handleConnect = (provider) => __awaiter(void 0, void 0, void 0, function* () {
         var _a, _b;
         if (provider) {
             let addr = null;
@@ -4946,8 +5178,14 @@ const AuthModal = ({ setIsVisible, wcProvider, loading, onlyWagmi, defaultProvid
             ((_b = provider === null || provider === void 0 ? void 0 : provider.provider) === null || _b === void 0 ? void 0 : _b.uid) === (customProvider === null || customProvider === void 0 ? void 0 : customProvider.uid)) {
             auth.setWalletAddress(customAccount === null || customAccount === void 0 ? void 0 : customAccount.address);
         }
-        connect();
-    };
+        try {
+            yield connect();
+        }
+        catch (error) {
+            console.error("Error during connect:", error);
+            toast("Error connecting wallet. Please try again.", "error", 5000);
+        }
+    });
     return (React.createElement("div", { className: styles["outer-container"] },
         React.createElement("div", { className: `${styles.container} ${styles["linking-container"]}` },
             React.createElement(ArrowCorners, { padding: 8, color: "#AAA" }),
