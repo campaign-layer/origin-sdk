@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, encodeFunctionData, zeroAddress, formatEther, formatUnits, checksumAddress } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, zeroAddress, formatEther, formatUnits, checksumAddress } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -2729,7 +2729,11 @@ function finalizeDelete(tokenId) {
  * @returns The address of the royalty vault associated with the specified token owner.
  */
 function getOrCreateRoyaltyVault(tokenOwner) {
-    return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true });
+    return __awaiter(this, void 0, void 0, function* () {
+        const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: true });
+        console.log("Royalty Vault Tx:", royaltyVaultTx);
+        return royaltyVaultTx.simulatedResult;
+    });
 }
 
 /**
@@ -3099,28 +3103,30 @@ class Origin {
                     method: "eth_requestAccounts",
                     params: [],
                 });
-                const data = encodeFunctionData({
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
+                const publicClient = getPublicClient();
+                // simulate
+                const { result: simulatedResult, request } = yield publicClient.simulateContract({
+                    account,
+                    address: contractAddress,
                     abi,
                     functionName: methodName,
                     args: params,
+                    value: options.value,
                 });
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
+                if (options.simulate) {
+                    return simulatedResult;
+                }
                 try {
-                    const txHash = yield this.viemClient.sendTransaction({
-                        to: contractAddress,
-                        data,
-                        account,
-                        value: options.value,
-                        gas: options.gas,
-                    });
+                    const txHash = yield this.viemClient.sendTransaction(request);
                     if (typeof txHash !== "string") {
                         throw new Error("Transaction failed to send.");
                     }
                     if (!options.waitForReceipt) {
-                        return txHash;
+                        return { txHash, simulatedResult };
                     }
                     const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
-                    return receipt;
+                    return { txHash, receipt, simulatedResult };
                 }
                 catch (error) {
                     console.error("Transaction failed:", error);

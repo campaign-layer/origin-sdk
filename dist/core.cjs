@@ -73,17 +73,17 @@ let y=null,c=null;const h=()=>(c||(c=t.createPublicClient({chain:l,transport:t.h
  * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
  * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
  * @returns The address of the royalty vault associated with the specified token owner.
- */function S(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e],{waitForReceipt:!0})}
+ */function S(e){return a(this,void 0,void 0,(function*(){const t=yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getOrCreateRoyaltyVault",[e],{waitForReceipt:!0,simulate:!0});return console.log("Royalty Vault Tx:",t),t.simulatedResult}))}
 /**
  * Returns the license terms associated with a specific token ID.
  * @param tokenId The token ID to query.
  * @returns The license terms of the token ID.
- */function D(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getTerms",[e])}
+ */function N(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getTerms",[e])}
 /**
  * Returns the owner of the specified IPNFT.
  * @param tokenId The ID of the IPNFT to query.
  * @returns The address of the owner of the IPNFT.
- */function N(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"ownerOf",[e])}
+ */function D(e){return this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"ownerOf",[e])}
 /**
  * Returns the number of IPNFTs owned by the given address.
  * @param owner The address to query.
@@ -131,7 +131,7 @@ let y=null,c=null;const h=()=>(c||(c=t.createPublicClient({chain:l,transport:t.h
  * Handles the upload of files to Origin, as well as querying the user's stats
  */class ae{constructor(e,t,n){L.add(this),this.jwt=e,this.viemClient=n,this.environment=t,
 // DataNFT methods
-this.mintWithSignature=E.bind(this),this.registerIpNFT=_.bind(this),this.updateTerms=C.bind(this),this.finalizeDelete=k.bind(this),this.getOrCreateRoyaltyVault=S.bind(this),this.getTerms=D.bind(this),this.ownerOf=N.bind(this),this.balanceOf=P.bind(this),this.tokenURI=x.bind(this),this.dataStatus=O.bind(this),this.isApprovedForAll=U.bind(this),this.transferFrom=M.bind(this),this.safeTransferFrom=B.bind(this),this.approve=R.bind(this),this.setApprovalForAll=F.bind(this),
+this.mintWithSignature=E.bind(this),this.registerIpNFT=_.bind(this),this.updateTerms=C.bind(this),this.finalizeDelete=k.bind(this),this.getOrCreateRoyaltyVault=S.bind(this),this.getTerms=N.bind(this),this.ownerOf=D.bind(this),this.balanceOf=P.bind(this),this.tokenURI=x.bind(this),this.dataStatus=O.bind(this),this.isApprovedForAll=U.bind(this),this.transferFrom=M.bind(this),this.safeTransferFrom=B.bind(this),this.approve=R.bind(this),this.setApprovalForAll=F.bind(this),
 // Marketplace methods
 this.buyAccess=$.bind(this),this.hasAccess=H.bind(this),this.subscriptionExpiry=j.bind(this)}getJwt(){return this.jwt}setViemClient(e){this.viemClient=e}uploadFile(t,n){return a(this,void 0,void 0,(function*(){let i;try{i=yield r(this,L,"m",q).call(this,t)}catch(e){throw console.error("Failed to generate upload URL:",e),new Error(`Failed to generate upload URL: ${e instanceof Error?e.message:String(e)}`)}if(!i)throw new Error("Failed to generate upload URL: No upload info returned");try{yield((t,n,i)=>new Promise(((a,r)=>{e.put(n,t,Object.assign({headers:{"Content-Type":t.type}},"undefined"!=typeof window&&"function"==typeof i?{onUploadProgress:e=>{if(e.total){const t=e.loaded/e.total*100;i(t)}}}:{})).then((e=>{a(e.data)})).catch((e=>{var t;const n=(null===(t=null==e?void 0:e.response)||void 0===t?void 0:t.data)||(null==e?void 0:e.message)||"Upload failed";r(n)}))})))(t,i.url,(null==n?void 0:n.progressCallback)||(()=>{}))}catch(e){try{yield r(this,L,"m",W).call(this,i.key,"failed")}catch(e){console.error("Failed to update status to failed:",e)}const t=e instanceof Error?e.message:String(e);throw new Error(`Failed to upload file: ${t}`)}try{yield r(this,L,"m",W).call(this,i.key,"success")}catch(e){console.error("Failed to update status to success:",e)}return i}))}mintFile(e,t,n,i,r){return a(this,void 0,void 0,(function*(){if(!this.viemClient)throw new Error("WalletClient not connected.");const a=yield this.uploadFile(e,r);if(!a||!a.key)throw new Error("Failed to upload file or get upload info.");const s=BigInt(Date.now()+6e5),o=yield this.registerIpNFT("file",s,n,t,a.key,i),{tokenId:d,signerAddress:u,creatorContentHash:p,signature:l,uri:y}=o;// 10 minutes from now
 if(!(d&&u&&p&&void 0!==l&&y))throw new Error("Failed to register IpNFT: Missing required fields in registration response.");const[c]=yield this.viemClient.request({method:"eth_requestAccounts",params:[]}),h=yield this.mintWithSignature(c,d,i||[],p,y,n,s,l);if("0x1"!==h.status)throw console.error("Minting failed:",h),new Error(`Minting failed with status: ${h.status}`);return d.toString()}))}mintSocial(e,t,n){return a(this,void 0,void 0,(function*(){if(!this.viemClient)throw new Error("WalletClient not connected.");const i=BigInt(Math.floor(Date.now()/1e3)+600),a=yield this.registerIpNFT(e,i,n,t),{tokenId:r,signerAddress:s,creatorContentHash:o,signature:d,uri:u}=a;// 10 minutes from now
@@ -155,7 +155,9 @@ if(!(r&&s&&o&&void 0!==d&&u))throw new Error("Failed to register Social IpNFT: M
      * @param {CallOptions} [options] The call options.
      * @returns {Promise<any>} A promise that resolves with the result of the contract call or transaction hash.
      * @throws {Error} - Throws an error if the wallet client is not connected and the method is not a view function.
-     */callContractMethod(e,n,i,s){return a(this,arguments,void 0,(function*(e,n,i,a,s={}){const o=t.getAbiItem({abi:n,name:i}),d=o&&"stateMutability"in o&&("view"===o.stateMutability||"pure"===o.stateMutability);if(!d&&!this.viemClient)throw new Error("WalletClient not connected.");if(d){const t=h();return(yield t.readContract({address:e,abi:n,functionName:i,args:a}))||null}{const[o]=yield this.viemClient.request({method:"eth_requestAccounts",params:[]}),d=t.encodeFunctionData({abi:n,functionName:i,args:a});yield r(this,L,"m",K).call(this,this.environment.CHAIN);try{const t=yield this.viemClient.sendTransaction({to:e,data:d,account:o,value:s.value,gas:s.gas});if("string"!=typeof t)throw new Error("Transaction failed to send.");if(!s.waitForReceipt)return t;return yield r(this,L,"m",z).call(this,t)}catch(e){throw console.error("Transaction failed:",e),new Error("Transaction failed: "+e)}}}))}
+     */callContractMethod(e,n,i,s){return a(this,arguments,void 0,(function*(e,n,i,a,s={}){const o=t.getAbiItem({abi:n,name:i}),d=o&&"stateMutability"in o&&("view"===o.stateMutability||"pure"===o.stateMutability);if(!d&&!this.viemClient)throw new Error("WalletClient not connected.");if(d){const t=h();return(yield t.readContract({address:e,abi:n,functionName:i,args:a}))||null}{const[t]=yield this.viemClient.request({method:"eth_requestAccounts",params:[]});yield r(this,L,"m",K).call(this,this.environment.CHAIN);const o=h(),{result:d,request:u}=yield o.simulateContract({account:t,address:e,abi:n,functionName:i,args:a,value:s.value});
+// simulate
+if(s.simulate)return d;try{const e=yield this.viemClient.sendTransaction(u);if("string"!=typeof e)throw new Error("Transaction failed to send.");if(!s.waitForReceipt)return{txHash:e,simulatedResult:d};return{txHash:e,receipt:yield r(this,L,"m",z).call(this,e),simulatedResult:d}}catch(e){throw console.error("Transaction failed:",e),new Error("Transaction failed: "+e)}}}))}
 /**
      * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
      * @param {bigint} tokenId The token ID of the asset.

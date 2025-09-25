@@ -374,6 +374,7 @@ type CallOptions = {
     value?: bigint;
     gas?: bigint;
     waitForReceipt?: boolean;
+    simulate?: boolean;
 };
 /**
  * The Origin class

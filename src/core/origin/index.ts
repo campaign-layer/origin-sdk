@@ -51,6 +51,7 @@ type CallOptions = {
   value?: bigint;
   gas?: bigint;
   waitForReceipt?: boolean;
+  simulate?: boolean;
 };
 
 /**
@@ -528,7 +529,6 @@ export class Origin {
 
     if (isView) {
       const publicClient = getPublicClient();
-
       const result =
         (await publicClient.readContract({
           address: contractAddress as `0x${string}`,
@@ -543,35 +543,42 @@ export class Origin {
         params: [],
       });
 
-      const data = encodeFunctionData({
-        abi,
-        functionName: methodName,
-        args: params,
-      });
-
       await this.#ensureChainId(this.environment.CHAIN);
-      try {
-        const txHash = await this.viemClient.sendTransaction({
-          to: contractAddress as `0x${string}`,
-          data,
+
+      const publicClient = getPublicClient();
+
+      // simulate
+      const { result: simulatedResult, request } =
+        await publicClient.simulateContract({
           account,
+          address: contractAddress as `0x${string}`,
+          abi,
+          functionName: methodName,
+          args: params,
           value: options.value,
-          gas: options.gas,
         });
+
+      if (options.simulate) {
+        return simulatedResult;
+      }
+
+      try {
+        const txHash = await this.viemClient.sendTransaction(request);
 
         if (typeof txHash !== "string") {
           throw new Error("Transaction failed to send.");
         }
 
         if (!options.waitForReceipt) {
-          return txHash;
+          return { txHash, simulatedResult };
         }
 
         const receipt = await this.#waitForTxReceipt.call(
           this,
           txHash as `0x${string}`
         );
-        return receipt;
+
+        return { txHash, receipt, simulatedResult };
       } catch (error) {
         console.error("Transaction failed:", error);
         throw new Error("Transaction failed: " + error);
