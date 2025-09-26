@@ -10,7 +10,7 @@ import {
 } from "viem";
 import { APIError } from "../../errors";
 import { uploadWithProgress } from "../../utils";
-import { getPublicClient } from "../auth/viem/client";
+import { getPublicClient, setChain } from "../auth/viem/client";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
 import { finalizeDelete } from "./finalizeDelete";
@@ -434,22 +434,49 @@ export class Origin {
    * Wait for the transaction receipt.
    * @private
    * @param {string} txHash The transaction hash.
+   * @param {Object} [opts] Options for waiting for the receipt.
    * @returns {Promise<any>} A promise that resolves with the transaction receipt.
    * @throws {Error} - Throws an error if the wallet client is not connected.
    */
-  async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
+  async #waitForTxReceipt(
+    txHash: `0x${string}`,
+    opts: {
+      confirmations?: number;
+      timeoutMs?: number;
+      pollingIntervalMs?: number;
+    } = {}
+  ): Promise<any> {
     const publicClient = getPublicClient();
 
-    while (true) {
-      const receipt = await publicClient.getTransactionReceipt({
-        hash: txHash,
+    let currentHash = txHash;
+    const confirmations = opts.confirmations ?? 1;
+    const timeout = opts.timeoutMs ?? 180_000;
+    const pollingInterval = opts.pollingIntervalMs ?? 1_500;
+
+    try {
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: currentHash,
+        confirmations,
+        timeout,
+        pollingInterval,
+        onReplaced: (replacement) => {
+          currentHash = replacement.transaction.hash;
+        },
       });
-
-      if (receipt && receipt.blockNumber) {
-        return receipt;
+      return receipt;
+    } catch (err) {
+      // fallback
+      const start = Date.now();
+      while (Date.now() - start < timeout) {
+        try {
+          const receipt = await publicClient.getTransactionReceipt({
+            hash: currentHash,
+          });
+          if (receipt && receipt.blockNumber) return receipt;
+        } catch {}
+        await new Promise((r) => setTimeout(r, pollingInterval));
       }
-
-      await new Promise((res) => setTimeout(res, 1000));
+      throw err;
     }
   }
 
@@ -473,6 +500,7 @@ export class Origin {
     }
 
     if (currentChainId !== chain.id) {
+      setChain(chain);
       try {
         await this.viemClient.request({
           method: "wallet_switchEthereumChain",

@@ -128,20 +128,20 @@ const mainnet = {
 // @ts-ignore
 let client = null;
 let publicClient = null;
-const getClient = (provider, name = "window.ethereum", 
-// chain: "mainnet" | "testnet" = "testnet",
-chain, address) => {
-    var _a;
+let currentChain = null;
+const getClient = (provider, name = "window.ethereum", chain, address) => {
+    var _a, _b;
     if (!provider && !client) {
         console.warn("Provider is required to create a client.");
         return null;
     }
+    const selectedChain = chain || testnet;
     if (!client ||
         (client.transport.name !== name && provider) ||
-        (address !== ((_a = client.account) === null || _a === void 0 ? void 0 : _a.address) && provider)) {
+        (address !== ((_a = client.account) === null || _a === void 0 ? void 0 : _a.address) && provider) ||
+        (currentChain === null || currentChain === void 0 ? void 0 : currentChain.id) !== selectedChain.id) {
         const obj = {
-            // chain: chain === "mainnet" ? mainnet : testnet,
-            chain: chain || testnet,
+            chain: selectedChain,
             transport: custom(provider, {
                 name: name,
             }),
@@ -150,17 +150,27 @@ chain, address) => {
             obj.account = toAccount(address);
         }
         client = createWalletClient(obj);
+        currentChain = selectedChain;
+        if (publicClient && ((_b = publicClient.chain) === null || _b === void 0 ? void 0 : _b.id) !== selectedChain.id) {
+            publicClient = null;
+        }
     }
     return client;
 };
-const getPublicClient = () => {
-    if (!publicClient) {
+const getPublicClient = (chain) => {
+    var _a;
+    const selectedChain = currentChain || testnet;
+    if (!publicClient || ((_a = publicClient.chain) === null || _a === void 0 ? void 0 : _a.id) !== selectedChain.id) {
         publicClient = createPublicClient({
-            chain: testnet,
+            chain: selectedChain,
             transport: http(),
         });
     }
     return publicClient;
+};
+const setChain = (chain) => {
+    currentChain = chain;
+    publicClient = null; // reset public client to be recreated with new chain
 };
 
 var ipnftMainnetAbi = [
@@ -3323,17 +3333,41 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             throw error;
         }
     });
-}, _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
-    return __awaiter(this, void 0, void 0, function* () {
+}, _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash_1) {
+    return __awaiter(this, arguments, void 0, function* (txHash, opts = {}) {
+        var _a, _b, _c;
         const publicClient = getPublicClient();
-        while (true) {
-            const receipt = yield publicClient.getTransactionReceipt({
-                hash: txHash,
+        let currentHash = txHash;
+        const confirmations = (_a = opts.confirmations) !== null && _a !== void 0 ? _a : 1;
+        const timeout = (_b = opts.timeoutMs) !== null && _b !== void 0 ? _b : 180000;
+        const pollingInterval = (_c = opts.pollingIntervalMs) !== null && _c !== void 0 ? _c : 1500;
+        try {
+            const receipt = yield publicClient.waitForTransactionReceipt({
+                hash: currentHash,
+                confirmations,
+                timeout,
+                pollingInterval,
+                onReplaced: (replacement) => {
+                    currentHash = replacement.transaction.hash;
+                },
             });
-            if (receipt && receipt.blockNumber) {
-                return receipt;
+            return receipt;
+        }
+        catch (err) {
+            // fallback
+            const start = Date.now();
+            while (Date.now() - start < timeout) {
+                try {
+                    const receipt = yield publicClient.getTransactionReceipt({
+                        hash: currentHash,
+                    });
+                    if (receipt && receipt.blockNumber)
+                        return receipt;
+                }
+                catch (_d) { }
+                yield new Promise((r) => setTimeout(r, pollingInterval));
             }
-            yield new Promise((res) => setTimeout(res, 1000));
+            throw err;
         }
     });
 }, _Origin_ensureChainId = function _Origin_ensureChainId(chain) {
@@ -3349,6 +3383,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             currentChainId = parseInt(currentChainId, 16);
         }
         if (currentChainId !== chain.id) {
+            setChain(chain);
             try {
                 yield this.viemClient.request({
                     method: "wallet_switchEthereumChain",

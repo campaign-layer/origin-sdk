@@ -14,11 +14,11 @@ import { mainnet, testnet } from "./chains";
 import { toAccount } from "viem/accounts";
 let client: any = null;
 let publicClient: PublicClient | null = null;
+let currentChain: Chain | null = null;
 
 const getClient = (
   provider: any,
   name: string = "window.ethereum",
-  // chain: "mainnet" | "testnet" = "testnet",
   chain?: Chain,
   address?: string
 ): WalletClient | null => {
@@ -26,14 +26,16 @@ const getClient = (
     console.warn("Provider is required to create a client.");
     return null;
   }
+  const selectedChain = chain || testnet;
+
   if (
     !client ||
     (client.transport.name !== name && provider) ||
-    (address !== client.account?.address && provider)
+    (address !== client.account?.address && provider) ||
+    currentChain?.id !== selectedChain.id
   ) {
     const obj = {
-      // chain: chain === "mainnet" ? mainnet : testnet,
-      chain: chain || testnet,
+      chain: selectedChain,
       transport: custom(provider, {
         name: name,
       }),
@@ -42,17 +44,30 @@ const getClient = (
       obj.account = toAccount(address as Address);
     }
     client = createWalletClient(obj);
+    currentChain = selectedChain;
+
+    if (publicClient && publicClient.chain?.id !== selectedChain.id) {
+      publicClient = null;
+    }
   }
   return client;
 };
 
-const getPublicClient = (): PublicClient => {
-  if (!publicClient) {
+const getPublicClient = (chain?: Chain): PublicClient => {
+  const selectedChain = chain || currentChain || testnet;
+
+  if (!publicClient || publicClient.chain?.id !== selectedChain.id) {
     publicClient = createPublicClient({
-      chain: testnet,
+      chain: selectedChain,
       transport: http(),
     });
   }
   return publicClient;
 };
-export { getClient, getPublicClient };
+
+const setChain = (chain: Chain) => {
+  currentChain = chain;
+  publicClient = null; // reset public client to be recreated with new chain
+};
+
+export { getClient, getPublicClient, setChain };
