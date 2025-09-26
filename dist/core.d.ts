@@ -279,9 +279,10 @@ declare function finalizeDelete(this: Origin, tokenId: bigint): Promise<any>;
 /**
  * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
  * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
+ * @param simulateOnly If true, simulates the transaction without executing it.
  * @returns The address of the royalty vault associated with the specified token owner.
  */
-declare function getOrCreateRoyaltyVault(this: Origin, tokenOwner: Address): Promise<Address>;
+declare function getOrCreateRoyaltyVault(this: Origin, tokenOwner: Address, simulateOnly?: boolean): Promise<Address>;
 
 /**
  * Returns the license terms associated with a specific token ID.

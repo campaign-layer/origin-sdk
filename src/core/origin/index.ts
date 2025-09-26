@@ -783,7 +783,8 @@ export class Origin {
   async claimRoyalties(token?: Address, owner?: Address): Promise<any> {
     const walletAddress = await this.#resolveWalletAddress(owner);
     const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
-      walletAddress
+      walletAddress,
+      true
     );
     return this.callContractMethod(
       royaltyVaultAddress,
@@ -830,17 +831,5 @@ export class Origin {
         }`
       );
     }
-  }
-
-  /**
-   * Format balance from wei to a more readable format.
-   * @private
-   * @param {bigint} balance - Balance in wei.
-   * @returns {string} Formatted balance string.
-   */
-  #formatBalance(balance: bigint): string {
-    // Convert wei to ether (assuming 18 decimals)
-    const etherBalance = Number(balance) / 1e18;
-    return etherBalance.toFixed(6);
   }
 }

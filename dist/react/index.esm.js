@@ -2736,11 +2736,12 @@ function finalizeDelete(tokenId) {
 /**
  * Calls the getOrCreateRoyaltyVault method on the IPNFT contract.
  * @param tokenOwner The address of the token owner for whom to get or create the royalty vault.
+ * @param simulateOnly If true, simulates the transaction without executing it.
  * @returns The address of the royalty vault associated with the specified token owner.
  */
-function getOrCreateRoyaltyVault(tokenOwner) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: false });
+function getOrCreateRoyaltyVault(tokenOwner_1) {
+    return __awaiter(this, arguments, void 0, function* (tokenOwner, simulateOnly = false) {
+        const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: simulateOnly });
         console.log("Royalty Vault Tx:", royaltyVaultTx);
         return royaltyVaultTx.simulatedResult;
     });
@@ -3275,7 +3276,7 @@ class Origin {
     claimRoyalties(token, owner) {
         return __awaiter(this, void 0, void 0, function* () {
             const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
-            const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress);
+            const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress, true);
             return this.callContractMethod(royaltyVaultAddress, this.environment.ROYALTY_VAULT_ABI, "claimRoyalties", [token !== null && token !== void 0 ? token : zeroAddress], { waitForReceipt: true });
         });
     }
