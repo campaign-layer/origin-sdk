@@ -789,7 +789,7 @@ export class Origin {
     return this.callContractMethod(
       royaltyVaultAddress,
       this.environment.ROYALTY_VAULT_ABI as Abi,
-      "claimRoyalties",
+      "claimRoyalty",
       [token ?? zeroAddress],
       { waitForReceipt: true }
     );
