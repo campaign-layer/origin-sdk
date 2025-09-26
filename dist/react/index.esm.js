@@ -2964,10 +2964,11 @@ class Origin {
                 !uri) {
                 throw new Error("Failed to register IpNFT: Missing required fields in registration response.");
             }
-            const [account] = yield this.viemClient.request({
+            const accounts = (yield this.viemClient.request({
                 method: "eth_requestAccounts",
                 params: [],
-            });
+            }));
+            const account = accounts[0];
             const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
             if (mintResult.status !== "0x1") {
                 console.error("Minting failed:", mintResult);
@@ -2991,10 +2992,11 @@ class Origin {
                 !uri) {
                 throw new Error("Failed to register Social IpNFT: Missing required fields in registration response.");
             }
-            const [account] = yield this.viemClient.request({
+            const accounts = (yield this.viemClient.request({
                 method: "eth_requestAccounts",
                 params: [],
-            });
+            }));
+            const account = accounts[0];
             const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
             if (mintResult.status !== "0x1") {
                 throw new Error(`Minting Social IpNFT failed with status: ${mintResult.status}`);
@@ -3085,9 +3087,6 @@ class Origin {
                 "stateMutability" in abiItem &&
                 (abiItem.stateMutability === "view" ||
                     abiItem.stateMutability === "pure");
-            if (!isView && !this.viemClient) {
-                throw new Error("WalletClient not connected.");
-            }
             if (isView) {
                 const publicClient = getPublicClient();
                 const result = (yield publicClient.readContract({
@@ -3098,40 +3097,41 @@ class Origin {
                 })) || null;
                 return result;
             }
-            else {
-                const [account] = yield this.viemClient.request({
-                    method: "eth_requestAccounts",
-                    params: [],
-                });
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
-                const publicClient = getPublicClient();
-                // simulate
-                const { result: simulatedResult, request } = yield publicClient.simulateContract({
-                    account,
-                    address: contractAddress,
-                    abi,
-                    functionName: methodName,
-                    args: params,
-                    value: options.value,
-                });
-                if (options.simulate) {
-                    return simulatedResult;
+            if (!this.viemClient) {
+                throw new Error("WalletClient not connected.");
+            }
+            const [account] = (yield this.viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            }));
+            yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
+            const publicClient = getPublicClient();
+            // simulate
+            const { result: simulatedResult, request } = yield publicClient.simulateContract({
+                account,
+                address: contractAddress,
+                abi,
+                functionName: methodName,
+                args: params,
+                value: options.value,
+            });
+            if (options.simulate) {
+                return simulatedResult;
+            }
+            try {
+                const txHash = yield this.viemClient.writeContract(request);
+                if (typeof txHash !== "string") {
+                    throw new Error("Transaction failed to send.");
                 }
-                try {
-                    const txHash = yield this.viemClient.sendTransaction(request);
-                    if (typeof txHash !== "string") {
-                        throw new Error("Transaction failed to send.");
-                    }
-                    if (!options.waitForReceipt) {
-                        return { txHash, simulatedResult };
-                    }
-                    const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
-                    return { txHash, receipt, simulatedResult };
+                if (!options.waitForReceipt) {
+                    return { txHash, simulatedResult };
                 }
-                catch (error) {
-                    console.error("Transaction failed:", error);
-                    throw new Error("Transaction failed: " + error);
-                }
+                const receipt = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_waitForTxReceipt).call(this, txHash);
+                return { txHash, receipt, simulatedResult };
+            }
+            catch (error) {
+                console.error("Transaction failed:", error);
+                throw new Error("Transaction failed: " + error);
             }
         });
     }
@@ -3154,10 +3154,11 @@ class Origin {
                 duration === undefined) {
                 throw new Error("Terms missing price, paymentToken, or duration");
             }
-            const [account] = yield this.viemClient.request({
+            const accounts = (yield this.viemClient.request({
                 method: "eth_requestAccounts",
                 params: [],
-            });
+            }));
+            const account = accounts[0];
             const totalCost = price;
             const isNative = paymentToken === zeroAddress;
             if (isNative) {
@@ -3324,12 +3325,10 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
     });
 }, _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.viemClient)
-            throw new Error("WalletClient not connected.");
+        const publicClient = getPublicClient();
         while (true) {
-            const receipt = yield this.viemClient.request({
-                method: "eth_getTransactionReceipt",
-                params: [txHash],
+            const receipt = yield publicClient.getTransactionReceipt({
+                hash: txHash,
             });
             if (receipt && receipt.blockNumber) {
                 return receipt;
@@ -3342,10 +3341,10 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         // return;
         if (!this.viemClient)
             throw new Error("WalletClient not connected.");
-        let currentChainId = yield this.viemClient.request({
+        let currentChainId = (yield this.viemClient.request({
             method: "eth_chainId",
             params: [],
-        });
+        }));
         if (typeof currentChainId === "string") {
             currentChainId = parseInt(currentChainId, 16);
         }

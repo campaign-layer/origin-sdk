@@ -1,5 +1,5 @@
 import React, { JSX } from 'react';
-import { Address, Hex, Abi } from 'viem';
+import { Address, Hex, WalletClient, Abi } from 'viem';
 import { UseQueryResult } from '@tanstack/react-query';
 
 interface Environment {
@@ -209,9 +209,9 @@ declare class Origin {
     private jwt;
     environment: Environment;
     private viemClient?;
-    constructor(jwt: string, environment: Environment, viemClient?: any);
+    constructor(jwt: string, environment: Environment, viemClient?: WalletClient);
     getJwt(): string;
-    setViemClient(client: any): void;
+    setViemClient(client: WalletClient): void;
     uploadFile(file: File, options?: {
         progressCallback?: (percent: number) => void;
     }): Promise<any>;

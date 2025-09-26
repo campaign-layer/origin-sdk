@@ -6,6 +6,7 @@ import {
   zeroAddress,
   formatEther,
   formatUnits,
+  WalletClient,
 } from "viem";
 import { APIError } from "../../errors";
 import { uploadWithProgress } from "../../utils";
@@ -82,8 +83,12 @@ export class Origin {
 
   private jwt: string;
   environment: Environment;
-  private viemClient?: any;
-  constructor(jwt: string, environment: Environment, viemClient?: any) {
+  private viemClient?: WalletClient;
+  constructor(
+    jwt: string,
+    environment: Environment,
+    viemClient?: WalletClient
+  ) {
     this.jwt = jwt;
     this.viemClient = viemClient;
     this.environment = environment;
@@ -113,7 +118,7 @@ export class Origin {
     return this.jwt;
   }
 
-  setViemClient(client: any) {
+  setViemClient(client: WalletClient) {
     this.viemClient = client;
   }
 
@@ -268,13 +273,14 @@ export class Origin {
       );
     }
 
-    const [account] = await this.viemClient.request({
+    const accounts = (await this.viemClient.request({
       method: "eth_requestAccounts",
-      params: [],
-    });
+      params: [] as any,
+    })) as string[];
+    const account = accounts[0];
 
     const mintResult = await this.mintWithSignature(
-      account,
+      account as `0x${string}`,
       tokenId,
       parents || [],
       creatorContentHash,
@@ -324,13 +330,14 @@ export class Origin {
       );
     }
 
-    const [account] = await this.viemClient.request({
+    const accounts = (await this.viemClient.request({
       method: "eth_requestAccounts",
-      params: [],
-    });
+      params: [] as any,
+    })) as string[];
+    const account = accounts[0];
 
     const mintResult = await this.mintWithSignature(
-      account,
+      account as `0x${string}`,
       tokenId,
       [],
       creatorContentHash,
@@ -431,12 +438,11 @@ export class Origin {
    * @throws {Error} - Throws an error if the wallet client is not connected.
    */
   async #waitForTxReceipt(txHash: `0x${string}`): Promise<any> {
-    if (!this.viemClient) throw new Error("WalletClient not connected.");
+    const publicClient = getPublicClient();
 
     while (true) {
-      const receipt = await this.viemClient.request({
-        method: "eth_getTransactionReceipt",
-        params: [txHash],
+      const receipt = await publicClient.getTransactionReceipt({
+        hash: txHash,
       });
 
       if (receipt && receipt.blockNumber) {
@@ -458,10 +464,10 @@ export class Origin {
     // return;
     if (!this.viemClient) throw new Error("WalletClient not connected.");
 
-    let currentChainId = await this.viemClient.request({
+    let currentChainId = (await this.viemClient.request({
       method: "eth_chainId",
-      params: [],
-    });
+      params: [] as any,
+    })) as string | number;
     if (typeof currentChainId === "string") {
       currentChainId = parseInt(currentChainId, 16);
     }
@@ -523,10 +529,6 @@ export class Origin {
       (abiItem.stateMutability === "view" ||
         abiItem.stateMutability === "pure");
 
-    if (!isView && !this.viemClient) {
-      throw new Error("WalletClient not connected.");
-    }
-
     if (isView) {
       const publicClient = getPublicClient();
       const result =
@@ -537,52 +539,56 @@ export class Origin {
           args: params,
         })) || null;
       return result;
-    } else {
-      const [account] = await this.viemClient.request({
-        method: "eth_requestAccounts",
-        params: [],
+    }
+
+    if (!this.viemClient) {
+      throw new Error("WalletClient not connected.");
+    }
+
+    const [account] = (await this.viemClient.request({
+      method: "eth_requestAccounts",
+      params: [] as any,
+    })) as [`0x${string}`];
+
+    await this.#ensureChainId(this.environment.CHAIN);
+
+    const publicClient = getPublicClient();
+
+    // simulate
+    const { result: simulatedResult, request } =
+      await publicClient.simulateContract({
+        account,
+        address: contractAddress as `0x${string}`,
+        abi,
+        functionName: methodName,
+        args: params,
+        value: options.value,
       });
 
-      await this.#ensureChainId(this.environment.CHAIN);
+    if (options.simulate) {
+      return simulatedResult;
+    }
 
-      const publicClient = getPublicClient();
+    try {
+      const txHash = await this.viemClient.writeContract(request);
 
-      // simulate
-      const { result: simulatedResult, request } =
-        await publicClient.simulateContract({
-          account,
-          address: contractAddress as `0x${string}`,
-          abi,
-          functionName: methodName,
-          args: params,
-          value: options.value,
-        });
-
-      if (options.simulate) {
-        return simulatedResult;
+      if (typeof txHash !== "string") {
+        throw new Error("Transaction failed to send.");
       }
 
-      try {
-        const txHash = await this.viemClient.sendTransaction(request);
-
-        if (typeof txHash !== "string") {
-          throw new Error("Transaction failed to send.");
-        }
-
-        if (!options.waitForReceipt) {
-          return { txHash, simulatedResult };
-        }
-
-        const receipt = await this.#waitForTxReceipt.call(
-          this,
-          txHash as `0x${string}`
-        );
-
-        return { txHash, receipt, simulatedResult };
-      } catch (error) {
-        console.error("Transaction failed:", error);
-        throw new Error("Transaction failed: " + error);
+      if (!options.waitForReceipt) {
+        return { txHash, simulatedResult };
       }
+
+      const receipt = await this.#waitForTxReceipt.call(
+        this,
+        txHash as `0x${string}`
+      );
+
+      return { txHash, receipt, simulatedResult };
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      throw new Error("Transaction failed: " + error);
     }
   }
 
@@ -606,17 +612,18 @@ export class Origin {
     ) {
       throw new Error("Terms missing price, paymentToken, or duration");
     }
-    const [account] = await this.viemClient.request({
+    const accounts = (await this.viemClient.request({
       method: "eth_requestAccounts",
-      params: [],
-    });
+      params: [] as any,
+    })) as string[];
+    const account = accounts[0];
 
     const totalCost = price;
     const isNative = paymentToken === zeroAddress;
     if (isNative) {
       // return this.buyAccess(account, tokenId, periods, totalCost);
       return this.buyAccess(
-        account,
+        account as `0x${string}`,
         tokenId,
         totalCost,
         duration,
@@ -629,12 +636,18 @@ export class Origin {
       walletClient: this.viemClient,
       publicClient: getPublicClient(),
       tokenAddress: paymentToken,
-      owner: account,
+      owner: account as `0x${string}`,
       spender: this.environment.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
       amount: totalCost,
     });
 
-    return this.buyAccess(account, tokenId, totalCost, duration, paymentToken);
+    return this.buyAccess(
+      account as `0x${string}`,
+      tokenId,
+      totalCost,
+      duration,
+      paymentToken
+    );
   }
 
   async getData(tokenId: bigint): Promise<any> {
@@ -774,7 +787,7 @@ export class Origin {
     try {
       const accounts = await this.viemClient.request({
         method: "eth_requestAccounts",
-        params: [],
+        params: [] as any,
       });
 
       if (!accounts || accounts.length === 0) {
