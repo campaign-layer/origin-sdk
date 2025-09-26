@@ -2982,9 +2982,9 @@ class Origin {
             }));
             const account = accounts[0];
             const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
-            if (mintResult.status !== "0x1") {
+            if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
                 console.error("Minting failed:", mintResult);
-                throw new Error(`Minting failed with status: ${mintResult.status}`);
+                throw new Error(`Minting failed with status: ${mintResult.receipt.status}`);
             }
             return tokenId.toString();
         });
@@ -3010,7 +3010,7 @@ class Origin {
             }));
             const account = accounts[0];
             const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
-            if (mintResult.status !== "0x1") {
+            if (["0x1", "success"].indexOf(mintResult.status) === -1) {
                 throw new Error(`Minting Social IpNFT failed with status: ${mintResult.status}`);
             }
             return tokenId.toString();
