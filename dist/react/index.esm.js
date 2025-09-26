@@ -2742,8 +2742,9 @@ function finalizeDelete(tokenId) {
 function getOrCreateRoyaltyVault(tokenOwner_1) {
     return __awaiter(this, arguments, void 0, function* (tokenOwner, simulateOnly = false) {
         const royaltyVaultTx = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getOrCreateRoyaltyVault", [tokenOwner], { waitForReceipt: true, simulate: simulateOnly });
-        console.log("Royalty Vault Tx:", royaltyVaultTx);
-        return royaltyVaultTx.simulatedResult;
+        return simulateOnly
+            ? royaltyVaultTx
+            : royaltyVaultTx.simulatedResult;
     });
 }
 
@@ -3204,6 +3205,7 @@ class Origin {
     }
     /**
      * Get royalty information for a wallet address, including the royalty vault address and its balance.
+     * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
      * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
      * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
      * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
@@ -3220,8 +3222,7 @@ class Origin {
         return __awaiter(this, void 0, void 0, function* () {
             const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
             try {
-                const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress);
-                console.log("Royalty Vault Address:", royaltyVaultAddress);
+                const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress, true);
                 const publicClient = getPublicClient();
                 let balance;
                 let balanceFormatted;
@@ -3277,7 +3278,7 @@ class Origin {
         return __awaiter(this, void 0, void 0, function* () {
             const walletAddress = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_resolveWalletAddress).call(this, owner);
             const royaltyVaultAddress = yield this.getOrCreateRoyaltyVault(walletAddress, true);
-            return this.callContractMethod(royaltyVaultAddress, this.environment.ROYALTY_VAULT_ABI, "claimRoyalties", [token !== null && token !== void 0 ? token : zeroAddress], { waitForReceipt: true });
+            return this.callContractMethod(royaltyVaultAddress, this.environment.ROYALTY_VAULT_ABI, "claimRoyalty", [token !== null && token !== void 0 ? token : zeroAddress], { waitForReceipt: true });
         });
     }
 }

@@ -447,6 +447,7 @@ declare class Origin {
     getData(tokenId: bigint): Promise<any>;
     /**
      * Get royalty information for a wallet address, including the royalty vault address and its balance.
+     * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
      * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
      * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
      * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.

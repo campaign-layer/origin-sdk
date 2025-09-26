@@ -20,7 +20,7 @@ export async function getOrCreateRoyaltyVault(
     { waitForReceipt: true, simulate: simulateOnly }
   );
 
-  console.log("Royalty Vault Tx:", royaltyVaultTx);
-
-  return royaltyVaultTx.simulatedResult as Address;
+  return simulateOnly
+    ? royaltyVaultTx
+    : (royaltyVaultTx.simulatedResult as Address);
 }
