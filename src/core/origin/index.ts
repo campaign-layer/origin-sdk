@@ -349,9 +349,9 @@ export class Origin {
       signature
     );
 
-    if (["0x1", "success"].indexOf(mintResult.status) === -1) {
+    if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
       throw new Error(
-        `Minting Social IpNFT failed with status: ${mintResult.status}`
+        `Minting Social IpNFT failed with status: ${mintResult.receipt.status}`
       );
     }
 
