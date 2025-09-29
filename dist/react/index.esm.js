@@ -3010,7 +3010,6 @@ class Origin {
             }));
             const account = accounts[0];
             const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
-            console.log("Mint result:", mintResult);
             if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
                 throw new Error(`Minting Social IpNFT failed with status: ${mintResult.receipt.status}`);
             }
