@@ -15,10 +15,10 @@
 The Origin SDK currently exposes the following modules:
 
 - `"@campnetwork/origin"` - The main entry point for the SDK, exposes the following classes:
-  - `TwitterAPI` - For fetching user Twitter data from the Auth Hub
-  - `SpotifyAPI` - For fetching user Spotify data from the Auth Hub
+  - `TwitterAPI` - For fetching user Twitter data from Origin
+  - `SpotifyAPI` - For fetching user Spotify data from Origin
   - `Auth` - For authenticating users with the Origin SDK
-- `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via the Camp Auth Hub
+- `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via Origin
 
 # Installation
 
@@ -46,7 +46,7 @@ import { TwitterAPI, SpotifyAPI, Auth } from "@campnetwork/origin";
 
 ### TwitterAPI
 
-The TwitterAPI class is the entry point for fetching user Twitter data from the Auth Hub. It requires an API key to be instantiated.
+The TwitterAPI class is the entry point for fetching user Twitter data from Origin. It requires an API key to be instantiated.
 
 **Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
@@ -152,7 +152,7 @@ const viewedTweets = await twitter.fetchViewedTweetsByUsername("jack", 1, 10);
 
 ### SpotifyAPI
 
-The SpotifyAPI class is the entry point for fetching user Spotify data from the Auth Hub. It requires an API key to be instantiated.
+The SpotifyAPI class is the entry point for fetching user Spotify data from Origin. It requires an API key to be instantiated.
 
 **Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
@@ -226,7 +226,7 @@ const user = await spotify.fetchUserByWalletAddress("0x1234567890");
 
 ### TikTokAPI
 
-The TikTokAPI class is the entry point for fetching user TikTok data from the Auth Hub. It requires an API key to be instantiated.
+The TikTokAPI class is the entry point for fetching user TikTok data from Origin. It requires an API key to be instantiated.
 
 **Note: The methods for fetching data will only return data for users who have authenticated to your app via the Origin SDK.**
 
@@ -437,7 +437,7 @@ Afterwards, the user will be redirected back to the `redirectUri` specified in t
 
 `linkTwitter() => void`
 
-The `linkTwitter` method redirects the user to the Twitter OAuth flow to link their Twitter account to the Auth Hub.
+The `linkTwitter` method redirects the user to the Twitter OAuth flow to link their Twitter account to Origin.
 
 ```js
 auth.linkTwitter();
@@ -447,7 +447,7 @@ auth.linkTwitter();
 
 `linkDiscord() => void`
 
-The `linkDiscord` method redirects the user to the Discord OAuth flow to link their Discord account to the Auth Hub.
+The `linkDiscord` method redirects the user to the Discord OAuth flow to link their Discord account to Origin.
 
 ```js
 auth.linkDiscord();
@@ -457,7 +457,7 @@ auth.linkDiscord();
 
 `linkSpotify() => void`
 
-The `linkSpotify` method redirects the user to the Spotify OAuth flow to link their Spotify account to the Auth Hub.
+The `linkSpotify` method redirects the user to the Spotify OAuth flow to link their Spotify account to Origin.
 
 ```js
 auth.linkSpotify();
@@ -467,7 +467,7 @@ auth.linkSpotify();
 
 `linkTikTok(handle: string) => Promise<void>`
 
-The `linkTikTok` method links the provided TikTok handle to the Auth Hub.
+The `linkTikTok` method links the provided TikTok handle to Origin.
 
 ```js
 auth.linkTikTok("tiktokhandle");
@@ -476,7 +476,7 @@ auth.linkTikTok("tiktokhandle");
 #### sendTelegramOTP
 
 `sendTelegramOTP(phoneNumber: string) => Promise<void>`
-The `sendTelegramOTP` method sends an OTP to the provided phone number via Telegram. The OTP can be used via the `linkTelegram` method to link the user's Telegram account to the Auth Hub.
+The `sendTelegramOTP` method sends an OTP to the provided phone number via Telegram. The OTP can be used via the `linkTelegram` method to link the user's Telegram account to Origin.
 
 ```js
 const { phone_code_hash } = await auth.sendTelegramOTP("+1234567890");
@@ -486,7 +486,7 @@ const { phone_code_hash } = await auth.sendTelegramOTP("+1234567890");
 
 `linkTelegram(phoneNumber: string, otp: string, phoneCodeHash: string) => Promise<void>`
 
-The `linkTelegram` method links the provided phone number to the Auth Hub using the OTP and phone code hash received from the `sendTelegramOTP` method.
+The `linkTelegram` method links the provided phone number to Origin using the OTP and phone code hash received from the `sendTelegramOTP` method.
 
 ```js
 await auth.linkTelegram("+1234567890", "123456", "abc123");
@@ -498,7 +498,7 @@ await auth.linkTelegram("+1234567890", "123456", "abc123");
 
 `unlinkTwitter() => Promise<void>`
 
-The `unlinkTwitter` method unlinks the user's Twitter account from the Auth Hub.
+The `unlinkTwitter` method unlinks the user's Twitter account from Origin.
 
 ```js
 await auth.unlinkTwitter();
@@ -508,7 +508,7 @@ await auth.unlinkTwitter();
 
 `unlinkDiscord() => Promise<void>`
 
-The `unlinkDiscord` method unlinks the user's Discord account from the Auth Hub.
+The `unlinkDiscord` method unlinks the user's Discord account from Origin.
 
 ```js
 await auth.unlinkDiscord();
@@ -518,7 +518,7 @@ await auth.unlinkDiscord();
 
 `unlinkSpotify() => Promise<void>`
 
-The `unlinkSpotify` method unlinks the user's Spotify account from the Auth Hub.
+The `unlinkSpotify` method unlinks the user's Spotify account from Origin.
 
 ```js
 await auth.unlinkSpotify();
@@ -528,7 +528,7 @@ await auth.unlinkSpotify();
 
 `unlinkTikTok() => Promise<void>`
 
-The `unlinkTikTok` method unlinks the user's TikTok account from the Auth Hub.
+The `unlinkTikTok` method unlinks the user's TikTok account from Origin.
 
 ```js
 await auth.unlinkTikTok();
@@ -537,7 +537,7 @@ await auth.unlinkTikTok();
 #### unlinkTelegram
 
 `unlinkTelegram() => Promise<void>`
-The `unlinkTelegram` method unlinks the user's Telegram account from the Auth Hub.
+The `unlinkTelegram` method unlinks the user's Telegram account from Origin.
 
 ```js
 await auth.unlinkTelegram();
@@ -621,7 +621,7 @@ The `CampProvider` component sets up the context for the Origin SDK and provides
 
 ![@campnetwork/origin](https://imgur.com/rptBOLI.png)
 
-The **CampModal** is a one-line\* solution for authenticating users with the Origin SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
+The **CampModal** is a one-line\* solution for authenticating users with the Origin SDK. It can be used to connect users to Origin, link and unlink social accounts, mint IPNFTs, and view the user's Origin stats.
 
 It works as follows:
 
@@ -693,7 +693,7 @@ Users can be authenticated either via the Camp Modal as outlined above or progra
 
 ### Usage with third party providers (Privy, Appkit, Magic, etc.)
 
-The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. When using wagmi, it will automatically detect if the user is authenticated via a third party provider and give them the option to connect to the Auth Hub using that provider. Otherwise, you can set up the default provider to be whatever provider you are using.
+The Camp Modal can be used in conjunction with providers such as Privy and Appkit to create a seamless authentication experience for users. When using wagmi, it will automatically detect if the user is authenticated via a third party provider and give them the option to connect to Origin using that provider. Otherwise, you can set up the default provider to be whatever provider you are using.
 
 [Example usage with Privy](./examples/client-side/react/privy-connector/)
 
