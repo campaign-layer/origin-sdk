@@ -88,6 +88,7 @@
   width: 100%;
 }
 .origin-section {
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -113,10 +114,20 @@
   margin-top: 0.5rem;
 }
 
+.claim-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: 0.5rem;
+}
+
 .origin-wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
   width: 100%;

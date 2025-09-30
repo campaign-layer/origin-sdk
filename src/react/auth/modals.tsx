@@ -46,6 +46,7 @@ import {
 import constants from "../../constants.js";
 import { useToast } from "../components/toasts.js";
 import Tooltip from "../components/Tooltip";
+import { formatEther } from "viem";
 interface AuthModalProps {
   setIsVisible: (isVisible: boolean) => void;
   wcProvider: any;
@@ -938,10 +939,10 @@ const LinkingModal = () => {
  */
 const OriginSection = (): JSX.Element => {
   const { stats, uploads } = useOrigin();
-  // const [isOriginAuthorized, setIsOriginAuthorized] = useState(true);
-  // const [royaltyMultiplier, setRoyaltyMultiplier] = useState(1);
-  // const [royaltyCredits, setRoyaltyCredits] = useState(0);
-  const { environment } = useContext(CampContext);
+  const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const { environment, auth } = useContext(CampContext);
+  const { addToast: toast } = useToast();
 
   const [uploadedImages, setUploadedImages] = useState(0);
   const [uploadedVideos, setUploadedVideos] = useState(0);
@@ -949,17 +950,29 @@ const OriginSection = (): JSX.Element => {
   const [uploadedText, setUploadedText] = useState(0);
 
   useEffect(() => {
-    if (!stats.isLoading && !stats.isError) {
-      // setIsOriginAuthorized((stats.data as any)?.data?.user?.active ?? true);
-      // setRoyaltyMultiplier((stats.data as any)?.data?.user?.multiplier ?? 1);
-      // setRoyaltyCredits((stats.data as any)?.data?.user?.points ?? 0);
+    const fetchRoyalties = async () => {
+      if (!auth || !auth.origin) return;
+      const royalties = await auth?.origin.getRoyalties();
+      const bal = formatEther(royalties.balance);
+      setRoyaltiesToClaim(bal !== "0" ? formatCampAmount(Number(bal)) : null);
+    };
+    fetchRoyalties();
+  }, [auth]);
+
+  const handleClaimRoyalties = async () => {
+    if (!auth || !auth.origin || !royaltiesToClaim) return;
+    setIsClaiming(true);
+    try {
+      await auth.origin.claimRoyalties();
+      setRoyaltiesToClaim(null);
+      toast("Royalties claimed successfully!", "success", 5000);
+    } catch (error) {
+      console.error("Error claiming royalties:", error);
+      toast("Error claiming royalties. Please try again.", "error", 5000);
+    } finally {
+      setIsClaiming(false);
     }
-    if (stats.isError) {
-      // setIsOriginAuthorized(true);
-      // setRoyaltyMultiplier(1);
-      // setRoyaltyCredits(0);
-    }
-  }, [stats.data, stats.isError, stats.isLoading]);
+  };
 
   useEffect(() => {
     if (uploads.data) {
@@ -991,6 +1004,7 @@ const OriginSection = (): JSX.Element => {
     </div>
   ) : (
     <div className={styles["origin-wrapper"]}>
+      {/* line one */}
       <div className={styles["origin-section"]}>
         <Tooltip
           content={`Images uploaded: ${uploadedImages.toLocaleString()}`}
@@ -1036,6 +1050,7 @@ const OriginSection = (): JSX.Element => {
           </div>
         </Tooltip>
       </div>
+      {/* line two */}
       <div className={styles["origin-section"]}>
         <Tooltip
           content={
@@ -1079,6 +1094,20 @@ const OriginSection = (): JSX.Element => {
             <span className={styles["origin-label"]}>Marketplace</span>
           </div>
         </Tooltip>
+      </div>
+      {/* claim section */}
+      <div className={styles["claim-section"]}>
+        <Button
+          style={{ margin: 0 }}
+          onClick={handleClaimRoyalties}
+          disabled={!royaltiesToClaim || isClaiming}
+        >
+          {royaltiesToClaim
+            ? isClaiming
+              ? "Claiming..."
+              : `Claim ${royaltiesToClaim} $CAMP`
+            : "No Royalties to claim"}
+        </Button>
       </div>
     </div>
   );

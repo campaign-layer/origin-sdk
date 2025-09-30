@@ -410,20 +410,20 @@ h(this,re,"m",oe).call(this,"viem",this.viem),h(this,re,"m",oe).call(this,"provi
 /**
      * Recover the provider from local storage.
      * @returns {Promise<void>}
-     */recoverProvider(){return c(this,void 0,void 0,(function*(){var e,t,n,i,a,r,s,o,d,u,p,l,y,c,h;if(!this.walletAddress)return void console.warn("No wallet address found in local storage. Please connect your wallet again.");const m=JSON.parse(localStorage.getItem("camp-sdk:provider")||"{}");let T;const f=null!==(e=O())&&void 0!==e?e:[];
+     */recoverProvider(){return c(this,void 0,void 0,(function*(){var e,t,n,i,a,r,s,o,d,u,p,l,y;if(!this.walletAddress)return void console.warn("No wallet address found in local storage. Please connect your wallet again.");const c=JSON.parse(localStorage.getItem("camp-sdk:provider")||"{}");let h;const m=null!==(e=O())&&void 0!==e?e:[];
 // first pass: try to find provider by UUID/name and check if it has the right address
 // without prompting (using eth_accounts)
-for(const e of f)try{if(m.uuid&&(null===(t=e.info)||void 0===t?void 0:t.uuid)===m.uuid||m.name&&(null===(n=e.info)||void 0===n?void 0:n.name)===m.name){
+for(const e of m)try{if(c.uuid&&(null===(t=e.info)||void 0===t?void 0:t.uuid)===c.uuid||c.name&&(null===(n=e.info)||void 0===n?void 0:n.name)===c.name){
 // silently check if the wallet address matches first
-const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(i=t[0])||void 0===i?void 0:i.toLowerCase())===(null===(a=this.walletAddress)||void 0===a?void 0:a.toLowerCase())){T=e;break}}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
+const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(i=t[0])||void 0===i?void 0:i.toLowerCase())===(null===(a=this.walletAddress)||void 0===a?void 0:a.toLowerCase())){h=e;break}}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
 // second pass: if no provider found by UUID/name match, try to find by address only
 // but still avoid prompting
-if(!T)for(const e of f)try{
+if(!h)for(const e of m)try{
 // skip providers we already checked in the first pass
-if(m.uuid&&(null===(r=e.info)||void 0===r?void 0:r.uuid)===m.uuid||m.name&&(null===(s=e.info)||void 0===s?void 0:s.name)===m.name)continue;const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(o=t[0])||void 0===o?void 0:o.toLowerCase())===(null===(d=this.walletAddress)||void 0===d?void 0:d.toLowerCase())){T=e;break}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
+if(c.uuid&&(null===(r=e.info)||void 0===r?void 0:r.uuid)===c.uuid||c.name&&(null===(s=e.info)||void 0===s?void 0:s.name)===c.name)continue;const t=yield e.provider.request({method:"eth_accounts"});if(t.length>0&&(null===(o=t[0])||void 0===o?void 0:o.toLowerCase())===(null===(d=this.walletAddress)||void 0===d?void 0:d.toLowerCase())){h=e;break}}catch(e){console.warn("Failed to fetch accounts from provider:",e)}
 // third pass: if still no provider found and we have UUID/name info,
 // try prompting the user (only for the stored provider)
-if(!T&&(m.uuid||m.name))for(const e of f)try{if(m.uuid&&(null===(u=e.info)||void 0===u?void 0:u.uuid)===m.uuid||m.name&&(null===(p=e.info)||void 0===p?void 0:p.name)===m.name){console.log("Attempting to reconnect to stored provider:",(null===(l=e.info)||void 0===l?void 0:l.name)||(null===(y=e.info)||void 0===y?void 0:y.uuid));const t=yield e.provider.request({method:"eth_requestAccounts"});if(t.length>0&&(null===(c=t[0])||void 0===c?void 0:c.toLowerCase())===(null===(h=this.walletAddress)||void 0===h?void 0:h.toLowerCase())){T=e;break}}}catch(e){console.warn("Failed to reconnect to stored provider:",e)}T?this.setProvider({provider:T.provider,info:T.info||{name:"Unknown"},address:this.walletAddress}):console.warn("No matching provider found for the stored wallet address. Please connect your wallet again.")}))}
+if(!h&&(c.uuid||c.name))for(const e of m)try{if(c.uuid&&(null===(u=e.info)||void 0===u?void 0:u.uuid)===c.uuid||c.name&&(null===(p=e.info)||void 0===p?void 0:p.name)===c.name){const t=yield e.provider.request({method:"eth_requestAccounts"});if(t.length>0&&(null===(l=t[0])||void 0===l?void 0:l.toLowerCase())===(null===(y=this.walletAddress)||void 0===y?void 0:y.toLowerCase())){h=e;break}}}catch(e){console.warn("Failed to reconnect to stored provider:",e)}h?this.setProvider({provider:h.provider,info:h.info||{name:"Unknown"},address:this.walletAddress}):console.warn("No matching provider found for the stored wallet address. Please connect your wallet again.")}))}
 /**
      * Disconnect the user.
      * @returns {Promise<void>}
