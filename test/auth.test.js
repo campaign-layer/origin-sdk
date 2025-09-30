@@ -59,9 +59,8 @@ describe("Auth Class", () => {
   test("should initialize with correct properties", () => {
     expect(auth.clientId).toBe(clientId);
     expect(auth.redirectUri).toEqual({
-      twitter: redirectUri,
-      discord: redirectUri,
       spotify: redirectUri,
+      twitter: redirectUri,
     });
     expect(auth.isAuthenticated).toBe(false);
   });
@@ -99,8 +98,46 @@ describe("Auth Class", () => {
   });
 
   test("should throw error if user is not authenticated when linking socials", async () => {
-    await expect(auth.linkTwitter()).rejects.toThrow(
-      "User needs to be authenticated"
-    );
+    await expect(auth.linkTwitter()).rejects.toThrow("User needs to be authenticated");
+    await expect(auth.linkSpotify()).rejects.toThrow("User needs to be authenticated");
+    await expect(auth.linkTikTok("handle")).rejects.toThrow("User needs to be authenticated");
+  });
+
+  test("should throw error if user is not authenticated when unlinking socials", async () => {
+    await expect(auth.unlinkTwitter()).rejects.toThrow();
+    await expect(auth.unlinkSpotify()).rejects.toThrow();
+    await expect(auth.unlinkTikTok()).rejects.toThrow();
+  });
+
+  test("should throw error if not authenticated for getLinkedSocials", async () => {
+    await expect(auth.getLinkedSocials()).rejects.toThrow("User needs to be authenticated");
+  });
+
+  test("should trigger and unsubscribe events", () => {
+    const cb = jest.fn();
+    auth.on("state", cb);
+    auth.setLoading(true);
+    expect(cb).toHaveBeenCalledWith("loading");
+    auth.off("state", cb);
+    auth.setLoading(false);
+    expect(cb).toHaveBeenCalledTimes(1);
+  });
+
+  test("should set provider and trigger viem/provider events", () => {
+    const viemCb = jest.fn();
+    const providerCb = jest.fn();
+    auth.on("viem", viemCb);
+    auth.on("provider", providerCb);
+    const provider = { name: "test-provider", request: jest.fn() };
+    const info = { name: "test-info" };
+    auth.setProvider({ provider, info });
+    expect(viemCb).toHaveBeenCalled();
+    expect(providerCb).toHaveBeenCalledWith({ provider, info });
+  });
+
+  test("should set and recover wallet address", async () => {
+    auth.walletAddress = "0x123";
+    localStorage.setItem("camp-sdk:provider", JSON.stringify({ name: "test-provider" }));
+    await expect(auth.recoverProvider()).resolves.toBeUndefined();
   });
 });

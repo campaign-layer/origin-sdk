@@ -270,9 +270,7 @@ The Auth class is the entry point for authenticating users with the Origin SDK. 
 - `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
   The `redirectUri` can also be an object with the following optional properties:
   - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
-  - `discord` - The URI to redirect to after the user completes oauth for Discord.
   - `spotify` - The URI to redirect to after the user completes oauth for Spotify.
-- `allowAnalytics` - Whether to allow analytics to be collected. Defaults to `true`.
 
 You may use the `redirectUri` object to redirect the user to different pages based on the social they are linking.
 You may only define the URIs for the socials you are using, the rest will default to `window.location.href`.
@@ -292,7 +290,6 @@ const auth = new Auth({
   clientId: "your-client-id",
   redirectUri: {
     twitter: "https://your-website.com/twitter",
-    discord: "https://your-website.com/discord",
     spotify: "https://your-website.com/spotify",
   },
 });
@@ -417,14 +414,14 @@ auth.off("state", callback);
 
 #### getLinkedSocials
 
-`getLinkedSocials() => Promise<{ twitter: boolean, discord: boolean, spotify: boolean }>`
+`getLinkedSocials() => Promise<{ twitter: boolean, tiktok: boolean, spotify: boolean }>`
 
 The `getLinkedSocials` method returns a promise that resolves to an object containing the possible socials that the user can link and whether they are linked or not.
 
 ```js
 const linkedSocials = await auth.getLinkedSocials();
 
-console.log(linkedSocials); // { twitter: true, discord: false, spotify: true }
+console.log(linkedSocials); // { twitter: true, tiktok: false, spotify: true }
 ```
 
 ---
@@ -441,16 +438,6 @@ The `linkTwitter` method redirects the user to the Twitter OAuth flow to link th
 
 ```js
 auth.linkTwitter();
-```
-
-#### linkDiscord
-
-`linkDiscord() => void`
-
-The `linkDiscord` method redirects the user to the Discord OAuth flow to link their Discord account to Origin.
-
-```js
-auth.linkDiscord();
 ```
 
 #### linkSpotify
@@ -473,25 +460,6 @@ The `linkTikTok` method links the provided TikTok handle to Origin.
 auth.linkTikTok("tiktokhandle");
 ```
 
-#### sendTelegramOTP
-
-`sendTelegramOTP(phoneNumber: string) => Promise<void>`
-The `sendTelegramOTP` method sends an OTP to the provided phone number via Telegram. The OTP can be used via the `linkTelegram` method to link the user's Telegram account to Origin.
-
-```js
-const { phone_code_hash } = await auth.sendTelegramOTP("+1234567890");
-```
-
-#### linkTelegram
-
-`linkTelegram(phoneNumber: string, otp: string, phoneCodeHash: string) => Promise<void>`
-
-The `linkTelegram` method links the provided phone number to Origin using the OTP and phone code hash received from the `sendTelegramOTP` method.
-
-```js
-await auth.linkTelegram("+1234567890", "123456", "abc123");
-```
-
 ---
 
 #### unlinkTwitter
@@ -502,16 +470,6 @@ The `unlinkTwitter` method unlinks the user's Twitter account from Origin.
 
 ```js
 await auth.unlinkTwitter();
-```
-
-#### unlinkDiscord
-
-`unlinkDiscord() => Promise<void>`
-
-The `unlinkDiscord` method unlinks the user's Discord account from Origin.
-
-```js
-await auth.unlinkDiscord();
 ```
 
 #### unlinkSpotify
@@ -532,15 +490,6 @@ The `unlinkTikTok` method unlinks the user's TikTok account from Origin.
 
 ```js
 await auth.unlinkTikTok();
-```
-
-#### unlinkTelegram
-
-`unlinkTelegram() => Promise<void>`
-The `unlinkTelegram` method unlinks the user's Telegram account from Origin.
-
-```js
-await auth.unlinkTelegram();
 ```
 
 # React
@@ -604,7 +553,6 @@ function App() {
       clientId="your-client-id"
       redirectUri={{
         twitter: "https://your-website.com/twitter",
-        discord: "https://your-website.com/discord",
         spotify: "https://your-website.com/spotify",
       }}
       environment="DEVELOPMENT"
@@ -878,7 +826,7 @@ function App() {
   return (
     <div>
       <div>Twitter: {data.twitter ? "Linked" : "Not linked"}</div>
-      <div>Discord: {data.discord ? "Linked" : "Not linked"}</div>
+      <div>Tiktok: {data.tiktok ? "Linked" : "Not linked"}</div>
       <div>Spotify: {data.spotify ? "Linked" : "Not linked"}</div>
     </div>
   );
@@ -895,35 +843,22 @@ import { useLinkSocials } from "@campnetwork/origin/react";
 function App() {
   const {
     linkTwitter,
-    linkDiscord,
     linkSpotify,
     linkTiktok,
-    linkTelegram,
-    sendTelegramOTP,
     unlinkTwitter,
-    unlinkDiscord,
     unlinkSpotify,
     unlinkTiktok,
-    unlinkTelegram,
   } = useLinkSocials();
 
   return (
     <div>
       <button onClick={linkTwitter}>Link Twitter</button>
-      <button onClick={linkDiscord}>Link Discord</button>
       <button onClick={linkSpotify}>Link Spotify</button>
       <button onClick={() => linkTiktok("tiktokhandle")}>Link TikTok</button>
-      <button onClick={() => sendTelegramOTP("+1234567890")}>
-        Send Telegram OTP
-      </button>
-      <button onClick={() => linkTelegram("+1234567890", "123456", "abc123")}>
-        Link Telegram
       </button>
       <button onClick={unlinkTwitter}>Unlink Twitter</button>
-      <button onClick={unlinkDiscord}>Unlink Discord</button>
-      <button onClick={unlinkSpotify}>Unlink Spotify</button>
       <button onClick={unlinkTiktok}>Unlink TikTok</button>
-      <button onClick={unlinkTelegram}>Unlink Telegram</button>
+      <button onClick={unlinkSpotify}>Unlink Spotify</button>
     </div>
   );
 }
@@ -978,20 +913,15 @@ It returns the following properties and functions:
 
 - `isLinkingOpen` - `boolean` - Whether the Link Socials modal is open or not.
 - `openTwitterModal` - `() => void`
-- `openDiscordModal` - `() => void`
 - `openSpotifyModal` - `() => void`
 - `openTiktokModal` - `() => void`
-- `openTelegramModal` - `() => void`
 - `linkTwitter` - `() => void`
-- `linkDiscord` - `() => void`
 - `linkSpotify` - `() => void`
 - `linkTiktok` - `() => void`
 - `linkTelegram` - `() => void`
 - `unlinkTwitter` - `() => void`
-- `unlinkDiscord` - `() => void`
 - `unlinkSpotify` - `() => void`
 - `unlinkTiktok` - `() => void`
-- `unlinkTelegram` - `() => void`
 - `closeModal` - `() => void`
 
 The difference between the `openXModal` functions and the `linkX / unlinkX` functions is that the former opens the modal regardless of the user's linking state, allowing them to either link or unlink their account, while the latter only opens the specified modal if the user's linking state allows for it.
