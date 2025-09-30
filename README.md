@@ -323,7 +323,7 @@ auth.disconnect();
 
 #### setProvider
 
-`setProvider(provider: { provider: EIP1193Provider, info: EIP6963ProviderInfo }) => void`
+`setProvider(provider: { provider: EIP1193Provider, info: EIP6963ProviderInfo, address?: string }) => void`
 
 _Read more about the [EIP1193Provider](https://eips.ethereum.org/EIPS/eip-1193) and [EIP6963ProviderInfo](https://eips.ethereum.org/EIPS/eip-6963) interfaces._
 
@@ -403,6 +403,16 @@ auth.on("providers", (data) => {
 
   auth.connect();
 });
+```
+
+#### off
+
+`off(event: string, callback: (data: any) => void) => void`
+
+The `off` method unsubscribes from events emitted by the Auth module of the Origin SDK.
+
+```js
+auth.off("state", callback);
 ```
 
 #### getLinkedSocials
@@ -563,7 +573,9 @@ createRoot(document.getElementById("root")).render(
 The `CampProvider` component requires a `clientId` prop to be passed in order link the users to your app.
 It can also take the following optional props:
 
-- `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `discord`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
+- `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
+- `environment` - `string` - The environment to use. Can be either `DEVELOPMENT` or `PRODUCTION`. Defaults to `DEVELOPMENT`.
+- - the `DEVELOPMENT` environment uses the Camp Testnet while the `PRODUCTION` environment uses the Camp Mainnet.
 
 ```jsx
 import { CampProvider } from "@campnetwork/origin/react";
@@ -573,6 +585,7 @@ function App() {
     <CampProvider
       clientId="your-client-id"
       redirectUri="https://your-website.com"
+      environment="DEVELOPMENT"
     >
       <div>Your app</div>
     </CampProvider>
@@ -594,6 +607,7 @@ function App() {
         discord: "https://your-website.com/discord",
         spotify: "https://your-website.com/spotify",
       }}
+      environment="DEVELOPMENT"
     >
       <div>Your app</div>
     </CampProvider>
@@ -605,7 +619,7 @@ The `CampProvider` component sets up the context for the Origin SDK and provides
 
 ## CampModal
 
-![@campnetwork/origin](https://imgur.com/n9o0rJ3.png)
+![@campnetwork/origin](https://imgur.com/rptBOLI.png)
 
 The **CampModal** is a one-line\* solution for authenticating users with the Origin SDK. It can be used to connect users to the Auth Hub and link and unlink social accounts.
 
@@ -613,7 +627,7 @@ It works as follows:
 
 The **CampModal** component displays a button with the text "**Connect**" that the user can click on in order to summon the modal. The modal shows a list of available providers that the user can select from. After a provider has been selected, the `connect` method is called on the Auth instance to authenticate the user.
 
-If the user is already authenticated, the button will instead say "**My Camp**" and the modal will display the user's Camp profile information and allow them to link and unlink social accounts.
+If the user is already authenticated, the button will instead say "**My Origin**" and the modal will display the user's Origin profile information and allow them to link and unlink social accounts.
 
 The **CampModal** can take the following props:
 
@@ -621,7 +635,6 @@ The **CampModal** can take the following props:
 - `injectButton` - `boolean` - Whether to inject the button into the DOM or not. Defaults to `true`. If set to `false`, the button will not be rendered and the modal can be opened programmatically via the `openModal` function returned by the `useModal` hook.
 - `onlyWagmi` - `boolean` - Whether to only show the provider that the user is currently authenticated with. Defaults to `false`.
 - `defaultProvider` - `{ provider: EIP1193Provider, info: EIP6963ProviderInfo, exclusive: boolean }` - Custom provider to set as the highlighted provider in the modal. If not set, the wagmi provider will be highlighted if it is available. The `exclusive` property can be set to `true` to only show this provider in the modal.
-- `allowAnalytics` - `boolean` - Whether to allow analytics to be collected. Defaults to `true`.
 
 ### Usage
 
@@ -696,7 +709,7 @@ The **LinkButton** component is a button that can be used to link and unlink soc
 
 The **LinkButton** can take the following props:
 
-- `social` - `string` - The social account to link or unlink. Can be one of: `twitter`, `discord`, `spotify`.
+- `social` - `string` - The social account to link or unlink. Can be one of: `twitter`, `tiktok`, `spotify`.
 - `variant` - `string` - The variant of the button. Can be one of: `default`, `icon`. Defaults to `default`.
 - `theme` - `string` - The theme of the button. Can be one of: `default`, `camp`. Defaults to `default`.
 
@@ -714,10 +727,25 @@ function App() {
     <div>
       <CampModal />
       <LinkButton social="twitter" />
-      <LinkButton social="discord" variant="icon" />
       <LinkButton social="spotify" theme="camp" />
       <LinkButton social="tiktok" variant="icon" theme="camp" />
-      <LinkButton social="telegram" />
+    </div>
+  );
+}
+```
+
+## CampButton
+
+The **CampButton** component allows you to render a button that opens the Auth or My Origin modal when clicked. It can be used as an alternative to the button that is injected by the **CampModal** component. It allows you to have multiple buttons in your app that open the modal, or to have the button in a different location than where the **CampModal** component is rendered.
+
+```jsx
+import { CampButton, CampModal } from "@campnetwork/origin/react";
+
+function App() {
+  return (
+    <div>
+      <CampModal injectButton={false} />
+      <CampButton />
     </div>
   );
 }
@@ -903,7 +931,7 @@ function App() {
 
 ### useModal
 
-The `useModal` hook returns the state of the Auth and My Camp modals, as well as functions to show and hide them.
+The `useModal` hook returns the state of the Auth and My Origin modals, as well as functions to show and hide them.
 
 **Note: The `<CampModal/>` component must be rendered in the component tree for the modals to be displayed.**
 
@@ -923,7 +951,7 @@ function App() {
 }
 ```
 
-The state and functions returned by the `useModal` hook can be used to show and hide the Auth and My Camp modals, as well as to check if they are currently open. The modal being controlled is dictated by the user's authentication state.
+The state and functions returned by the `useModal` hook can be used to show and hide the Auth and My Origin modals, as well as to check if they are currently open. The modal being controlled is dictated by the user's authentication state.
 
 ### useLinkModal
 
@@ -972,7 +1000,7 @@ For example, if the user is linked to Twitter, calling `openTwitterModal` will o
 
 ## Origin Methods (`auth.origin`)
 
-The `Origin` class provides methods for interacting with Origin IpNFTs, uploading files, managing user stats, and more. You can access these methods via `auth.origin` after authentication.
+The `Origin` class provides blockchain and API methods for interacting with Origin IpNFTs, uploading files, managing user stats, and more. Access these via `auth.origin` after authentication.
 
 ### Types
 
@@ -984,123 +1012,95 @@ The license terms object used in minting and updating methods:
 type LicenseTerms = {
   price: bigint; // Price in wei
   duration: number; // Duration in seconds
-  royaltyBps: number; // Royalty in basis points (0-10000)
+  royaltyBps: number; // Royalty in basis points (1-10000)
   paymentToken: Address; // Payment token address (address(0) for native currency)
 };
 ```
 
+### Minting Constraints
+
+When minting or updating an IpNFT, the following constraints apply to the `LicenseTerms`:
+
+- The price must be at least `1000000000000000` wei (0.001 ETH).
+- The royaltyBps must be between `1` and `10000` (1% to 100%).
+- The duration must be at least `86400` seconds (1 day).
+
 ### File Upload & Minting
 
-#### `mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parentId?: bigint, options?: { progressCallback?: (percent: number) => void })`
+#### `mintFile(file, metadata, license, parents?, options?)`
 
 Uploads a file and mints an IpNFT for it.
 
-- `file`: The file to upload and mint.
-- `metadata`: Additional metadata for the IpNFT.
-- `license`: License terms for the IpNFT (price, duration, royalty, payment token).
-- `parentId`: Optional parent token ID for derivative works.
-- `options.progressCallback`: Optional progress callback.
-- **Returns:** The minted token ID as a string, or throws an error on failure.
+- `file`: File to upload and mint
+- `metadata`: Additional metadata for the IpNFT
+- `license`: LicenseTerms object
+- `parents`: Optional array of parent token IDs for derivatives
+- `options.progressCallback`: Optional progress callback
+- **Returns:** Minted token ID as a string, or throws on failure
 
-#### `mintSocial(source: "spotify" | "twitter" | "tiktok", license: LicenseTerms)`
+#### `mintSocial(source, metadata, license)`
 
 Mints an IpNFT for a connected social account.
 
-- `source`: The social platform.
-- `license`: License terms for the IpNFT.
-- **Returns:** The minted token ID as a string, or throws an error on failure.
+- `source`: Social platform (`"spotify" | "twitter" | "tiktok"`)
+- `metadata`: Additional metadata for the IpNFT
+- `license`: LicenseTerms object
+- **Returns:** Minted token ID as a string, or throws on failure
 
 ### IpNFT & Marketplace Methods
 
-The following methods are available for interacting with IpNFTs and the marketplace. All methods mirror the smart contract functions and require appropriate permissions.
+All methods mirror smart contract functions and require appropriate permissions.
 
 #### Core IpNFT Methods
 
-- `mintWithSignature(account: string, tokenId: bigint, parentId: bigint, creatorContentHash: string, uri: string, license: LicenseTerms, deadline: bigint, signature: string)` - Mint an IpNFT with a signature
-- `registerIpNFT(source: string, deadline: bigint, license: LicenseTerms, metadata: Record<string, unknown>, fileKey?: string, parentId?: bigint)` - Register an IpNFT for minting
-- `updateTerms(tokenId: bigint, license: LicenseTerms)` - Update license terms for an IpNFT
-- `requestDelete(tokenId: bigint)` - Request deletion of an IpNFT
-- `getTerms(tokenId: bigint)` - Get license terms for an IpNFT
-- `ownerOf(tokenId: bigint)` - Get the owner of an IpNFT
-- `balanceOf(owner: string)` - Get the balance of IpNFTs for an owner
-- `contentHash(tokenId: bigint)` - Get the content hash of an IpNFT
-- `tokenURI(tokenId: bigint)` - Get the metadata URI of an IpNFT
-- `dataStatus(tokenId: bigint)` - Get the data status of an IpNFT
-- `royaltyInfo(tokenId: bigint, value: bigint)` - Get royalty information
-- `getApproved(tokenId: bigint)` - Get the approved address for an IpNFT
-- `isApprovedForAll(owner: string, operator: string)` - Check if operator is approved for all tokens
-- `transferFrom(from: string, to: string, tokenId: bigint)` - Transfer an IpNFT
-- `safeTransferFrom(from: string, to: string, tokenId: bigint)` - Safely transfer an IpNFT
-- `approve(to: string, tokenId: bigint)` - Approve an address for a specific IpNFT
-- `setApprovalForAll(operator: string, approved: boolean)` - Set approval for all tokens
+- `mintWithSignature(account, tokenId, parents, creatorContentHash, uri, license, deadline, signature)`
+- `registerIpNFT(source, deadline, license, metadata, fileKey?, parents?)`
+- `updateTerms(tokenId, license)`
+- `finalizeDelete(tokenId)`
+- `getOrCreateRoyaltyVault(tokenId)`
+- `getTerms(tokenId)`
+- `ownerOf(tokenId)`
+- `balanceOf(owner)`
+- `tokenURI(tokenId)`
+- `dataStatus(tokenId)`
+- `isApprovedForAll(owner, operator)`
+- `transferFrom(from, to, tokenId)`
+- `safeTransferFrom(from, to, tokenId)`
+- `approve(to, tokenId)`
+- `setApprovalForAll(operator, approved)`
 
 #### Marketplace Methods
 
-- `buyAccess(tokenId: bigint, periods: number, value?: bigint)` - Buy access to an IpNFT
-- `renewAccess(tokenId: bigint, periods: number)` - Renew access to an IpNFT
-- `hasAccess(tokenId: bigint, user: string)` - Check if user has access to an IpNFT
-- `subscriptionExpiry(tokenId: bigint, user: string)` - Get subscription expiry for a user
+- `buyAccess(tokenId, periods, value?)`
+- `hasAccess(tokenId, user)`
+- `subscriptionExpiry(tokenId, user)`
 
-> See the SDK source or contract ABI for full parameter details.
+#### Utility & Royalty Methods
 
-#### `buyAccessSmart(tokenId: bigint, periods: number)`
+- `getRoyalties(token?, owner?)` — Get royalty vault and balance
+- `claimRoyalties(token?, owner?)` — Claim royalties
 
-Buys access to an asset, handling payment approval if needed.
+#### Smart Access & Data
 
-- `tokenId`: The IpNFT token ID.
-- `periods`: Number of periods to buy.
-- **Returns:** Result of the buy access transaction.
-
-#### `getData(tokenId: bigint)`
-
-Fetches metadata for a given IpNFT.
-
-- `tokenId`: The IpNFT token ID.
-- **Returns:** Data object for the token.
+- `buyAccessSmart(tokenId)` — Buys access, handles payment approval if needed
+- `getData(tokenId)` — Fetches metadata for a given IpNFT
 
 ### User Data & Stats
 
-#### `getOriginUploads()`
-
-Fetches the user's Origin file uploads.
-
-- **Returns:** Array of upload data, or `null` on failure.
-
-#### `getOriginUsage()`
-
-Fetches the user's Origin stats (multiplier, points, usage, etc).
-
-- **Returns:** Object with user stats including:
-  - `user.multiplier` - User's Origin multiplier
-  - `user.points` - User's Origin points
-  - `user.active` - Whether user's Origin is active
-  - `teams` - Array of team data
-  - `dataSources` - Array of data source information
-
-#### `setOriginConsent(consent: boolean)`
-
-Sets the user's consent for Origin usage.
-
-- `consent`: `true` or `false`.
-- **Returns:** Promise that resolves on success, throws APIError on failure.
+- `getOriginUploads()` — Fetch user's Origin file uploads (returns array or null)
+- `getOriginUsage()` — Fetch user's Origin stats (returns object with multiplier, points, active, teams, dataSources)
+- `setOriginConsent(consent: boolean)` — Set user's consent for Origin usage
 
 ### Utility Methods
 
-#### `getJwt()`
-
-Gets the current JWT token.
-
-- **Returns:** The JWT string.
-
-#### `setViemClient(client: any)`
-
-Sets the viem wallet client for blockchain interactions.
-
-- `client`: The viem wallet client instance.
+- `getJwt()` — Get current JWT token
+- `setViemClient(client)` — Set viem wallet client for blockchain interactions
 
 ---
 
-You can call these methods as `await auth.origin.methodName(...)` after authenticating with the SDK. For more details, see the inline code documentation.
+Call these methods as `await auth.origin.methodName(...)` after authenticating. See inline code documentation for full details and parameter types.
+
+---
 
 # Contributing
 

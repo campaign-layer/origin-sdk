@@ -210,12 +210,10 @@ class{
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-     * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
-     * @param {object} [options.ackeeInstance] The Ackee instance.
      * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-constructor({clientId:e,redirectUri:t,allowAnalytics:n=!0,ackeeInstance:i,environment:a="DEVELOPMENT"}){if(G.add(this),Y.set(this,void 0),X.set(this,void 0),!e)throw new Error("clientId is required");if(-1===["PRODUCTION","DEVELOPMENT"].indexOf(a))throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");this.viem=null,this.environment=I[a],this.redirectUri=(e=>{const t=["twitter","discord","spotify"];return"object"==typeof e?t.reduce(((t,n)=>(t[n]=e[n]||("undefined"!=typeof window?window.location.href:""),t)),{}):"string"==typeof e?t.reduce(((t,n)=>(t[n]=e,t)),{}):e?{}:t.reduce(((e,t)=>(e[t]="undefined"!=typeof window?window.location.href:"",e)),{})})(t),this.clientId=e,this.isAuthenticated=!1,this.jwt=null,this.origin=null,this.walletAddress=null,this.userId=null,function(e,t,n,i,a){if("m"===i)throw new TypeError("Private method is not writable");if("a"===i&&!a)throw new TypeError("Private accessor was defined without a setter");if("function"==typeof t?e!==t||!a:!t.has(e))throw new TypeError("Cannot write private member to an object whose class did not declare it");"a"===i?a.call(e,n):a?a.value=n:t.set(e,n)}(this,Y,{},"f"),E((e=>{r(this,G,"m",Z).call(this,"providers",e)})),r(this,G,"m",Q).call(this)}
+constructor({clientId:e,redirectUri:t,environment:n="DEVELOPMENT"}){if(G.add(this),Y.set(this,void 0),X.set(this,void 0),!e)throw new Error("clientId is required");if(-1===["PRODUCTION","DEVELOPMENT"].indexOf(n))throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");this.viem=null,this.environment=I[n],this.redirectUri=(e=>{const t=["twitter","spotify"];return"object"==typeof e?t.reduce(((t,n)=>(t[n]=e[n]||("undefined"!=typeof window?window.location.href:""),t)),{}):"string"==typeof e?t.reduce(((t,n)=>(t[n]=e,t)),{}):e?{}:t.reduce(((e,t)=>(e[t]="undefined"!=typeof window?window.location.href:"",e)),{})})(t),this.clientId=e,this.isAuthenticated=!1,this.jwt=null,this.origin=null,this.walletAddress=null,this.userId=null,function(e,t,n,i,a){if("m"===i)throw new TypeError("Private method is not writable");if("a"===i&&!a)throw new TypeError("Private accessor was defined without a setter");if("function"==typeof t?e!==t||!a:!t.has(e))throw new TypeError("Cannot write private member to an object whose class did not declare it");"a"===i?a.call(e,n):a?a.value=n:t.set(e,n)}(this,Y,{},"f"),E((e=>{r(this,G,"m",Z).call(this,"providers",e)})),r(this,G,"m",Q).call(this)}
 /**
      * Subscribe to an event. Possible events are "state", "provider", "providers", and "viem".
      * @param {("state"|"provider"|"providers"|"viem")} event The event.
@@ -226,6 +224,12 @@ constructor({clientId:e,redirectUri:t,allowAnalytics:n=!0,ackeeInstance:i,enviro
      *  console.log(state);
      * });
      */on(e,t){r(this,Y,"f")[e]||(r(this,Y,"f")[e]=[]),r(this,Y,"f")[e].push(t),"providers"===e&&t(g())}
+/**
+     * Unsubscribe from an event. Possible events are "state", "provider", "providers", and "viem".
+     * @param {("state"|"provider"|"providers"|"viem")} event The event.
+     * @param {function} callback The callback function.
+     * @returns {void}
+     */off(e,t){r(this,Y,"f")[e]&&(r(this,Y,"f")[e]=r(this,Y,"f")[e].filter((e=>e!==t)))}
 /**
      * Set the loading state.
      * @param {boolean} loading The loading state.

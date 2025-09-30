@@ -15,7 +15,7 @@ declare global {
 const createRedirectUriObject = (
   redirectUri: string | Record<string, string>
 ): Record<string, string> => {
-  const keys = ["twitter", "discord", "spotify"];
+  const keys = ["twitter", "spotify"];
 
   if (typeof redirectUri === "object") {
     return keys.reduce((object, key) => {
@@ -61,22 +61,16 @@ class Auth {
    * @param {object} options The options object.
    * @param {string} options.clientId The client ID.
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-   * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
-   * @param {object} [options.ackeeInstance] The Ackee instance.
    * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   constructor({
     clientId,
     redirectUri,
-    allowAnalytics = true,
-    ackeeInstance,
     environment = "DEVELOPMENT",
   }: {
     clientId: string;
     redirectUri: string | Record<string, string>;
-    allowAnalytics?: boolean;
-    ackeeInstance?: any;
     environment?: "DEVELOPMENT" | "PRODUCTION";
   }) {
     if (!clientId) {
@@ -123,6 +117,23 @@ class Auth {
     this.#triggers[event].push(callback);
     if (event === "providers") {
       callback(providerStore.value());
+    }
+  }
+
+  /**
+   * Unsubscribe from an event. Possible events are "state", "provider", "providers", and "viem".
+   * @param {("state"|"provider"|"providers"|"viem")} event The event.
+   * @param {function} callback The callback function.
+   * @returns {void}
+   */
+  off(
+    event: "state" | "provider" | "providers" | "viem",
+    callback: Function
+  ): void {
+    if (this.#triggers[event]) {
+      this.#triggers[event] = this.#triggers[event].filter(
+        (cb) => cb !== callback
+      );
     }
   }
 

@@ -303,16 +303,12 @@ declare class Auth {
      * @param {object} options The options object.
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
-     * @param {boolean} [options.allowAnalytics=true] Whether to allow analytics to be sent.
-     * @param {object} [options.ackeeInstance] The Ackee instance.
      * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, allowAnalytics, ackeeInstance, environment, }: {
+    constructor({ clientId, redirectUri, environment, }: {
         clientId: string;
         redirectUri: string | Record<string, string>;
-        allowAnalytics?: boolean;
-        ackeeInstance?: any;
         environment?: "DEVELOPMENT" | "PRODUCTION";
     });
     /**
@@ -326,6 +322,13 @@ declare class Auth {
      * });
      */
     on(event: "state" | "provider" | "providers" | "viem", callback: Function): void;
+    /**
+     * Unsubscribe from an event. Possible events are "state", "provider", "providers", and "viem".
+     * @param {("state"|"provider"|"providers"|"viem")} event The event.
+     * @param {function} callback The callback function.
+     * @returns {void}
+     */
+    off(event: "state" | "provider" | "providers" | "viem", callback: Function): void;
     /**
      * Set the loading state.
      * @param {boolean} loading The loading state.
