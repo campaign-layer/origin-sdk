@@ -619,7 +619,7 @@ The `CampProvider` component sets up the context for the Origin SDK and provides
 
 ## CampModal
 
-![@campnetwork/origin](https://imgur.com/rptBOLI.png)
+![@campnetwork/origin](https://imgur.com/AFmorL4.png)
 
 The **CampModal** is a one-line\* solution for authenticating users with the Origin SDK. It can be used to connect users to Origin, link and unlink social accounts, mint IPNFTs, and view the user's Origin stats.
 
