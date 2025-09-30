@@ -473,8 +473,6 @@ interface CampContextType {
     auth: Auth | null;
     setAuth: React.Dispatch<React.SetStateAction<Auth | null>>;
     wagmiAvailable: boolean;
-    ackee: any;
-    setAckee: any;
     environment: Environment;
 }
 declare const CampContext: React.Context<CampContextType>;

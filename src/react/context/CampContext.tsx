@@ -20,8 +20,6 @@ interface CampContextType {
   auth: Auth | null;
   setAuth: React.Dispatch<React.SetStateAction<Auth | null>>;
   wagmiAvailable: boolean;
-  ackee: any;
-  setAckee: any;
   environment: Environment;
 }
 
@@ -30,8 +28,6 @@ const CampContext = createContext<CampContextType>({
   auth: null,
   setAuth: () => {},
   wagmiAvailable: false,
-  ackee: null,
-  setAckee: () => {},
   environment: ENVIRONMENTS.DEVELOPMENT,
 });
 
@@ -82,8 +78,6 @@ const CampProvider = ({
         auth,
         setAuth,
         wagmiAvailable: wagmiContext !== undefined,
-        ackee: null,
-        setAckee: () => {},
         environment: ENVIRONMENTS[environment],
       }}
     >

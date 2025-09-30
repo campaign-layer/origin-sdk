@@ -2516,7 +2516,6 @@ var royaltyVaultAbi = [
 
 var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
-    AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     SUPPORTED_IMAGE_FORMATS: [
         "image/jpeg",
@@ -2528,21 +2527,9 @@ var constants = {
     SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
     SUPPORTED_TEXT_FORMATS: ["text/plain"],
     AVAILABLE_SOCIALS: ["twitter", "spotify", "tiktok"],
-    ACKEE_INSTANCE: "https://ackee-production-01bd.up.railway.app",
-    ACKEE_EVENTS: {
-        USER_CONNECTED: "ed42542d-b676-4112-b6d9-6db98048b2e0",
-        USER_DISCONNECTED: "20af31ac-e602-442e-9e0e-b589f4dd4016",
-        TWITTER_LINKED: "7fbea086-90ef-4679-ba69-f47f9255b34c",
-        DISCORD_LINKED: "d73f5ae3-a8e8-48f2-8532-85e0c7780d6a",
-        SPOTIFY_LINKED: "fc1788b4-c984-42c8-96f4-c87f6bb0b8f7",
-        TIKTOK_LINKED: "4a2ffdd3-f0e9-4784-8b49-ff76ec1c0a6a",
-        TELEGRAM_LINKED: "9006bc5d-bcc9-4d01-a860-4f1a201e8e47",
-    },
-    DATANFT_CONTRACT_ADDRESS: "0xF90733b9eCDa3b49C250B2C3E3E42c96fC93324E",
-    MARKETPLACE_CONTRACT_ADDRESS: "0x5c5e6b458b2e3924E7688b8Dee1Bb49088F6Fef5",
     MAX_LICENSE_DURATION: 2628000, // 30 days in seconds
     MIN_LICENSE_DURATION: 86400, // 1 day in seconds
-    MIN_PRICE: 1000000000000000, // 0.001 ETH in wei
+    MIN_PRICE: 1000000000000000, // 0.001 CAMP in wei
 };
 const ENVIRONMENTS = {
     DEVELOPMENT: {
@@ -3441,7 +3428,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
     });
 };
 
-var _Auth_instances, _Auth_triggers, _Auth_ackeeInstance, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage, _Auth_sendAnalyticsEvent;
+var _Auth_instances, _Auth_triggers, _Auth_trigger, _Auth_loadAuthStatusFromStorage, _Auth_requestAccount, _Auth_fetchNonce, _Auth_verifySignature, _Auth_createMessage;
 const createRedirectUriObject = (redirectUri) => {
     const keys = ["twitter", "spotify"];
     if (typeof redirectUri === "object") {
@@ -3483,7 +3470,6 @@ class Auth {
     constructor({ clientId, redirectUri, environment = "DEVELOPMENT", }) {
         _Auth_instances.add(this);
         _Auth_triggers.set(this, void 0);
-        _Auth_ackeeInstance.set(this, void 0);
         if (!clientId) {
             throw new Error("clientId is required");
         }
@@ -3689,10 +3675,6 @@ class Auth {
             localStorage.removeItem("camp-sdk:user-id");
             localStorage.removeItem("camp-sdk:jwt");
             localStorage.removeItem("camp-sdk:environment");
-            // await this.#sendAnalyticsEvent(
-            //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
-            //   "User Disconnected"
-            // );
         });
     }
     /**
@@ -3725,7 +3707,6 @@ class Auth {
                     localStorage.setItem("camp-sdk:user-id", this.userId);
                     localStorage.setItem("camp-sdk:environment", this.environment.NAME);
                     __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "authenticated");
-                    yield __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.USER_CONNECTED, "User Connected");
                     return {
                         success: true,
                         message: "Successfully authenticated",
@@ -3843,7 +3824,6 @@ class Auth {
                 }),
             }).then((res) => res.json());
             if (!data.isError) {
-                __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.TIKTOK_LINKED, "TikTok Linked");
                 return data.data;
             }
             else {
@@ -3920,7 +3900,6 @@ class Auth {
                 }),
             }).then((res) => res.json());
             if (!data.isError) {
-                __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_sendAnalyticsEvent).call(this, constants.ACKEE_EVENTS.TELEGRAM_LINKED, "Telegram Linked");
                 return data.data;
             }
             else {
@@ -4084,7 +4063,7 @@ class Auth {
         });
     }
 }
-_Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger = function _Auth_trigger(event, data) {
+_Auth_triggers = new WeakMap(), _Auth_instances = new WeakSet(), _Auth_trigger = function _Auth_trigger(event, data) {
     if (__classPrivateFieldGet(this, _Auth_triggers, "f")[event]) {
         __classPrivateFieldGet(this, _Auth_triggers, "f")[event].forEach((callback) => callback(data));
     }
@@ -4193,12 +4172,6 @@ _Auth_triggers = new WeakMap(), _Auth_ackeeInstance = new WeakMap(), _Auth_insta
         version: "1",
         chainId: this.viem.chain.id,
         nonce: nonce,
-    });
-}, _Auth_sendAnalyticsEvent = function _Auth_sendAnalyticsEvent(event_1, message_1) {
-    return __awaiter(this, arguments, void 0, function* (event, message, count = 1) {
-        // if (this.#ackeeInstance)
-        //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
-        // else return;
     });
 };
 
@@ -4622,8 +4595,6 @@ const CampContext = createContext({
     auth: null,
     setAuth: () => { },
     wagmiAvailable: false,
-    ackee: null,
-    setAckee: () => { },
     environment: ENVIRONMENTS.DEVELOPMENT,
 });
 /**
@@ -4654,8 +4625,6 @@ const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPM
             auth,
             setAuth,
             wagmiAvailable: wagmiContext !== undefined,
-            ackee: null,
-            setAckee: () => { },
             environment: ENVIRONMENTS[environment],
         } },
         React.createElement(SocialsProvider, null,
@@ -5329,7 +5298,8 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
                             console.error("Address mismatch. Default provider address does not match authenticated address.");
                         }
                     }
-                    else if (walletConnectProvider) {
+                    else if (walletConnectProvider &&
+                        walletConnectProvider.accounts.length) {
                         const [address] = yield walletConnectProvider.request({
                             method: "eth_requestAccounts",
                         });

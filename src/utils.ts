@@ -95,47 +95,6 @@ export const formatCampAmount = (amount: number) => {
   return amount.toString();
 };
 
-/**
- * Sends an analytics event to the Ackee server.
- * @param {any} ackee - The Ackee instance.
- * @param {string} event - The event name.
- * @param {string} key - The key for the event.
- * @param {number} value - The value for the event.
- * @returns {Promise<string>} - A promise that resolves with the response from the server.
- */
-export const sendAnalyticsEvent = async (
-  ackee: any,
-  event: string,
-  key: string,
-  value: number
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    if (typeof window !== "undefined" && !!ackee) {
-      try {
-        ackee.action(
-          event,
-          {
-            key: key,
-            value: value,
-          },
-          (res: string) => {
-            resolve(res);
-          }
-        );
-      } catch (error) {
-        console.error(error);
-        reject(error);
-      }
-    } else {
-      reject(
-        new Error(
-          "Unable to send analytics event. If you are using the library, you can ignore this error."
-        )
-      );
-    }
-  });
-};
-
 interface UploadProgressCallback {
   (percent: number): void;
 }

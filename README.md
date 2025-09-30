@@ -951,8 +951,8 @@ type LicenseTerms = {
 
 When minting or updating an IpNFT, the following constraints apply to the `LicenseTerms`:
 
-- The price must be at least `1000000000000000` wei (0.001 ETH).
-- The royaltyBps must be between `1` and `10000` (1% to 100%).
+- The price must be at least `1000000000000000` wei (0.001 $CAMP).
+- The royaltyBps must be between `1` and `10000` (0.01% to 100%).
 - The duration must be at least `86400` seconds (1 day).
 
 ### File Upload & Minting
@@ -963,6 +963,10 @@ Uploads a file and mints an IpNFT for it.
 
 - `file`: File to upload and mint
 - `metadata`: Additional metadata for the IpNFT
+  - `name`: Name of the IpNFT
+  - `description`: Description of the IpNFT
+  - `image`: Optional image URL for the IpNFT
+  - `attributes`: Optional array of attributes
 - `license`: LicenseTerms object
 - `parents`: Optional array of parent token IDs for derivatives
 - `options.progressCallback`: Optional progress callback
@@ -979,7 +983,7 @@ Mints an IpNFT for a connected social account.
 
 ### IpNFT & Marketplace Methods
 
-All methods mirror smart contract functions and require appropriate permissions.
+Most methods mirror smart contract functions and require appropriate permissions.
 
 #### Core IpNFT Methods
 
@@ -1012,7 +1016,7 @@ All methods mirror smart contract functions and require appropriate permissions.
 
 #### Smart Access & Data
 
-- `buyAccessSmart(tokenId)` — Buys access, handles payment approval if needed
+- `buyAccessSmart(tokenId)` — Buys access, handles payment approval and license details
 - `getData(tokenId)` — Fetches metadata for a given IpNFT
 
 ### User Data & Stats
@@ -1057,7 +1061,7 @@ npm run dev
 In order to use the sdk in a local project, you can link the sdk to the project.
 
 ```bash
-npm link
+npm link .
 ```
 
 Then, in the project you want to use the sdk in, run:

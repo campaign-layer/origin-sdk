@@ -54,7 +54,6 @@ class Auth {
   origin: Origin | null;
   environment: Environment;
   #triggers: Record<string, Function[]>;
-  #ackeeInstance: any;
 
   /**
    * Constructor for the Auth class.
@@ -286,10 +285,6 @@ class Auth {
             (lastProvider.uuid && p.info?.uuid === lastProvider.uuid) ||
             (lastProvider.name && p.info?.name === lastProvider.name)
           ) {
-            console.log(
-              "Attempting to reconnect to stored provider:",
-              p.info?.name || p.info?.uuid
-            );
             const accounts = await p.provider.request({
               method: "eth_requestAccounts",
             });
@@ -474,24 +469,6 @@ class Auth {
   }
 
   /**
-   * Send an analytics event.
-   * @private
-   * @param {string} event The event name.
-   * @param {string} message The event message.
-   * @param {number} [count=1] The event count.
-   * @returns {Promise<void>}
-   */
-  async #sendAnalyticsEvent(
-    event: string,
-    message: string,
-    count: number = 1
-  ): Promise<void> {
-    // if (this.#ackeeInstance)
-    //   await sendAnalyticsEvent(this.#ackeeInstance, event, message, count);
-    // else return;
-  }
-
-  /**
    * Disconnect the user.
    * @returns {Promise<void>}
    */
@@ -509,10 +486,6 @@ class Auth {
     localStorage.removeItem("camp-sdk:user-id");
     localStorage.removeItem("camp-sdk:jwt");
     localStorage.removeItem("camp-sdk:environment");
-    // await this.#sendAnalyticsEvent(
-    //   constants.ACKEE_EVENTS.USER_DISCONNECTED,
-    //   "User Disconnected"
-    // );
   }
 
   /**
@@ -551,10 +524,6 @@ class Auth {
         localStorage.setItem("camp-sdk:user-id", this.userId);
         localStorage.setItem("camp-sdk:environment", this.environment.NAME);
         this.#trigger("state", "authenticated");
-        await this.#sendAnalyticsEvent(
-          constants.ACKEE_EVENTS.USER_CONNECTED,
-          "User Connected"
-        );
         return {
           success: true,
           message: "Successfully authenticated",
@@ -671,10 +640,6 @@ class Auth {
     ).then((res) => res.json());
 
     if (!data.isError) {
-      this.#sendAnalyticsEvent(
-        constants.ACKEE_EVENTS.TIKTOK_LINKED,
-        "TikTok Linked"
-      );
       return data.data;
     } else {
       if (data.message === "Request failed with status code 502") {
@@ -759,10 +724,6 @@ class Auth {
     ).then((res) => res.json());
 
     if (!data.isError) {
-      this.#sendAnalyticsEvent(
-        constants.ACKEE_EVENTS.TELEGRAM_LINKED,
-        "Telegram Linked"
-      );
       return data.data;
     } else {
       throw new APIError(data.message || "Failed to link Telegram account");

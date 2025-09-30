@@ -14,7 +14,6 @@ import {
   useProvider,
   useProviders,
   useSocials,
-  useViem,
 } from "./index";
 import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
@@ -41,18 +40,12 @@ import {
   getIconBySocial,
   TikTokIcon,
   TelegramIcon,
-  CheckMarkIcon,
-  XMarkIcon,
   CopyIcon,
-  CornerSVG,
   ArrowCorners,
 } from "./icons.js";
 import constants from "../../constants.js";
 import { useToast } from "../components/toasts.js";
 import Tooltip from "../components/Tooltip";
-import StorageABI from "../../core/origin/contracts/Storage.json";
-import { Abi } from "viem";
-
 interface AuthModalProps {
   setIsVisible: (isVisible: boolean) => void;
   wcProvider: any;
@@ -366,7 +359,10 @@ export const CampModal = ({
                 "Address mismatch. Default provider address does not match authenticated address."
               );
             }
-          } else if (walletConnectProvider) {
+          } else if (
+            walletConnectProvider &&
+            walletConnectProvider.accounts.length
+          ) {
             const [address] = await walletConnectProvider.request({
               method: "eth_requestAccounts",
             });
@@ -932,74 +928,6 @@ const LinkingModal = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-/** demo */
-const ContractInteraction = () => {
-  const { auth } = useContext(CampContext);
-  const [inputValue, setInputValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { addToast: toast } = useToast();
-  const CONTRACT_ADDRESS = "0xcCB22CdA4857E1665dE3043FF77ff125c9E0A2A7";
-  const callContract = async (
-    methodName: string,
-    params: any[],
-    isWrite = false
-  ) => {
-    if (!auth) {
-      toast("Auth instance not available", "error", 5000);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const result = await auth.origin?.callContractMethod(
-        CONTRACT_ADDRESS,
-        StorageABI as Abi,
-        methodName,
-        params,
-        { waitForReceipt: true }
-      );
-
-      if (isWrite) {
-        toast("Transaction sent successfully", "success", 5000);
-        alert(`Transaction sent successfully: ${result.transactionHash}`);
-      } else {
-        toast("Retrieved value successfully", "success", 5000);
-        alert(`Retrieved value: ${result}`);
-      }
-    } catch (err: any) {
-      console.error("Contract call failed:", err);
-      toast(`Error: ${err.message || "Contract call failed"}`, "error", 5000);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className={styles["contract-button-container"]}>
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Enter a number"
-        className={styles["contract-input"]}
-      />
-      <button
-        className={styles["contract-button"]}
-        onClick={() => callContract("store", [parseInt(inputValue, 10)], true)}
-        disabled={loading || !inputValue}
-      >
-        {loading ? "Setting..." : "Set"}
-      </button>
-      <button
-        className={styles["contract-button"]}
-        onClick={() => callContract("retrieve", [])}
-        disabled={loading}
-      >
-        {loading ? "Retrieving..." : "Retrieve"}
-      </button>
     </div>
   );
 };
