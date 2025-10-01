@@ -1,6 +1,7 @@
 // @ts-ignore-line
 import axios from "axios";
 import { APIError } from "./errors";
+import constants from "./constants";
 
 /**
  * Makes a GET request to the given URL with the provided headers.
@@ -95,6 +96,10 @@ export const formatCampAmount = (amount: number) => {
   return amount.toString();
 };
 
+const SECONDS_IN_HOUR = 3600;
+const SECONDS_IN_DAY = 86400;
+const SECONDS_IN_WEEK = 604800;
+
 interface UploadProgressCallback {
   (percent: number): void;
 }
@@ -148,6 +153,78 @@ export const uploadWithProgress: UploadWithProgress = (
       });
   });
 };
+
+export const toSeconds = (
+  duration: number | "",
+  licenseDurationUnit: string
+): number => {
+  if (duration === "") return 0;
+
+  const durationInSeconds =
+    licenseDurationUnit === "hours"
+      ? Number(duration) * SECONDS_IN_HOUR
+      : licenseDurationUnit === "days"
+      ? Number(duration) * SECONDS_IN_DAY
+      : licenseDurationUnit === "weeks"
+      ? Number(duration) * SECONDS_IN_WEEK
+      : Number(duration);
+
+  return durationInSeconds;
+};
+
+/**
+ * Validates if the given price string represents a valid price in wei.
+ * The price must be a non-empty string that, when converted to wei, is at least the minimum price defined in constants.
+ * @param {string} price - The price string to validate (in CAMP).
+ * @returns {boolean} - True if the price is valid, false otherwise.
+ */
+export const validatePrice = (price: string) => {
+  if (price && price.trim() !== "") {
+    const priceInWei = BigInt(Math.floor(parseFloat(price) * Math.pow(10, 18)));
+    return priceInWei >= BigInt(constants.MIN_PRICE);
+  } else {
+    return false;
+  }
+};
+
+/**
+ * Validates if the given duration is within the allowed license duration range.
+ * The duration must be a number and, when converted to seconds, must be between the minimum and maximum license duration defined in constants.
+ * @param {number | ""} duration - The duration to validate.
+ * @param {string} licenseDurationUnit - The unit of the duration (e.g., "hours", "days", "weeks").
+ * @returns {boolean} - True if the duration is valid, false otherwise.
+ */
+export const validateDuration = (
+  duration: number | "",
+  licenseDurationUnit: string
+) => {
+  let isValid = duration !== "" && !isNaN(Number(duration));
+  if (isValid) {
+    const durationInSeconds =
+      licenseDurationUnit === "hours"
+        ? Number(duration) * SECONDS_IN_HOUR
+        : licenseDurationUnit === "days"
+        ? Number(duration) * SECONDS_IN_DAY
+        : licenseDurationUnit === "weeks"
+        ? Number(duration) * SECONDS_IN_WEEK
+        : Number(duration);
+    isValid =
+      durationInSeconds <= constants.MAX_LICENSE_DURATION &&
+      durationInSeconds >= constants.MIN_LICENSE_DURATION;
+  }
+  return isValid;
+};
+
+export const validateRoyaltyBps = (royaltyBps: string) => {
+  if (royaltyBps && royaltyBps.trim() !== "") {
+    const bps = Math.floor(parseFloat(royaltyBps) * 100);
+    return (
+      bps >= constants.MIN_ROYALTY_BPS && bps <= constants.MAX_ROYALTY_BPS
+    );
+  } else {
+    return false;
+  }
+}
 
 export {
   fetchData,

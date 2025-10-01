@@ -429,6 +429,8 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  overflow-y: auto;
+  /* height: 300px; */
 }
 
 .file-upload-container:hover {
@@ -449,8 +451,9 @@
   background-color: #f9f9f9;
   border: none;
   padding: 0;
-  height: auto;
-  min-height: auto;
+  padding-right: 0.5rem;
+  /* height: auto; */
+  /* min-height: auto; */
 }
 
 .file-input {
@@ -521,7 +524,9 @@
 .file-preview {
   max-width: 100%;
   max-height: 8rem;
-  /* border-radius: 0.5rem; */
+}
+audio.file-preview {
+  min-height: 4rem;
 }
 
 .file-preview-text {
@@ -565,15 +570,14 @@
 
 .loading-bar-container {
   width: 100%;
-  height: 8px;
+  min-height: 8px;
   background-color: #e0e0e0;
-  border-radius: 4px;
   overflow: hidden;
   margin-top: 8px;
 }
 
 .loading-bar {
-  height: 100%;
+  min-height: 100%;
   background-color: #ff6f00;
   transition: width 0.3s ease;
 }
@@ -610,7 +614,8 @@
   min-width: 50px;
 }
 
-.price-input-container {
+.fancy-input-container {
+  min-height: 2.5rem;
   width: 100%;
   display: flex;
   align-items: center;
@@ -618,11 +623,26 @@
   gap: 0;
   font-family: sans-serif;
   border: 1px solid #ccc;
-  /* border-radius: 4px; */
   overflow: hidden;
 }
 
-.price-input {
+.fancy-input-container textarea.fancy-input {
+  resize: none;
+  max-height: 12rem;
+  width: 100%;
+  font-family: inherit;
+  padding: 10px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #222;
+  box-sizing: border-box;
+  line-height: 1.4;
+  overflow-y: auto;
+}
+
+.fancy-input {
   font-family: sans-serif;
   padding: 6px 10px;
   border: none;
@@ -631,14 +651,27 @@
   background: transparent;
 }
 
-.price-divider {
-  width: 1px;
+.fancy-input-label {
+  font-size: 0.8rem;
+  color: #777;
+  align-self: flex-start;
+  padding: 0 0.25rem;
+  /* z-index: 2; */
+  pointer-events: none;
+  font-family: "Geist Mono", monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.input-divider {
+  min-width: 1px;
   height: 24px;
   background-color: #ccc;
   margin: 0;
 }
 
-.camp-icon-container {
+.input-icon-container {
   padding: 6px 10px;
   display: flex;
   align-items: center;
@@ -647,12 +680,13 @@
   min-width: 40px;
 }
 
-.camp-icon-container svg {
+.input-icon-container svg {
   width: 16px;
   height: 16px;
 }
 
 .duration-input-container {
+  min-height: 2.5rem;
   width: 100%;
   display: flex;
   align-items: stretch;

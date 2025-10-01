@@ -1,4 +1,5 @@
 import { Address } from "viem";
+import constants from "../../constants";
 
 /**
  * Represents the terms of a license for a digital asset.
@@ -40,6 +41,25 @@ export const createLicenseTerms = (
   royaltyBps: number,
   paymentToken: Address
 ): LicenseTerms => {
+  if (
+    royaltyBps < constants.MIN_ROYALTY_BPS ||
+    royaltyBps > constants.MAX_ROYALTY_BPS
+  ) {
+    throw new Error(
+      `Royalty basis points must be between ${constants.MIN_ROYALTY_BPS} and ${constants.MAX_ROYALTY_BPS}`
+    );
+  }
+  if (
+    duration < constants.MIN_LICENSE_DURATION ||
+    duration > constants.MAX_LICENSE_DURATION
+  ) {
+    throw new Error(
+      `Duration must be between ${constants.MIN_LICENSE_DURATION} and ${constants.MAX_LICENSE_DURATION} seconds`
+    );
+  }
+  if (price < constants.MIN_PRICE) {
+    throw new Error(`Price must be at least ${constants.MIN_PRICE} wei`);
+  }
   return {
     price,
     duration,

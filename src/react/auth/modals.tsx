@@ -1422,12 +1422,12 @@ const ImagesTab = () => {
         accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
-      <div className={styles["ip-tab-content"]}>
-        {isLoading ? (
+      {isLoading ? (
+        <div className={styles["ip-tab-content"]}>
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : null}
-      </div>
-      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+        </div>
+      ) : null}
+      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
@@ -1441,12 +1441,12 @@ const AudioTab = () => {
         accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
         maxFileSize={1.573e7} // 15 MB
       />
-      <div className={styles["ip-tab-content"]}>
-        {isLoading ? (
+      {isLoading ? (
+        <div className={styles["ip-tab-content"]}>
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : null}
-      </div>
-      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+        </div>
+      ) : null}
+      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
@@ -1460,12 +1460,12 @@ const VideosTab = () => {
         accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
         maxFileSize={2.097e7} // 20 MB
       />
-      <div className={styles["ip-tab-content"]}>
-        {isLoading ? (
+      {isLoading ? (
+        <div className={styles["ip-tab-content"]}>
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : null}
-      </div>
-      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+        </div>
+      ) : null}
+      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
@@ -1479,12 +1479,12 @@ const TextTab = () => {
         accept={constants.SUPPORTED_TEXT_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
-      <div className={styles["ip-tab-content"]}>
-        {isLoading ? (
+      {isLoading ? (
+        <div className={styles["ip-tab-content"]}>
           <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        ) : null}
-      </div>
-      <GoToOriginDashboard text="Manage on Origin Dashboard" />
+        </div>
+      ) : null}
+      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };

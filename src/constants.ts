@@ -20,6 +20,8 @@ export default {
   MAX_LICENSE_DURATION: 2628000, // 30 days in seconds
   MIN_LICENSE_DURATION: 86400, // 1 day in seconds
   MIN_PRICE: 1000000000000000, // 0.001 CAMP in wei
+  MIN_ROYALTY_BPS: 1, // 0.01%
+  MAX_ROYALTY_BPS: 10000, // 100%
 };
 
 export interface Environment {

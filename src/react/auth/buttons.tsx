@@ -1,4 +1,4 @@
-import { zeroAddress } from "viem";
+import { parseEther, zeroAddress } from "viem";
 import constants from "../../constants";
 import { createLicenseTerms } from "../../core/origin/utils";
 import { useToast } from "../components/toasts";
@@ -23,6 +23,12 @@ import {
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
 import React, { JSX, useContext, useEffect, useState, useRef } from "react";
+import {
+  toSeconds,
+  validateDuration,
+  validatePrice,
+  validateRoyaltyBps,
+} from "../../utils";
 
 interface CampButtonProps {
   onClick: () => void;
@@ -407,6 +413,7 @@ interface FileUploadProps {
 
 interface LoadingBarProps {
   progress: number;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -414,9 +421,9 @@ interface LoadingBarProps {
  * @param { { progress: number } } props The props.
  * @returns { JSX.Element } The LoadingBar component.
  */
-const LoadingBar = ({ progress }: LoadingBarProps): JSX.Element => {
+const LoadingBar = ({ progress, style }: LoadingBarProps): JSX.Element => {
   return (
-    <div className={buttonStyles["loading-bar-container"]}>
+    <div className={buttonStyles["loading-bar-container"]} style={style}>
       <div
         className={buttonStyles["loading-bar"]}
         style={{ width: `${progress}%` }}
@@ -432,7 +439,7 @@ interface PercentageSliderProps {
 export const PercentageSlider: React.FC<PercentageSliderProps> = ({
   onChange,
 }) => {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
@@ -446,7 +453,7 @@ export const PercentageSlider: React.FC<PercentageSliderProps> = ({
       <input
         id="slider"
         type="range"
-        min="0"
+        min="1"
         max="100"
         value={value}
         onChange={handleChange}
@@ -486,6 +493,62 @@ export const DatePicker: React.FC<DeadlinePickerProps> = ({ onChange }) => {
   );
 };
 
+export const FancyInput = ({
+  value,
+  onChange,
+  step,
+  placeholder,
+  type = "text",
+  icon,
+  label,
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  step?: number;
+  placeholder?: string;
+  type?: string;
+  icon?: JSX.Element;
+  label?: string;
+}) => {
+  return (
+    <>
+      {label && (
+        <span className={buttonStyles["fancy-input-label"]}>{label}</span>
+      )}
+      <div
+        className={buttonStyles["fancy-input-container"]}
+        style={type === "textarea" ? { minHeight: "5rem" } : {}}
+      >
+        {type === "textarea" ? (
+          <textarea
+            value={value}
+            onChange={onChange as any}
+            placeholder={placeholder}
+            className={buttonStyles["fancy-input"]}
+            rows={3}
+          />
+        ) : (
+          <input
+            type={type}
+            value={value}
+            step={step}
+            min={0}
+            onChange={onChange}
+            placeholder={placeholder}
+            className={buttonStyles["fancy-input"]}
+          />
+        )}
+        {icon && (
+          <>
+            <div className={buttonStyles["input-divider"]} />
+            <div className={buttonStyles["input-icon-container"]}>{icon}</div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
 /**
  * The FileUpload component.
  * Provides a file upload field with drag-and-drop support.
@@ -507,77 +570,40 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
   const [price, setPrice] = useState<string>("");
-  const [royaltyBps, setRoyaltyBps] = useState<number>(10); // default 10 bps = 0.1%
+  const [royaltyBps, setRoyaltyBps] = useState<string>("2.5"); // in percentage
   const [licenseDuration, setLicenseDuration] = useState<number>(24);
   const [durationUnit, setDurationUnit] = useState<string>("hours");
   const [isValidInput, setIsValidInput] = useState<boolean>(false);
 
   const validateInputs = () => {
-    let durationInSeconds = licenseDuration;
-    switch (durationUnit) {
-      case "hours":
-        durationInSeconds = licenseDuration * 3600; // 60 * 60
-        break;
-      case "days":
-        durationInSeconds = licenseDuration * 86400; // 60 * 60 * 24
-        break;
-      case "weeks":
-        durationInSeconds = licenseDuration * 604800; // 60 * 60 * 24 * 7
-        break;
-    }
+    const isDurationValid = validateDuration(licenseDuration, durationUnit);
+    let isPriceValid = validatePrice(price);
+    const isRoyaltyValid = validateRoyaltyBps(royaltyBps);
 
-    const isDurationValid =
-      durationInSeconds >= constants.MIN_LICENSE_DURATION &&
-      durationInSeconds <= constants.MAX_LICENSE_DURATION;
-
-    let isPriceValid = true;
-    if (price && price.trim() !== "") {
-      const priceInWei = BigInt(
-        Math.floor(parseFloat(price) * Math.pow(10, 18))
-      );
-      isPriceValid = priceInWei >= BigInt(constants.MIN_PRICE);
-    } else {
-      isPriceValid = false;
-    }
-
-    setIsValidInput(isDurationValid && isPriceValid);
+    setIsValidInput(isDurationValid && isPriceValid && isRoyaltyValid);
   };
 
   useEffect(() => {
     validateInputs();
-  }, [price, licenseDuration, durationUnit]);
+  }, [price, licenseDuration, durationUnit, royaltyBps]);
 
   const handleUpload = async () => {
     if (selectedFile) {
       setIsUploading(true);
       try {
-        // convert duration to seconds based on selected unit
-        let durationInSeconds = licenseDuration;
-        switch (durationUnit) {
-          case "hours":
-            durationInSeconds = licenseDuration * 3600; // 60 * 60
-            break;
-          case "days":
-            durationInSeconds = licenseDuration * 86400; // 60 * 60 * 24
-            break;
-          case "weeks":
-            durationInSeconds = licenseDuration * 604800; // 60 * 60 * 24 * 7
-            break;
-        }
-
-        const priceInWei = price
-          ? BigInt(Math.floor(parseFloat(price) * Math.pow(10, 18)))
-          : BigInt(0);
+        const durationInSeconds = toSeconds(licenseDuration, durationUnit);
+        const priceInWei = parseEther(price || "0");
+        const computedRoyaltyBps = Math.floor(parseFloat(royaltyBps) * 100); // percentage to basis points
 
         const license = createLicenseTerms(
-          priceInWei, // price in wei
-          durationInSeconds, // duration in seconds
-          royaltyBps, // royalty basis points
-          zeroAddress // payment token
+          priceInWei,
+          durationInSeconds,
+          computedRoyaltyBps,
+          zeroAddress
         );
         const metadata = {
           name: selectedFile.name,
-          description: `This is a file uploaded by ${auth?.walletAddress}`,
+          description: `File uploaded by ${auth?.walletAddress} via the Origin SDK`,
         };
         const res = await auth?.origin?.mintFile(
           selectedFile,
@@ -595,9 +621,12 @@ export const FileUpload = ({
         }
         addToast(`File minted successfully. Token ID: ${res}`, "success", 5000);
         refetch();
-      } catch (error) {
-        console.error(error);
-        addToast(`Error minting file: ${error}`, "error", 5000);
+      } catch (error: Error | any) {
+        if (error.toString().includes("User rejected")) {
+          addToast("User rejected the transaction", "error", 5000);
+        } else {
+          addToast(`Error minting file: ${error.message}`, "error", 5000);
+        }
         setIsUploading(false);
       } finally {
         setSelectedFile(null);
@@ -769,24 +798,23 @@ export const FileUpload = ({
         <div className={buttonStyles["selected-file-container"]}>
           {renderFilePreview()}
           <span className={buttonStyles["file-name"]}>{selectedFile.name}</span>
-          {isUploading && <LoadingBar progress={uploadProgress} />}
-          <div className={buttonStyles["price-input-container"]}>
-            <input
-              type="number"
-              step="0.000000000000000001"
-              placeholder="Price in CAMP"
-              className={buttonStyles["price-input"]}
-              value={price}
-              onChange={(e) => {
-                const value = e.target.value;
-                setPrice(value);
-              }}
-            />
-            <div className={buttonStyles["price-divider"]}></div>
-            <div className={buttonStyles["camp-icon-container"]}>
-              <CampIcon />
-            </div>
-          </div>
+          {/* price */}
+          <FancyInput
+            type="number"
+            step={0.0001}
+            placeholder="$CAMP"
+            value={price}
+            label="Price in $CAMP"
+            onChange={(e) => {
+              const value = e.target.value;
+              setPrice(value);
+            }}
+            icon={<CampIcon />}
+          />
+          {/* duration */}
+          <span className={buttonStyles["fancy-input-label"]}>
+            License Duration
+          </span>
           <div className={buttonStyles["duration-input-container"]}>
             <input
               type="number"
@@ -810,12 +838,25 @@ export const FileUpload = ({
               <option value="weeks">Weeks</option>
             </select>
           </div>
-          {/* <PercentageSlider
-            onChange={(value) => {
-              const royaltyBps = Math.round((value / 100) * 10000);
-              setRoyaltyBps(royaltyBps);
+          {/* royalty */}
+          <FancyInput
+            type="number"
+            step={0.1}
+            placeholder="Royalty %"
+            label="Royalty %"
+            value={royaltyBps.toString()}
+            onChange={(e) => {
+              const value = e.target.value;
+              setRoyaltyBps(value);
             }}
-          /> */}
+            icon={<span className={buttonStyles["percentage-icon"]}>%</span>}
+          />
+          {isUploading && (
+            <LoadingBar
+              progress={uploadProgress}
+              style={{ marginTop: "16px" }}
+            />
+          )}
           <div className={buttonStyles["upload-buttons"]}>
             <button
               className={buttonStyles["remove-file-button"]}
@@ -825,7 +866,6 @@ export const FileUpload = ({
               <BinIcon w="1.25rem" h="1.25rem" />
             </button>
             <Button
-              // className={buttonStyles["upload-file-button"]}
               onClick={handleUpload}
               disabled={!selectedFile || isUploading || !isValidInput}
             >
