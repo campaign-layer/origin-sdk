@@ -76,7 +76,11 @@
   "release-it": {
     "$schema": "https://unpkg.com/release-it/schema/release-it.json",
     "github": {
-      "release": true
+      "release": false
+    },
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}"
     }
   }
 }
