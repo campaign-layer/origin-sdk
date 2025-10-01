@@ -14,7 +14,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "prepare": "husky",
-    "test": "jest"
+    "test": "jest",
+    "release": "release-it"
   },
   "module": "dist/core.esm.js",
   "keywords": [
@@ -63,6 +64,7 @@
     "husky": "^9.1.6",
     "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
+    "release-it": "^19.0.5",
     "rollup": "^4.24.3",
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
@@ -70,5 +72,11 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "typescript": "^5.6.3",
     "xmlhttprequest": "^1.8.0"
+  },
+  "release-it": {
+    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+    "github": {
+      "release": true
+    }
   }
 }
