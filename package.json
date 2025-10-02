@@ -88,7 +88,7 @@
         "preset": "conventionalcommits",
         "infile": "CHANGELOG.md",
         "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n",
-        "releaseCount": 0
+        "ignoreRecommendedBump": true
       }
     }
   }
