@@ -242,25 +242,49 @@ export class Origin {
       progressCallback?: (percent: number) => void;
     }
   ): Promise<string | null> {
-    if (!this.viemClient) {
-      throw new Error("WalletClient not connected.");
+    let account: string | null = null;
+    try {
+      account = await this.#getCurrentAccount();
+    } catch (error) {
+      throw new Error("Failed to mint file IP. Wallet not connected.");
     }
-    const info = await this.uploadFile(file, options);
-    if (!info || !info.key) {
-      throw new Error("Failed to upload file or get upload info.");
+
+    let info;
+    try {
+      info = await this.uploadFile(file, options);
+      if (!info || !info.key) {
+        throw new Error("Failed to upload file or get upload info.");
+      }
+    } catch (error) {
+      throw new Error(
+        `File upload failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
+
     const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
-    const registration = await this.registerIpNFT(
-      "file",
-      deadline,
-      license,
-      metadata,
-      info.key,
-      parents
-    );
+    let registration;
+    try {
+      registration = await this.registerIpNFT(
+        "file",
+        deadline,
+        license,
+        metadata,
+        info.key,
+        parents
+      );
+    } catch (error) {
+      await this.#setOriginStatus(info.key, "failed");
+      throw new Error(
+        `Failed to register IpNFT: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+
     const { tokenId, signerAddress, creatorContentHash, signature, uri } =
       registration;
-
     if (
       !tokenId ||
       !signerAddress ||
@@ -273,27 +297,29 @@ export class Origin {
       );
     }
 
-    const accounts = (await this.viemClient.request({
-      method: "eth_requestAccounts",
-      params: [] as any,
-    })) as string[];
-    const account = accounts[0];
-
-    const mintResult = await this.mintWithSignature(
-      account as `0x${string}`,
-      tokenId,
-      parents || [],
-      creatorContentHash,
-      uri,
-      license,
-      deadline,
-      signature
-    );
-
-    if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
-      console.error("Minting failed:", mintResult);
+    try {
+      const mintResult = await this.mintWithSignature(
+        account as `0x${string}`,
+        tokenId,
+        parents || [],
+        creatorContentHash,
+        uri,
+        license,
+        deadline,
+        signature
+      );
+      if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
+        await this.#setOriginStatus(info.key, "failed");
+        throw new Error(
+          `Minting failed with status: ${mintResult.receipt.status}`
+        );
+      }
+    } catch (error) {
+      await this.#setOriginStatus(info.key, "failed");
       throw new Error(
-        `Minting failed with status: ${mintResult.receipt.status}`
+        `Minting transaction failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
 
@@ -305,21 +331,32 @@ export class Origin {
     metadata: Record<string, unknown>,
     license: LicenseTerms
   ): Promise<string | null> {
-    if (!this.viemClient) {
-      throw new Error("WalletClient not connected.");
+    let account: string | null = null;
+    try {
+      account = await this.#getCurrentAccount();
+    } catch (error) {
+      throw new Error("Failed to mint social IP. Wallet not connected.");
     }
 
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-    const registration = await this.registerIpNFT(
-      source,
-      deadline,
-      license,
-      metadata
-    );
+    let registration;
+    try {
+      registration = await this.registerIpNFT(
+        source,
+        deadline,
+        license,
+        metadata
+      );
+    } catch (error) {
+      throw new Error(
+        `Failed to register Social IpNFT: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
 
     const { tokenId, signerAddress, creatorContentHash, signature, uri } =
       registration;
-
     if (
       !tokenId ||
       !signerAddress ||
@@ -332,26 +369,27 @@ export class Origin {
       );
     }
 
-    const accounts = (await this.viemClient.request({
-      method: "eth_requestAccounts",
-      params: [] as any,
-    })) as string[];
-    const account = accounts[0];
-
-    const mintResult = await this.mintWithSignature(
-      account as `0x${string}`,
-      tokenId,
-      [],
-      creatorContentHash,
-      uri,
-      license,
-      deadline,
-      signature
-    );
-
-    if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
+    try {
+      const mintResult = await this.mintWithSignature(
+        account as `0x${string}`,
+        tokenId,
+        [],
+        creatorContentHash,
+        uri,
+        license,
+        deadline,
+        signature
+      );
+      if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
+        throw new Error(
+          `Minting Social IpNFT failed with status: ${mintResult.receipt.status}`
+        );
+      }
+    } catch (error) {
       throw new Error(
-        `Minting Social IpNFT failed with status: ${mintResult.receipt.status}`
+        `Minting transaction failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
     }
 
@@ -490,8 +528,8 @@ export class Origin {
    * @throws {Error} - Throws an error if the wallet client is not connected.
    */
   async #ensureChainId(chain: any): Promise<void> {
-    // return;
-    if (!this.viemClient) throw new Error("WalletClient not connected.");
+    if (!this.viemClient)
+      throw new Error("WalletClient not connected. Could not ensure chain ID.");
 
     let currentChainId = (await this.viemClient.request({
       method: "eth_chainId",
@@ -535,6 +573,26 @@ export class Origin {
   }
 
   /**
+   * Get the current account from the connected wallet.
+   * @private
+   * @returns {Promise<string>} A promise that resolves with the current account address.
+   * @throws {Error} - Throws an error if the wallet client is not connected or no accounts are found.
+   */
+  async #getCurrentAccount(): Promise<string> {
+    if (!this.viemClient) {
+      throw new Error("WalletClient not connected. Please connect a wallet.");
+    }
+    const accounts = await this.viemClient.request({
+      method: "eth_requestAccounts",
+      params: [] as any,
+    });
+    if (!accounts || accounts.length === 0) {
+      throw new Error("No accounts found in connected wallet.");
+    }
+    return accounts[0];
+  }
+
+  /**
    * Call a contract method.
    * @param {string} contractAddress The contract address.
    * @param {Abi} abi The contract ABI.
@@ -551,6 +609,13 @@ export class Origin {
     params: any[],
     options: CallOptions = {}
   ): Promise<any> {
+    let account: string | null = null;
+    try {
+      account = await this.#getCurrentAccount();
+    } catch (error) {
+      throw new Error("Failed to call contract method. Wallet not connected.");
+    }
+
     const abiItem = getAbiItem({ abi, name: methodName });
 
     const isView =
@@ -571,15 +636,6 @@ export class Origin {
       return result;
     }
 
-    if (!this.viemClient) {
-      throw new Error("WalletClient not connected.");
-    }
-
-    const [account] = (await this.viemClient.request({
-      method: "eth_requestAccounts",
-      params: [] as any,
-    })) as [`0x${string}`];
-
     await this.#ensureChainId(this.environment.CHAIN);
 
     const publicClient = getPublicClient();
@@ -587,7 +643,7 @@ export class Origin {
     // simulate
     const { result: simulatedResult, request } =
       await publicClient.simulateContract({
-        account,
+        account: account as `0x${string}`,
         address: contractAddress as `0x${string}`,
         abi,
         functionName: methodName,
@@ -600,7 +656,7 @@ export class Origin {
     }
 
     try {
-      const txHash = await this.viemClient.writeContract(request);
+      const txHash = await this.viemClient?.writeContract(request);
 
       if (typeof txHash !== "string") {
         throw new Error("Transaction failed to send.");
@@ -628,9 +684,13 @@ export class Origin {
    * @returns {Promise<any>} The result of the buyAccess call.
    */
   async buyAccessSmart(tokenId: bigint): Promise<any> {
-    if (!this.viemClient) {
-      throw new Error("WalletClient not connected.");
+    let account: string | null = null;
+    try {
+      account = await this.#getCurrentAccount();
+    } catch (error) {
+      throw new Error("Failed to buy access. Wallet not connected.");
     }
+
     const terms = await this.getTerms(tokenId);
     if (!terms) throw new Error("Failed to fetch terms for asset");
 
@@ -642,16 +702,10 @@ export class Origin {
     ) {
       throw new Error("Terms missing price, paymentToken, or duration");
     }
-    const accounts = (await this.viemClient.request({
-      method: "eth_requestAccounts",
-      params: [] as any,
-    })) as string[];
-    const account = accounts[0];
 
     const totalCost = price;
     const isNative = paymentToken === zeroAddress;
     if (isNative) {
-      // return this.buyAccess(account, tokenId, periods, totalCost);
       return this.buyAccess(
         account as `0x${string}`,
         tokenId,
@@ -663,7 +717,7 @@ export class Origin {
     }
 
     await approveIfNeeded({
-      walletClient: this.viemClient,
+      walletClient: this.viemClient as WalletClient,
       publicClient: getPublicClient(),
       tokenAddress: paymentToken,
       owner: account as `0x${string}`,

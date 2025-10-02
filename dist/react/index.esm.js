@@ -2935,7 +2935,7 @@ function approveIfNeeded(_a) {
     });
 }
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_resolveWalletAddress;
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
@@ -3010,15 +3010,32 @@ class Origin {
     }
     mintFile(file, metadata, license, parents, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.viemClient) {
-                throw new Error("WalletClient not connected.");
+            let account = null;
+            try {
+                account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
             }
-            const info = yield this.uploadFile(file, options);
-            if (!info || !info.key) {
-                throw new Error("Failed to upload file or get upload info.");
+            catch (error) {
+                throw new Error("Failed to mint file IP. Wallet not connected.");
+            }
+            let info;
+            try {
+                info = yield this.uploadFile(file, options);
+                if (!info || !info.key) {
+                    throw new Error("Failed to upload file or get upload info.");
+                }
+            }
+            catch (error) {
+                throw new Error(`File upload failed: ${error instanceof Error ? error.message : String(error)}`);
             }
             const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
-            const registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parents);
+            let registration;
+            try {
+                registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parents);
+            }
+            catch (error) {
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                throw new Error(`Failed to register IpNFT: ${error instanceof Error ? error.message : String(error)}`);
+            }
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
             if (!tokenId ||
                 !signerAddress ||
@@ -3027,26 +3044,37 @@ class Origin {
                 !uri) {
                 throw new Error("Failed to register IpNFT: Missing required fields in registration response.");
             }
-            const accounts = (yield this.viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            }));
-            const account = accounts[0];
-            const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
-            if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
-                console.error("Minting failed:", mintResult);
-                throw new Error(`Minting failed with status: ${mintResult.receipt.status}`);
+            try {
+                const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
+                if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
+                    yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                    throw new Error(`Minting failed with status: ${mintResult.receipt.status}`);
+                }
+            }
+            catch (error) {
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                throw new Error(`Minting transaction failed: ${error instanceof Error ? error.message : String(error)}`);
             }
             return tokenId.toString();
         });
     }
     mintSocial(source, metadata, license) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.viemClient) {
-                throw new Error("WalletClient not connected.");
+            let account = null;
+            try {
+                account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
+            }
+            catch (error) {
+                throw new Error("Failed to mint social IP. Wallet not connected.");
             }
             const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
-            const registration = yield this.registerIpNFT(source, deadline, license, metadata);
+            let registration;
+            try {
+                registration = yield this.registerIpNFT(source, deadline, license, metadata);
+            }
+            catch (error) {
+                throw new Error(`Failed to register Social IpNFT: ${error instanceof Error ? error.message : String(error)}`);
+            }
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
             if (!tokenId ||
                 !signerAddress ||
@@ -3055,14 +3083,14 @@ class Origin {
                 !uri) {
                 throw new Error("Failed to register Social IpNFT: Missing required fields in registration response.");
             }
-            const accounts = (yield this.viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            }));
-            const account = accounts[0];
-            const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
-            if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
-                throw new Error(`Minting Social IpNFT failed with status: ${mintResult.receipt.status}`);
+            try {
+                const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
+                if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
+                    throw new Error(`Minting Social IpNFT failed with status: ${mintResult.receipt.status}`);
+                }
+            }
+            catch (error) {
+                throw new Error(`Minting transaction failed: ${error instanceof Error ? error.message : String(error)}`);
             }
             return tokenId.toString();
         });
@@ -3145,6 +3173,14 @@ class Origin {
      */
     callContractMethod(contractAddress_1, abi_1, methodName_1, params_1) {
         return __awaiter(this, arguments, void 0, function* (contractAddress, abi, methodName, params, options = {}) {
+            var _a;
+            let account = null;
+            try {
+                account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
+            }
+            catch (error) {
+                throw new Error("Failed to call contract method. Wallet not connected.");
+            }
             const abiItem = getAbiItem({ abi, name: methodName });
             const isView = abiItem &&
                 "stateMutability" in abiItem &&
@@ -3160,18 +3196,11 @@ class Origin {
                 })) || null;
                 return result;
             }
-            if (!this.viemClient) {
-                throw new Error("WalletClient not connected.");
-            }
-            const [account] = (yield this.viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            }));
             yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_ensureChainId).call(this, this.environment.CHAIN);
             const publicClient = getPublicClient();
             // simulate
             const { result: simulatedResult, request } = yield publicClient.simulateContract({
-                account,
+                account: account,
                 address: contractAddress,
                 abi,
                 functionName: methodName,
@@ -3182,7 +3211,7 @@ class Origin {
                 return simulatedResult;
             }
             try {
-                const txHash = yield this.viemClient.writeContract(request);
+                const txHash = yield ((_a = this.viemClient) === null || _a === void 0 ? void 0 : _a.writeContract(request));
                 if (typeof txHash !== "string") {
                     throw new Error("Transaction failed to send.");
                 }
@@ -3205,8 +3234,12 @@ class Origin {
      */
     buyAccessSmart(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.viemClient) {
-                throw new Error("WalletClient not connected.");
+            let account = null;
+            try {
+                account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
+            }
+            catch (error) {
+                throw new Error("Failed to buy access. Wallet not connected.");
             }
             const terms = yield this.getTerms(tokenId);
             if (!terms)
@@ -3217,15 +3250,9 @@ class Origin {
                 duration === undefined) {
                 throw new Error("Terms missing price, paymentToken, or duration");
             }
-            const accounts = (yield this.viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            }));
-            const account = accounts[0];
             const totalCost = price;
             const isNative = paymentToken === zeroAddress;
             if (isNative) {
-                // return this.buyAccess(account, tokenId, periods, totalCost);
                 return this.buyAccess(account, tokenId, totalCost, duration, paymentToken, totalCost);
             }
             yield approveIfNeeded({
@@ -3425,9 +3452,8 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
     });
 }, _Origin_ensureChainId = function _Origin_ensureChainId(chain) {
     return __awaiter(this, void 0, void 0, function* () {
-        // return;
         if (!this.viemClient)
-            throw new Error("WalletClient not connected.");
+            throw new Error("WalletClient not connected. Could not ensure chain ID.");
         let currentChainId = (yield this.viemClient.request({
             method: "eth_chainId",
             params: [],
@@ -3467,6 +3493,20 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
                 }
             }
         }
+    });
+}, _Origin_getCurrentAccount = function _Origin_getCurrentAccount() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.viemClient) {
+            throw new Error("WalletClient not connected. Please connect a wallet.");
+        }
+        const accounts = yield this.viemClient.request({
+            method: "eth_requestAccounts",
+            params: [],
+        });
+        if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found in connected wallet.");
+        }
+        return accounts[0];
     });
 }, _Origin_resolveWalletAddress = function _Origin_resolveWalletAddress(owner) {
     return __awaiter(this, void 0, void 0, function* () {
