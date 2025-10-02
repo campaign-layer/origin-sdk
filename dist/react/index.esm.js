@@ -3027,6 +3027,9 @@ class Origin {
             catch (error) {
                 throw new Error(`File upload failed: ${error instanceof Error ? error.message : String(error)}`);
             }
+            if (file.type) {
+                metadata.mimetype = file.type;
+            }
             const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
             let registration;
             try {
@@ -3067,6 +3070,7 @@ class Origin {
             catch (error) {
                 throw new Error("Failed to mint social IP. Wallet not connected.");
             }
+            metadata.mimetype = `social/${source}`;
             const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
             let registration;
             try {

@@ -258,9 +258,13 @@ export class Origin {
     } catch (error) {
       throw new Error(
         `File upload failed: ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? (error as Error).message : String(error)
         }`
       );
+    }
+
+    if (file.type) {
+      metadata.mimetype = file.type;
     }
 
     const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
@@ -278,7 +282,7 @@ export class Origin {
       await this.#setOriginStatus(info.key, "failed");
       throw new Error(
         `Failed to register IpNFT: ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? (error as Error).message : String(error)
         }`
       );
     }
@@ -318,7 +322,7 @@ export class Origin {
       await this.#setOriginStatus(info.key, "failed");
       throw new Error(
         `Minting transaction failed: ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? (error as Error).message : String(error)
         }`
       );
     }
@@ -337,6 +341,8 @@ export class Origin {
     } catch (error) {
       throw new Error("Failed to mint social IP. Wallet not connected.");
     }
+
+    metadata.mimetype = `social/${source}`;
 
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
     let registration;
