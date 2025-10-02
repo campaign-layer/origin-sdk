@@ -53,6 +53,7 @@
     "@babel/core": "^7.25.8",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
+    "@release-it/conventional-changelog": "^10.0.1",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
@@ -81,6 +82,14 @@
     "git": {
       "commitMessage": "chore: release v${version}",
       "tagName": "v${version}"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "conventionalcommits",
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n",
+        "releaseCount": 0
+      }
     }
   }
 }
