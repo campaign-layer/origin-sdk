@@ -953,7 +953,7 @@ When minting or updating an IpNFT, the following constraints apply to the `Licen
 
 - The price must be at least `1000000000000000` wei (0.001 $CAMP).
 - The royaltyBps must be between `1` and `10000` (0.01% to 100%).
-- The duration must be at least `86400` seconds (1 day).
+- The duration must be between `86400` seconds and `2628000` seconds (1 day to 30 days).
 
 ### File Upload & Minting
 
