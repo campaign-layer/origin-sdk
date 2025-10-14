@@ -1005,7 +1005,7 @@ Most methods mirror smart contract functions and require appropriate permissions
 
 #### Marketplace Methods
 
-- `buyAccess(tokenId, periods, value?)`
+- `buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, value?)`
 - `hasAccess(tokenId, user)`
 - `subscriptionExpiry(tokenId, user)`
 
@@ -1016,7 +1016,7 @@ Most methods mirror smart contract functions and require appropriate permissions
 
 #### Smart Access & Data
 
-- `buyAccessSmart(tokenId)` — Buys access, handles payment approval and license details
+- `buyAccessSmart(tokenId)` — Buys access, handles payment approval and license details - **Recommended in place of buyAccess**
 - `getData(tokenId)` — Fetches metadata for a given IpNFT
 
 ### User Data & Stats
