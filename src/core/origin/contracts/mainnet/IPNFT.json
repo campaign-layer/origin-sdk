@@ -719,6 +719,7 @@
       },
       { "internalType": "uint256", "name": "deadline", "type": "uint256" },
       { "internalType": "uint256[]", "name": "parents", "type": "uint256[]" },
+      { "internalType": "bool", "name": "isIp", "type": "bool" },
       { "internalType": "bytes", "name": "signature", "type": "bytes" }
     ],
     "name": "mintWithSignature",

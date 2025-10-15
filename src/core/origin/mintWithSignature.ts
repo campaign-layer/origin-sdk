@@ -19,6 +19,7 @@ export async function mintWithSignature(
   to: Address,
   tokenId: bigint,
   parents: bigint[],
+  isIp: boolean,
   hash: Hex,
   uri: string,
   licenseTerms: LicenseTerms,
@@ -29,7 +30,7 @@ export async function mintWithSignature(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     this.environment.IPNFT_ABI as Abi,
     "mintWithSignature",
-    [to, tokenId, hash, uri, licenseTerms, deadline, parents, signature],
+    [to, tokenId, hash, uri, licenseTerms, deadline, parents, isIp, signature],
     { waitForReceipt: true }
   );
 }

@@ -1183,6 +1183,11 @@ var ipnftMainnetAbi = [
 				type: "uint256[]"
 			},
 			{
+				internalType: "bool",
+				name: "isIp",
+				type: "bool"
+			},
+			{
 				internalType: "bytes",
 				name: "signature",
 				type: "bytes"
@@ -2539,8 +2544,8 @@ const ENVIRONMENTS = {
         AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
         AUTH_ENDPOINT: "auth-testnet",
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
-        DATANFT_CONTRACT_ADDRESS: "0x8EB0E8C3bA99c04F05ab01A5BED34F00c6c3BE4D",
-        MARKETPLACE_CONTRACT_ADDRESS: "0x2947eE8a352158fda08F2cf5c0AE8e5b1DFCfDc9",
+        DATANFT_CONTRACT_ADDRESS: "0xFf4d27a19d6F7EbB6963Fe08Ed1a860C114Da97a",
+        MARKETPLACE_CONTRACT_ADDRESS: "0xf09778b5D9583Ab767D43Bc016C95B992D50A475",
         CHAIN: testnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
@@ -2717,9 +2722,9 @@ const validateRoyaltyBps = (royaltyBps) => {
  * @param signature The signature for the minting operation.
  * @returns A promise that resolves when the minting is complete.
  */
-function mintWithSignature(to, tokenId, parents, hash, uri, licenseTerms, deadline, signature) {
+function mintWithSignature(to, tokenId, parents, isIp, hash, uri, licenseTerms, deadline, signature) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, parents, signature], { waitForReceipt: true });
+        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, parents, isIp, signature], { waitForReceipt: true });
     });
 }
 /**
@@ -3048,7 +3053,7 @@ class Origin {
                 throw new Error("Failed to register IpNFT: Missing required fields in registration response.");
             }
             try {
-                const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], creatorContentHash, uri, license, deadline, signature);
+                const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], true, creatorContentHash, uri, license, deadline, signature);
                 if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
                     yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
                     throw new Error(`Minting failed with status: ${mintResult.receipt.status}`);
@@ -3088,7 +3093,7 @@ class Origin {
                 throw new Error("Failed to register Social IpNFT: Missing required fields in registration response.");
             }
             try {
-                const mintResult = yield this.mintWithSignature(account, tokenId, [], creatorContentHash, uri, license, deadline, signature);
+                const mintResult = yield this.mintWithSignature(account, tokenId, [], true, creatorContentHash, uri, license, deadline, signature);
                 if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
                     throw new Error(`Minting Social IpNFT failed with status: ${mintResult.receipt.status}`);
                 }

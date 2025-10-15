@@ -57,7 +57,7 @@ type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
  * @param signature The signature for the minting operation.
  * @returns A promise that resolves when the minting is complete.
  */
-declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, parents: bigint[], hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: Hex): Promise<any>;
+declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, parents: bigint[], isIp: boolean, hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: Hex): Promise<any>;
 /**
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
  * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
