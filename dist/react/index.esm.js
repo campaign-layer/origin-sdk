@@ -5773,15 +5773,15 @@ const LinkingModal = () => {
  * @returns { JSX.Element } The OriginSection component.
  */
 const OriginSection = () => {
-    const { stats, uploads } = useOrigin();
+    // const { stats, uploads } = useOrigin();
     const [royaltiesToClaim, setRoyaltiesToClaim] = useState(null);
     const [isClaiming, setIsClaiming] = useState(false);
     const { environment, auth } = useContext(CampContext);
     const { addToast: toast } = useToast();
-    const [uploadedImages, setUploadedImages] = useState(0);
-    const [uploadedVideos, setUploadedVideos] = useState(0);
-    const [uploadedAudio, setUploadedAudio] = useState(0);
-    const [uploadedText, setUploadedText] = useState(0);
+    // const [uploadedImages, setUploadedImages] = useState(0);
+    // const [uploadedVideos, setUploadedVideos] = useState(0);
+    // const [uploadedAudio, setUploadedAudio] = useState(0);
+    // const [uploadedText, setUploadedText] = useState(0);
     useEffect(() => {
         const fetchRoyalties = () => __awaiter(void 0, void 0, void 0, function* () {
             if (!auth || !auth.origin)
@@ -5809,54 +5809,30 @@ const OriginSection = () => {
             setIsClaiming(false);
         }
     });
-    useEffect(() => {
-        if (uploads.data) {
-            let imagesCount = 0;
-            let videosCount = 0;
-            let audioCount = 0;
-            let textCount = 0;
-            uploads.data.forEach((upload) => {
-                if (upload.type.startsWith("image")) {
-                    imagesCount++;
-                }
-                else if (upload.type.startsWith("video")) {
-                    videosCount++;
-                }
-                else if (upload.type.startsWith("audio")) {
-                    audioCount++;
-                }
-                else if (upload.type.startsWith("text")) {
-                    textCount++;
-                }
-            });
-            setUploadedImages(imagesCount);
-            setUploadedVideos(videosCount);
-            setUploadedAudio(audioCount);
-            setUploadedText(textCount);
-        }
-    }, [uploads.data]);
-    return stats.isLoading ? (React.createElement("div", { style: { marginTop: "1rem", marginBottom: "1rem", flex: 1 } },
-        React.createElement("div", { className: styles.spinner }))) : (React.createElement("div", { className: styles["origin-wrapper"] },
-        React.createElement("div", { className: styles["origin-section"] },
-            React.createElement(Tooltip, { content: `Images uploaded: ${uploadedImages.toLocaleString()}`, position: "top", containerStyle: { width: "100%" } },
-                React.createElement("div", { className: styles["origin-container"] },
-                    React.createElement("span", null, formatCampAmount(uploadedImages)),
-                    React.createElement("span", { className: styles["origin-label"] }, "Images"))),
-            React.createElement("div", { className: styles["divider"] }),
-            React.createElement(Tooltip, { content: `Audio uploaded: ${uploadedAudio.toLocaleString()}`, position: "top", containerStyle: { width: "100%" } },
-                React.createElement("div", { className: styles["origin-container"] },
-                    React.createElement("span", null, formatCampAmount(uploadedAudio)),
-                    React.createElement("span", { className: styles["origin-label"] }, "Audio"))),
-            React.createElement("div", { className: styles["divider"] }),
-            React.createElement(Tooltip, { content: `Videos uploaded: ${uploadedVideos.toLocaleString()}`, position: "top", containerStyle: { width: "100%" } },
-                React.createElement("div", { className: styles["origin-container"] },
-                    React.createElement("span", null, formatCampAmount(uploadedVideos)),
-                    React.createElement("span", { className: styles["origin-label"] }, "Videos"))),
-            React.createElement("div", { className: styles["divider"] }),
-            React.createElement(Tooltip, { content: `Text uploaded: ${uploadedText.toLocaleString()}`, position: "top", containerStyle: { width: "100%" } },
-                React.createElement("div", { className: styles["origin-container"] },
-                    React.createElement("span", null, formatCampAmount(uploadedText)),
-                    React.createElement("span", { className: styles["origin-label"] }, "Text")))),
+    // useEffect(() => {
+    //   if (uploads.data) {
+    //     let imagesCount = 0;
+    //     let videosCount = 0;
+    //     let audioCount = 0;
+    //     let textCount = 0;
+    //     uploads.data.forEach((upload) => {
+    //       if (upload.type.startsWith("image")) {
+    //         imagesCount++;
+    //       } else if (upload.type.startsWith("video")) {
+    //         videosCount++;
+    //       } else if (upload.type.startsWith("audio")) {
+    //         audioCount++;
+    //       } else if (upload.type.startsWith("text")) {
+    //         textCount++;
+    //       }
+    //     });
+    //     setUploadedImages(imagesCount);
+    //     setUploadedVideos(videosCount);
+    //     setUploadedAudio(audioCount);
+    //     setUploadedText(textCount);
+    //   }
+    // }, [uploads.data]);
+    return (React.createElement("div", { className: styles["origin-wrapper"] },
         React.createElement("div", { className: styles["origin-section"] },
             React.createElement(Tooltip, { content: environment.NAME === "PRODUCTION"
                     ? "You are connected to Camp Mainnet"
@@ -5967,7 +5943,7 @@ const MyCampModal = ({ wcProvider, }) => {
                     React.createElement(CopyIcon, { w: 16, h: 16 }))),
             React.createElement("div", { className: styles["vertical-tabs-container"] },
                 React.createElement("div", { className: styles["vertical-tabs"] },
-                    React.createElement(TabButton, { label: "Stats", isActive: activeTab === "origin", onClick: () => setActiveTab("origin") }),
+                    React.createElement(TabButton, { label: "Origin", isActive: activeTab === "origin", onClick: () => setActiveTab("origin") }),
                     React.createElement(TabButton, { label: "Socials", isActive: activeTab === "socials", onClick: () => setActiveTab("socials") }),
                     React.createElement(TabButton, { label: "Images", isActive: activeTab === "images", onClick: () => setActiveTab("images") }),
                     React.createElement(TabButton, { label: "Audio", isActive: activeTab === "audio", onClick: () => setActiveTab("audio") }),

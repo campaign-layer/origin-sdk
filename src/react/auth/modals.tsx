@@ -938,16 +938,16 @@ const LinkingModal = () => {
  * @returns { JSX.Element } The OriginSection component.
  */
 const OriginSection = (): JSX.Element => {
-  const { stats, uploads } = useOrigin();
+  // const { stats, uploads } = useOrigin();
   const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const { environment, auth } = useContext(CampContext);
   const { addToast: toast } = useToast();
 
-  const [uploadedImages, setUploadedImages] = useState(0);
-  const [uploadedVideos, setUploadedVideos] = useState(0);
-  const [uploadedAudio, setUploadedAudio] = useState(0);
-  const [uploadedText, setUploadedText] = useState(0);
+  // const [uploadedImages, setUploadedImages] = useState(0);
+  // const [uploadedVideos, setUploadedVideos] = useState(0);
+  // const [uploadedAudio, setUploadedAudio] = useState(0);
+  // const [uploadedText, setUploadedText] = useState(0);
 
   useEffect(() => {
     const fetchRoyalties = async () => {
@@ -974,38 +974,34 @@ const OriginSection = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
-    if (uploads.data) {
-      let imagesCount = 0;
-      let videosCount = 0;
-      let audioCount = 0;
-      let textCount = 0;
-      uploads.data.forEach((upload) => {
-        if (upload.type.startsWith("image")) {
-          imagesCount++;
-        } else if (upload.type.startsWith("video")) {
-          videosCount++;
-        } else if (upload.type.startsWith("audio")) {
-          audioCount++;
-        } else if (upload.type.startsWith("text")) {
-          textCount++;
-        }
-      });
-      setUploadedImages(imagesCount);
-      setUploadedVideos(videosCount);
-      setUploadedAudio(audioCount);
-      setUploadedText(textCount);
-    }
-  }, [uploads.data]);
+  // useEffect(() => {
+  //   if (uploads.data) {
+  //     let imagesCount = 0;
+  //     let videosCount = 0;
+  //     let audioCount = 0;
+  //     let textCount = 0;
+  //     uploads.data.forEach((upload) => {
+  //       if (upload.type.startsWith("image")) {
+  //         imagesCount++;
+  //       } else if (upload.type.startsWith("video")) {
+  //         videosCount++;
+  //       } else if (upload.type.startsWith("audio")) {
+  //         audioCount++;
+  //       } else if (upload.type.startsWith("text")) {
+  //         textCount++;
+  //       }
+  //     });
+  //     setUploadedImages(imagesCount);
+  //     setUploadedVideos(videosCount);
+  //     setUploadedAudio(audioCount);
+  //     setUploadedText(textCount);
+  //   }
+  // }, [uploads.data]);
 
-  return stats.isLoading ? (
-    <div style={{ marginTop: "1rem", marginBottom: "1rem", flex: 1 }}>
-      <div className={styles.spinner} />
-    </div>
-  ) : (
+  return (
     <div className={styles["origin-wrapper"]}>
       {/* line one */}
-      <div className={styles["origin-section"]}>
+      {/* <div className={styles["origin-section"]}>
         <Tooltip
           content={`Images uploaded: ${uploadedImages.toLocaleString()}`}
           position="top"
@@ -1049,7 +1045,7 @@ const OriginSection = (): JSX.Element => {
             <span className={styles["origin-label"]}>Text</span>
           </div>
         </Tooltip>
-      </div>
+      </div> */}
       {/* line two */}
       <div className={styles["origin-section"]}>
         <Tooltip
@@ -1228,7 +1224,7 @@ export const MyCampModal = ({
         <div className={styles["vertical-tabs-container"]}>
           <div className={styles["vertical-tabs"]}>
             <TabButton
-              label="Stats"
+              label="Origin"
               isActive={activeTab === "origin"}
               onClick={() => setActiveTab("origin")}
             />
