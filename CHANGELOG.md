@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.1.0](https://github.com/campaign-layer/origin-sdk/compare/v1.0.1...v1.1.0) (2025-10-15)
+
+### Bug Fixes
+
+* readme for buyAccess ([3440d64](https://github.com/campaign-layer/origin-sdk/commit/3440d645ea850ed9c7e6d93a8adfcdbdeab0f4c5))
+* remove stats from modal ([eaaff74](https://github.com/campaign-layer/origin-sdk/commit/eaaff74350a07717de5f77c4bed696fb40d58a91))
+* update contracts ([99d7e4d](https://github.com/campaign-layer/origin-sdk/commit/99d7e4d223ddac56476d34be099ce99d67361436))
+* wording ([3faae15](https://github.com/campaign-layer/origin-sdk/commit/3faae15e651ca13cfdc7e4b484623a36347f81f5))
+
 ## [1.0.1](https://github.com/campaign-layer/origin-sdk/compare/v1.0.0...v1.0.1) (2025-10-02)
 
 ### Features
