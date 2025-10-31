@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.0-1](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-1) (2025-10-31)
+
+### Features
+
+* upgrade to token bound accounts ([50d71dc](https://github.com/campaign-layer/origin-sdk/commit/50d71dc81d7cba90c01e05b45d819cf32ddf9d98))
+
+### Bug Fixes
+
+* simulate get royalties ([026a242](https://github.com/campaign-layer/origin-sdk/commit/026a24245b7a52ef7c6890dfe97488066c3396f1))
+
 ## [1.2.0-0](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-0) (2025-10-31)
 
 ### Features
