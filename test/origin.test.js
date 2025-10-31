@@ -112,13 +112,6 @@ describe("Origin Integration", () => {
     expect(() => auth.origin.setViemClient(viemMock)).not.toThrow();
   });
 
-  test("getRoyalties throws if no accounts found", async () => {
-    auth.origin.setViemClient({ request: jest.fn().mockResolvedValue([]) });
-    await expect(auth.origin.getRoyalties()).rejects.toThrow(
-      "No accounts found in connected wallet"
-    );
-  });
-
   test("claimRoyalties throws if no accounts found", async () => {
     auth.origin.setViemClient({ request: jest.fn().mockResolvedValue([]) });
     await expect(auth.origin.claimRoyalties()).rejects.toThrow(

@@ -43,7 +43,7 @@ interface OriginUsageReturnType {
 }
 
 interface RoyaltyInfo {
-  royaltyVault: Address;
+  tokenBoundAccount: Address;
   balance: bigint;
   balanceFormatted: string;
 }
@@ -760,28 +760,52 @@ export class Origin {
   }
 
   /**
-   * Get royalty information for a wallet address, including the royalty vault address and its balance.
-   * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
-   * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
-   * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
-   * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+   * Get the Token Bound Account (TBA) address for a specific token ID.
+   * @param {bigint} tokenId - The token ID to get the TBA address for.
+   * @returns {Promise<Address>} A promise that resolves with the TBA address.
+   * @throws {Error} Throws an error if the TBA address cannot be retrieved.
    * @example
    * ```typescript
-   * // Get royalties for connected wallet
-   * const royalties = await origin.getRoyalties();
-   *
-   * // Get royalties for specific address
-   * const royalties = await origin.getRoyalties("0x1234...");
+   * const tbaAddress = await origin.getTokenBoundAccount(1n);
+   * console.log(`TBA Address: ${tbaAddress}`);
    * ```
    */
-  async getRoyalties(token?: Address, owner?: Address): Promise<RoyaltyInfo> {
-    const walletAddress = await this.#resolveWalletAddress(owner);
-
+  async getTokenBoundAccount(tokenId: bigint): Promise<Address> {
     try {
-      const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
-        walletAddress,
-        true
+      const tbaAddress = await this.callContractMethod(
+        this.environment.DATANFT_CONTRACT_ADDRESS,
+        this.environment.IPNFT_ABI as Abi,
+        "getAccount",
+        [tokenId]
       );
+      return tbaAddress as Address;
+    } catch (error) {
+      throw new Error(
+        `Failed to get Token Bound Account for token ${tokenId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get royalty information for a token ID, including the token bound account address and its balance.
+   * @param {bigint} tokenId - The token ID to check royalties for.
+   * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
+   * @returns {Promise<RoyaltyInfo>} A promise that resolves with the token bound account address and balance information.
+   * @throws {Error} Throws an error if the token bound account cannot be retrieved.
+   * @example
+   * ```typescript
+   * // Get royalties for a specific token
+   * const royalties = await origin.getRoyalties(1n);
+   *
+   * // Get ERC20 token royalties for a specific token
+   * const royalties = await origin.getRoyalties(1n, "0x1234...");
+   * ```
+   */
+  async getRoyalties(tokenId: bigint, token?: Address): Promise<RoyaltyInfo> {
+    try {
+      const tokenBoundAccount = await this.getTokenBoundAccount(tokenId);
       const publicClient = getPublicClient();
 
       let balance: bigint;
@@ -789,7 +813,7 @@ export class Origin {
 
       if (!token || token === zeroAddress) {
         balance = await publicClient.getBalance({
-          address: royaltyVaultAddress,
+          address: tokenBoundAccount,
         });
         balanceFormatted = formatEther(balance);
       } else {
@@ -812,7 +836,7 @@ export class Origin {
         ] as Abi;
 
         balance = await this.callContractMethod(token, erc20Abi, "balanceOf", [
-          royaltyVaultAddress,
+          tokenBoundAccount,
         ]);
 
         const decimals = await this.callContractMethod(
@@ -826,37 +850,89 @@ export class Origin {
       }
 
       return {
-        royaltyVault: royaltyVaultAddress,
+        tokenBoundAccount,
         balance,
         balanceFormatted,
       };
     } catch (error) {
       throw new Error(
-        `Failed to retrieve royalties for address ${walletAddress}: ${
+        `Failed to retrieve royalties for token ${tokenId}: ${
           error instanceof Error ? error.message : String(error)
         }`
       );
     }
   }
   /**
-   * Claim royalties from the royalty vault.
+   * Claim royalties from a token's Token Bound Account (TBA).
+   * @param {bigint} tokenId - The token ID to claim royalties from.
+   * @param {Address} [recipient] - Optional recipient address. If not provided, uses the connected wallet.
    * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
-   * @param {Address} [owner] - Optional wallet address to claim royalties for. If not provided, uses the connected wallet.
    * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
-   * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+   * @throws {Error} Throws an error if no wallet is connected and no recipient address is provided.
+   * @example
+   * ```typescript
+   * // Claim native token royalties for token #1 to connected wallet
+   * await origin.claimRoyalties(1n);
+   *
+   * // Claim ERC20 token royalties to a specific address
+   * await origin.claimRoyalties(1n, "0xRecipient...", "0xToken...");
+   * ```
    */
-  async claimRoyalties(token?: Address, owner?: Address): Promise<any> {
-    const walletAddress = await this.#resolveWalletAddress(owner);
-    const royaltyVaultAddress = await this.getOrCreateRoyaltyVault(
-      walletAddress,
-      true
-    );
+  async claimRoyalties(
+    tokenId: bigint,
+    recipient?: Address,
+    token?: Address
+  ): Promise<any> {
+    const recipientAddress = await this.#resolveWalletAddress(recipient);
+    const tokenBoundAccount = await this.getTokenBoundAccount(tokenId);
+
+    // Get the balance to transfer
+    const royaltyInfo = await this.getRoyalties(tokenId, token);
+    const balance = royaltyInfo.balance;
+
+    if (balance === BigInt(0)) {
+      throw new Error("No royalties available to claim");
+    }
+
+    let to: Address;
+    let value: bigint;
+    let data: `0x${string}`;
+
+    if (!token || token === zeroAddress) {
+      // Native token transfer
+      to = recipientAddress;
+      value = balance;
+      data = "0x";
+    } else {
+      // ERC20 token transfer
+      to = token;
+      value = BigInt(0);
+      // Encode ERC20 transfer call: transfer(address to, uint256 amount)
+      data = encodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { name: "to", type: "address" },
+              { name: "amount", type: "uint256" },
+            ],
+            name: "transfer",
+            outputs: [{ name: "", type: "bool" }],
+            stateMutability: "nonpayable",
+            type: "function",
+          },
+        ],
+        functionName: "transfer",
+        args: [recipientAddress, balance],
+      });
+    }
+
+    // Call execute on the TBA
     return this.callContractMethod(
-      royaltyVaultAddress,
-      this.environment.ROYALTY_VAULT_ABI as Abi,
-      "claimRoyalty",
-      [token ?? zeroAddress],
-      { waitForReceipt: true }
+      tokenBoundAccount,
+      this.environment.TBA_ABI as Abi,
+      "execute",
+      [to, value, data, 0], // operation: 0 = CALL
+      { waitForReceipt: true, value: BigInt(0) }
     );
   }
 

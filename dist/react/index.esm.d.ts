@@ -13,6 +13,7 @@ interface Environment {
     IPNFT_ABI?: any;
     MARKETPLACE_ABI?: any;
     ROYALTY_VAULT_ABI?: any;
+    TBA_ABI?: any;
 }
 
 /**
@@ -173,7 +174,7 @@ interface OriginUsageReturnType {
     dataSources: Array<any>;
 }
 interface RoyaltyInfo {
-    royaltyVault: Address;
+    tokenBoundAccount: Address;
     balance: bigint;
     balanceFormatted: string;
 }
@@ -252,29 +253,50 @@ declare class Origin {
     buyAccessSmart(tokenId: bigint): Promise<any>;
     getData(tokenId: bigint): Promise<any>;
     /**
-     * Get royalty information for a wallet address, including the royalty vault address and its balance.
-     * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
-     * @param {Address} [owner] - Optional wallet address to check royalties for. If not provided, uses the connected wallet.
-     * @returns {Promise<RoyaltyInfo>} A promise that resolves with the royalty vault address and balance information.
-     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     * Get the Token Bound Account (TBA) address for a specific token ID.
+     * @param {bigint} tokenId - The token ID to get the TBA address for.
+     * @returns {Promise<Address>} A promise that resolves with the TBA address.
+     * @throws {Error} Throws an error if the TBA address cannot be retrieved.
      * @example
      * ```typescript
-     * // Get royalties for connected wallet
-     * const royalties = await origin.getRoyalties();
-     *
-     * // Get royalties for specific address
-     * const royalties = await origin.getRoyalties("0x1234...");
+     * const tbaAddress = await origin.getTokenBoundAccount(1n);
+     * console.log(`TBA Address: ${tbaAddress}`);
      * ```
      */
-    getRoyalties(token?: Address, owner?: Address): Promise<RoyaltyInfo>;
+    getTokenBoundAccount(tokenId: bigint): Promise<Address>;
     /**
-     * Claim royalties from the royalty vault.
-     * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
-     * @param {Address} [owner] - Optional wallet address to claim royalties for. If not provided, uses the connected wallet.
-     * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
-     * @throws {Error} Throws an error if no wallet is connected and no owner address is provided.
+     * Get royalty information for a token ID, including the token bound account address and its balance.
+     * @param {bigint} tokenId - The token ID to check royalties for.
+     * @param {Address} [token] - Optional token address to check royalties for. If not provided, checks for native token.
+     * @returns {Promise<RoyaltyInfo>} A promise that resolves with the token bound account address and balance information.
+     * @throws {Error} Throws an error if the token bound account cannot be retrieved.
+     * @example
+     * ```typescript
+     * // Get royalties for a specific token
+     * const royalties = await origin.getRoyalties(1n);
+     *
+     * // Get ERC20 token royalties for a specific token
+     * const royalties = await origin.getRoyalties(1n, "0x1234...");
+     * ```
      */
-    claimRoyalties(token?: Address, owner?: Address): Promise<any>;
+    getRoyalties(tokenId: bigint, token?: Address): Promise<RoyaltyInfo>;
+    /**
+     * Claim royalties from a token's Token Bound Account (TBA).
+     * @param {bigint} tokenId - The token ID to claim royalties from.
+     * @param {Address} [recipient] - Optional recipient address. If not provided, uses the connected wallet.
+     * @param {Address} [token] - Optional token address to claim royalties in. If not provided, claims in native token.
+     * @returns {Promise<any>} A promise that resolves when the claim transaction is confirmed.
+     * @throws {Error} Throws an error if no wallet is connected and no recipient address is provided.
+     * @example
+     * ```typescript
+     * // Claim native token royalties for token #1 to connected wallet
+     * await origin.claimRoyalties(1n);
+     *
+     * // Claim ERC20 token royalties to a specific address
+     * await origin.claimRoyalties(1n, "0xRecipient...", "0xToken...");
+     * ```
+     */
+    claimRoyalties(tokenId: bigint, recipient?: Address, token?: Address): Promise<any>;
 }
 
 declare global {

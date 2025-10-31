@@ -939,8 +939,8 @@ const LinkingModal = () => {
  */
 const OriginSection = (): JSX.Element => {
   // const { stats, uploads } = useOrigin();
-  const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
-  const [isClaiming, setIsClaiming] = useState(false);
+  // const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
+  // const [isClaiming, setIsClaiming] = useState(false);
   const { environment, auth } = useContext(CampContext);
   const { addToast: toast } = useToast();
 
@@ -949,30 +949,30 @@ const OriginSection = (): JSX.Element => {
   // const [uploadedAudio, setUploadedAudio] = useState(0);
   // const [uploadedText, setUploadedText] = useState(0);
 
-  useEffect(() => {
-    const fetchRoyalties = async () => {
-      if (!auth || !auth.origin) return;
-      const royalties = await auth?.origin.getRoyalties();
-      const bal = formatEther(royalties.balance);
-      setRoyaltiesToClaim(bal !== "0" ? formatCampAmount(Number(bal)) : null);
-    };
-    fetchRoyalties();
-  }, [auth]);
+  // useEffect(() => {
+  //   const fetchRoyalties = async () => {
+  //     if (!auth || !auth.origin) return;
+  //     const royalties = await auth?.origin.getRoyalties();
+  //     const bal = formatEther(royalties.balance);
+  //     setRoyaltiesToClaim(bal !== "0" ? formatCampAmount(Number(bal)) : null);
+  //   };
+  //   fetchRoyalties();
+  // }, [auth]);
 
-  const handleClaimRoyalties = async () => {
-    if (!auth || !auth.origin || !royaltiesToClaim) return;
-    setIsClaiming(true);
-    try {
-      await auth.origin.claimRoyalties();
-      setRoyaltiesToClaim(null);
-      toast("Royalties claimed successfully!", "success", 5000);
-    } catch (error) {
-      console.error("Error claiming royalties:", error);
-      toast("Error claiming royalties. Please try again.", "error", 5000);
-    } finally {
-      setIsClaiming(false);
-    }
-  };
+  // const handleClaimRoyalties = async () => {
+  //   if (!auth || !auth.origin || !royaltiesToClaim) return;
+  //   setIsClaiming(true);
+  //   try {
+  //     await auth.origin.claimRoyalties();
+  //     setRoyaltiesToClaim(null);
+  //     toast("Royalties claimed successfully!", "success", 5000);
+  //   } catch (error) {
+  //     console.error("Error claiming royalties:", error);
+  //     toast("Error claiming royalties. Please try again.", "error", 5000);
+  //   } finally {
+  //     setIsClaiming(false);
+  //   }
+  // };
 
   // useEffect(() => {
   //   if (uploads.data) {
@@ -1092,7 +1092,7 @@ const OriginSection = (): JSX.Element => {
         </Tooltip>
       </div>
       {/* claim section */}
-      <div className={styles["claim-section"]}>
+      {/* <div className={styles["claim-section"]}>
         <Button
           style={{ margin: 0 }}
           onClick={handleClaimRoyalties}
@@ -1104,7 +1104,7 @@ const OriginSection = (): JSX.Element => {
               : `Claim ${royaltiesToClaim} $CAMP`
             : "No Royalties to claim"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };
