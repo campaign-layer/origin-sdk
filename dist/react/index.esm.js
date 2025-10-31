@@ -3842,7 +3842,7 @@ class Origin {
     getTokenBoundAccount(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const tbaAddress = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getAccount", [tokenId]);
+                const tbaAddress = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "getAccount", [tokenId], { simulate: true });
                 return tbaAddress;
             }
             catch (error) {

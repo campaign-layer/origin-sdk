@@ -174,7 +174,7 @@ if(s.simulate)return l;try{const e=yield null===(o=this.viemClient)||void 0===o?
      * const tbaAddress = await origin.getTokenBoundAccount(1n);
      * console.log(`TBA Address: ${tbaAddress}`);
      * ```
-     */getTokenBoundAccount(e){return a(this,void 0,void 0,(function*(){try{return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getAccount",[e])}catch(t){throw new Error(`Failed to get Token Bound Account for token ${e}: ${t instanceof Error?t.message:String(t)}`)}}))}
+     */getTokenBoundAccount(e){return a(this,void 0,void 0,(function*(){try{return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"getAccount",[e],{simulate:!0})}catch(t){throw new Error(`Failed to get Token Bound Account for token ${e}: ${t instanceof Error?t.message:String(t)}`)}}))}
 /**
      * Get royalty information for a token ID, including the token bound account address and its balance.
      * @param {bigint} tokenId - The token ID to check royalties for.

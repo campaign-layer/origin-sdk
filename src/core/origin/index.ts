@@ -776,7 +776,8 @@ export class Origin {
         this.environment.DATANFT_CONTRACT_ADDRESS,
         this.environment.IPNFT_ABI as Abi,
         "getAccount",
-        [tokenId]
+        [tokenId],
+        { simulate: true }
       );
       return tbaAddress as Address;
     } catch (error) {
