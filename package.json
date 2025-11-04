@@ -46,8 +46,23 @@
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5",
+    "ethers": "^5.7.0 || ^6.0.0",
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-query": {
+      "optional": true
+    },
+    "ethers": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "^7.25.8",

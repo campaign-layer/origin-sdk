@@ -5,6 +5,8 @@ import constants, { Environment, ENVIRONMENTS } from "../../constants";
 import { Provider, providerStore } from "./viem/providers";
 import { Origin } from "../origin";
 import { checksumAddress } from "viem";
+import { SignerAdapter, createSignerAdapter } from "./signers";
+import { StorageAdapter, BrowserStorage, MemoryStorage } from "./storage";
 
 declare global {
   interface Window {
@@ -54,6 +56,9 @@ class Auth {
   origin: Origin | null;
   environment: Environment;
   #triggers: Record<string, Function[]>;
+  #isNodeEnvironment: boolean;
+  #signerAdapter?: SignerAdapter;
+  #storage: StorageAdapter;
 
   /**
    * Constructor for the Auth class.
@@ -61,16 +66,19 @@ class Auth {
    * @param {string} options.clientId The client ID.
    * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
    * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
+   * @param {StorageAdapter} [options.storage] Custom storage adapter. Defaults to localStorage in browser, memory storage in Node.js.
    * @throws {APIError} - Throws an error if the clientId is not provided.
    */
   constructor({
     clientId,
     redirectUri,
     environment = "DEVELOPMENT",
+    storage,
   }: {
     clientId: string;
     redirectUri: string | Record<string, string>;
     environment?: "DEVELOPMENT" | "PRODUCTION";
+    storage?: StorageAdapter;
   }) {
     if (!clientId) {
       throw new Error("clientId is required");
@@ -78,6 +86,12 @@ class Auth {
     if (["PRODUCTION", "DEVELOPMENT"].indexOf(environment) === -1) {
       throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");
     }
+
+    this.#isNodeEnvironment = typeof window === "undefined";
+    this.#storage =
+      storage ||
+      (this.#isNodeEnvironment ? new MemoryStorage() : new BrowserStorage());
+
     this.viem = null;
     this.environment = ENVIRONMENTS[environment];
 
@@ -90,9 +104,14 @@ class Auth {
     this.walletAddress = null;
     this.userId = null;
     this.#triggers = {};
-    providerStore.subscribe((providers: Provider[]) => {
-      this.#trigger("providers", providers);
-    });
+
+    // only subscribe to providers in browser environment
+    if (!this.#isNodeEnvironment) {
+      providerStore.subscribe((providers: Provider[]) => {
+        this.#trigger("providers", providers);
+      });
+    }
+
     this.#loadAuthStatusFromStorage();
   }
 
@@ -191,7 +210,7 @@ class Auth {
     this.#trigger("viem", this.viem);
     this.#trigger("provider", { provider, info });
 
-    localStorage.setItem("camp-sdk:provider", JSON.stringify(info));
+    this.#storage.setItem("camp-sdk:provider", JSON.stringify(info));
   }
 
   /**
@@ -215,9 +234,15 @@ class Auth {
       return;
     }
 
-    const lastProvider = JSON.parse(
-      localStorage.getItem("camp-sdk:provider") || "{}"
-    ) as { uuid?: string; name?: string };
+    const providerJson = await this.#storage.getItem("camp-sdk:provider");
+    if (!providerJson) {
+      return;
+    }
+
+    const lastProvider = JSON.parse(providerJson) as {
+      uuid?: string;
+      name?: string;
+    };
 
     let provider: Provider | undefined;
     const providers = providerStore.value() ?? [];
@@ -324,14 +349,12 @@ class Auth {
    * @returns {void}
    */
   async #loadAuthStatusFromStorage(provider?: any): Promise<void> {
-    if (typeof localStorage === "undefined") {
-      return;
-    }
-
-    const walletAddress = localStorage?.getItem("camp-sdk:wallet-address");
-    const userId = localStorage?.getItem("camp-sdk:user-id");
-    const jwt = localStorage?.getItem("camp-sdk:jwt");
-    const lastEnvironment = localStorage?.getItem("camp-sdk:environment");
+    const walletAddress = await this.#storage.getItem(
+      "camp-sdk:wallet-address"
+    );
+    const userId = await this.#storage.getItem("camp-sdk:user-id");
+    const jwt = await this.#storage.getItem("camp-sdk:jwt");
+    const lastEnvironment = await this.#storage.getItem("camp-sdk:environment");
 
     if (
       walletAddress &&
@@ -353,7 +376,7 @@ class Auth {
           },
           address: walletAddress,
         });
-      } else {
+      } else if (!this.#isNodeEnvironment) {
         console.warn(
           "No matching provider was given for the stored wallet address. Trying to recover provider."
         );
@@ -454,16 +477,27 @@ class Auth {
    * Create the SIWE message.
    * @private
    * @param {string} nonce The nonce.
+   * @param {string} [domain] Optional domain override for Node.js environments.
+   * @param {string} [uri] Optional URI override for Node.js environments.
    * @returns {string} The EIP-4361 formatted message.
    */
-  #createMessage(nonce: string): string {
+  #createMessage(nonce: string, domain?: string, uri?: string): string {
+    const chainId =
+      this.viem?.chain?.id || this.#signerAdapter
+        ? 1
+        : this.environment.CHAIN.id;
+
     return createSiweMessage({
-      domain: window.location.host,
+      domain:
+        domain ||
+        (this.#isNodeEnvironment ? "localhost" : window.location.host),
       address: this.walletAddress as any,
       statement: constants.SIWE_MESSAGE_STATEMENT,
-      uri: window.location.origin,
+      uri:
+        uri ||
+        (this.#isNodeEnvironment ? "http://localhost" : window.location.origin),
       version: "1",
-      chainId: this.viem.chain.id,
+      chainId: chainId,
       nonce: nonce,
     });
   }
@@ -482,10 +516,12 @@ class Auth {
     this.userId = null;
     this.jwt = null;
     this.origin = null;
-    localStorage.removeItem("camp-sdk:wallet-address");
-    localStorage.removeItem("camp-sdk:user-id");
-    localStorage.removeItem("camp-sdk:jwt");
-    localStorage.removeItem("camp-sdk:environment");
+    this.#signerAdapter = undefined;
+
+    await this.#storage.removeItem("camp-sdk:wallet-address");
+    await this.#storage.removeItem("camp-sdk:user-id");
+    await this.#storage.removeItem("camp-sdk:jwt");
+    await this.#storage.removeItem("camp-sdk:environment");
   }
 
   /**
@@ -516,13 +552,16 @@ class Auth {
         this.userId = res.userId;
         this.jwt = res.token;
         this.origin = new Origin(this.jwt, this.environment, this.viem);
-        localStorage.setItem("camp-sdk:jwt", this.jwt);
-        localStorage.setItem(
+        await this.#storage.setItem("camp-sdk:jwt", this.jwt);
+        await this.#storage.setItem(
           "camp-sdk:wallet-address",
           this.walletAddress as string
         );
-        localStorage.setItem("camp-sdk:user-id", this.userId);
-        localStorage.setItem("camp-sdk:environment", this.environment.NAME);
+        await this.#storage.setItem("camp-sdk:user-id", this.userId);
+        await this.#storage.setItem(
+          "camp-sdk:environment",
+          this.environment.NAME
+        );
         this.#trigger("state", "authenticated");
         return {
           success: true,
@@ -536,6 +575,87 @@ class Auth {
       }
     } catch (e: any) {
       this.isAuthenticated = false;
+      this.#trigger("state", "unauthenticated");
+      throw new APIError(e);
+    }
+  }
+
+  /**
+   * Connect with a custom signer (for Node.js or custom wallet implementations).
+   * This method bypasses browser wallet interactions and uses the provided signer directly.
+   * @param {any} signer The signer instance (viem WalletClient, ethers Signer, or custom signer).
+   * @param {object} [options] Optional configuration.
+   * @param {string} [options.domain] The domain to use in SIWE message (defaults to 'localhost').
+   * @param {string} [options.uri] The URI to use in SIWE message (defaults to 'http://localhost').
+   * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
+   * @throws {APIError} - Throws an error if authentication fails.
+   * @example
+   * // Using with ethers
+   * const signer = new ethers.Wallet(privateKey, provider);
+   * await auth.connectWithSigner(signer, { domain: 'myapp.com', uri: 'https://myapp.com' });
+   *
+   * // Using with viem
+   * const account = privateKeyToAccount('0x...');
+   * const client = createWalletClient({ account, chain: mainnet, transport: http() });
+   * await auth.connectWithSigner(client);
+   */
+  async connectWithSigner(
+    signer: any,
+    options?: { domain?: string; uri?: string }
+  ): Promise<{
+    success: boolean;
+    message: string;
+    walletAddress: string;
+  }> {
+    this.#trigger("state", "loading");
+
+    try {
+      this.#signerAdapter = createSignerAdapter(signer);
+      this.walletAddress = checksumAddress(
+        (await this.#signerAdapter.getAddress()) as `0x${string}`
+      );
+
+      // store the signer as viem client if it's a viem client, otherwise keep adapter
+      if (this.#signerAdapter.type === "viem") {
+        this.viem = signer;
+      }
+
+      const nonce = await this.#fetchNonce();
+      const message = this.#createMessage(nonce, options?.domain, options?.uri);
+      const signature = await this.#signerAdapter.signMessage(message);
+      const res = await this.#verifySignature(message, signature);
+
+      if (res.success) {
+        this.isAuthenticated = true;
+        this.userId = res.userId;
+        this.jwt = res.token;
+        this.origin = new Origin(this.jwt, this.environment, this.viem);
+
+        await this.#storage.setItem("camp-sdk:jwt", this.jwt);
+        await this.#storage.setItem(
+          "camp-sdk:wallet-address",
+          this.walletAddress
+        );
+        await this.#storage.setItem("camp-sdk:user-id", this.userId);
+        await this.#storage.setItem(
+          "camp-sdk:environment",
+          this.environment.NAME
+        );
+
+        this.#trigger("state", "authenticated");
+        return {
+          success: true,
+          message: "Successfully authenticated",
+          walletAddress: this.walletAddress,
+        };
+      } else {
+        this.isAuthenticated = false;
+        this.#trigger("state", "unauthenticated");
+        throw new APIError("Failed to authenticate");
+      }
+    } catch (e: any) {
+      this.isAuthenticated = false;
+      this.#signerAdapter = undefined;
       this.#trigger("state", "unauthenticated");
       throw new APIError(e);
     }
@@ -578,11 +698,16 @@ class Auth {
   /**
    * Link the user's Twitter account.
    * @returns {Promise<void>}
-   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
    */
   async linkTwitter(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
+    }
+    if (this.#isNodeEnvironment) {
+      throw new Error(
+        "Social linking requires browser environment for OAuth flow"
+      );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
   }
@@ -590,11 +715,16 @@ class Auth {
   /**
    * Link the user's Discord account.
    * @returns {Promise<void>}
-   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
    */
   async linkDiscord(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
+    }
+    if (this.#isNodeEnvironment) {
+      throw new Error(
+        "Social linking requires browser environment for OAuth flow"
+      );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
   }
@@ -602,11 +732,16 @@ class Auth {
   /**
    * Link the user's Spotify account.
    * @returns {Promise<void>}
-   * @throws {Error} - Throws an error if the user is not authenticated.
+   * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
    */
   async linkSpotify(): Promise<void> {
     if (!this.isAuthenticated) {
       throw new Error("User needs to be authenticated");
+    }
+    if (this.#isNodeEnvironment) {
+      throw new Error(
+        "Social linking requires browser environment for OAuth flow"
+      );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
   }

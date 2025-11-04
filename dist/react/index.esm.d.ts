@@ -299,6 +299,12 @@ declare class Origin {
     claimRoyalties(tokenId: bigint, recipient?: Address, token?: Address): Promise<any>;
 }
 
+interface StorageAdapter {
+    getItem(key: string): Promise<string | null>;
+    setItem(key: string, value: string): Promise<void>;
+    removeItem(key: string): Promise<void>;
+}
+
 declare global {
     interface Window {
         ethereum?: any;
@@ -326,12 +332,14 @@ declare class Auth {
      * @param {string} options.clientId The client ID.
      * @param {string|object} options.redirectUri The redirect URI used for oauth. Leave empty if you want to use the current URL. If you want different redirect URIs for different socials, pass an object with the socials as keys and the redirect URIs as values.
      * @param {("DEVELOPMENT"|"PRODUCTION")} [options.environment="DEVELOPMENT"] The environment to use.
+     * @param {StorageAdapter} [options.storage] Custom storage adapter. Defaults to localStorage in browser, memory storage in Node.js.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, environment, }: {
+    constructor({ clientId, redirectUri, environment, storage, }: {
         clientId: string;
         redirectUri: string | Record<string, string>;
         environment?: "DEVELOPMENT" | "PRODUCTION";
+        storage?: StorageAdapter;
     });
     /**
      * Subscribe to an event. Possible events are "state", "provider", "providers", and "viem".
@@ -395,6 +403,33 @@ declare class Auth {
         walletAddress: string;
     }>;
     /**
+     * Connect with a custom signer (for Node.js or custom wallet implementations).
+     * This method bypasses browser wallet interactions and uses the provided signer directly.
+     * @param {any} signer The signer instance (viem WalletClient, ethers Signer, or custom signer).
+     * @param {object} [options] Optional configuration.
+     * @param {string} [options.domain] The domain to use in SIWE message (defaults to 'localhost').
+     * @param {string} [options.uri] The URI to use in SIWE message (defaults to 'http://localhost').
+     * @returns {Promise<{ success: boolean; message: string; walletAddress: string }>} A promise that resolves with the authentication result.
+     * @throws {APIError} - Throws an error if authentication fails.
+     * @example
+     * // Using with ethers
+     * const signer = new ethers.Wallet(privateKey, provider);
+     * await auth.connectWithSigner(signer, { domain: 'myapp.com', uri: 'https://myapp.com' });
+     *
+     * // Using with viem
+     * const account = privateKeyToAccount('0x...');
+     * const client = createWalletClient({ account, chain: mainnet, transport: http() });
+     * await auth.connectWithSigner(client);
+     */
+    connectWithSigner(signer: any, options?: {
+        domain?: string;
+        uri?: string;
+    }): Promise<{
+        success: boolean;
+        message: string;
+        walletAddress: string;
+    }>;
+    /**
      * Get the user's linked social accounts.
      * @returns {Promise<Record<string, boolean>>} A promise that resolves with the user's linked social accounts.
      * @throws {Error|APIError} - Throws an error if the user is not authenticated or if the request fails.
@@ -407,19 +442,19 @@ declare class Auth {
     /**
      * Link the user's Twitter account.
      * @returns {Promise<void>}
-     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
      */
     linkTwitter(): Promise<void>;
     /**
      * Link the user's Discord account.
      * @returns {Promise<void>}
-     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
      */
     linkDiscord(): Promise<void>;
     /**
      * Link the user's Spotify account.
      * @returns {Promise<void>}
-     * @throws {Error} - Throws an error if the user is not authenticated.
+     * @throws {Error} - Throws an error if the user is not authenticated or in Node.js environment.
      */
     linkSpotify(): Promise<void>;
     /**

@@ -17,8 +17,19 @@ The Origin SDK currently exposes the following modules:
 - `"@campnetwork/origin"` - The main entry point for the SDK, exposes the following classes:
   - `TwitterAPI` - For fetching user Twitter data from Origin
   - `SpotifyAPI` - For fetching user Spotify data from Origin
-  - `Auth` - For authenticating users with the Origin SDK
+  - `Auth` - For authenticating users with the Origin SDK (browser and Node.js)
+  - Signer adapters and utilities for Node.js support (ethers, viem, custom signers)
+  - Camp Network chain configurations (`campMainnet`, `campTestnet`)
 - `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via Origin
+
+## Features
+
+- 🌐 **Browser & Node.js Support** - Use in client-side and server-side applications
+- 🔐 **Multiple Signer Types** - Works with ethers, viem, or custom signers
+- 🔗 **Social Account Linking** - Connect Twitter, Spotify, Discord, TikTok, and Telegram
+- ⚛️ **React Components** - Pre-built UI components and hooks
+- 📦 **TypeScript Support** - Full type definitions included
+- 🛠️ **Flexible Storage** - Custom storage adapters for session persistence
 
 # Installation
 
@@ -491,6 +502,191 @@ The `unlinkTikTok` method unlinks the user's TikTok account from Origin.
 ```js
 await auth.unlinkTikTok();
 ```
+
+## Node.js Support
+
+The Origin SDK supports Node.js environments, allowing you to authenticate and interact with Origin using server-side signers like ethers or viem.
+
+### Installation for Node.js
+
+```bash
+# With ethers
+npm install @campnetwork/origin ethers
+
+# With viem
+npm install @campnetwork/origin viem
+```
+
+### Key Differences from Browser Usage
+
+1. **No Browser Provider Detection**: In Node.js, you explicitly provide a signer instead of detecting browser wallets
+2. **Storage**: By default, Node.js uses in-memory storage (not persisted). You can provide a custom storage adapter
+3. **OAuth Social Linking**: Social account linking requires browser environment for OAuth flow
+4. **SIWE Domain/URI**: You must provide domain and URI for SIWE messages
+
+### Using with ethers
+
+```js
+import { Auth, campMainnet } from "@campnetwork/origin";
+import { ethers } from "ethers";
+
+// Setup ethers provider and signer
+const provider = new ethers.JsonRpcProvider(
+  process.env.RPC_URL || campMainnet.rpcUrls.default.http[0]
+);
+const signer = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+// Create Auth instance
+const auth = new Auth({
+  clientId: process.env.CLIENT_ID,
+  redirectUri: "https://myapp.com/callback",
+  environment: "PRODUCTION",
+});
+
+// Connect using ethers signer
+const result = await auth.connectWithSigner(signer, {
+  domain: "myapp.com",
+  uri: "https://myapp.com",
+});
+
+console.log("Connected!", result.walletAddress);
+
+// Use origin methods
+if (auth.origin) {
+  const terms = await auth.origin.getTerms(tokenId);
+  console.log("Terms:", terms);
+}
+```
+
+### Using with viem
+
+```js
+import { Auth, createNodeWalletClient, campMainnet } from "@campnetwork/origin";
+import { privateKeyToAccount } from "viem/accounts";
+
+// Create viem account from private key
+const account = privateKeyToAccount(process.env.PRIVATE_KEY);
+
+// Create wallet client for Node.js using Camp Network chain
+const client = createNodeWalletClient(
+  account,
+  campMainnet,
+  process.env.RPC_URL || campMainnet.rpcUrls.default.http[0]
+);
+
+// Create Auth instance
+const auth = new Auth({
+  clientId: process.env.CLIENT_ID,
+  redirectUri: "https://myapp.com/callback",
+  environment: "PRODUCTION",
+});
+
+// Connect using viem client
+await auth.connectWithSigner(client, {
+  domain: "myapp.com",
+  uri: "https://myapp.com",
+});
+
+console.log("Authenticated:", auth.isAuthenticated);
+```
+
+### Exported Chain Configurations
+
+The SDK exports Camp Network chain configurations for easy use:
+
+```js
+import { campMainnet, campTestnet } from "@campnetwork/origin";
+
+// campMainnet - Chain ID: 484 (Production)
+// campTestnet - Chain ID: 123420001114 (Basecamp testnet)
+
+console.log(campMainnet.rpcUrls.default.http[0]); // RPC URL
+console.log(campMainnet.blockExplorers.default.url); // Block explorer
+```
+
+### Custom Storage Adapter
+
+By default, Node.js uses in-memory storage. You can provide a custom storage adapter for persistence:
+
+```js
+import { Auth, MemoryStorage } from "@campnetwork/origin";
+
+// Custom file-based storage
+class FileStorage {
+  async getItem(key) {
+    /* read from file */
+  }
+  async setItem(key, value) {
+    /* write to file */
+  }
+  async removeItem(key) {
+    /* delete from file */
+  }
+}
+
+const auth = new Auth({
+  clientId: process.env.CLIENT_ID,
+  redirectUri: "https://myapp.com/callback",
+  environment: "PRODUCTION",
+  storage: new FileStorage(), // Custom storage
+});
+```
+
+### Methods
+
+#### connectWithSigner
+
+`connectWithSigner(signer: any, options?: { domain?: string, uri?: string }) => Promise<{ success: boolean, message: string, walletAddress: string }>`
+
+Connect with a custom signer (viem WalletClient, ethers Signer, or custom signer implementation).
+
+```js
+await auth.connectWithSigner(signer, {
+  domain: "myapp.com", // Required: Your application domain
+  uri: "https://myapp.com", // Required: Your application URI
+});
+```
+
+**Supported Signer Types:**
+
+- **viem WalletClient** - Automatically detected and used
+- **ethers Signer** (v5 or v6) - Works with both versions
+- **Custom Signer** - Must implement `getAddress()`, `signMessage()`, and `getChainId()` methods
+
+### Exported Types and Utilities
+
+```js
+import {
+  // Auth class
+  Auth,
+
+  // Signer adapters
+  ViemSignerAdapter,
+  EthersSignerAdapter,
+  CustomSignerAdapter,
+  createSignerAdapter,
+
+  // Storage adapters
+  BrowserStorage,
+  MemoryStorage,
+
+  // Viem helpers
+  createNodeWalletClient,
+
+  // Chain configs
+  campMainnet,
+  campTestnet,
+} from "@campnetwork/origin";
+```
+
+### Examples
+
+See the [examples/server-side](./examples/server-side) directory for complete Node.js examples including:
+
+- `connect-with-ethers.js` - Using ethers v6 Signer
+- `connect-with-viem.js` - Using viem WalletClient
+- `connect-with-custom-signer.js` - Custom signer implementation
+- `query-origin-data.js` - Querying blockchain data
 
 # React
 
