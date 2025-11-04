@@ -4308,7 +4308,7 @@ function createSignerAdapter(signer) {
 class BrowserStorage {
     getItem(key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof localStorage === 'undefined') {
+            if (typeof localStorage === "undefined") {
                 return null;
             }
             return localStorage.getItem(key);
@@ -4316,14 +4316,14 @@ class BrowserStorage {
     }
     setItem(key, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof localStorage !== 'undefined') {
+            if (typeof localStorage !== "undefined") {
                 localStorage.setItem(key, value);
             }
         });
     }
     removeItem(key) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof localStorage !== 'undefined') {
+            if (typeof localStorage !== "undefined") {
                 localStorage.removeItem(key);
             }
         });

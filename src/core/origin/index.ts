@@ -590,12 +590,12 @@ export class Origin {
     if (!this.viemClient) {
       throw new Error("WalletClient not connected. Please connect a wallet.");
     }
-    
+
     // If account is already set on the client, return it directly
     if (this.viemClient.account) {
       return this.viemClient.account.address;
     }
-    
+
     // Otherwise request accounts (browser wallet flow)
     const accounts = await this.viemClient.request({
       method: "eth_requestAccounts",
