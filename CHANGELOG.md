@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.0-2](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-2) (2025-11-04)
+
+### Features
+
+* add nodejs and signer support ([921fa44](https://github.com/campaign-layer/origin-sdk/commit/921fa44cdc5579eb0297b0aa7fc0c2c91ed07c73))
+* expose createLicenseTerms ([875da8f](https://github.com/campaign-layer/origin-sdk/commit/875da8fe4d984e2faea1c5f236f194eb3c027482))
+* upgrade to token bound accounts ([50d71dc](https://github.com/campaign-layer/origin-sdk/commit/50d71dc81d7cba90c01e05b45d819cf32ddf9d98))
+
+### Bug Fixes
+
+* cleanup ([57c57ec](https://github.com/campaign-layer/origin-sdk/commit/57c57ecd91c4c593acb3227350c4d9a8afef732c))
+* default to environment chain id ([3d79286](https://github.com/campaign-layer/origin-sdk/commit/3d79286d70f9b8b77a49732b216e4f15f474ba6a))
+* simulate get royalties ([026a242](https://github.com/campaign-layer/origin-sdk/commit/026a24245b7a52ef7c6890dfe97488066c3396f1))
+
 ## [1.2.0-1](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-1) (2025-10-31)
 
 ### Features
