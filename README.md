@@ -25,12 +25,12 @@ The Origin SDK currently exposes the following modules:
 
 ## Features
 
-- 🌐 **Browser & Node.js Support** - Use in client-side and server-side applications
-- 🔐 **Multiple Signer Types** - Works with ethers, viem, or custom signers
-- 🔗 **Social Account Linking** - Connect Twitter, Spotify, Discord, TikTok, and Telegram
-- ⚛️ **React Components** - Pre-built UI components and hooks
-- 📦 **TypeScript Support** - Full type definitions included
-- 🛠️ **Flexible Storage** - Custom storage adapters for session persistence
+- **Browser & Node.js Support** - Use in client-side and server-side applications
+- **Multiple Signer Types** - Works with ethers, viem, or custom signers
+- **Social Account Linking** - Connect Twitter, Spotify, and TikTok
+- **React Components** - Pre-built UI components and hooks
+- **TypeScript Support** - Full type definitions included
+- **Flexible Storage** - Custom storage adapters for session persistence
 
 # Installation
 
