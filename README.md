@@ -20,6 +20,7 @@ The Origin SDK currently exposes the following modules:
   - `Auth` - For authenticating users with the Origin SDK (browser and Node.js)
   - Signer adapters and utilities for Node.js support (ethers, viem, custom signers)
   - Camp Network chain configurations (`campMainnet`, `campTestnet`)
+  - Origin utilities (`createLicenseTerms`, `LicenseTerms`, `DataStatus`)
 - `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via Origin
 
 ## Features
@@ -1150,6 +1151,36 @@ When minting or updating an IpNFT, the following constraints apply to the `Licen
 - The price must be at least `1000000000000000` wei (0.001 $CAMP).
 - The royaltyBps must be between `1` and `10000` (0.01% to 100%).
 - The duration must be between `86400` seconds and `2628000` seconds (1 day to 30 days).
+
+### `createLicenseTerms(price, duration, royaltyBps, paymentToken)`
+
+A utility function to create properly validated license terms for minting and updating IpNFTs.
+
+- `price`: Price in wei (bigint) - must be at least `1000000000000000` wei
+- `duration`: Duration in seconds (number) - must be between `86400` and `2628000` seconds
+- `royaltyBps`: Royalty in basis points (number) - must be between `1` and `10000`
+- `paymentToken`: Payment token address (Address) - use `zeroAddress` from viem for native currency
+- **Returns:** A validated `LicenseTerms` object
+- **Throws:** Error if any parameter violates the constraints
+
+**Example:**
+
+```typescript
+import { createLicenseTerms } from "@campnetwork/origin";
+import { zeroAddress } from "viem";
+
+// Create license terms with validation
+const license = createLicenseTerms(
+  BigInt("1000000000000000"), // 0.001 CAMP in wei
+  86400, // 1 day in seconds
+  1000, // 10% royalty (1000 basis points)
+  zeroAddress // Native currency (CAMP)
+);
+
+// Use with minting functions
+await auth.origin.mintFile(file, metadata, license);
+await auth.origin.mintSocial("twitter", metadata, license);
+```
 
 ### File Upload & Minting
 

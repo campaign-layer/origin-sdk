@@ -235,6 +235,15 @@ declare enum DataStatus {
     DELETED = 2
 }
 /**
+ * Creates license terms for a digital asset.
+ * @param price The price of the asset in wei.
+ * @param duration The duration of the license in seconds.
+ * @param royaltyBps The royalty percentage in basis points (0-10000).
+ * @param paymentToken The address of the payment token (ERC20 / address(0) for native currency).
+ * @returns The created license terms.
+ */
+declare const createLicenseTerms: (price: bigint, duration: number, royaltyBps: number, paymentToken: Address) => LicenseTerms;
+/**
  * Represents the source of an IpNFT.
  * This can be one of the supported social media platforms or a file upload.
  */
@@ -831,4 +840,4 @@ declare const mainnet: {
     };
 };
 
-export { Auth, type BaseSigner, BrowserStorage, CustomSignerAdapter, EthersSignerAdapter, MemoryStorage, type SignerAdapter, type SignerType, SpotifyAPI, type StorageAdapter, TwitterAPI, ViemSignerAdapter, mainnet as campMainnet, testnet as campTestnet, createNodeWalletClient, createSignerAdapter };
+export { Auth, type BaseSigner, BrowserStorage, CustomSignerAdapter, DataStatus, EthersSignerAdapter, type LicenseTerms, MemoryStorage, type SignerAdapter, type SignerType, SpotifyAPI, type StorageAdapter, TwitterAPI, ViemSignerAdapter, mainnet as campMainnet, testnet as campTestnet, createLicenseTerms, createNodeWalletClient, createSignerAdapter };

@@ -982,3 +982,5 @@ export class Origin {
     }
   }
 }
+
+export { createLicenseTerms, LicenseTerms, DataStatus } from "./utils";

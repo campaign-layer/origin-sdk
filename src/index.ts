@@ -7,6 +7,15 @@ export * from "./core/auth/storage";
 
 export { createNodeWalletClient } from "./core/auth/viem/node-client";
 
-export { mainnet as campMainnet, testnet as campTestnet } from "./core/auth/viem/chains";
+export {
+  mainnet as campMainnet,
+  testnet as campTestnet,
+} from "./core/auth/viem/chains";
 
 export { TwitterAPI, SpotifyAPI, Auth };
+
+export {
+  createLicenseTerms,
+  LicenseTerms,
+  DataStatus,
+} from "./core/origin/utils";
