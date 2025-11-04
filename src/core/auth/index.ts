@@ -482,11 +482,6 @@ class Auth {
    * @returns {string} The EIP-4361 formatted message.
    */
   #createMessage(nonce: string, domain?: string, uri?: string): string {
-    const chainId =
-      this.viem?.chain?.id || this.#signerAdapter
-        ? 1
-        : this.environment.CHAIN.id;
-
     return createSiweMessage({
       domain:
         domain ||
@@ -497,7 +492,7 @@ class Auth {
         uri ||
         (this.#isNodeEnvironment ? "http://localhost" : window.location.origin),
       version: "1",
-      chainId: chainId,
+      chainId: this.environment.CHAIN.id,
       nonce: nonce,
     });
   }

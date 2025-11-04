@@ -5215,10 +5215,6 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
         }
     });
 }, _Auth_createMessage = function _Auth_createMessage(nonce, domain, uri) {
-    var _a, _b;
-    const chainId = ((_b = (_a = this.viem) === null || _a === void 0 ? void 0 : _a.chain) === null || _b === void 0 ? void 0 : _b.id) || __classPrivateFieldGet(this, _Auth_signerAdapter, "f")
-        ? 1
-        : this.environment.CHAIN.id;
     return createSiweMessage({
         domain: domain ||
             (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f") ? "localhost" : window.location.host),
@@ -5227,7 +5223,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
         uri: uri ||
             (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f") ? "http://localhost" : window.location.origin),
         version: "1",
-        chainId: chainId,
+        chainId: this.environment.CHAIN.id,
         nonce: nonce,
     });
 };
