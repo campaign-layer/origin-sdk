@@ -274,8 +274,6 @@ const video = await tiktok.fetchVideo("jack", "1234567890");
 
 The Auth class is the entry point for authenticating users with the Origin SDK. It requires a clientId to be instantiated.
 
-**Note: The Auth class is only to be used on the client side.**
-
 ### Constructor
 
 - `clientId` - The client ID of your app. This is required to authenticate users with the Origin SDK.
@@ -441,6 +439,8 @@ console.log(linkedSocials); // { twitter: true, tiktok: false, spotify: true }
 After the user has authenticated, the following methods can be used to link and unlink social accounts.
 When linking a social account, the user will be redirected to the OAuth flow for that social platform.
 Afterwards, the user will be redirected back to the `redirectUri` specified in the Auth constructor.
+
+**Note: Linking socials is only available in a browser environment**
 
 #### linkTwitter
 
@@ -716,7 +716,7 @@ createRoot(document.getElementById("root")).render(
 
 ## CampProvider
 
-The `CampProvider` component requires a `clientId` prop to be passed in order link the users to your app.
+The `CampProvider` component requires a `clientId` prop to be passed in order to link the users to your app.
 It can also take the following optional props:
 
 - `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
@@ -1156,9 +1156,9 @@ When minting or updating an IpNFT, the following constraints apply to the `Licen
 
 A utility function to create properly validated license terms for minting and updating IpNFTs.
 
-- `price`: Price in wei (bigint) - must be at least `1000000000000000` wei
-- `duration`: Duration in seconds (number) - must be between `86400` and `2628000` seconds
-- `royaltyBps`: Royalty in basis points (number) - must be between `1` and `10000`
+- `price`: Price in wei (bigint)
+- `duration`: Duration in seconds (number)
+- `royaltyBps`: Royalty in basis points (number)
 - `paymentToken`: Payment token address (Address) - use `zeroAddress` from viem for native currency
 - **Returns:** A validated `LicenseTerms` object
 - **Throws:** Error if any parameter violates the constraints
