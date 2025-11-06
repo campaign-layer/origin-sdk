@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.0-3](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-3) (2025-11-06)
+
+### Features
+
+* add nodejs and signer support ([921fa44](https://github.com/campaign-layer/origin-sdk/commit/921fa44cdc5579eb0297b0aa7fc0c2c91ed07c73))
+* expose createLicenseTerms ([875da8f](https://github.com/campaign-layer/origin-sdk/commit/875da8fe4d984e2faea1c5f236f194eb3c027482))
+* upgrade to token bound accounts ([50d71dc](https://github.com/campaign-layer/origin-sdk/commit/50d71dc81d7cba90c01e05b45d819cf32ddf9d98))
+
+### Bug Fixes
+
+* cleanup ([57c57ec](https://github.com/campaign-layer/origin-sdk/commit/57c57ecd91c4c593acb3227350c4d9a8afef732c))
+* default to environment chain id ([3d79286](https://github.com/campaign-layer/origin-sdk/commit/3d79286d70f9b8b77a49732b216e4f15f474ba6a))
+* parents array ([dce264d](https://github.com/campaign-layer/origin-sdk/commit/dce264d50170733b8f9fda596ca6e1fed5329154))
+* readme ([8eb2024](https://github.com/campaign-layer/origin-sdk/commit/8eb202446a849c1aea6d03a690a80d21373b3a8c))
+* readme ([6f64b4c](https://github.com/campaign-layer/origin-sdk/commit/6f64b4c0cdeaaab3451ad85ed7b454a96e4b41c0))
+* simulate get royalties ([026a242](https://github.com/campaign-layer/origin-sdk/commit/026a24245b7a52ef7c6890dfe97488066c3396f1))
+
 ## [1.2.0-2](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-2) (2025-11-04)
 
 ### Features
