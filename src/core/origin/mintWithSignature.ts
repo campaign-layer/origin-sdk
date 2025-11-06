@@ -61,7 +61,7 @@ export async function registerIpNFT(
       paymentToken: licenseTerms.paymentToken,
     },
     metadata,
-    parentId: parents || [],
+    parentId: parents ? parents.map((p) => p.toString()) : [],
   };
   if (fileKey !== undefined) {
     body.fileKey = fileKey;

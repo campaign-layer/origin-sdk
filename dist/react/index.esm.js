@@ -3284,7 +3284,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
                 paymentToken: licenseTerms.paymentToken,
             },
             metadata,
-            parentId: parents || [],
+            parentId: parents ? parents.map((p) => p.toString()) : [],
         };
         if (fileKey !== undefined) {
             body.fileKey = fileKey;

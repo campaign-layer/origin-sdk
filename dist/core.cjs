@@ -57,7 +57,7 @@ let C=null,_=null,k=null;const x=e=>{var n;const i=k||d;return _&&(null===(n=_.c
  * @param deadline The deadline for the registration operation.
  * @param fileKey Optional file key for file uploads.
  * @return A promise that resolves with the registration data.
- */function D(e,t,n,i,a,s){return r(this,void 0,void 0,(function*(){const r={source:e,deadline:Number(t),licenseTerms:{price:n.price.toString(),duration:n.duration,royaltyBps:n.royaltyBps,paymentToken:n.paymentToken},metadata:i,parentId:s||[]};void 0!==a&&(r.fileKey=a);const o=yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/register`,{method:"POST",headers:{Authorization:`Bearer ${this.getJwt()}`,"Content-Type":"application/json"},body:JSON.stringify(r)});if(!o.ok)throw new Error(`Failed to get signature: ${o.statusText}`);const d=yield o.json();if(d.isError)throw new Error(`Failed to get signature: ${d.message}`);return d.data}))}
+ */function D(e,t,n,i,a,s){return r(this,void 0,void 0,(function*(){const r={source:e,deadline:Number(t),licenseTerms:{price:n.price.toString(),duration:n.duration,royaltyBps:n.royaltyBps,paymentToken:n.paymentToken},metadata:i,parentId:s?s.map((e=>e.toString())):[]};void 0!==a&&(r.fileKey=a);const o=yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/register`,{method:"POST",headers:{Authorization:`Bearer ${this.getJwt()}`,"Content-Type":"application/json"},body:JSON.stringify(r)});if(!o.ok)throw new Error(`Failed to get signature: ${o.statusText}`);const d=yield o.json();if(d.isError)throw new Error(`Failed to get signature: ${d.message}`);return d.data}))}
 /**
  * Updates the license terms of a specified IPNFT.
  * @param tokenId The ID of the IPNFT to update.
