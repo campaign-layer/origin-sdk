@@ -3253,6 +3253,7 @@ const validateRoyaltyBps = (royaltyBps) => {
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
  * @param parents The IDs of the parent NFTs, if applicable.
+ * @param isIp Whether the NFT is an IP NFT.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -3269,7 +3270,10 @@ function mintWithSignature(to, tokenId, parents, isIp, hash, uri, licenseTerms, 
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
  * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
  * @param deadline The deadline for the registration operation.
- * @param fileKey Optional file key for file uploads.
+ * @param licenseTerms The terms of the license for the NFT.
+ * @param metadata The metadata associated with the NFT.
+ * @param fileKey The file key(s) if the source is "file".
+ * @param parents The IDs of the parent NFTs, if applicable.
  * @return A promise that resolves with the registration data.
  */
 function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parents) {
@@ -3524,11 +3528,12 @@ var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_wai
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 class Origin {
-    constructor(jwt, environment, viemClient) {
+    constructor(jwt, environment, viemClient, baseParentId) {
         _Origin_instances.add(this);
         this.jwt = jwt;
         this.viemClient = viemClient;
         this.environment = environment;
+        this.baseParentId = baseParentId;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
         this.registerIpNFT = registerIpNFT.bind(this);
@@ -3614,6 +3619,12 @@ class Origin {
                 metadata.mimetype = file.type;
             }
             const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
+            if (this.baseParentId) {
+                if (!parents) {
+                    parents = [];
+                }
+                parents.unshift(this.baseParentId);
+            }
             let registration;
             try {
                 registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parents);
@@ -3655,9 +3666,10 @@ class Origin {
             }
             metadata.mimetype = `social/${source}`;
             const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
+            let parents = this.baseParentId ? [this.baseParentId] : [];
             let registration;
             try {
-                registration = yield this.registerIpNFT(source, deadline, license, metadata);
+                registration = yield this.registerIpNFT(source, deadline, license, metadata, undefined, parents);
             }
             catch (error) {
                 throw new Error(`Failed to register Social IpNFT: ${error instanceof Error ? error.message : String(error)}`);
@@ -4436,7 +4448,7 @@ class Auth {
      * @param {StorageAdapter} [options.storage] Custom storage adapter. Defaults to localStorage in browser, memory storage in Node.js.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, environment = "DEVELOPMENT", storage, }) {
+    constructor({ clientId, redirectUri, environment = "DEVELOPMENT", baseParentId, storage, }) {
         _Auth_instances.add(this);
         _Auth_triggers.set(this, void 0);
         _Auth_isNodeEnvironment.set(this, void 0);
@@ -4453,6 +4465,7 @@ class Auth {
             (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f") ? new MemoryStorage() : new BrowserStorage()), "f");
         this.viem = null;
         this.environment = ENVIRONMENTS[environment];
+        this.baseParentId = baseParentId;
         this.redirectUri = createRedirectUriObject(redirectUri);
         this.clientId = clientId;
         this.isAuthenticated = false;
@@ -4683,7 +4696,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt, this.environment, this.viem);
+                    this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -4745,7 +4758,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt, this.environment, this.viem);
+                    this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -5134,7 +5147,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             this.walletAddress = walletAddress;
             this.userId = userId;
             this.jwt = jwt;
-            this.origin = new Origin(this.jwt, this.environment);
+            this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
             this.isAuthenticated = true;
             if (provider) {
                 this.setProvider({

@@ -55,6 +55,7 @@ class Auth {
   viem: any;
   origin: Origin | null;
   environment: Environment;
+  baseParentId?: bigint;
   #triggers: Record<string, Function[]>;
   #isNodeEnvironment: boolean;
   #signerAdapter?: SignerAdapter;
@@ -73,11 +74,13 @@ class Auth {
     clientId,
     redirectUri,
     environment = "DEVELOPMENT",
+    baseParentId,
     storage,
   }: {
     clientId: string;
     redirectUri: string | Record<string, string>;
     environment?: "DEVELOPMENT" | "PRODUCTION";
+    baseParentId?: bigint;
     storage?: StorageAdapter;
   }) {
     if (!clientId) {
@@ -94,6 +97,7 @@ class Auth {
 
     this.viem = null;
     this.environment = ENVIRONMENTS[environment];
+    this.baseParentId = baseParentId;
 
     this.redirectUri = createRedirectUriObject(redirectUri);
 
@@ -365,7 +369,12 @@ class Auth {
       this.walletAddress = walletAddress;
       this.userId = userId;
       this.jwt = jwt;
-      this.origin = new Origin(this.jwt, this.environment);
+      this.origin = new Origin(
+        this.jwt,
+        this.environment,
+        this.viem,
+        this.baseParentId
+      );
       this.isAuthenticated = true;
 
       if (provider) {
@@ -546,7 +555,12 @@ class Auth {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
-        this.origin = new Origin(this.jwt, this.environment, this.viem);
+        this.origin = new Origin(
+          this.jwt,
+          this.environment,
+          this.viem,
+          this.baseParentId
+        );
         await this.#storage.setItem("camp-sdk:jwt", this.jwt);
         await this.#storage.setItem(
           "camp-sdk:wallet-address",
@@ -624,7 +638,12 @@ class Auth {
         this.isAuthenticated = true;
         this.userId = res.userId;
         this.jwt = res.token;
-        this.origin = new Origin(this.jwt, this.environment, this.viem);
+        this.origin = new Origin(
+          this.jwt,
+          this.environment,
+          this.viem,
+          this.baseParentId
+        );
 
         await this.#storage.setItem("camp-sdk:jwt", this.jwt);
         await this.#storage.setItem(

@@ -254,6 +254,7 @@ type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
  * @param parents The IDs of the parent NFTs, if applicable.
+ * @param isIp Whether the NFT is an IP NFT.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -266,7 +267,10 @@ declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, p
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
  * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
  * @param deadline The deadline for the registration operation.
- * @param fileKey Optional file key for file uploads.
+ * @param licenseTerms The terms of the license for the NFT.
+ * @param metadata The metadata associated with the NFT.
+ * @param fileKey The file key(s) if the source is "file".
+ * @param parents The IDs of the parent NFTs, if applicable.
  * @return A promise that resolves with the registration data.
  */
 declare function registerIpNFT(this: Origin, source: IpNFTSource, deadline: bigint, licenseTerms: LicenseTerms, metadata: Record<string, unknown>, fileKey?: string | string[], parents?: bigint[]): Promise<any>;
@@ -414,7 +418,8 @@ declare class Origin {
     private jwt;
     environment: Environment;
     private viemClient?;
-    constructor(jwt: string, environment: Environment, viemClient?: WalletClient);
+    baseParentId?: bigint;
+    constructor(jwt: string, environment: Environment, viemClient?: WalletClient, baseParentId?: bigint);
     getJwt(): string;
     setViemClient(client: WalletClient): void;
     uploadFile(file: File, options?: {
@@ -547,6 +552,7 @@ declare class Auth {
     viem: any;
     origin: Origin | null;
     environment: Environment;
+    baseParentId?: bigint;
     /**
      * Constructor for the Auth class.
      * @param {object} options The options object.
@@ -556,10 +562,11 @@ declare class Auth {
      * @param {StorageAdapter} [options.storage] Custom storage adapter. Defaults to localStorage in browser, memory storage in Node.js.
      * @throws {APIError} - Throws an error if the clientId is not provided.
      */
-    constructor({ clientId, redirectUri, environment, storage, }: {
+    constructor({ clientId, redirectUri, environment, baseParentId, storage, }: {
         clientId: string;
         redirectUri: string | Record<string, string>;
         environment?: "DEVELOPMENT" | "PRODUCTION";
+        baseParentId?: bigint;
         storage?: StorageAdapter;
     });
     /**

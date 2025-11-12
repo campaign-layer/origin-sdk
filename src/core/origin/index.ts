@@ -84,14 +84,17 @@ export class Origin {
   private jwt: string;
   environment: Environment;
   private viemClient?: WalletClient;
+  baseParentId?: bigint;
   constructor(
     jwt: string,
     environment: Environment,
-    viemClient?: WalletClient
+    viemClient?: WalletClient,
+    baseParentId?: bigint
   ) {
     this.jwt = jwt;
     this.viemClient = viemClient;
     this.environment = environment;
+    this.baseParentId = baseParentId;
     // DataNFT methods
     this.mintWithSignature = mintWithSignature.bind(this);
     this.registerIpNFT = registerIpNFT.bind(this);
@@ -268,6 +271,12 @@ export class Origin {
     }
 
     const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
+    if (this.baseParentId) {
+      if (!parents) {
+        parents = [];
+      }
+      parents.unshift(this.baseParentId);
+    }
     let registration;
     try {
       registration = await this.registerIpNFT(
@@ -346,13 +355,18 @@ export class Origin {
     metadata.mimetype = `social/${source}`;
 
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
+
+    let parents = this.baseParentId ? [this.baseParentId] : [];
+
     let registration;
     try {
       registration = await this.registerIpNFT(
         source,
         deadline,
         license,
-        metadata
+        metadata,
+        undefined,
+        parents
       );
     } catch (error) {
       throw new Error(

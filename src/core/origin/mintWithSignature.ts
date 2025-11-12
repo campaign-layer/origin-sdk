@@ -7,6 +7,7 @@ import { IpNFTSource, LicenseTerms } from "./utils";
  * @param to The address to mint the NFT to.
  * @param tokenId The ID of the token to mint.
  * @param parents The IDs of the parent NFTs, if applicable.
+ * @param isIp Whether the NFT is an IP NFT.
  * @param hash The hash of the data associated with the NFT.
  * @param uri The URI of the NFT metadata.
  * @param licenseTerms The terms of the license for the NFT.
@@ -39,7 +40,10 @@ export async function mintWithSignature(
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
  * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
  * @param deadline The deadline for the registration operation.
- * @param fileKey Optional file key for file uploads.
+ * @param licenseTerms The terms of the license for the NFT.
+ * @param metadata The metadata associated with the NFT.
+ * @param fileKey The file key(s) if the source is "file".
+ * @param parents The IDs of the parent NFTs, if applicable.
  * @return A promise that resolves with the registration data.
  */
 export async function registerIpNFT(
