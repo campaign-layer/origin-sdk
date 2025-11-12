@@ -546,15 +546,16 @@ declare const CampContext: React.Context<CampContextType>;
  * @param {string} props.clientId The Camp client ID
  * @param {string} props.redirectUri The redirect URI to use after social oauths
  * @param {React.ReactNode} props.children The children components
- * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
+ * @param {string | bigint} props.baseParentId The base parent ID to use for minted NFTs
+ * @param {string} props.environment The environment to use ("DEVELOPMENT" or "PRODUCTION")
  * @returns {JSX.Element} The CampProvider component
  */
-declare const CampProvider: ({ clientId, redirectUri, children, environment, }: {
+declare const CampProvider: ({ clientId, redirectUri, children, environment, baseParentId, }: {
     clientId: string;
     redirectUri?: string;
     children: React.ReactNode;
-    allowAnalytics?: boolean;
     environment?: "DEVELOPMENT" | "PRODUCTION";
+    baseParentId?: string | bigint;
 }) => React.JSX.Element;
 
 interface ModalContextProps {

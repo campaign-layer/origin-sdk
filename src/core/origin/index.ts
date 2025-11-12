@@ -394,7 +394,7 @@ export class Origin {
       const mintResult = await this.mintWithSignature(
         account as `0x${string}`,
         tokenId,
-        [],
+        parents,
         true,
         creatorContentHash,
         uri,

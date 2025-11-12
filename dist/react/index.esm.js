@@ -3683,7 +3683,7 @@ class Origin {
                 throw new Error("Failed to register Social IpNFT: Missing required fields in registration response.");
             }
             try {
-                const mintResult = yield this.mintWithSignature(account, tokenId, [], true, creatorContentHash, uri, license, deadline, signature);
+                const mintResult = yield this.mintWithSignature(account, tokenId, parents, true, creatorContentHash, uri, license, deadline, signature);
                 if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
                     throw new Error(`Minting Social IpNFT failed with status: ${mintResult.receipt.status}`);
                 }
@@ -5669,11 +5669,13 @@ const CampContext = createContext({
  * @param {string} props.clientId The Camp client ID
  * @param {string} props.redirectUri The redirect URI to use after social oauths
  * @param {React.ReactNode} props.children The children components
- * @param {boolean} props.allowAnalytics Whether to allow analytics to be sent
+ * @param {string | bigint} props.baseParentId The base parent ID to use for minted NFTs
+ * @param {string} props.environment The environment to use ("DEVELOPMENT" or "PRODUCTION")
  * @returns {JSX.Element} The CampProvider component
  */
-const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPMENT", }) => {
+const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPMENT", baseParentId, }) => {
     const isServer = typeof window === "undefined";
+    const normalizedBaseParentId = typeof baseParentId === "string" ? BigInt(baseParentId) : baseParentId;
     const [auth, setAuth] = useState(!isServer
         ? new Auth({
             clientId,
@@ -5683,6 +5685,7 @@ const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPM
                     ? window.location.href
                     : "",
             environment: environment,
+            baseParentId: normalizedBaseParentId,
         })
         : null);
     const wagmiContext = typeof window !== "undefined" ? useContext(WagmiContext) : undefined;
