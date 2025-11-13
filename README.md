@@ -276,13 +276,13 @@ The Auth class is the entry point for authenticating users with the Origin SDK. 
 
 ### Constructor
 
-- `clientId` - The client ID of your app. This is required to authenticate users with the Origin SDK.
+- `clientId` - `string` - The client ID of your app. This is required to authenticate users with the Origin SDK.
 - `redirectUri` - The URI to redirect to after the user completes oauth for any of the socials. Defaults to `window.location.href`.
   The `redirectUri` can also be an object with the following optional properties:
   - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
   - `spotify` - The URI to redirect to after the user completes oauth for Spotify.
-- `environment` - The environment to use. Can be either `DEVELOPMENT` or `PRODUCTION`. Defaults to `DEVELOPMENT`.
-- `baseParentId` - A valid tokenID to be used as the parent of all IPNFTs minted on your platform, making them all derivatives of your base asset.
+- `environment` - `string` - The environment to use. Can be either `DEVELOPMENT` or `PRODUCTION`. Defaults to `DEVELOPMENT`.
+- `baseParentId` - `bigint` - A valid tokenID to be used as the parent of all IPNFTs minted on your platform, making them all derivatives of your base asset.
 
 You may use the `redirectUri` object to redirect the user to different pages based on the social they are linking.
 You may only define the URIs for the socials you are using, the rest will default to `window.location.href`.
@@ -293,7 +293,6 @@ import { Auth } from "@campnetwork/origin";
 const auth = new Auth({
   clientId: string,
   redirectUri: string | object,
-  allowAnalytics: boolean,
 });
 ```
 
@@ -304,6 +303,13 @@ const auth = new Auth({
     twitter: "https://your-website.com/twitter",
     spotify: "https://your-website.com/spotify",
   },
+});
+```
+
+```js
+const auth = new Auth({
+  clientId: "your-client-id",
+  baseParentId: 123n,
 });
 ```
 
