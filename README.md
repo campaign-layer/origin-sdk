@@ -281,6 +281,8 @@ The Auth class is the entry point for authenticating users with the Origin SDK. 
   The `redirectUri` can also be an object with the following optional properties:
   - `twitter` - The URI to redirect to after the user completes oauth for Twitter.
   - `spotify` - The URI to redirect to after the user completes oauth for Spotify.
+- `environment` - The environment to use. Can be either `DEVELOPMENT` or `PRODUCTION`. Defaults to `DEVELOPMENT`.
+- `baseParentId` - A valid tokenID to be used as the parent of all IPNFTs minted on your platform, making them all derivatives of your base asset.
 
 You may use the `redirectUri` object to redirect the user to different pages based on the social they are linking.
 You may only define the URIs for the socials you are using, the rest will default to `window.location.href`.
@@ -722,6 +724,7 @@ It can also take the following optional props:
 - `redirectUri` - `string | object` - Either a string that will be used as the redirect URI for all socials, or an object with the following optional properties: `twitter`, `spotify`. This is used to redirect the user to different pages after they have completed the OAuth flow for a social.
 - `environment` - `string` - The environment to use. Can be either `DEVELOPMENT` or `PRODUCTION`. Defaults to `DEVELOPMENT`.
 - - the `DEVELOPMENT` environment uses the Camp Testnet while the `PRODUCTION` environment uses the Camp Mainnet.
+- `baseParentId` - `string | bigint` - A valid tokenID to be used as the parent of all IPNFTs minted on your platform, making them all derivatives of your base asset.
 
 ```jsx
 import { CampProvider } from "@campnetwork/origin/react";
@@ -1260,6 +1263,32 @@ Most methods mirror smart contract functions and require appropriate permissions
 ---
 
 Call these methods as `await auth.origin.methodName(...)` after authenticating. See inline code documentation for full details and parameter types.
+
+---
+
+# Advanced flows
+
+## App Revenue Share in Origin using derivatives
+
+You can enable app-level revenue sharing in **Origin** using the following setup:
+
+1. **Mint a base (genesis) IPNFT** for your platform and set its royalty percentage to whatever share you want the platform to receive. This can be done using the Origin UI, or the SDK.
+2. **Make all user-created IPNFTs derivatives** of this base IPNFT. There are two ways to do this:
+   - **Automatic (recommended):**
+     Set the `baseParentId` parameter on the `CampProvider` or `Auth` class (depending on your integration) to the tokenId of the base IPNFT.
+     → This automatically applies to _all mints_, including those made through the **Camp SDK Modal**.
+   - **Manual:**
+     If you’re using a custom mint flow, add the base IPNFT’s tokenId to the `parents` array before calling `origin.mintFile` or `origin.mintSocial`.
+     → Note: this does **not** affect mints made through the Camp SDK Modal.
+3. **Royalties flow automatically:**
+
+   The royalty percentage defined on the base IPNFT will be collected from every subscription to its derivative IPNFTs.
+
+4. **Claim your platform royalties:**
+
+   You can view and claim the accumulated platform royalties directly from your **Creator Dashboard** in the **Origin UI**.
+
+**Note:** Each IPNFT can have a maximum of 8 parents. Using one parent slot for app-level revenue sharing reduces the available slots for user-defined parent–derivative relationships to 7.
 
 ---
 
