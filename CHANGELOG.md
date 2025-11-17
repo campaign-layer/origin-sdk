@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.0](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0) (2025-11-17)
+
+### Features
+
+* accept baseParentId as prop on CampProvider ([bbb4d0f](https://github.com/campaign-layer/origin-sdk/commit/bbb4d0fd6d0c80a8dc9654342830724483da0519))
+* add base parent id parameter to auth class ([5c7f74e](https://github.com/campaign-layer/origin-sdk/commit/5c7f74ebc39a844f24332e4165eecf1aadf7f5ab))
+* add nodejs and signer support ([921fa44](https://github.com/campaign-layer/origin-sdk/commit/921fa44cdc5579eb0297b0aa7fc0c2c91ed07c73))
+* expose createLicenseTerms ([875da8f](https://github.com/campaign-layer/origin-sdk/commit/875da8fe4d984e2faea1c5f236f194eb3c027482))
+* remove core social modules ([87ca294](https://github.com/campaign-layer/origin-sdk/commit/87ca294821b336d03ba2c0f0793c32216e99adc3))
+* upgrade to token bound accounts ([50d71dc](https://github.com/campaign-layer/origin-sdk/commit/50d71dc81d7cba90c01e05b45d819cf32ddf9d98))
+
+### Bug Fixes
+
+* add baseParentId to readme ([5e204b2](https://github.com/campaign-layer/origin-sdk/commit/5e204b23dcda8fe13715655ad9366f448c495823))
+* cleanup ([57c57ec](https://github.com/campaign-layer/origin-sdk/commit/57c57ecd91c4c593acb3227350c4d9a8afef732c))
+* default to environment chain id ([3d79286](https://github.com/campaign-layer/origin-sdk/commit/3d79286d70f9b8b77a49732b216e4f15f474ba6a))
+* parents array ([dce264d](https://github.com/campaign-layer/origin-sdk/commit/dce264d50170733b8f9fda596ca6e1fed5329154))
+* readme ([717c469](https://github.com/campaign-layer/origin-sdk/commit/717c4692fab3021f05e7d44be775283684251750))
+* readme ([8eb2024](https://github.com/campaign-layer/origin-sdk/commit/8eb202446a849c1aea6d03a690a80d21373b3a8c))
+* readme ([6f64b4c](https://github.com/campaign-layer/origin-sdk/commit/6f64b4c0cdeaaab3451ad85ed7b454a96e4b41c0))
+* simulate get royalties ([026a242](https://github.com/campaign-layer/origin-sdk/commit/026a24245b7a52ef7c6890dfe97488066c3396f1))
+
 ## [1.2.0-4](https://github.com/campaign-layer/origin-sdk/compare/v1.1.0...v1.2.0-4) (2025-11-13)
 
 ### Features
