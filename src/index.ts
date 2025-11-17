@@ -1,5 +1,3 @@
-import { TwitterAPI } from "./core/twitter";
-import { SpotifyAPI } from "./core/spotify";
 import { Auth } from "./core/auth/index";
 
 export * from "./core/auth/signers";
@@ -12,7 +10,7 @@ export {
   testnet as campTestnet,
 } from "./core/auth/viem/chains";
 
-export { TwitterAPI, SpotifyAPI, Auth };
+export { Auth };
 
 export {
   createLicenseTerms,

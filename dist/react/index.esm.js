@@ -3241,7 +3241,7 @@ const validateDuration = (duration, licenseDurationUnit) => {
 const validateRoyaltyBps = (royaltyBps) => {
     if (royaltyBps && royaltyBps.trim() !== "") {
         const bps = Math.floor(parseFloat(royaltyBps) * 100);
-        return (bps >= constants.MIN_ROYALTY_BPS && bps <= constants.MAX_ROYALTY_BPS);
+        return bps >= constants.MIN_ROYALTY_BPS && bps <= constants.MAX_ROYALTY_BPS;
     }
     else {
         return false;

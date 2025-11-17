@@ -55,13 +55,6 @@ function buildURL(baseURL: string, params: Record<string, any> = {}): string {
   return queryString ? `${baseURL}?${queryString}` : baseURL;
 }
 
-const baseTwitterURL: string =
-  "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/twitter";
-const baseSpotifyURL: string =
-  "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/spotify";
-const baseTikTokURL: string =
-  "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev/tiktok";
-
 /**
  * Formats an Ethereum address by truncating it to the first and last n characters.
  * @param {string} address - The Ethereum address to format.
@@ -218,21 +211,10 @@ export const validateDuration = (
 export const validateRoyaltyBps = (royaltyBps: string) => {
   if (royaltyBps && royaltyBps.trim() !== "") {
     const bps = Math.floor(parseFloat(royaltyBps) * 100);
-    return (
-      bps >= constants.MIN_ROYALTY_BPS && bps <= constants.MAX_ROYALTY_BPS
-    );
+    return bps >= constants.MIN_ROYALTY_BPS && bps <= constants.MAX_ROYALTY_BPS;
   } else {
     return false;
   }
-}
-
-export {
-  fetchData,
-  buildQueryString,
-  buildURL,
-  baseTwitterURL,
-  baseSpotifyURL,
-  baseTikTokURL,
-  formatAddress,
-  capitalize,
 };
+
+export { fetchData, buildQueryString, buildURL, formatAddress, capitalize };
