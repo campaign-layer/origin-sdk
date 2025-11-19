@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.2](https://github.com/campaign-layer/origin-sdk/compare/v1.2.1...v1.2.2) (2025-11-19)
+
+### Features
+
+* add getDataWithX402 helper ([42fc7fd](https://github.com/campaign-layer/origin-sdk/commit/42fc7fd64cdcf161045c5b417d371ea6e61895de))
+
 ## [1.2.1](https://github.com/campaign-layer/origin-sdk/compare/v1.2.0...v1.2.1) (2025-11-19)
 
 ### Bug Fixes
