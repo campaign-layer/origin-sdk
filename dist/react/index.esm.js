@@ -3522,7 +3522,7 @@ const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
     };
 };
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
@@ -3561,41 +3561,6 @@ class Origin {
     setViemClient(client) {
         this.viemClient = client;
     }
-    uploadFile(file, options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let uploadInfo;
-            try {
-                uploadInfo = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_generateURL).call(this, file);
-            }
-            catch (error) {
-                console.error("Failed to generate upload URL:", error);
-                throw new Error(`Failed to generate upload URL: ${error instanceof Error ? error.message : String(error)}`);
-            }
-            if (!uploadInfo) {
-                throw new Error("Failed to generate upload URL: No upload info returned");
-            }
-            try {
-                yield uploadWithProgress(file, uploadInfo.url, (options === null || options === void 0 ? void 0 : options.progressCallback) || (() => { }));
-            }
-            catch (error) {
-                try {
-                    yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "failed");
-                }
-                catch (statusError) {
-                    console.error("Failed to update status to failed:", statusError);
-                }
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                throw new Error(`Failed to upload file: ${errorMessage}`);
-            }
-            try {
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "success");
-            }
-            catch (statusError) {
-                console.error("Failed to update status to success:", statusError);
-            }
-            return uploadInfo;
-        });
-    }
     mintFile(file, metadata, license, parents, options) {
         return __awaiter(this, void 0, void 0, function* () {
             let account = null;
@@ -3607,7 +3572,7 @@ class Origin {
             }
             let info;
             try {
-                info = yield this.uploadFile(file, options);
+                info = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_uploadFile).call(this, file, options);
                 if (!info || !info.key) {
                     throw new Error("Failed to upload file or get upload info.");
                 }
@@ -3692,72 +3657,6 @@ class Origin {
                 throw new Error(`Minting transaction failed: ${error instanceof Error ? error.message : String(error)}`);
             }
             return tokenId.toString();
-        });
-    }
-    getOriginUploads() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/files`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${this.jwt}`,
-                },
-            });
-            if (!res.ok) {
-                console.error("Failed to get origin uploads");
-                return null;
-            }
-            const data = yield res.json();
-            return data.data;
-        });
-    }
-    /**
-     * Get the user's Origin stats (multiplier, consent, usage, etc.).
-     * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
-     */
-    getOriginUsage() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/usage`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${this.jwt}`,
-                    "Content-Type": "application/json",
-                },
-            }).then((res) => res.json());
-            if (!data.isError && data.data.user) {
-                return data;
-            }
-            else {
-                throw new APIError(data.message || "Failed to fetch Origin usage");
-            }
-        });
-    }
-    /**
-     * Set the user's consent for Origin usage.
-     * @param {boolean} consent The user's consent.
-     * @returns {Promise<void>}
-     * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
-     */
-    setOriginConsent(consent) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (consent === undefined) {
-                throw new APIError("Consent is required");
-            }
-            const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/status`, {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${this.jwt}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    active: consent,
-                }),
-            }).then((res) => res.json());
-            if (!data.isError) {
-                return;
-            }
-            else {
-                throw new APIError(data.message || "Failed to set Origin consent");
-            }
         });
     }
     /**
@@ -4080,6 +3979,40 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             console.error("Failed to update origin status:", error);
             throw error;
         }
+    });
+}, _Origin_uploadFile = function _Origin_uploadFile(file, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let uploadInfo;
+        try {
+            uploadInfo = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_generateURL).call(this, file);
+        }
+        catch (error) {
+            console.error("Failed to generate upload URL:", error);
+            throw new Error(`Failed to generate upload URL: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        if (!uploadInfo) {
+            throw new Error("Failed to generate upload URL: No upload info returned");
+        }
+        try {
+            yield uploadWithProgress(file, uploadInfo.url, (options === null || options === void 0 ? void 0 : options.progressCallback) || (() => { }));
+        }
+        catch (error) {
+            try {
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "failed");
+            }
+            catch (statusError) {
+                console.error("Failed to update status to failed:", statusError);
+            }
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            throw new Error(`Failed to upload file: ${errorMessage}`);
+        }
+        try {
+            yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "success");
+        }
+        catch (statusError) {
+            console.error("Failed to update status to success:", statusError);
+        }
+        return uploadInfo;
     });
 }, _Origin_waitForTxReceipt = function _Origin_waitForTxReceipt(txHash_1) {
     return __awaiter(this, arguments, void 0, function* (txHash, opts = {}) {
@@ -5632,30 +5565,6 @@ const useToast = () => {
     return context;
 };
 
-const OriginContext = createContext({
-    statsQuery: null,
-    uploadsQuery: null,
-});
-const OriginProvider = ({ children }) => {
-    const { authenticated } = useAuthState();
-    const { auth } = useContext(CampContext);
-    if (!auth && typeof window !== "undefined") {
-        throw new Error("Auth instance is not available");
-    }
-    const statsQuery = useQuery({
-        queryKey: ["origin-stats", authenticated],
-        queryFn: () => { var _a, _b; return (_b = (_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.getOriginUsage()) !== null && _b !== void 0 ? _b : Promise.resolve(null); },
-    });
-    const uploadsQuery = useQuery({
-        queryKey: ["origin-uploads", authenticated],
-        queryFn: () => { var _a, _b; return (_b = (_a = auth === null || auth === void 0 ? void 0 : auth.origin) === null || _a === void 0 ? void 0 : _a.getOriginUploads()) !== null && _b !== void 0 ? _b : Promise.resolve(null); },
-    });
-    return (React.createElement(OriginContext.Provider, { value: {
-            statsQuery: statsQuery,
-            uploadsQuery: uploadsQuery,
-        } }, children));
-};
-
 const CampContext = createContext({
     clientId: null,
     auth: null,
@@ -5697,9 +5606,8 @@ const CampProvider = ({ clientId, redirectUri, children, environment = "DEVELOPM
             environment: ENVIRONMENTS[environment],
         } },
         React.createElement(SocialsProvider, null,
-            React.createElement(OriginProvider, null,
-                React.createElement(ToastProvider, null,
-                    React.createElement(ModalProvider, null, children))))));
+            React.createElement(ToastProvider, null,
+                React.createElement(ModalProvider, null, children)))));
 };
 
 const getWalletConnectProvider = (projectId, chain) => __awaiter(void 0, void 0, void 0, function* () {
@@ -5909,8 +5817,6 @@ const FancyInput = ({ value, onChange, step, placeholder, type = "text", icon, l
  */
 const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
     const auth = useAuth();
-    const { uploads } = useOrigin();
-    const { refetch } = uploads;
     const [isDragging, setIsDragging] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -5953,7 +5859,6 @@ const FileUpload = ({ onFileUpload, accept, maxFileSize, }) => {
                     onFileUpload([selectedFile]);
                 }
                 addToast(`File minted successfully. Token ID: ${res}`, "success", 5000);
-                refetch();
             }
             catch (error) {
                 if (error.toString().includes("User rejected")) {
@@ -6690,61 +6595,7 @@ const LinkingModal = () => {
  * @returns { JSX.Element } The OriginSection component.
  */
 const OriginSection = () => {
-    // const { stats, uploads } = useOrigin();
-    // const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
-    // const [isClaiming, setIsClaiming] = useState(false);
-    const { environment, auth } = useContext(CampContext);
-    useToast();
-    // const [uploadedImages, setUploadedImages] = useState(0);
-    // const [uploadedVideos, setUploadedVideos] = useState(0);
-    // const [uploadedAudio, setUploadedAudio] = useState(0);
-    // const [uploadedText, setUploadedText] = useState(0);
-    // useEffect(() => {
-    //   const fetchRoyalties = async () => {
-    //     if (!auth || !auth.origin) return;
-    //     const royalties = await auth?.origin.getRoyalties();
-    //     const bal = formatEther(royalties.balance);
-    //     setRoyaltiesToClaim(bal !== "0" ? formatCampAmount(Number(bal)) : null);
-    //   };
-    //   fetchRoyalties();
-    // }, [auth]);
-    // const handleClaimRoyalties = async () => {
-    //   if (!auth || !auth.origin || !royaltiesToClaim) return;
-    //   setIsClaiming(true);
-    //   try {
-    //     await auth.origin.claimRoyalties();
-    //     setRoyaltiesToClaim(null);
-    //     toast("Royalties claimed successfully!", "success", 5000);
-    //   } catch (error) {
-    //     console.error("Error claiming royalties:", error);
-    //     toast("Error claiming royalties. Please try again.", "error", 5000);
-    //   } finally {
-    //     setIsClaiming(false);
-    //   }
-    // };
-    // useEffect(() => {
-    //   if (uploads.data) {
-    //     let imagesCount = 0;
-    //     let videosCount = 0;
-    //     let audioCount = 0;
-    //     let textCount = 0;
-    //     uploads.data.forEach((upload) => {
-    //       if (upload.type.startsWith("image")) {
-    //         imagesCount++;
-    //       } else if (upload.type.startsWith("video")) {
-    //         videosCount++;
-    //       } else if (upload.type.startsWith("audio")) {
-    //         audioCount++;
-    //       } else if (upload.type.startsWith("text")) {
-    //         textCount++;
-    //       }
-    //     });
-    //     setUploadedImages(imagesCount);
-    //     setUploadedVideos(videosCount);
-    //     setUploadedAudio(audioCount);
-    //     setUploadedText(textCount);
-    //   }
-    // }, [uploads.data]);
+    const { environment } = useContext(CampContext);
     return (React.createElement("div", { className: styles["origin-wrapper"] },
         React.createElement("div", { className: styles["origin-section"] },
             React.createElement(Tooltip, { content: environment.NAME === "PRODUCTION"
@@ -6900,36 +6751,20 @@ const SocialsTab = ({ connectedSocials, notConnectedSocials, refetch, isLoading,
             connectedSocials.length === 0 && (React.createElement("span", { className: styles["no-socials"] }, "You have no socials linked.")))))));
 };
 const ImagesTab = () => {
-    const { uploads } = useOrigin();
-    const { isLoading } = uploads;
     return (React.createElement(TabContent, { requiresProvider: true, className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_IMAGE_FORMATS.join(","), maxFileSize: 1.049e7 }),
-        isLoading ? (React.createElement("div", { className: styles["ip-tab-content"] },
-            React.createElement("div", { className: styles.spinner, style: { marginRight: "auto" } }))) : null));
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_IMAGE_FORMATS.join(","), maxFileSize: 1.049e7 })));
 };
 const AudioTab = () => {
-    const { uploads } = useOrigin();
-    const { isLoading } = uploads;
     return (React.createElement(TabContent, { requiresProvider: true, className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_AUDIO_FORMATS.join(","), maxFileSize: 1.573e7 }),
-        isLoading ? (React.createElement("div", { className: styles["ip-tab-content"] },
-            React.createElement("div", { className: styles.spinner, style: { marginRight: "auto" } }))) : null));
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_AUDIO_FORMATS.join(","), maxFileSize: 1.573e7 })));
 };
 const VideosTab = () => {
-    const { uploads } = useOrigin();
-    const { isLoading } = uploads;
     return (React.createElement(TabContent, { requiresProvider: true, className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_VIDEO_FORMATS.join(","), maxFileSize: 2.097e7 }),
-        isLoading ? (React.createElement("div", { className: styles["ip-tab-content"] },
-            React.createElement("div", { className: styles.spinner, style: { marginRight: "auto" } }))) : null));
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_VIDEO_FORMATS.join(","), maxFileSize: 2.097e7 })));
 };
 const TextTab = () => {
-    const { uploads } = useOrigin();
-    const { isLoading } = uploads;
     return (React.createElement(TabContent, { requiresProvider: true, className: styles["ip-tab-container"] },
-        React.createElement(FileUpload, { accept: constants.SUPPORTED_TEXT_FORMATS.join(","), maxFileSize: 1.049e7 }),
-        isLoading ? (React.createElement("div", { className: styles["ip-tab-content"] },
-            React.createElement("div", { className: styles.spinner, style: { marginRight: "auto" } }))) : null));
+        React.createElement(FileUpload, { accept: constants.SUPPORTED_TEXT_FORMATS.join(","), maxFileSize: 1.049e7 })));
 };
 
 const isBrowser = typeof window !== "undefined";
@@ -7195,26 +7030,5 @@ const useSocials = () => {
     const socials = (query === null || query === void 0 ? void 0 : query.data) || {};
     return Object.assign(Object.assign({}, query), { socials });
 };
-/**
- * Fetches the Origin usage data and uploads data.
- * @returns { usage: { data: any, isError: boolean, isLoading: boolean, refetch: () => void }, uploads: { data: any, isError: boolean, isLoading: boolean, refetch: () => void } } The Origin usage data and uploads data.
- */
-const useOrigin = () => {
-    const { statsQuery, uploadsQuery } = useContext(OriginContext);
-    return {
-        stats: {
-            data: statsQuery === null || statsQuery === void 0 ? void 0 : statsQuery.data,
-            isError: statsQuery === null || statsQuery === void 0 ? void 0 : statsQuery.isError,
-            isLoading: statsQuery === null || statsQuery === void 0 ? void 0 : statsQuery.isLoading,
-            refetch: statsQuery === null || statsQuery === void 0 ? void 0 : statsQuery.refetch,
-        },
-        uploads: {
-            data: (uploadsQuery === null || uploadsQuery === void 0 ? void 0 : uploadsQuery.data) || [],
-            isError: uploadsQuery === null || uploadsQuery === void 0 ? void 0 : uploadsQuery.isError,
-            isLoading: uploadsQuery === null || uploadsQuery === void 0 ? void 0 : uploadsQuery.isLoading,
-            refetch: uploadsQuery === null || uploadsQuery === void 0 ? void 0 : uploadsQuery.refetch,
-        },
-    };
-};
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials, useViem };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials, useViem };

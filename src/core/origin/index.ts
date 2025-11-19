@@ -188,7 +188,7 @@ export class Origin {
     }
   }
 
-  async uploadFile(
+  async #uploadFile(
     file: File,
     options?: { progressCallback?: (percent: number) => void }
   ) {
@@ -254,7 +254,7 @@ export class Origin {
 
     let info;
     try {
-      info = await this.uploadFile(file, options);
+      info = await this.#uploadFile(file, options);
       if (!info || !info.key) {
         throw new Error("Failed to upload file or get upload info.");
       }
@@ -416,80 +416,6 @@ export class Origin {
     }
 
     return tokenId.toString();
-  }
-
-  async getOriginUploads(): Promise<any[] | null> {
-    const res = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/files`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-        },
-      }
-    );
-    if (!res.ok) {
-      console.error("Failed to get origin uploads");
-      return null;
-    }
-    const data = await res.json();
-    return data.data;
-  }
-
-  /**
-   * Get the user's Origin stats (multiplier, consent, usage, etc.).
-   * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
-   */
-
-  async getOriginUsage(): Promise<OriginUsageReturnType> {
-    const data = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/usage`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-          "Content-Type": "application/json",
-        },
-      }
-    ).then((res) => res.json());
-
-    if (!data.isError && data.data.user) {
-      return data;
-    } else {
-      throw new APIError(data.message || "Failed to fetch Origin usage");
-    }
-  }
-
-  /**
-   * Set the user's consent for Origin usage.
-   * @param {boolean} consent The user's consent.
-   * @returns {Promise<void>}
-   * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
-   */
-
-  async setOriginConsent(consent: boolean): Promise<void> {
-    if (consent === undefined) {
-      throw new APIError("Consent is required");
-    }
-    const data = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/status`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${this.jwt}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          active: consent,
-        }),
-      }
-    ).then((res) => res.json());
-
-    if (!data.isError) {
-      return;
-    } else {
-      throw new APIError(data.message || "Failed to set Origin consent");
-    }
   }
 
   /**

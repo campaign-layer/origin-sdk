@@ -1037,12 +1037,6 @@ Most methods mirror smart contract functions and require appropriate permissions
 - `buyAccessSmart(tokenId)` — Buys access, handles payment approval and license details - **Recommended in place of buyAccess**
 - `getData(tokenId)` — Fetches the underlying IP for a given IPNFT if the user has purchased access to it
 
-### User Data & Stats
-
-- `getOriginUploads()` — Fetch user's Origin file uploads (returns array or null)
-- `getOriginUsage()` — Fetch user's Origin stats (returns object with multiplier, points, active, teams, dataSources)
-- `setOriginConsent(consent: boolean)` — Set user's consent for Origin usage
-
 ### Utility Methods
 
 - `getJwt()` — Get current JWT token

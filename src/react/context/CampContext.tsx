@@ -5,7 +5,6 @@ import { WagmiContext } from "wagmi";
 import { SocialsProvider } from "./SocialsContext";
 import { ToastProvider } from "../components/toasts";
 import { Environment, ENVIRONMENTS } from "../../constants";
-import { OriginProvider } from "./OriginContext";
 
 /**
  * CampContext
@@ -87,11 +86,9 @@ const CampProvider = ({
       }}
     >
       <SocialsProvider>
-        <OriginProvider>
-          <ToastProvider>
-            <ModalProvider>{children}</ModalProvider>
-          </ToastProvider>
-        </OriginProvider>
+        <ToastProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </ToastProvider>
       </SocialsProvider>
     </CampContext.Provider>
   );

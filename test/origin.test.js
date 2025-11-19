@@ -55,44 +55,6 @@ describe("Origin Integration", () => {
     // Now auth.origin is set
   });
 
-  test("getOriginUploads returns data", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify({ data: [{ id: 1, name: "file.txt" }] })
-    );
-    const uploads = await auth.origin.getOriginUploads();
-    expect(uploads).toEqual([{ id: 1, name: "file.txt" }]);
-  });
-
-  test("getOriginUsage returns user stats", async () => {
-    fetchMock.mockResponseOnce(
-      JSON.stringify({
-        isError: false,
-        data: {
-          user: { multiplier: 2, points: 100, active: true },
-          teams: [],
-          dataSources: [],
-        },
-      })
-    );
-    const usage = await auth.origin.getOriginUsage();
-    expect(usage.data.user).toEqual({
-      multiplier: 2,
-      points: 100,
-      active: true,
-    });
-  });
-
-  test("setOriginConsent works", async () => {
-    fetchMock.mockResponseOnce(JSON.stringify({ isError: false }));
-    await expect(auth.origin.setOriginConsent(true)).resolves.toBeUndefined();
-  });
-
-  test("setOriginConsent throws if consent is undefined", async () => {
-    await expect(auth.origin.setOriginConsent(undefined)).rejects.toThrow(
-      "Consent is required"
-    );
-  });
-
   test("getData returns data for tokenId", async () => {
     fetchMock.mockResponseOnce(
       JSON.stringify({ data: { tokenId: 123, name: "test" } })

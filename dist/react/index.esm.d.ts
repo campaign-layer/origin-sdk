@@ -168,15 +168,6 @@ declare function hasAccess(this: Origin, user: Address, tokenId: bigint): Promis
 
 declare function subscriptionExpiry(this: Origin, tokenId: bigint, user: Address): Promise<bigint>;
 
-interface OriginUsageReturnType {
-    user: {
-        multiplier: number;
-        points: number;
-        active: boolean;
-    };
-    teams: Array<any>;
-    dataSources: Array<any>;
-}
 interface RoyaltyInfo {
     tokenBoundAccount: Address;
     balance: bigint;
@@ -219,26 +210,10 @@ declare class Origin {
     constructor(jwt: string, environment: Environment, viemClient?: WalletClient, baseParentId?: bigint);
     getJwt(): string;
     setViemClient(client: WalletClient): void;
-    uploadFile(file: File, options?: {
-        progressCallback?: (percent: number) => void;
-    }): Promise<any>;
     mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
         progressCallback?: (percent: number) => void;
     }): Promise<string | null>;
     mintSocial(source: "spotify" | "twitter" | "tiktok", metadata: Record<string, unknown>, license: LicenseTerms): Promise<string | null>;
-    getOriginUploads(): Promise<any[] | null>;
-    /**
-     * Get the user's Origin stats (multiplier, consent, usage, etc.).
-     * @returns {Promise<OriginUsageReturnType>} A promise that resolves with the user's Origin stats.
-     */
-    getOriginUsage(): Promise<OriginUsageReturnType>;
-    /**
-     * Set the user's consent for Origin usage.
-     * @param {boolean} consent The user's consent.
-     * @returns {Promise<void>}
-     * @throws {Error|APIError} - Throws an error if the user is not authenticated. Also throws an error if the consent is not provided.
-     */
-    setOriginConsent(consent: boolean): Promise<void>;
     /**
      * Call a contract method.
      * @param {string} contractAddress The contract address.
@@ -697,23 +672,5 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, T
  * @returns { { data: {}, socials: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 declare const useSocials: () => UseSocialsResult;
-/**
- * Fetches the Origin usage data and uploads data.
- * @returns { usage: { data: any, isError: boolean, isLoading: boolean, refetch: () => void }, uploads: { data: any, isError: boolean, isLoading: boolean, refetch: () => void } } The Origin usage data and uploads data.
- */
-declare const useOrigin: () => {
-    stats: {
-        data: any;
-        isError: boolean;
-        isLoading: boolean;
-        refetch: () => void;
-    };
-    uploads: {
-        data: any[];
-        isError: boolean;
-        isLoading: boolean;
-        refetch: () => void;
-    };
-};
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useOrigin, useProvider, useProviders, useSocials, useViem };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials, useViem };

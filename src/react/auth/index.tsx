@@ -8,7 +8,6 @@ import { SocialsContext } from "../context/SocialsContext";
 import { LinkButton, StandaloneCampButton } from "./buttons";
 import constants from "../../constants";
 import { type UseQueryResult } from "@tanstack/react-query";
-import { OriginContext } from "../context/OriginContext";
 
 export { CampModal, MyCampModal };
 export { LinkButton };
@@ -381,43 +380,5 @@ export const useSocials = (): UseSocialsResult => {
   return {
     ...query,
     socials,
-  };
-};
-
-/**
- * Fetches the Origin usage data and uploads data.
- * @returns { usage: { data: any, isError: boolean, isLoading: boolean, refetch: () => void }, uploads: { data: any, isError: boolean, isLoading: boolean, refetch: () => void } } The Origin usage data and uploads data.
- */
-export const useOrigin = (): {
-  stats: {
-    data: any;
-    isError: boolean;
-    isLoading: boolean;
-    refetch: () => void;
-  };
-  uploads: {
-    data: any[];
-    isError: boolean;
-    isLoading: boolean;
-    refetch: () => void;
-  };
-} => {
-  const { statsQuery, uploadsQuery } = useContext(OriginContext) as {
-    statsQuery: UseQueryResult<any, Error>;
-    uploadsQuery: UseQueryResult<any, Error>;
-  };
-  return {
-    stats: {
-      data: statsQuery?.data,
-      isError: statsQuery?.isError,
-      isLoading: statsQuery?.isLoading,
-      refetch: statsQuery?.refetch,
-    },
-    uploads: {
-      data: uploadsQuery?.data || [],
-      isError: uploadsQuery?.isError,
-      isLoading: uploadsQuery?.isLoading,
-      refetch: uploadsQuery?.refetch,
-    },
   };
 };

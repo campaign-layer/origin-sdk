@@ -10,7 +10,6 @@ import {
   useAuthState,
   useConnect,
   useLinkModal,
-  useOrigin,
   useProvider,
   useProviders,
   useSocials,
@@ -938,115 +937,9 @@ const LinkingModal = () => {
  * @returns { JSX.Element } The OriginSection component.
  */
 const OriginSection = (): JSX.Element => {
-  // const { stats, uploads } = useOrigin();
-  // const [royaltiesToClaim, setRoyaltiesToClaim] = useState<null | string>(null);
-  // const [isClaiming, setIsClaiming] = useState(false);
-  const { environment, auth } = useContext(CampContext);
-  const { addToast: toast } = useToast();
-
-  // const [uploadedImages, setUploadedImages] = useState(0);
-  // const [uploadedVideos, setUploadedVideos] = useState(0);
-  // const [uploadedAudio, setUploadedAudio] = useState(0);
-  // const [uploadedText, setUploadedText] = useState(0);
-
-  // useEffect(() => {
-  //   const fetchRoyalties = async () => {
-  //     if (!auth || !auth.origin) return;
-  //     const royalties = await auth?.origin.getRoyalties();
-  //     const bal = formatEther(royalties.balance);
-  //     setRoyaltiesToClaim(bal !== "0" ? formatCampAmount(Number(bal)) : null);
-  //   };
-  //   fetchRoyalties();
-  // }, [auth]);
-
-  // const handleClaimRoyalties = async () => {
-  //   if (!auth || !auth.origin || !royaltiesToClaim) return;
-  //   setIsClaiming(true);
-  //   try {
-  //     await auth.origin.claimRoyalties();
-  //     setRoyaltiesToClaim(null);
-  //     toast("Royalties claimed successfully!", "success", 5000);
-  //   } catch (error) {
-  //     console.error("Error claiming royalties:", error);
-  //     toast("Error claiming royalties. Please try again.", "error", 5000);
-  //   } finally {
-  //     setIsClaiming(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (uploads.data) {
-  //     let imagesCount = 0;
-  //     let videosCount = 0;
-  //     let audioCount = 0;
-  //     let textCount = 0;
-  //     uploads.data.forEach((upload) => {
-  //       if (upload.type.startsWith("image")) {
-  //         imagesCount++;
-  //       } else if (upload.type.startsWith("video")) {
-  //         videosCount++;
-  //       } else if (upload.type.startsWith("audio")) {
-  //         audioCount++;
-  //       } else if (upload.type.startsWith("text")) {
-  //         textCount++;
-  //       }
-  //     });
-  //     setUploadedImages(imagesCount);
-  //     setUploadedVideos(videosCount);
-  //     setUploadedAudio(audioCount);
-  //     setUploadedText(textCount);
-  //   }
-  // }, [uploads.data]);
-
+  const { environment } = useContext(CampContext);
   return (
     <div className={styles["origin-wrapper"]}>
-      {/* line one */}
-      {/* <div className={styles["origin-section"]}>
-        <Tooltip
-          content={`Images uploaded: ${uploadedImages.toLocaleString()}`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{formatCampAmount(uploadedImages)}</span>
-            <span className={styles["origin-label"]}>Images</span>
-          </div>
-        </Tooltip>
-        <div className={styles["divider"]} />
-        <Tooltip
-          content={`Audio uploaded: ${uploadedAudio.toLocaleString()}`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{formatCampAmount(uploadedAudio)}</span>
-            <span className={styles["origin-label"]}>Audio</span>
-          </div>
-        </Tooltip>
-        <div className={styles["divider"]} />
-        <Tooltip
-          content={`Videos uploaded: ${uploadedVideos.toLocaleString()}`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{formatCampAmount(uploadedVideos)}</span>
-            <span className={styles["origin-label"]}>Videos</span>
-          </div>
-        </Tooltip>
-        <div className={styles["divider"]} />
-        <Tooltip
-          content={`Text uploaded: ${uploadedText.toLocaleString()}`}
-          position="top"
-          containerStyle={{ width: "100%" }}
-        >
-          <div className={styles["origin-container"]}>
-            <span>{formatCampAmount(uploadedText)}</span>
-            <span className={styles["origin-label"]}>Text</span>
-          </div>
-        </Tooltip>
-      </div> */}
-      {/* line two */}
       <div className={styles["origin-section"]}>
         <Tooltip
           content={
@@ -1091,20 +984,6 @@ const OriginSection = (): JSX.Element => {
           </div>
         </Tooltip>
       </div>
-      {/* claim section */}
-      {/* <div className={styles["claim-section"]}>
-        <Button
-          style={{ margin: 0 }}
-          onClick={handleClaimRoyalties}
-          disabled={!royaltiesToClaim || isClaiming}
-        >
-          {royaltiesToClaim
-            ? isClaiming
-              ? "Claiming..."
-              : `Claim ${royaltiesToClaim} $CAMP`
-            : "No Royalties to claim"}
-        </Button>
-      </div> */}
     </div>
   );
 };
@@ -1410,77 +1289,45 @@ const SocialsTab = ({
 };
 
 const ImagesTab = () => {
-  const { uploads } = useOrigin();
-  const { isLoading } = uploads;
   return (
     <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_IMAGE_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
-      {isLoading ? (
-        <div className={styles["ip-tab-content"]}>
-          <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        </div>
-      ) : null}
-      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
 
 const AudioTab = () => {
-  const { uploads } = useOrigin();
-  const { isLoading } = uploads;
   return (
     <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_AUDIO_FORMATS.join(",")}
         maxFileSize={1.573e7} // 15 MB
       />
-      {isLoading ? (
-        <div className={styles["ip-tab-content"]}>
-          <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        </div>
-      ) : null}
-      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
 
 const VideosTab = () => {
-  const { uploads } = useOrigin();
-  const { isLoading } = uploads;
   return (
     <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_VIDEO_FORMATS.join(",")}
         maxFileSize={2.097e7} // 20 MB
       />
-      {isLoading ? (
-        <div className={styles["ip-tab-content"]}>
-          <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        </div>
-      ) : null}
-      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
 
 const TextTab = () => {
-  const { uploads } = useOrigin();
-  const { isLoading } = uploads;
   return (
     <TabContent requiresProvider className={styles["ip-tab-container"]}>
       <FileUpload
         accept={constants.SUPPORTED_TEXT_FORMATS.join(",")}
         maxFileSize={1.049e7} // 10 MB
       />
-      {isLoading ? (
-        <div className={styles["ip-tab-content"]}>
-          <div className={styles.spinner} style={{ marginRight: "auto" }} />
-        </div>
-      ) : null}
-      {/* <GoToOriginDashboard text="Manage on Origin Dashboard" /> */}
     </TabContent>
   );
 };
