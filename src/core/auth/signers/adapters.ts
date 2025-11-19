@@ -34,6 +34,10 @@ export class ViemSignerAdapter implements SignerAdapter {
     });
   }
 
+  async signTypedData(domain: any, types: any, value: any): Promise<string> {
+    throw new Error("Viem WalletClient does not support signTypedData");
+  }
+
   async getChainId(): Promise<number> {
     return this.signer.chain?.id || 1;
   }
@@ -66,6 +70,18 @@ export class EthersSignerAdapter implements SignerAdapter {
       throw new Error("Signer does not support signMessage");
     }
     return await this.signer.signMessage(message);
+  }
+
+  async signTypedData(domain: any, types: any, value: any): Promise<string> {
+    if (typeof this.signer._signTypedData === "function") {
+      return await this.signer._signTypedData(domain, types, value);
+    }
+    if (typeof this.signer.signTypedData !== "function") {
+      throw new Error(
+        "Signer does not support signTypedData or _signTypedData"
+      );
+    }
+    return await this.signer.signTypedData(domain, types, value);
   }
 
   async getChainId(): Promise<number> {
@@ -117,6 +133,13 @@ export class CustomSignerAdapter implements SignerAdapter {
       throw new Error("Custom signer must implement signMessage()");
     }
     return await this.signer.signMessage(message);
+  }
+
+  async signTypedData(domain: any, types: any, value: any): Promise<string> {
+    if (typeof this.signer.signTypedData !== "function") {
+      throw new Error("Custom signer must implement signTypedData()");
+    }
+    return await this.signer.signTypedData(domain, types, value);
   }
 
   async getChainId(): Promise<number> {

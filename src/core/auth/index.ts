@@ -370,8 +370,8 @@ class Auth {
       this.userId = userId;
       this.jwt = jwt;
       this.origin = new Origin(
-        this.jwt,
         this.environment,
+        this.jwt,
         this.viem,
         this.baseParentId
       );
@@ -556,8 +556,8 @@ class Auth {
         this.userId = res.userId;
         this.jwt = res.token;
         this.origin = new Origin(
-          this.jwt,
           this.environment,
+          this.jwt,
           this.viem,
           this.baseParentId
         );
@@ -639,8 +639,8 @@ class Auth {
         this.userId = res.userId;
         this.jwt = res.token;
         this.origin = new Origin(
-          this.jwt,
           this.environment,
+          this.jwt,
           this.viem,
           this.baseParentId
         );

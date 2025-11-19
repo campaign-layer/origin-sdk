@@ -203,12 +203,12 @@ declare class Origin {
     buyAccess: typeof buyAccess;
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
-    private jwt;
+    private jwt?;
     environment: Environment;
     private viemClient?;
     baseParentId?: bigint;
-    constructor(jwt: string, environment: Environment, viemClient?: WalletClient, baseParentId?: bigint);
-    getJwt(): string;
+    constructor(environment: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
+    getJwt(): string | undefined;
     setViemClient(client: WalletClient): void;
     mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
         progressCallback?: (percent: number) => void;
@@ -231,7 +231,21 @@ declare class Origin {
      * @returns {Promise<any>} The result of the buyAccess call.
      */
     buyAccessSmart(tokenId: bigint): Promise<any>;
+    /**
+     * Fetch the underlying data associated with a specific token ID.
+     * @param {bigint} tokenId - The token ID to fetch data for.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched.
+     */
     getData(tokenId: bigint): Promise<any>;
+    /**
+     * Fetch data with X402 payment handling.
+     * @param {bigint} tokenId The token ID to fetch data for.
+     * @param {any} [signer] Optional signer object for signing the X402 intent.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
+     */
+    getDataWithX402(tokenId: bigint, signer?: any): Promise<any>;
     /**
      * Get the Token Bound Account (TBA) address for a specific token ID.
      * @param {bigint} tokenId - The token ID to get the TBA address for.

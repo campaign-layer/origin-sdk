@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, TypedDataParameter } from "viem";
 import constants from "../../constants";
 
 /**
@@ -73,3 +73,22 @@ export const createLicenseTerms = (
  * This can be one of the supported social media platforms or a file upload.
  */
 export type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
+
+/**
+ * Defines the EIP-712 typed data structure for X402 Intent signatures.
+ */
+export const X402_INTENT_TYPES: Record<string, TypedDataParameter[]> = {
+  X402Intent: [
+    { name: "payer", type: "address" },
+    { name: "asset", type: "address" },
+    { name: "amount", type: "uint256" },
+    { name: "httpMethod", type: "string" },
+    { name: "payTo", type: "address" },
+
+    { name: "tokenId", type: "uint256" },
+    { name: "duration", type: "uint32" },
+
+    { name: "expiresAt", type: "uint256" },
+    { name: "nonce", type: "bytes32" },
+  ],
+};

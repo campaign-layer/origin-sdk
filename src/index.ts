@@ -1,5 +1,3 @@
-import { Auth } from "./core/auth/index";
-
 export * from "./core/auth/signers";
 export * from "./core/auth/storage";
 
@@ -10,7 +8,8 @@ export {
   testnet as campTestnet,
 } from "./core/auth/viem/chains";
 
-export { Auth };
+export { Auth } from "./core/auth/index";
+export { Origin } from "./core/origin/index";
 
 export {
   createLicenseTerms,

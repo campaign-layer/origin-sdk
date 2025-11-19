@@ -1,4 +1,135 @@
-import { Address, Hex, WalletClient, Abi, Account, Chain } from 'viem';
+import { WalletClient, Account, Chain, Address, Hex, Abi } from 'viem';
+
+interface BaseSigner {
+    getAddress(): Promise<string>;
+    signMessage(message: string): Promise<string>;
+    signTypedData?(domain: any, types: any, value: any): Promise<string>;
+    getChainId(): Promise<number>;
+}
+type SignerType = "viem" | "ethers" | "custom";
+interface SignerAdapter {
+    type: SignerType;
+    signer: any;
+    getAddress(): Promise<string>;
+    signMessage(message: string): Promise<string>;
+    signTypedData(domain: any, types: any, value: any): Promise<string>;
+    getChainId(): Promise<number>;
+}
+
+/**
+ * Adapter for viem WalletClient
+ */
+declare class ViemSignerAdapter implements SignerAdapter {
+    type: SignerType;
+    signer: WalletClient;
+    constructor(signer: WalletClient);
+    getAddress(): Promise<string>;
+    signMessage(message: string): Promise<string>;
+    signTypedData(domain: any, types: any, value: any): Promise<string>;
+    getChainId(): Promise<number>;
+}
+/**
+ * Adapter for ethers Signer (v5 and v6)
+ */
+declare class EthersSignerAdapter implements SignerAdapter {
+    type: SignerType;
+    signer: any;
+    constructor(signer: any);
+    getAddress(): Promise<string>;
+    signMessage(message: string): Promise<string>;
+    signTypedData(domain: any, types: any, value: any): Promise<string>;
+    getChainId(): Promise<number>;
+}
+/**
+ * Adapter for custom signer implementations
+ */
+declare class CustomSignerAdapter implements SignerAdapter {
+    type: SignerType;
+    signer: any;
+    constructor(signer: any);
+    getAddress(): Promise<string>;
+    signMessage(message: string): Promise<string>;
+    signTypedData(domain: any, types: any, value: any): Promise<string>;
+    getChainId(): Promise<number>;
+}
+/**
+ * Factory function to create appropriate adapter based on signer type
+ */
+declare function createSignerAdapter(signer: any): SignerAdapter;
+
+interface StorageAdapter {
+    getItem(key: string): Promise<string | null>;
+    setItem(key: string, value: string): Promise<void>;
+    removeItem(key: string): Promise<void>;
+}
+/**
+ * Browser localStorage adapter
+ */
+declare class BrowserStorage implements StorageAdapter {
+    getItem(key: string): Promise<string | null>;
+    setItem(key: string, value: string): Promise<void>;
+    removeItem(key: string): Promise<void>;
+}
+/**
+ * In-memory storage adapter for Node.js
+ */
+declare class MemoryStorage implements StorageAdapter {
+    private storage;
+    getItem(key: string): Promise<string | null>;
+    setItem(key: string, value: string): Promise<void>;
+    removeItem(key: string): Promise<void>;
+    clear(): void;
+}
+
+/**
+ * Create a wallet client for Node.js environment
+ * @param account The viem account
+ * @param chain The chain to use
+ * @param rpcUrl Optional RPC URL (defaults to chain's default RPC)
+ * @returns WalletClient
+ */
+declare function createNodeWalletClient(account: Account, chain: Chain, rpcUrl?: string): WalletClient;
+
+declare const testnet: {
+    id: number;
+    name: string;
+    nativeCurrency: {
+        decimals: number;
+        name: string;
+        symbol: string;
+    };
+    rpcUrls: {
+        default: {
+            http: string[];
+        };
+    };
+    blockExplorers: {
+        default: {
+            name: string;
+            url: string;
+        };
+    };
+};
+declare const mainnet: {
+    id: number;
+    name: string;
+    nativeCurrency: {
+        decimals: number;
+        name: string;
+        symbol: string;
+    };
+    rpcUrls: {
+        default: {
+            http: string[];
+        };
+    };
+    blockExplorers: {
+        default: {
+            name: string;
+            url: string;
+        };
+    };
+};
 
 interface Environment {
     NAME: string;
@@ -210,12 +341,12 @@ declare class Origin {
     buyAccess: typeof buyAccess;
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
-    private jwt;
+    private jwt?;
     environment: Environment;
     private viemClient?;
     baseParentId?: bigint;
-    constructor(jwt: string, environment: Environment, viemClient?: WalletClient, baseParentId?: bigint);
-    getJwt(): string;
+    constructor(environment: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
+    getJwt(): string | undefined;
     setViemClient(client: WalletClient): void;
     mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
         progressCallback?: (percent: number) => void;
@@ -238,7 +369,21 @@ declare class Origin {
      * @returns {Promise<any>} The result of the buyAccess call.
      */
     buyAccessSmart(tokenId: bigint): Promise<any>;
+    /**
+     * Fetch the underlying data associated with a specific token ID.
+     * @param {bigint} tokenId - The token ID to fetch data for.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched.
+     */
     getData(tokenId: bigint): Promise<any>;
+    /**
+     * Fetch data with X402 payment handling.
+     * @param {bigint} tokenId The token ID to fetch data for.
+     * @param {any} [signer] Optional signer object for signing the X402 intent.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
+     */
+    getDataWithX402(tokenId: bigint, signer?: any): Promise<any>;
     /**
      * Get the Token Bound Account (TBA) address for a specific token ID.
      * @param {bigint} tokenId - The token ID to get the TBA address for.
@@ -284,30 +429,6 @@ declare class Origin {
      * ```
      */
     claimRoyalties(tokenId: bigint, recipient?: Address, token?: Address): Promise<any>;
-}
-
-interface StorageAdapter {
-    getItem(key: string): Promise<string | null>;
-    setItem(key: string, value: string): Promise<void>;
-    removeItem(key: string): Promise<void>;
-}
-/**
- * Browser localStorage adapter
- */
-declare class BrowserStorage implements StorageAdapter {
-    getItem(key: string): Promise<string | null>;
-    setItem(key: string, value: string): Promise<void>;
-    removeItem(key: string): Promise<void>;
-}
-/**
- * In-memory storage adapter for Node.js
- */
-declare class MemoryStorage implements StorageAdapter {
-    private storage;
-    getItem(key: string): Promise<string | null>;
-    setItem(key: string, value: string): Promise<void>;
-    removeItem(key: string): Promise<void>;
-    clear(): void;
 }
 
 declare global {
@@ -524,106 +645,4 @@ declare class Auth {
     unlinkTelegram(): Promise<any>;
 }
 
-interface BaseSigner {
-    getAddress(): Promise<string>;
-    signMessage(message: string): Promise<string>;
-    getChainId(): Promise<number>;
-}
-type SignerType = "viem" | "ethers" | "custom";
-interface SignerAdapter {
-    type: SignerType;
-    signer: any;
-    getAddress(): Promise<string>;
-    signMessage(message: string): Promise<string>;
-    getChainId(): Promise<number>;
-}
-
-/**
- * Adapter for viem WalletClient
- */
-declare class ViemSignerAdapter implements SignerAdapter {
-    type: SignerType;
-    signer: WalletClient;
-    constructor(signer: WalletClient);
-    getAddress(): Promise<string>;
-    signMessage(message: string): Promise<string>;
-    getChainId(): Promise<number>;
-}
-/**
- * Adapter for ethers Signer (v5 and v6)
- */
-declare class EthersSignerAdapter implements SignerAdapter {
-    type: SignerType;
-    signer: any;
-    constructor(signer: any);
-    getAddress(): Promise<string>;
-    signMessage(message: string): Promise<string>;
-    getChainId(): Promise<number>;
-}
-/**
- * Adapter for custom signer implementations
- */
-declare class CustomSignerAdapter implements SignerAdapter {
-    type: SignerType;
-    signer: any;
-    constructor(signer: any);
-    getAddress(): Promise<string>;
-    signMessage(message: string): Promise<string>;
-    getChainId(): Promise<number>;
-}
-/**
- * Factory function to create appropriate adapter based on signer type
- */
-declare function createSignerAdapter(signer: any): SignerAdapter;
-
-/**
- * Create a wallet client for Node.js environment
- * @param account The viem account
- * @param chain The chain to use
- * @param rpcUrl Optional RPC URL (defaults to chain's default RPC)
- * @returns WalletClient
- */
-declare function createNodeWalletClient(account: Account, chain: Chain, rpcUrl?: string): WalletClient;
-
-declare const testnet: {
-    id: number;
-    name: string;
-    nativeCurrency: {
-        decimals: number;
-        name: string;
-        symbol: string;
-    };
-    rpcUrls: {
-        default: {
-            http: string[];
-        };
-    };
-    blockExplorers: {
-        default: {
-            name: string;
-            url: string;
-        };
-    };
-};
-declare const mainnet: {
-    id: number;
-    name: string;
-    nativeCurrency: {
-        decimals: number;
-        name: string;
-        symbol: string;
-    };
-    rpcUrls: {
-        default: {
-            http: string[];
-        };
-    };
-    blockExplorers: {
-        default: {
-            name: string;
-            url: string;
-        };
-    };
-};
-
-export { Auth, type BaseSigner, BrowserStorage, CustomSignerAdapter, DataStatus, EthersSignerAdapter, type LicenseTerms, MemoryStorage, type SignerAdapter, type SignerType, type StorageAdapter, ViemSignerAdapter, mainnet as campMainnet, testnet as campTestnet, createLicenseTerms, createNodeWalletClient, createSignerAdapter };
+export { Auth, type BaseSigner, BrowserStorage, CustomSignerAdapter, DataStatus, EthersSignerAdapter, type LicenseTerms, MemoryStorage, Origin, type SignerAdapter, type SignerType, type StorageAdapter, ViemSignerAdapter, mainnet as campMainnet, testnet as campTestnet, createLicenseTerms, createNodeWalletClient, createSignerAdapter };

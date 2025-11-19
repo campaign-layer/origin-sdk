@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, zeroAddress, formatEther, formatUnits, encodeFunctionData, checksumAddress, parseEther } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, checksumAddress, zeroAddress, formatEther, formatUnits, encodeFunctionData, keccak256, toBytes, parseEther } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -3457,32 +3457,6 @@ function subscriptionExpiry(tokenId, user) {
 }
 
 /**
- * Approves a spender to spend a specified amount of tokens on behalf of the owner.
- * If the current allowance is less than the specified amount, it will perform the approval.
- * @param {ApproveParams} params - The parameters for the approval.
- */
-function approveIfNeeded(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ walletClient, publicClient, tokenAddress, owner, spender, amount, }) {
-        const allowance = yield publicClient.readContract({
-            address: tokenAddress,
-            abi: erc20Abi,
-            functionName: "allowance",
-            args: [owner, spender],
-        });
-        if (allowance < amount) {
-            yield walletClient.writeContract({
-                address: tokenAddress,
-                account: owner,
-                abi: erc20Abi,
-                functionName: "approve",
-                args: [spender, amount],
-                chain: testnet,
-            });
-        }
-    });
-}
-
-/**
  * Enum representing the status of data in the system.
  * * - ACTIVE: The data is currently active and available.
  * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
@@ -3521,18 +3495,239 @@ const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
         paymentToken,
     };
 };
+/**
+ * Defines the EIP-712 typed data structure for X402 Intent signatures.
+ */
+const X402_INTENT_TYPES = {
+    X402Intent: [
+        { name: "payer", type: "address" },
+        { name: "asset", type: "address" },
+        { name: "amount", type: "uint256" },
+        { name: "httpMethod", type: "string" },
+        { name: "payTo", type: "address" },
+        { name: "tokenId", type: "uint256" },
+        { name: "duration", type: "uint32" },
+        { name: "expiresAt", type: "uint256" },
+        { name: "nonce", type: "bytes32" },
+    ],
+};
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
+/**
+ * Approves a spender to spend a specified amount of tokens on behalf of the owner.
+ * If the current allowance is less than the specified amount, it will perform the approval.
+ * @param {ApproveParams} params - The parameters for the approval.
+ */
+function approveIfNeeded(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ walletClient, publicClient, tokenAddress, owner, spender, amount, }) {
+        const allowance = yield publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [owner, spender],
+        });
+        if (allowance < amount) {
+            yield walletClient.writeContract({
+                address: tokenAddress,
+                account: owner,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spender, amount],
+                chain: testnet,
+            });
+        }
+    });
+}
+
+/**
+ * Adapter for viem WalletClient
+ */
+class ViemSignerAdapter {
+    constructor(signer) {
+        this.type = "viem";
+        this.signer = signer;
+    }
+    getAddress() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.signer.account) {
+                return this.signer.account.address;
+            }
+            const accounts = yield this.signer.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
+            if (!accounts || accounts.length === 0) {
+                throw new Error("No accounts found in viem wallet client");
+            }
+            return accounts[0];
+        });
+    }
+    signMessage(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const address = yield this.getAddress();
+            return yield this.signer.signMessage({
+                account: address,
+                message,
+            });
+        });
+    }
+    signTypedData(domain, types, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error("Viem WalletClient does not support signTypedData");
+        });
+    }
+    getChainId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            return ((_a = this.signer.chain) === null || _a === void 0 ? void 0 : _a.id) || 1;
+        });
+    }
+}
+/**
+ * Adapter for ethers Signer (v5 and v6)
+ */
+class EthersSignerAdapter {
+    constructor(signer) {
+        this.type = "ethers";
+        this.signer = signer;
+    }
+    getAddress() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Works for both ethers v5 and v6
+            if (typeof this.signer.getAddress === "function") {
+                return yield this.signer.getAddress();
+            }
+            if (this.signer.address) {
+                return this.signer.address;
+            }
+            throw new Error("Unable to get address from ethers signer");
+        });
+    }
+    signMessage(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer.signMessage !== "function") {
+                throw new Error("Signer does not support signMessage");
+            }
+            return yield this.signer.signMessage(message);
+        });
+    }
+    signTypedData(domain, types, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer._signTypedData === "function") {
+                return yield this.signer._signTypedData(domain, types, value);
+            }
+            if (typeof this.signer.signTypedData !== "function") {
+                throw new Error("Signer does not support signTypedData or _signTypedData");
+            }
+            return yield this.signer.signTypedData(domain, types, value);
+        });
+    }
+    getChainId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Try ethers v6 first
+            if (this.signer.provider &&
+                typeof this.signer.provider.getNetwork === "function") {
+                const network = yield this.signer.provider.getNetwork();
+                // ethers v6 returns bigint, v5 returns number
+                return typeof network.chainId === "bigint"
+                    ? Number(network.chainId)
+                    : network.chainId;
+            }
+            // Fallback for ethers v5
+            if (typeof this.signer.getChainId === "function") {
+                return yield this.signer.getChainId();
+            }
+            // Default to mainnet if we can't determine
+            return 484;
+        });
+    }
+}
+/**
+ * Adapter for custom signer implementations
+ */
+class CustomSignerAdapter {
+    constructor(signer) {
+        this.type = "custom";
+        this.signer = signer;
+    }
+    getAddress() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer.getAddress === "function") {
+                return yield this.signer.getAddress();
+            }
+            if (this.signer.address) {
+                return this.signer.address;
+            }
+            throw new Error("Custom signer must implement getAddress() or have address property");
+        });
+    }
+    signMessage(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer.signMessage !== "function") {
+                throw new Error("Custom signer must implement signMessage()");
+            }
+            return yield this.signer.signMessage(message);
+        });
+    }
+    signTypedData(domain, types, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer.signTypedData !== "function") {
+                throw new Error("Custom signer must implement signTypedData()");
+            }
+            return yield this.signer.signTypedData(domain, types, value);
+        });
+    }
+    getChainId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof this.signer.getChainId === "function") {
+                const chainId = yield this.signer.getChainId();
+                return typeof chainId === "bigint" ? Number(chainId) : chainId;
+            }
+            if (this.signer.chainId !== undefined) {
+                return typeof this.signer.chainId === "bigint"
+                    ? Number(this.signer.chainId)
+                    : this.signer.chainId;
+            }
+            // Default to mainnet
+            return 484;
+        });
+    }
+}
+/**
+ * Factory function to create appropriate adapter based on signer type
+ */
+function createSignerAdapter(signer) {
+    // Check for viem WalletClient
+    if (signer.transport &&
+        signer.chain &&
+        typeof signer.signMessage === "function") {
+        return new ViemSignerAdapter(signer);
+    }
+    // Check for ethers signer (v5 or v6)
+    if (signer._isSigner ||
+        (signer.provider && typeof signer.signMessage === "function")) {
+        return new EthersSignerAdapter(signer);
+    }
+    // Try custom adapter
+    return new CustomSignerAdapter(signer);
+}
+
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_makeX402IntentDomain, _Origin_buildX402Payload, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
  */
 class Origin {
-    constructor(jwt, environment, viemClient, baseParentId) {
+    constructor(environment, jwt, viemClient, baseParentId) {
         _Origin_instances.add(this);
-        this.jwt = jwt;
+        if (jwt) {
+            this.jwt = jwt;
+        }
+        else {
+            console.warn("JWT not provided. Some features may be unavailable.");
+        }
         this.viemClient = viemClient;
-        this.environment = environment;
+        this.environment =
+            typeof environment === "string" ? ENVIRONMENTS[environment] : environment;
         this.baseParentId = baseParentId;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
@@ -3764,6 +3959,12 @@ class Origin {
             return this.buyAccess(account, tokenId, totalCost, duration, paymentToken);
         });
     }
+    /**
+     * Fetch the underlying data associated with a specific token ID.
+     * @param {bigint} tokenId - The token ID to fetch data for.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched.
+     */
     getData(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
@@ -3777,6 +3978,60 @@ class Origin {
                 throw new Error("Failed to fetch data");
             }
             return response.json();
+        });
+    }
+    /**
+     * Fetch data with X402 payment handling.
+     * @param {bigint} tokenId The token ID to fetch data for.
+     * @param {any} [signer] Optional signer object for signing the X402 intent.
+     * @returns {Promise<any>} A promise that resolves with the fetched data.
+     * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
+     */
+    getDataWithX402(tokenId, signer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            if (!signer && !this.viemClient) {
+                throw new Error("No signer or wallet client provided for X402 intent.");
+            }
+            const initialResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+                method: "GET",
+            });
+            if (initialResponse.status !== 402) {
+                if (!initialResponse.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+                return initialResponse.json();
+            }
+            const sig = this.viemClient || createSignerAdapter(signer);
+            const walletAddress = this.viemClient
+                ? yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this)
+                : yield sig.getAddress();
+            const intentData = yield initialResponse.json();
+            if (intentData.error) {
+                throw new Error(intentData.error);
+            }
+            const requirements = intentData.accepts[0];
+            const x402Payload = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_buildX402Payload).call(this, requirements, checksumAddress(walletAddress), sig);
+            const header = btoa(JSON.stringify(x402Payload));
+            const retryResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-PAYMENT": header,
+                },
+            });
+            if (retryResponse.status === 402) {
+                // subscription required
+                return retryResponse.json();
+            }
+            if (!retryResponse.ok) {
+                throw new Error("Failed to fetch data after X402 payment");
+            }
+            const res = yield retryResponse.json();
+            return {
+                error: null,
+                data: (_a = res.data) !== null && _a !== void 0 ? _a : res,
+            };
         });
     }
     /**
@@ -4114,6 +4369,47 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         }
         return accounts[0];
     });
+}, _Origin_makeX402IntentDomain = function _Origin_makeX402IntentDomain() {
+    return {
+        name: "Origin X402 Intent",
+        version: "1",
+        chainId: this.environment.CHAIN.id,
+        verifyingContract: this.environment
+            .MARKETPLACE_CONTRACT_ADDRESS,
+    };
+}, _Origin_buildX402Payload = function _Origin_buildX402Payload(requirements, payer, signer) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const asset = requirements.asset === "native" ? zeroAddress : requirements.asset;
+        const amount = BigInt(requirements.maxAmountRequired || 0);
+        const duration = requirements.extra.duration;
+        const domain = __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_makeX402IntentDomain).call(this);
+        const types = X402_INTENT_TYPES;
+        const nonce = crypto.randomUUID();
+        const nonceBytes32 = keccak256(toBytes(nonce));
+        const payment = {
+            payer: payer,
+            asset: asset,
+            amount: amount.toString(),
+            httpMethod: "GET",
+            payTo: checksumAddress(this.environment.MARKETPLACE_CONTRACT_ADDRESS),
+            tokenId: requirements.extra.tokenId,
+            duration: duration,
+            expiresAt: Math.floor(Date.now() / 1000) + requirements.maxTimeoutSeconds,
+            nonce: nonceBytes32,
+        };
+        const signerAdapter = createSignerAdapter(signer);
+        const signature = yield signerAdapter.signTypedData(domain, types, payment);
+        const x402Payload = {
+            x402Version: 1,
+            scheme: "exact",
+            network: requirements.network,
+            payload: Object.assign(Object.assign({}, payment), { sigType: "eip712", signature: signature, license: {
+                    tokenId: requirements.extra.tokenId,
+                    duration: duration,
+                } }),
+        };
+        return x402Payload;
+    });
 }, _Origin_resolveWalletAddress = function _Origin_resolveWalletAddress(owner) {
     return __awaiter(this, void 0, void 0, function* () {
         if (owner) {
@@ -4137,155 +4433,6 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         }
     });
 };
-
-/**
- * Adapter for viem WalletClient
- */
-class ViemSignerAdapter {
-    constructor(signer) {
-        this.type = "viem";
-        this.signer = signer;
-    }
-    getAddress() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.signer.account) {
-                return this.signer.account.address;
-            }
-            const accounts = yield this.signer.request({
-                method: "eth_requestAccounts",
-                params: [],
-            });
-            if (!accounts || accounts.length === 0) {
-                throw new Error("No accounts found in viem wallet client");
-            }
-            return accounts[0];
-        });
-    }
-    signMessage(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const address = yield this.getAddress();
-            return yield this.signer.signMessage({
-                account: address,
-                message,
-            });
-        });
-    }
-    getChainId() {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            return ((_a = this.signer.chain) === null || _a === void 0 ? void 0 : _a.id) || 1;
-        });
-    }
-}
-/**
- * Adapter for ethers Signer (v5 and v6)
- */
-class EthersSignerAdapter {
-    constructor(signer) {
-        this.type = "ethers";
-        this.signer = signer;
-    }
-    getAddress() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Works for both ethers v5 and v6
-            if (typeof this.signer.getAddress === "function") {
-                return yield this.signer.getAddress();
-            }
-            if (this.signer.address) {
-                return this.signer.address;
-            }
-            throw new Error("Unable to get address from ethers signer");
-        });
-    }
-    signMessage(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (typeof this.signer.signMessage !== "function") {
-                throw new Error("Signer does not support signMessage");
-            }
-            return yield this.signer.signMessage(message);
-        });
-    }
-    getChainId() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Try ethers v6 first
-            if (this.signer.provider &&
-                typeof this.signer.provider.getNetwork === "function") {
-                const network = yield this.signer.provider.getNetwork();
-                // ethers v6 returns bigint, v5 returns number
-                return typeof network.chainId === "bigint"
-                    ? Number(network.chainId)
-                    : network.chainId;
-            }
-            // Fallback for ethers v5
-            if (typeof this.signer.getChainId === "function") {
-                return yield this.signer.getChainId();
-            }
-            // Default to mainnet if we can't determine
-            return 484;
-        });
-    }
-}
-/**
- * Adapter for custom signer implementations
- */
-class CustomSignerAdapter {
-    constructor(signer) {
-        this.type = "custom";
-        this.signer = signer;
-    }
-    getAddress() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (typeof this.signer.getAddress === "function") {
-                return yield this.signer.getAddress();
-            }
-            if (this.signer.address) {
-                return this.signer.address;
-            }
-            throw new Error("Custom signer must implement getAddress() or have address property");
-        });
-    }
-    signMessage(message) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (typeof this.signer.signMessage !== "function") {
-                throw new Error("Custom signer must implement signMessage()");
-            }
-            return yield this.signer.signMessage(message);
-        });
-    }
-    getChainId() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (typeof this.signer.getChainId === "function") {
-                const chainId = yield this.signer.getChainId();
-                return typeof chainId === "bigint" ? Number(chainId) : chainId;
-            }
-            if (this.signer.chainId !== undefined) {
-                return typeof this.signer.chainId === "bigint"
-                    ? Number(this.signer.chainId)
-                    : this.signer.chainId;
-            }
-            // Default to mainnet
-            return 484;
-        });
-    }
-}
-/**
- * Factory function to create appropriate adapter based on signer type
- */
-function createSignerAdapter(signer) {
-    // Check for viem WalletClient
-    if (signer.transport &&
-        signer.chain &&
-        typeof signer.signMessage === "function") {
-        return new ViemSignerAdapter(signer);
-    }
-    // Check for ethers signer (v5 or v6)
-    if (signer._isSigner ||
-        (signer.provider && typeof signer.signMessage === "function")) {
-        return new EthersSignerAdapter(signer);
-    }
-    // Try custom adapter
-    return new CustomSignerAdapter(signer);
-}
 
 /**
  * Browser localStorage adapter
@@ -4629,7 +4776,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
+                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -4691,7 +4838,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
+                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -5080,7 +5227,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             this.walletAddress = walletAddress;
             this.userId = userId;
             this.jwt = jwt;
-            this.origin = new Origin(this.jwt, this.environment, this.viem, this.baseParentId);
+            this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
             this.isAuthenticated = true;
             if (provider) {
                 this.setProvider({
