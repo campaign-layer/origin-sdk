@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.4](https://github.com/campaign-layer/origin-sdk/compare/v1.2.3...v1.2.4) (2025-11-20)
+
+### Bug Fixes
+
+* rename 402 methods ([46f4f9b](https://github.com/campaign-layer/origin-sdk/commit/46f4f9b8d70a1f28c7b1c8256968c673896b5420))
+
 ## [1.2.3](https://github.com/campaign-layer/origin-sdk/compare/v1.2.2...v1.2.3) (2025-11-20)
 
 ### Features
