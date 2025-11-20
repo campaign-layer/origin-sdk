@@ -331,17 +331,17 @@ interface TransactionResult {
     receipt?: any;
 }
 /**
- * Settles an X402 payment response by purchasing access if needed.
+ * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
- * it calls buyAccess with the parameters from the X402 response.
+ * it calls buyAccess with the parameters from the payment intent response.
  * Supports viem WalletClient, ethers Signer, and custom signer implementations.
  *
- * @param x402Response - The response from getDataWithX402 containing payment details.
+ * @param paymentIntentResponse - The response from getDataWithIntent containing payment details.
  * @param signer - Optional signer object used to interact with the blockchain. If not provided, uses the connected wallet client.
  * @returns A promise that resolves with the transaction hash and receipt, or null if access already exists.
  * @throws {Error} If the response doesn't contain marketplace action or if the method is not buyAccess.
  */
-declare function settleX402(this: Origin, x402Response: X402Response, signer?: any): Promise<TransactionResult | null>;
+declare function settlePaymentIntent(this: Origin, paymentIntentResponse: X402Response, signer?: any): Promise<TransactionResult | null>;
 
 /**
  * Fetch data with X402 payment handling.
@@ -350,7 +350,7 @@ declare function settleX402(this: Origin, x402Response: X402Response, signer?: a
  * @returns {Promise<any>} A promise that resolves with the fetched data.
  * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
  */
-declare function getDataWithX402(this: Origin, tokenId: bigint, signer?: any): Promise<any>;
+declare function getDataWithIntent(this: Origin, tokenId: bigint, signer?: any, decide?: (terms: any) => Promise<boolean>): Promise<any>;
 
 interface RoyaltyInfo {
     tokenBoundAccount: Address;
@@ -387,13 +387,13 @@ declare class Origin {
     buyAccess: typeof buyAccess;
     hasAccess: typeof hasAccess;
     subscriptionExpiry: typeof subscriptionExpiry;
-    settleX402: typeof settleX402;
-    getDataWithX402: typeof getDataWithX402;
+    settlePaymentIntent: typeof settlePaymentIntent;
+    getDataWithIntent: typeof getDataWithIntent;
     private jwt?;
     environment: Environment;
     private viemClient?;
     baseParentId?: bigint;
-    constructor(environment: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
+    constructor(environment?: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
     getJwt(): string | undefined;
     setViemClient(client: WalletClient): void;
     mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {

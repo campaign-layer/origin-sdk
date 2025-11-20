@@ -10,6 +10,23 @@ import {
 import { createSignerAdapter, SignerAdapter } from "../auth/signers";
 import { X402_INTENT_TYPES } from "./utils";
 
+const fetchTokenData = async (
+  origin: Origin,
+  tokenId: bigint,
+  headers: any
+) => {
+  const response = await fetch(
+    `${origin.environment.AUTH_HUB_BASE_API}/${origin.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+    }
+  );
+  return response;
+};
 /**
  * Fetch data with X402 payment handling.
  * @param {bigint} tokenId The token ID to fetch data for.
@@ -17,10 +34,11 @@ import { X402_INTENT_TYPES } from "./utils";
  * @returns {Promise<any>} A promise that resolves with the fetched data.
  * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
  */
-export async function getDataWithX402(
+export async function getDataWithIntent(
   this: Origin,
   tokenId: bigint,
-  signer?: any
+  signer?: any,
+  decide?: (terms: any) => Promise<boolean>
 ): Promise<any> {
   const viemClient = (this as any).viemClient;
 
@@ -28,12 +46,7 @@ export async function getDataWithX402(
     throw new Error("No signer or wallet client provided for X402 intent.");
   }
 
-  const initialResponse = await fetch(
-    `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
-    {
-      method: "GET",
-    }
-  );
+  const initialResponse = await fetchTokenData(this, tokenId, {});
 
   if (initialResponse.status !== 402) {
     if (!initialResponse.ok) {
@@ -62,20 +75,42 @@ export async function getDataWithX402(
   );
   const header = btoa(JSON.stringify(x402Payload));
 
-  const retryResponse = await fetch(
-    `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-PAYMENT": header,
-      },
-    }
-  );
+  const retryResponse = await fetchTokenData(this, tokenId, {
+    "X-PAYMENT": header,
+  });
 
   if (retryResponse.status === 402) {
     // subscription required
-    return retryResponse.json();
+    if (decide) {
+      const resJson = await retryResponse.json();
+      const accepted = await decide(resJson.marketplaceAction);
+      if (accepted) {
+        const settlement = await this.settlePaymentIntent(
+          resJson,
+          signer || viemClient
+        );
+        if (settlement && !settlement.txHash) {
+          throw new Error(
+            `Failed to settle payment intent for token ID ${tokenId}`
+          );
+        }
+        // retry fetching data after settlement
+        const finalResponse = await this.getDataWithIntent(
+          tokenId,
+          signer,
+          undefined
+        );
+        return finalResponse;
+      } else {
+        // user declined to proceed with payment
+        return {
+          error: "User declined to proceed with payment",
+          data: null,
+        };
+      }
+    } else {
+      return retryResponse.json();
+    }
   }
 
   if (!retryResponse.ok) {

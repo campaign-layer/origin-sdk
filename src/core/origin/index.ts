@@ -27,8 +27,8 @@ import { setApprovalForAll } from "./setApprovalForAll";
 import { buyAccess } from "./buyAccess";
 import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
-import { settleX402 } from "./settleX402";
-import { getDataWithX402 } from "./getDataWithX402";
+import { settlePaymentIntent } from "./settlePaymentIntent";
+import { getDataWithIntent } from "./getDataWithIntent";
 import { LicenseTerms, X402_INTENT_TYPES } from "./utils";
 import { approveIfNeeded } from "./approveIfNeeded";
 import { Environment, ENVIRONMENTS } from "../../constants";
@@ -72,15 +72,15 @@ export class Origin {
   buyAccess!: typeof buyAccess;
   hasAccess!: typeof hasAccess;
   subscriptionExpiry!: typeof subscriptionExpiry;
-  settleX402!: typeof settleX402;
-  getDataWithX402!: typeof getDataWithX402;
+  settlePaymentIntent!: typeof settlePaymentIntent;
+  getDataWithIntent!: typeof getDataWithIntent;
 
   private jwt?: string;
   environment: Environment;
   private viemClient?: WalletClient;
   baseParentId?: bigint;
   constructor(
-    environment: Environment | string,
+    environment?: Environment | string,
     jwt?: string,
     viemClient?: WalletClient,
     baseParentId?: bigint
@@ -92,7 +92,9 @@ export class Origin {
     }
     this.viemClient = viemClient;
     this.environment =
-      typeof environment === "string" ? ENVIRONMENTS[environment] : environment;
+      typeof environment === "string"
+        ? ENVIRONMENTS[environment]
+        : environment || ENVIRONMENTS["DEVELOPMENT"];
     this.baseParentId = baseParentId;
     // DataNFT methods
     this.mintWithSignature = mintWithSignature.bind(this);
@@ -114,8 +116,8 @@ export class Origin {
     this.buyAccess = buyAccess.bind(this);
     this.hasAccess = hasAccess.bind(this);
     this.subscriptionExpiry = subscriptionExpiry.bind(this);
-    this.settleX402 = settleX402.bind(this);
-    this.getDataWithX402 = getDataWithX402.bind(this);
+    this.settlePaymentIntent = settlePaymentIntent.bind(this);
+    this.getDataWithIntent = getDataWithIntent.bind(this);
   }
 
   getJwt() {
@@ -931,4 +933,4 @@ export class Origin {
 }
 
 export { createLicenseTerms, LicenseTerms, DataStatus } from "./utils";
-export { X402Response } from "./settleX402";
+export { X402Response } from "./settlePaymentIntent";

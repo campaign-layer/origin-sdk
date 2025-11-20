@@ -3630,22 +3630,22 @@ function createSignerAdapter(signer) {
 }
 
 /**
- * Settles an X402 payment response by purchasing access if needed.
+ * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
- * it calls buyAccess with the parameters from the X402 response.
+ * it calls buyAccess with the parameters from the payment intent response.
  * Supports viem WalletClient, ethers Signer, and custom signer implementations.
  *
- * @param x402Response - The response from getDataWithX402 containing payment details.
+ * @param paymentIntentResponse - The response from getDataWithIntent containing payment details.
  * @param signer - Optional signer object used to interact with the blockchain. If not provided, uses the connected wallet client.
  * @returns A promise that resolves with the transaction hash and receipt, or null if access already exists.
  * @throws {Error} If the response doesn't contain marketplace action or if the method is not buyAccess.
  */
-function settleX402(x402Response, signer) {
+function settlePaymentIntent(paymentIntentResponse, signer) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!x402Response.marketplaceAction) {
+        if (!paymentIntentResponse.marketplaceAction) {
             throw new Error("No marketplace action found in X402 response");
         }
-        const { marketplaceAction } = x402Response;
+        const { marketplaceAction } = paymentIntentResponse;
         if (marketplaceAction.method !== "buyAccess") {
             throw new Error(`Unsupported marketplace action method: ${marketplaceAction.method}`);
         }
@@ -3780,6 +3780,13 @@ const X402_INTENT_TYPES = {
     ],
 };
 
+const fetchTokenData = (origin, tokenId, headers) => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield fetch(`${origin.environment.AUTH_HUB_BASE_API}/${origin.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+        method: "GET",
+        headers: Object.assign({ "Content-Type": "application/json" }, headers),
+    });
+    return response;
+});
 /**
  * Fetch data with X402 payment handling.
  * @param {bigint} tokenId The token ID to fetch data for.
@@ -3787,16 +3794,14 @@ const X402_INTENT_TYPES = {
  * @returns {Promise<any>} A promise that resolves with the fetched data.
  * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
  */
-function getDataWithX402(tokenId, signer) {
+function getDataWithIntent(tokenId, signer, decide) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         const viemClient = this.viemClient;
         if (!signer && !viemClient) {
             throw new Error("No signer or wallet client provided for X402 intent.");
         }
-        const initialResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
-            method: "GET",
-        });
+        const initialResponse = yield fetchTokenData(this, tokenId, {});
         if (initialResponse.status !== 402) {
             if (!initialResponse.ok) {
                 throw new Error("Failed to fetch data");
@@ -3814,16 +3819,34 @@ function getDataWithX402(tokenId, signer) {
         const requirements = intentData.accepts[0];
         const x402Payload = yield buildX402Payload.call(this, requirements, checksumAddress(walletAddress), sig);
         const header = btoa(JSON.stringify(x402Payload));
-        const retryResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-PAYMENT": header,
-            },
+        const retryResponse = yield fetchTokenData(this, tokenId, {
+            "X-PAYMENT": header,
         });
         if (retryResponse.status === 402) {
             // subscription required
-            return retryResponse.json();
+            if (decide) {
+                const resJson = yield retryResponse.json();
+                const accepted = yield decide(resJson.marketplaceAction);
+                if (accepted) {
+                    const settlement = yield this.settlePaymentIntent(resJson, signer || viemClient);
+                    if (settlement && !settlement.txHash) {
+                        throw new Error(`Failed to settle payment intent for token ID ${tokenId}`);
+                    }
+                    // retry fetching data after settlement
+                    const finalResponse = yield this.getDataWithIntent(tokenId, signer, undefined);
+                    return finalResponse;
+                }
+                else {
+                    // user declined to proceed with payment
+                    return {
+                        error: "User declined to proceed with payment",
+                        data: null,
+                    };
+                }
+            }
+            else {
+                return retryResponse.json();
+            }
         }
         if (!retryResponse.ok) {
             throw new Error("Failed to fetch data after X402 payment");
@@ -3954,7 +3977,9 @@ class Origin {
         }
         this.viemClient = viemClient;
         this.environment =
-            typeof environment === "string" ? ENVIRONMENTS[environment] : environment;
+            typeof environment === "string"
+                ? ENVIRONMENTS[environment]
+                : environment || ENVIRONMENTS["DEVELOPMENT"];
         this.baseParentId = baseParentId;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
@@ -3976,8 +4001,8 @@ class Origin {
         this.buyAccess = buyAccess.bind(this);
         this.hasAccess = hasAccess.bind(this);
         this.subscriptionExpiry = subscriptionExpiry.bind(this);
-        this.settleX402 = settleX402.bind(this);
-        this.getDataWithX402 = getDataWithX402.bind(this);
+        this.settlePaymentIntent = settlePaymentIntent.bind(this);
+        this.getDataWithIntent = getDataWithIntent.bind(this);
     }
     getJwt() {
         return this.jwt;

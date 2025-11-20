@@ -28,25 +28,25 @@ interface TransactionResult {
   receipt?: any;
 }
 /**
- * Settles an X402 payment response by purchasing access if needed.
+ * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
- * it calls buyAccess with the parameters from the X402 response.
+ * it calls buyAccess with the parameters from the payment intent response.
  * Supports viem WalletClient, ethers Signer, and custom signer implementations.
  *
- * @param x402Response - The response from getDataWithX402 containing payment details.
+ * @param paymentIntentResponse - The response from getDataWithIntent containing payment details.
  * @param signer - Optional signer object used to interact with the blockchain. If not provided, uses the connected wallet client.
  * @returns A promise that resolves with the transaction hash and receipt, or null if access already exists.
  * @throws {Error} If the response doesn't contain marketplace action or if the method is not buyAccess.
  */
-export async function settleX402(
+export async function settlePaymentIntent(
   this: Origin,
-  x402Response: X402Response,
+  paymentIntentResponse: X402Response,
   signer?: any
 ): Promise<TransactionResult | null> {
-  if (!x402Response.marketplaceAction) {
+  if (!paymentIntentResponse.marketplaceAction) {
     throw new Error("No marketplace action found in X402 response");
   }
-  const { marketplaceAction } = x402Response;
+  const { marketplaceAction } = paymentIntentResponse;
   if (marketplaceAction.method !== "buyAccess") {
     throw new Error(
       `Unsupported marketplace action method: ${marketplaceAction.method}`
