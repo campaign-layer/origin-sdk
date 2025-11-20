@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useState, useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
-import { custom, createWalletClient, createPublicClient, http, erc20Abi, getAbiItem, checksumAddress, zeroAddress, formatEther, formatUnits, encodeFunctionData, keccak256, toBytes, parseEther } from 'viem';
+import { custom, createWalletClient, createPublicClient, http, encodeFunctionData, checksumAddress, zeroAddress, keccak256, toBytes, erc20Abi, getAbiItem, formatEther, formatUnits, parseEther } from 'viem';
 import { toAccount } from 'viem/accounts';
 import { createSiweMessage } from 'viem/siwe';
 import axios from 'axios';
@@ -3457,88 +3457,6 @@ function subscriptionExpiry(tokenId, user) {
 }
 
 /**
- * Enum representing the status of data in the system.
- * * - ACTIVE: The data is currently active and available.
- * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
- * * - DELETED: The data has been deleted and is no longer available.
- */
-var DataStatus;
-(function (DataStatus) {
-    DataStatus[DataStatus["ACTIVE"] = 0] = "ACTIVE";
-    DataStatus[DataStatus["PENDING_DELETE"] = 1] = "PENDING_DELETE";
-    DataStatus[DataStatus["DELETED"] = 2] = "DELETED";
-})(DataStatus || (DataStatus = {}));
-/**
- * Creates license terms for a digital asset.
- * @param price The price of the asset in wei.
- * @param duration The duration of the license in seconds.
- * @param royaltyBps The royalty percentage in basis points (0-10000).
- * @param paymentToken The address of the payment token (ERC20 / address(0) for native currency).
- * @returns The created license terms.
- */
-const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
-    if (royaltyBps < constants.MIN_ROYALTY_BPS ||
-        royaltyBps > constants.MAX_ROYALTY_BPS) {
-        throw new Error(`Royalty basis points must be between ${constants.MIN_ROYALTY_BPS} and ${constants.MAX_ROYALTY_BPS}`);
-    }
-    if (duration < constants.MIN_LICENSE_DURATION ||
-        duration > constants.MAX_LICENSE_DURATION) {
-        throw new Error(`Duration must be between ${constants.MIN_LICENSE_DURATION} and ${constants.MAX_LICENSE_DURATION} seconds`);
-    }
-    if (price < constants.MIN_PRICE) {
-        throw new Error(`Price must be at least ${constants.MIN_PRICE} wei`);
-    }
-    return {
-        price,
-        duration,
-        royaltyBps,
-        paymentToken,
-    };
-};
-/**
- * Defines the EIP-712 typed data structure for X402 Intent signatures.
- */
-const X402_INTENT_TYPES = {
-    X402Intent: [
-        { name: "payer", type: "address" },
-        { name: "asset", type: "address" },
-        { name: "amount", type: "uint256" },
-        { name: "httpMethod", type: "string" },
-        { name: "payTo", type: "address" },
-        { name: "tokenId", type: "uint256" },
-        { name: "duration", type: "uint32" },
-        { name: "expiresAt", type: "uint256" },
-        { name: "nonce", type: "bytes32" },
-    ],
-};
-
-/**
- * Approves a spender to spend a specified amount of tokens on behalf of the owner.
- * If the current allowance is less than the specified amount, it will perform the approval.
- * @param {ApproveParams} params - The parameters for the approval.
- */
-function approveIfNeeded(_a) {
-    return __awaiter(this, arguments, void 0, function* ({ walletClient, publicClient, tokenAddress, owner, spender, amount, }) {
-        const allowance = yield publicClient.readContract({
-            address: tokenAddress,
-            abi: erc20Abi,
-            functionName: "allowance",
-            args: [owner, spender],
-        });
-        if (allowance < amount) {
-            yield walletClient.writeContract({
-                address: tokenAddress,
-                account: owner,
-                abi: erc20Abi,
-                functionName: "approve",
-                args: [spender, amount],
-                chain: testnet,
-            });
-        }
-    });
-}
-
-/**
  * Adapter for viem WalletClient
  */
 class ViemSignerAdapter {
@@ -3711,7 +3629,316 @@ function createSignerAdapter(signer) {
     return new CustomSignerAdapter(signer);
 }
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_makeX402IntentDomain, _Origin_buildX402Payload, _Origin_resolveWalletAddress;
+/**
+ * Settles an X402 payment response by purchasing access if needed.
+ * This method checks if the user already has access to the item, and if not,
+ * it calls buyAccess with the parameters from the X402 response.
+ * Supports viem WalletClient, ethers Signer, and custom signer implementations.
+ *
+ * @param x402Response - The response from getDataWithX402 containing payment details.
+ * @param signer - Optional signer object used to interact with the blockchain. If not provided, uses the connected wallet client.
+ * @returns A promise that resolves with the transaction hash and receipt, or null if access already exists.
+ * @throws {Error} If the response doesn't contain marketplace action or if the method is not buyAccess.
+ */
+function settleX402(x402Response, signer) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!x402Response.marketplaceAction) {
+            throw new Error("No marketplace action found in X402 response");
+        }
+        const { marketplaceAction } = x402Response;
+        if (marketplaceAction.method !== "buyAccess") {
+            throw new Error(`Unsupported marketplace action method: ${marketplaceAction.method}`);
+        }
+        const tokenId = BigInt(marketplaceAction.tokenId);
+        const payerAddress = marketplaceAction.payer;
+        const alreadyHasAccess = yield this.hasAccess(payerAddress, tokenId);
+        if (alreadyHasAccess) {
+            console.log("User already has access to this item");
+            return null;
+        }
+        const expectedPrice = BigInt(marketplaceAction.amount);
+        const expectedDuration = BigInt(marketplaceAction.duration);
+        const expectedPaymentToken = marketplaceAction.asset;
+        const isNativeToken = expectedPaymentToken === "0x0000000000000000000000000000000000000000";
+        const value = isNativeToken ? expectedPrice : BigInt(0);
+        if (signer) {
+            const signerAdapter = createSignerAdapter(signer);
+            const marketplaceAddress = this.environment
+                .MARKETPLACE_CONTRACT_ADDRESS;
+            const abi = this.environment.MARKETPLACE_ABI;
+            const data = encodeFunctionData({
+                abi,
+                functionName: "buyAccess",
+                args: [
+                    payerAddress,
+                    tokenId,
+                    expectedPrice,
+                    expectedDuration,
+                    expectedPaymentToken,
+                ],
+            });
+            if (signerAdapter.type === "viem") {
+                const viemSigner = signerAdapter.signer;
+                const txHash = yield viemSigner.sendTransaction({
+                    to: marketplaceAddress,
+                    data,
+                    value,
+                    account: (yield signerAdapter.getAddress()),
+                });
+                const receipt = yield viemSigner.waitForTransactionReceipt({
+                    hash: txHash,
+                });
+                return { txHash, receipt };
+            }
+            else if (signerAdapter.type === "ethers") {
+                const ethersSigner = signerAdapter.signer;
+                const tx = yield ethersSigner.sendTransaction({
+                    to: marketplaceAddress,
+                    data,
+                    value: value.toString(),
+                });
+                const receipt = yield tx.wait();
+                return { txHash: tx.hash, receipt };
+            }
+            else {
+                const customSigner = signerAdapter.signer;
+                if (typeof customSigner.sendTransaction !== "function") {
+                    throw new Error("Custom signer must implement sendTransaction() method");
+                }
+                const tx = yield customSigner.sendTransaction({
+                    to: marketplaceAddress,
+                    data,
+                    value: value.toString(),
+                });
+                if (tx.wait && typeof tx.wait === "function") {
+                    const receipt = yield tx.wait();
+                    return { txHash: tx.hash, receipt };
+                }
+                return { txHash: tx.hash || tx };
+            }
+        }
+        if (!this.viemClient) {
+            throw new Error("No signer or wallet client provided for settleX402");
+        }
+        return yield this.buyAccess(payerAddress, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, isNativeToken ? value : undefined);
+    });
+}
+
+/**
+ * Enum representing the status of data in the system.
+ * * - ACTIVE: The data is currently active and available.
+ * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
+ * * - DELETED: The data has been deleted and is no longer available.
+ */
+var DataStatus;
+(function (DataStatus) {
+    DataStatus[DataStatus["ACTIVE"] = 0] = "ACTIVE";
+    DataStatus[DataStatus["PENDING_DELETE"] = 1] = "PENDING_DELETE";
+    DataStatus[DataStatus["DELETED"] = 2] = "DELETED";
+})(DataStatus || (DataStatus = {}));
+/**
+ * Creates license terms for a digital asset.
+ * @param price The price of the asset in wei.
+ * @param duration The duration of the license in seconds.
+ * @param royaltyBps The royalty percentage in basis points (0-10000).
+ * @param paymentToken The address of the payment token (ERC20 / address(0) for native currency).
+ * @returns The created license terms.
+ */
+const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
+    if (royaltyBps < constants.MIN_ROYALTY_BPS ||
+        royaltyBps > constants.MAX_ROYALTY_BPS) {
+        throw new Error(`Royalty basis points must be between ${constants.MIN_ROYALTY_BPS} and ${constants.MAX_ROYALTY_BPS}`);
+    }
+    if (duration < constants.MIN_LICENSE_DURATION ||
+        duration > constants.MAX_LICENSE_DURATION) {
+        throw new Error(`Duration must be between ${constants.MIN_LICENSE_DURATION} and ${constants.MAX_LICENSE_DURATION} seconds`);
+    }
+    if (price < constants.MIN_PRICE) {
+        throw new Error(`Price must be at least ${constants.MIN_PRICE} wei`);
+    }
+    return {
+        price,
+        duration,
+        royaltyBps,
+        paymentToken,
+    };
+};
+/**
+ * Defines the EIP-712 typed data structure for X402 Intent signatures.
+ */
+const X402_INTENT_TYPES = {
+    X402Intent: [
+        { name: "payer", type: "address" },
+        { name: "asset", type: "address" },
+        { name: "amount", type: "uint256" },
+        { name: "httpMethod", type: "string" },
+        { name: "payTo", type: "address" },
+        { name: "tokenId", type: "uint256" },
+        { name: "duration", type: "uint32" },
+        { name: "expiresAt", type: "uint256" },
+        { name: "nonce", type: "bytes32" },
+    ],
+};
+
+/**
+ * Fetch data with X402 payment handling.
+ * @param {bigint} tokenId The token ID to fetch data for.
+ * @param {any} [signer] Optional signer object for signing the X402 intent.
+ * @returns {Promise<any>} A promise that resolves with the fetched data.
+ * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
+ */
+function getDataWithX402(tokenId, signer) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        const viemClient = this.viemClient;
+        if (!signer && !viemClient) {
+            throw new Error("No signer or wallet client provided for X402 intent.");
+        }
+        const initialResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+            method: "GET",
+        });
+        if (initialResponse.status !== 402) {
+            if (!initialResponse.ok) {
+                throw new Error("Failed to fetch data");
+            }
+            return initialResponse.json();
+        }
+        const sig = viemClient || createSignerAdapter(signer);
+        const walletAddress = viemClient
+            ? yield getCurrentAccount.call(this)
+            : yield sig.getAddress();
+        const intentData = yield initialResponse.json();
+        if (intentData.error) {
+            throw new Error(intentData.error);
+        }
+        const requirements = intentData.accepts[0];
+        const x402Payload = yield buildX402Payload.call(this, requirements, checksumAddress(walletAddress), sig);
+        const header = btoa(JSON.stringify(x402Payload));
+        const retryResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-PAYMENT": header,
+            },
+        });
+        if (retryResponse.status === 402) {
+            // subscription required
+            return retryResponse.json();
+        }
+        if (!retryResponse.ok) {
+            throw new Error("Failed to fetch data after X402 payment");
+        }
+        const res = yield retryResponse.json();
+        return {
+            error: null,
+            data: (_a = res.data) !== null && _a !== void 0 ? _a : res,
+        };
+    });
+}
+/**
+ * Build the X402 payment payload.
+ * @private
+ */
+function buildX402Payload(requirements, payer, signer) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const asset = requirements.asset === "native" ? zeroAddress : requirements.asset;
+        const amount = BigInt(requirements.maxAmountRequired || 0);
+        const duration = requirements.extra.duration;
+        const domain = makeX402IntentDomain.call(this);
+        const types = X402_INTENT_TYPES;
+        const nonce = crypto.randomUUID();
+        const nonceBytes32 = keccak256(toBytes(nonce));
+        const payment = {
+            payer: payer,
+            asset: asset,
+            amount: amount.toString(),
+            httpMethod: "GET",
+            payTo: checksumAddress(this.environment.MARKETPLACE_CONTRACT_ADDRESS),
+            tokenId: requirements.extra.tokenId,
+            duration: duration,
+            expiresAt: Math.floor(Date.now() / 1000) + requirements.maxTimeoutSeconds,
+            nonce: nonceBytes32,
+        };
+        const signerAdapter = createSignerAdapter(signer);
+        const signature = yield signerAdapter.signTypedData(domain, types, payment);
+        const x402Payload = {
+            x402Version: 1,
+            scheme: "exact",
+            network: requirements.network,
+            payload: Object.assign(Object.assign({}, payment), { sigType: "eip712", signature: signature, license: {
+                    tokenId: requirements.extra.tokenId,
+                    duration: duration,
+                } }),
+        };
+        return x402Payload;
+    });
+}
+/**
+ * Create the X402 Intent domain for EIP-712 signing.
+ * @private
+ */
+function makeX402IntentDomain() {
+    return {
+        name: "Origin X402 Intent",
+        version: "1",
+        chainId: this.environment.CHAIN.id,
+        verifyingContract: this.environment
+            .MARKETPLACE_CONTRACT_ADDRESS,
+    };
+}
+/**
+ * Get the current account address.
+ * @private
+ */
+function getCurrentAccount() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const viemClient = this.viemClient;
+        if (!viemClient) {
+            throw new Error("WalletClient not connected. Please connect a wallet.");
+        }
+        // If account is already set on the client, return it directly
+        if (viemClient.account) {
+            return viemClient.account.address;
+        }
+        // Otherwise request accounts (browser wallet flow)
+        const accounts = yield viemClient.request({
+            method: "eth_requestAccounts",
+            params: [],
+        });
+        if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found in connected wallet.");
+        }
+        return accounts[0];
+    });
+}
+
+/**
+ * Approves a spender to spend a specified amount of tokens on behalf of the owner.
+ * If the current allowance is less than the specified amount, it will perform the approval.
+ * @param {ApproveParams} params - The parameters for the approval.
+ */
+function approveIfNeeded(_a) {
+    return __awaiter(this, arguments, void 0, function* ({ walletClient, publicClient, tokenAddress, owner, spender, amount, }) {
+        const allowance = yield publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [owner, spender],
+        });
+        if (allowance < amount) {
+            yield walletClient.writeContract({
+                address: tokenAddress,
+                account: owner,
+                abi: erc20Abi,
+                functionName: "approve",
+                args: [spender, amount],
+                chain: testnet,
+            });
+        }
+    });
+}
+
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles the upload of files to Origin, as well as querying the user's stats
@@ -3749,6 +3976,8 @@ class Origin {
         this.buyAccess = buyAccess.bind(this);
         this.hasAccess = hasAccess.bind(this);
         this.subscriptionExpiry = subscriptionExpiry.bind(this);
+        this.settleX402 = settleX402.bind(this);
+        this.getDataWithX402 = getDataWithX402.bind(this);
     }
     getJwt() {
         return this.jwt;
@@ -3978,60 +4207,6 @@ class Origin {
                 throw new Error("Failed to fetch data");
             }
             return response.json();
-        });
-    }
-    /**
-     * Fetch data with X402 payment handling.
-     * @param {bigint} tokenId The token ID to fetch data for.
-     * @param {any} [signer] Optional signer object for signing the X402 intent.
-     * @returns {Promise<any>} A promise that resolves with the fetched data.
-     * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
-     */
-    getDataWithX402(tokenId, signer) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            if (!signer && !this.viemClient) {
-                throw new Error("No signer or wallet client provided for X402 intent.");
-            }
-            const initialResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
-                method: "GET",
-            });
-            if (initialResponse.status !== 402) {
-                if (!initialResponse.ok) {
-                    throw new Error("Failed to fetch data");
-                }
-                return initialResponse.json();
-            }
-            const sig = this.viemClient || createSignerAdapter(signer);
-            const walletAddress = this.viemClient
-                ? yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this)
-                : yield sig.getAddress();
-            const intentData = yield initialResponse.json();
-            if (intentData.error) {
-                throw new Error(intentData.error);
-            }
-            const requirements = intentData.accepts[0];
-            const x402Payload = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_buildX402Payload).call(this, requirements, checksumAddress(walletAddress), sig);
-            const header = btoa(JSON.stringify(x402Payload));
-            const retryResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-PAYMENT": header,
-                },
-            });
-            if (retryResponse.status === 402) {
-                // subscription required
-                return retryResponse.json();
-            }
-            if (!retryResponse.ok) {
-                throw new Error("Failed to fetch data after X402 payment");
-            }
-            const res = yield retryResponse.json();
-            return {
-                error: null,
-                data: (_a = res.data) !== null && _a !== void 0 ? _a : res,
-            };
         });
     }
     /**
@@ -4368,47 +4543,6 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             throw new Error("No accounts found in connected wallet.");
         }
         return accounts[0];
-    });
-}, _Origin_makeX402IntentDomain = function _Origin_makeX402IntentDomain() {
-    return {
-        name: "Origin X402 Intent",
-        version: "1",
-        chainId: this.environment.CHAIN.id,
-        verifyingContract: this.environment
-            .MARKETPLACE_CONTRACT_ADDRESS,
-    };
-}, _Origin_buildX402Payload = function _Origin_buildX402Payload(requirements, payer, signer) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const asset = requirements.asset === "native" ? zeroAddress : requirements.asset;
-        const amount = BigInt(requirements.maxAmountRequired || 0);
-        const duration = requirements.extra.duration;
-        const domain = __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_makeX402IntentDomain).call(this);
-        const types = X402_INTENT_TYPES;
-        const nonce = crypto.randomUUID();
-        const nonceBytes32 = keccak256(toBytes(nonce));
-        const payment = {
-            payer: payer,
-            asset: asset,
-            amount: amount.toString(),
-            httpMethod: "GET",
-            payTo: checksumAddress(this.environment.MARKETPLACE_CONTRACT_ADDRESS),
-            tokenId: requirements.extra.tokenId,
-            duration: duration,
-            expiresAt: Math.floor(Date.now() / 1000) + requirements.maxTimeoutSeconds,
-            nonce: nonceBytes32,
-        };
-        const signerAdapter = createSignerAdapter(signer);
-        const signature = yield signerAdapter.signTypedData(domain, types, payment);
-        const x402Payload = {
-            x402Version: 1,
-            scheme: "exact",
-            network: requirements.network,
-            payload: Object.assign(Object.assign({}, payment), { sigType: "eip712", signature: signature, license: {
-                    tokenId: requirements.extra.tokenId,
-                    duration: duration,
-                } }),
-        };
-        return x402Payload;
     });
 }, _Origin_resolveWalletAddress = function _Origin_resolveWalletAddress(owner) {
     return __awaiter(this, void 0, void 0, function* () {

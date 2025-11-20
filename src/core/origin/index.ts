@@ -7,11 +7,6 @@ import {
   formatEther,
   formatUnits,
   WalletClient,
-  TypedDataDomain,
-  checksumAddress,
-  TypedDataParameter,
-  keccak256,
-  toBytes,
 } from "viem";
 import { uploadWithProgress } from "../../utils";
 import { getPublicClient, setChain } from "../auth/viem/client";
@@ -32,6 +27,8 @@ import { setApprovalForAll } from "./setApprovalForAll";
 import { buyAccess } from "./buyAccess";
 import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
+import { settleX402 } from "./settleX402";
+import { getDataWithX402 } from "./getDataWithX402";
 import { LicenseTerms, X402_INTENT_TYPES } from "./utils";
 import { approveIfNeeded } from "./approveIfNeeded";
 import { Environment, ENVIRONMENTS } from "../../constants";
@@ -75,6 +72,8 @@ export class Origin {
   buyAccess!: typeof buyAccess;
   hasAccess!: typeof hasAccess;
   subscriptionExpiry!: typeof subscriptionExpiry;
+  settleX402!: typeof settleX402;
+  getDataWithX402!: typeof getDataWithX402;
 
   private jwt?: string;
   environment: Environment;
@@ -115,6 +114,8 @@ export class Origin {
     this.buyAccess = buyAccess.bind(this);
     this.hasAccess = hasAccess.bind(this);
     this.subscriptionExpiry = subscriptionExpiry.bind(this);
+    this.settleX402 = settleX402.bind(this);
+    this.getDataWithX402 = getDataWithX402.bind(this);
   }
 
   getJwt() {
@@ -712,141 +713,6 @@ export class Origin {
     return response.json();
   }
 
-  #makeX402IntentDomain(): TypedDataDomain {
-    return {
-      name: "Origin X402 Intent",
-      version: "1",
-      chainId: this.environment.CHAIN.id,
-      verifyingContract: this.environment
-        .MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`,
-    };
-  }
-
-  /**
-   * Fetch data with X402 payment handling.
-   * @param {bigint} tokenId The token ID to fetch data for.
-   * @param {any} [signer] Optional signer object for signing the X402 intent.
-   * @returns {Promise<any>} A promise that resolves with the fetched data.
-   * @throws {Error} Throws an error if the data cannot be fetched or if no signer/wallet client is provided.
-   */
-  async getDataWithX402(tokenId: bigint, signer?: any): Promise<any> {
-    if (!signer && !this.viemClient) {
-      throw new Error("No signer or wallet client provided for X402 intent.");
-    }
-
-    const initialResponse = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
-      {
-        method: "GET",
-      }
-    );
-
-    if (initialResponse.status !== 402) {
-      if (!initialResponse.ok) {
-        throw new Error("Failed to fetch data");
-      }
-      return initialResponse.json();
-    }
-
-    const sig = this.viemClient || createSignerAdapter(signer);
-    const walletAddress = this.viemClient
-      ? await this.#getCurrentAccount()
-      : await (sig as SignerAdapter).getAddress();
-
-    const intentData = await initialResponse.json();
-    if (intentData.error) {
-      throw new Error(intentData.error);
-    }
-
-    const requirements = intentData.accepts[0];
-
-    const x402Payload = await this.#buildX402Payload(
-      requirements,
-      checksumAddress(walletAddress as `0x${string}`) as Address,
-      sig
-    );
-    const header = btoa(JSON.stringify(x402Payload));
-
-    const retryResponse = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-PAYMENT": header,
-        },
-      }
-    );
-
-    if (retryResponse.status === 402) {
-      // subscription required
-      return retryResponse.json();
-    }
-
-    if (!retryResponse.ok) {
-      throw new Error("Failed to fetch data after X402 payment");
-    }
-
-    const res = await retryResponse.json();
-    return {
-      error: null,
-      data: res.data ?? res,
-    };
-  }
-
-  /**
-   * Build the X402 payment payload.
-   * @private
-   * @param {any} requirements The payment requirements.
-   * @param {Address} payer The payer's address.
-   * @param {any} signer The signer object.
-   * @returns {Promise<any>} A promise that resolves with the X402 payment payload.
-   */
-  async #buildX402Payload(
-    requirements: any,
-    payer: Address,
-    signer: any
-  ): Promise<any> {
-    const asset =
-      requirements.asset === "native" ? zeroAddress : requirements.asset;
-    const amount = BigInt(requirements.maxAmountRequired || 0);
-    const duration = requirements.extra.duration;
-    const domain = this.#makeX402IntentDomain();
-    const types = X402_INTENT_TYPES;
-    const nonce = crypto.randomUUID();
-    const nonceBytes32 = keccak256(toBytes(nonce));
-    const payment = {
-      payer: payer,
-      asset: asset,
-      amount: amount.toString(),
-      httpMethod: "GET",
-      payTo: checksumAddress(
-        this.environment.MARKETPLACE_CONTRACT_ADDRESS as `0x${string}`
-      ) as Address,
-      tokenId: requirements.extra.tokenId,
-      duration: duration,
-      expiresAt: Math.floor(Date.now() / 1000) + requirements.maxTimeoutSeconds,
-      nonce: nonceBytes32,
-    };
-    const signerAdapter = createSignerAdapter(signer);
-    const signature = await signerAdapter.signTypedData(domain, types, payment);
-
-    const x402Payload = {
-      x402Version: 1,
-      scheme: "exact",
-      network: requirements.network,
-      payload: {
-        ...payment,
-        sigType: "eip712",
-        signature: signature,
-        license: {
-          tokenId: requirements.extra.tokenId,
-          duration: duration,
-        },
-      },
-    };
-    return x402Payload;
-  }
   /**
    * Get the Token Bound Account (TBA) address for a specific token ID.
    * @param {bigint} tokenId - The token ID to get the TBA address for.
@@ -1065,3 +931,4 @@ export class Origin {
 }
 
 export { createLicenseTerms, LicenseTerms, DataStatus } from "./utils";
+export { X402Response } from "./settleX402";
