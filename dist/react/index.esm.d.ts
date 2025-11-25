@@ -193,6 +193,7 @@ interface TransactionResult {
     receipt?: any;
 }
 /**
+ * EXPERIMENTAL METHOD
  * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
  * it calls buyAccess with the parameters from the payment intent response.
@@ -206,6 +207,7 @@ interface TransactionResult {
 declare function settlePaymentIntent(this: Origin, paymentIntentResponse: X402Response, signer?: any): Promise<TransactionResult | null>;
 
 /**
+ * EXPERIMENTAL METHOD
  * Fetch data with X402 payment handling.
  * @param {bigint} tokenId The token ID to fetch data for.
  * @param {any} [signer] Optional signer object for signing the X402 intent.
@@ -227,7 +229,7 @@ type CallOptions = {
 };
 /**
  * The Origin class
- * Handles the upload of files to Origin, as well as querying the user's stats
+ * Handles interactions with Origin protocol.
  */
 declare class Origin {
     #private;
@@ -258,9 +260,27 @@ declare class Origin {
     constructor(environment?: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
     getJwt(): string | undefined;
     setViemClient(client: WalletClient): void;
+    /**
+     * Mints a file-based IpNFT.
+     * @param file The file to mint.
+     * @param metadata The metadata associated with the file.
+     * @param license The license terms for the IpNFT.
+     * @param parents Optional parent token IDs for lineage tracking.
+     * @param options Optional parameters including progress callback, preview image, and use asset as preview flag.
+     * @returns The token ID of the minted IpNFT as a string, or null if minting failed.
+     */
     mintFile(file: File, metadata: Record<string, unknown>, license: LicenseTerms, parents?: bigint[], options?: {
         progressCallback?: (percent: number) => void;
+        previewImage?: File | null;
+        useAssetAsPreview?: boolean;
     }): Promise<string | null>;
+    /**
+     * Mints a social IpNFT.
+     * @param source The social media source (spotify, twitter, tiktok).
+     * @param metadata The metadata associated with the social media content.
+     * @param license The license terms for the IpNFT.
+     * @return The token ID of the minted IpNFT as a string, or null if minting failed.
+     */
     mintSocial(source: "spotify" | "twitter" | "tiktok", metadata: Record<string, unknown>, license: LicenseTerms): Promise<string | null>;
     /**
      * Call a contract method.

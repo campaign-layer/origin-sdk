@@ -28,6 +28,7 @@ interface TransactionResult {
   receipt?: any;
 }
 /**
+ * EXPERIMENTAL METHOD
  * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
  * it calls buyAccess with the parameters from the payment intent response.

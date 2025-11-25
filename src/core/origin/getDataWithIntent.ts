@@ -28,6 +28,7 @@ const fetchTokenData = async (
   return response;
 };
 /**
+ * EXPERIMENTAL METHOD
  * Fetch data with X402 payment handling.
  * @param {bigint} tokenId The token ID to fetch data for.
  * @param {any} [signer] Optional signer object for signing the X402 intent.

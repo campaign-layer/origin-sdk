@@ -988,6 +988,8 @@ Uploads a file and mints an IpNFT for it.
 - `license`: LicenseTerms object
 - `parents`: Optional array of parent token IDs for derivatives
 - `options.progressCallback`: Optional progress callback
+- `options.previewImage`: Optional preview image file
+- `options.useAssetAsPreview`: Optional flag to use the uploaded asset as the preview image - only for image files
 - **Returns:** Minted token ID as a string, or throws on failure
 
 #### `mintSocial(source, metadata, license)`

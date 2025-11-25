@@ -29,10 +29,9 @@ import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
 import { settlePaymentIntent } from "./settlePaymentIntent";
 import { getDataWithIntent } from "./getDataWithIntent";
-import { LicenseTerms, X402_INTENT_TYPES } from "./utils";
+import { LicenseTerms } from "./utils";
 import { approveIfNeeded } from "./approveIfNeeded";
 import { Environment, ENVIRONMENTS } from "../../constants";
-import { createSignerAdapter, SignerAdapter } from "../auth/signers";
 
 interface RoyaltyInfo {
   tokenBoundAccount: Address;
@@ -49,7 +48,7 @@ type CallOptions = {
 
 /**
  * The Origin class
- * Handles the upload of files to Origin, as well as querying the user's stats
+ * Handles interactions with Origin protocol.
  */
 export class Origin {
   // DataNFT methods
@@ -191,6 +190,92 @@ export class Origin {
     }
   }
 
+  /**
+   * Uploads an image file to IPFS and returns the resulting CID.
+   * @private
+   * @param image The image file to upload.
+   * @returns The CID of the uploaded image or null if no image is provided.
+   */
+  async #uploadToIPFS(image: File | null): Promise<string | null> {
+    if (!image) return null;
+
+    try {
+      const presignedResponse = await fetch(
+        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url-ipfs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.jwt}`,
+          },
+          body: JSON.stringify({
+            fileName: image.name,
+            fileType: image.type,
+          }),
+        }
+      );
+
+      if (!presignedResponse.ok) {
+        const errorText = await presignedResponse
+          .text()
+          .catch(() => "Unknown error");
+        throw new Error(
+          `Failed to get presigned URL (HTTP ${presignedResponse.status}): ${errorText}`
+        );
+      }
+
+      const presignedData = await presignedResponse.json();
+      const { isError, data: presignedUrl, message } = presignedData;
+
+      if (isError || !presignedUrl) {
+        throw new Error(
+          `Failed to get presigned URL: ${
+            message || "No URL returned from server"
+          }`
+        );
+      }
+
+      const formData = new FormData();
+      formData.append("file", image);
+
+      const uploadResponse = await fetch(presignedUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse
+          .text()
+          .catch(() => uploadResponse.statusText);
+        throw new Error(
+          `Failed to upload preview image to IPFS (HTTP ${uploadResponse.status}): ${errorText}`
+        );
+      }
+
+      const ipfsData = await uploadResponse.json();
+
+      if (!ipfsData || !ipfsData.data) {
+        throw new Error(
+          "Invalid response from IPFS upload: Missing data field"
+        );
+      }
+
+      return ipfsData.data?.cid;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.error("Error uploading preview image to IPFS:", errorMessage);
+      throw new Error(
+        `Failed to upload preview image to IPFS: ${errorMessage}`
+      );
+    }
+  }
+
+  /** Uploads a file to Origin S3 and returns the upload info.
+   * @private
+   * @param file The file to upload.
+   * @returns The upload info including the file key and URL.
+   */
   async #uploadFile(
     file: File,
     options?: { progressCallback?: (percent: number) => void }
@@ -239,6 +324,15 @@ export class Origin {
     return uploadInfo;
   }
 
+  /**
+   * Mints a file-based IpNFT.
+   * @param file The file to mint.
+   * @param metadata The metadata associated with the file.
+   * @param license The license terms for the IpNFT.
+   * @param parents Optional parent token IDs for lineage tracking.
+   * @param options Optional parameters including progress callback, preview image, and use asset as preview flag.
+   * @returns The token ID of the minted IpNFT as a string, or null if minting failed.
+   */
   async mintFile(
     file: File,
     metadata: Record<string, unknown>,
@@ -246,6 +340,8 @@ export class Origin {
     parents?: bigint[],
     options?: {
       progressCallback?: (percent: number) => void;
+      previewImage?: File | null;
+      useAssetAsPreview?: boolean;
     }
   ): Promise<string | null> {
     let account: string | null = null;
@@ -271,6 +367,20 @@ export class Origin {
 
     if (file.type) {
       metadata.mimetype = file.type;
+    }
+
+    let previewImageIpfsHash: string | null = null;
+    if (
+      options?.previewImage &&
+      options?.previewImage.type.startsWith("image/")
+    ) {
+      previewImageIpfsHash = await this.#uploadToIPFS(options.previewImage);
+    } else if (options?.useAssetAsPreview && file.type.startsWith("image/")) {
+      previewImageIpfsHash = await this.#uploadToIPFS(file);
+    }
+
+    if (previewImageIpfsHash) {
+      metadata.image = `ipfs://${previewImageIpfsHash}`;
     }
 
     const deadline = BigInt(Date.now() + 600000); // 10 minutes from now
@@ -343,6 +453,13 @@ export class Origin {
     return tokenId.toString();
   }
 
+  /**
+   * Mints a social IpNFT.
+   * @param source The social media source (spotify, twitter, tiktok).
+   * @param metadata The metadata associated with the social media content.
+   * @param license The license terms for the IpNFT.
+   * @return The token ID of the minted IpNFT as a string, or null if minting failed.
+   */
   async mintSocial(
     source: "spotify" | "twitter" | "tiktok",
     metadata: Record<string, unknown>,
