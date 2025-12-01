@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.5](https://github.com/campaign-layer/origin-sdk/compare/v1.2.4...v1.2.5) (2025-12-01)
+
+### Features
+
+* add preview image options to mintFile ([9f2f021](https://github.com/campaign-layer/origin-sdk/commit/9f2f021c31b826ba11356077339c446e2b37cb19))
+* add preview image select to modal ([ac888e5](https://github.com/campaign-layer/origin-sdk/commit/ac888e5571999a1fc8c0bbcb886ca304029bb5f0))
+
 ## [1.2.4](https://github.com/campaign-layer/origin-sdk/compare/v1.2.3...v1.2.4) (2025-11-20)
 
 ### Bug Fixes
