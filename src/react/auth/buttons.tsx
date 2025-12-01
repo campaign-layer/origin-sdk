@@ -28,6 +28,7 @@ import {
   validatePrice,
   validateRoyaltyBps,
 } from "../../utils";
+import Tooltip from "../components/Tooltip";
 
 interface CampButtonProps {
   onClick: () => void;
@@ -565,12 +566,20 @@ export const FileUpload = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewImageInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
   const [price, setPrice] = useState<string>("");
   const [royaltyBps, setRoyaltyBps] = useState<string>("2.5"); // in percentage
   const [licenseDuration, setLicenseDuration] = useState<number>(24);
   const [durationUnit, setDurationUnit] = useState<string>("hours");
   const [isValidInput, setIsValidInput] = useState<boolean>(false);
+  const [previewImage, setPreviewImage] = useState<File | null>(null);
+  const [useBaseAssetAsPreview, setUseBaseAssetAsPreview] =
+    useState<boolean>(false);
+
+  const isAllImagesAccepted = accept
+    ? accept.split(",").every((type) => type.trim().startsWith("image/"))
+    : false;
 
   const validateInputs = () => {
     const isDurationValid = validateDuration(licenseDuration, durationUnit);
@@ -583,6 +592,16 @@ export const FileUpload = ({
   useEffect(() => {
     validateInputs();
   }, [price, licenseDuration, durationUnit, royaltyBps]);
+
+  useEffect(() => {
+    // use base asset as preview is checked, clear custom preview image
+    if (useBaseAssetAsPreview) {
+      setPreviewImage(null);
+      if (previewImageInputRef.current) {
+        previewImageInputRef.current.value = "";
+      }
+    }
+  }, [useBaseAssetAsPreview]);
 
   const handleUpload = async () => {
     if (selectedFile) {
@@ -611,6 +630,8 @@ export const FileUpload = ({
             progressCallback(percent: number) {
               setUploadProgress(percent);
             },
+            previewImage: previewImage,
+            useAssetAsPreview: useBaseAssetAsPreview,
           }
         );
         if (onFileUpload) {
@@ -717,6 +738,45 @@ export const FileUpload = ({
   const handleRemoveFile = () => {
     setSelectedFile(null);
     fileInputRef.current!.value = "";
+    setPreviewImage(null);
+    if (previewImageInputRef.current) {
+      previewImageInputRef.current.value = "";
+    }
+    setUseBaseAssetAsPreview(false);
+  };
+
+  const handlePreviewImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const file = files[0];
+
+      if (!file.type.startsWith("image/")) {
+        addToast("Preview must be an image file", "error", 5000);
+        return;
+      }
+
+      if (maxFileSize && file.size > maxFileSize) {
+        addToast(
+          `File size exceeds the limit of ${(
+            maxFileSize /
+            1024 /
+            1024
+          ).toPrecision(2)} MB`,
+          "error",
+          5000
+        );
+        return;
+      }
+
+      setPreviewImage(file);
+    }
+  };
+
+  const handleRemovePreviewImage = () => {
+    setPreviewImage(null);
+    if (previewImageInputRef.current) {
+      previewImageInputRef.current.value = "";
+    }
   };
 
   const renderFilePreview = () => {
@@ -847,6 +907,68 @@ export const FileUpload = ({
             }}
             icon={<span className={buttonStyles["percentage-icon"]}>%</span>}
           />
+
+          {/* Preview Image Section */}
+          {isAllImagesAccepted && selectedFile?.type.startsWith("image/") && (
+            <div className={buttonStyles["preview-option-container"]}>
+              <label className={buttonStyles["checkbox-label"]}>
+                <input
+                  type="checkbox"
+                  checked={useBaseAssetAsPreview}
+                  onChange={(e) => setUseBaseAssetAsPreview(e.target.checked)}
+                  className={buttonStyles["checkbox-input"]}
+                />
+                <span>Use base asset as preview</span>
+              </label>
+            </div>
+          )}
+
+          <div className={buttonStyles["preview-image-section"]}>
+            <span className={buttonStyles["fancy-input-label"]}>
+              Preview Image (optional)
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              ref={previewImageInputRef}
+              onChange={handlePreviewImageChange}
+              disabled={useBaseAssetAsPreview}
+              className={buttonStyles["file-input"]}
+              style={{ display: "none" }}
+            />
+            <div className={buttonStyles["preview-image-controls"]}>
+              {previewImage ? (
+                <div className={buttonStyles["preview-image-preview"]}>
+                  <img
+                    src={URL.createObjectURL(previewImage)}
+                    alt="Preview"
+                    className={buttonStyles["preview-thumbnail"]}
+                  />
+                  <span className={buttonStyles["preview-filename"]}>
+                    {previewImage.name}
+                  </span>
+                  <button
+                    type="button"
+                    className={buttonStyles["remove-preview-button"]}
+                    onClick={handleRemovePreviewImage}
+                    disabled={useBaseAssetAsPreview}
+                  >
+                    <BinIcon w="1rem" h="1rem" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={buttonStyles["select-preview-button"]}
+                  onClick={() => previewImageInputRef.current?.click()}
+                  disabled={useBaseAssetAsPreview}
+                >
+                  Select Preview Image
+                </button>
+              )}
+            </div>
+          </div>
+
           {isUploading && (
             <LoadingBar
               progress={uploadProgress}

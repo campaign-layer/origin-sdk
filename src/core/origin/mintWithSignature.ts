@@ -82,12 +82,12 @@ export async function registerIpNFT(
       body: JSON.stringify(body),
     }
   );
-  if (!res.ok) {
-    throw new Error(`Failed to get signature: ${res.statusText}`);
-  }
   const data = await res.json();
   if (data.isError) {
     throw new Error(`Failed to get signature: ${data.message}`);
+  }
+  if (!res.ok) {
+    throw new Error(`Failed to get signature: ${res.statusText}`);
   }
   return data.data;
 }
