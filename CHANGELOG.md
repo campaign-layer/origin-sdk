@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.6-0](https://github.com/campaign-layer/origin-sdk/compare/v1.2.5...v1.2.6-0) (2025-12-03)
+
+### Bug Fixes
+
+* disconnect if saved account is different from default provider ([fa00181](https://github.com/campaign-layer/origin-sdk/commit/fa00181c2a2382c5ccd16bdfa3548e64bf9d9148))
+
 ## [1.2.5](https://github.com/campaign-layer/origin-sdk/compare/v1.2.4...v1.2.5) (2025-12-01)
 
 ### Features
