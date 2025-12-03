@@ -356,8 +356,9 @@ export const CampModal = ({
               });
             } else {
               console.error(
-                "Address mismatch. Default provider address does not match authenticated address."
+                "Address mismatch. Default provider address does not match authenticated address. Disconnecting."
               );
+              await auth.disconnect();
             }
           } else if (
             walletConnectProvider &&
@@ -376,8 +377,9 @@ export const CampModal = ({
               });
             } else {
               console.error(
-                "Address mismatch. WalletConnect provider address does not match authenticated address."
+                "Address mismatch. WalletConnect provider address does not match authenticated address. Disconnecting."
               );
+              await auth.disconnect();
             }
           }
         }

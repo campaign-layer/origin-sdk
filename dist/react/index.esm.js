@@ -6658,7 +6658,8 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
                             auth.setProvider(Object.assign(Object.assign({}, defaultProvider), { address }));
                         }
                         else {
-                            console.error("Address mismatch. Default provider address does not match authenticated address.");
+                            console.error("Address mismatch. Default provider address does not match authenticated address. Disconnecting.");
+                            yield auth.disconnect();
                         }
                     }
                     else if (walletConnectProvider &&
@@ -6676,7 +6677,8 @@ const CampModal = ({ injectButton = true, wcProjectId, onlyWagmi = false, defaul
                             });
                         }
                         else {
-                            console.error("Address mismatch. WalletConnect provider address does not match authenticated address.");
+                            console.error("Address mismatch. WalletConnect provider address does not match authenticated address. Disconnecting.");
+                            yield auth.disconnect();
                         }
                     }
                 }
