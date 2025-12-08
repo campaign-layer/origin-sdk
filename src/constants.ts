@@ -2,7 +2,6 @@ import { mainnet, testnet } from "./core/auth/viem/chains";
 
 import ipnftMainnetAbi from "./core/origin/contracts/mainnet/IPNFT.json";
 import marketplaceMainnetAbi from "./core/origin/contracts/mainnet/Marketplace.json";
-import royaltyVaultAbi from "./core/origin/contracts/mainnet/RoyaltyVault.json";
 import tbaAbi from "./core/origin/contracts/mainnet/TBA.json";
 
 export default {
@@ -35,7 +34,6 @@ export interface Environment {
   CHAIN: any;
   IPNFT_ABI?: any;
   MARKETPLACE_ABI?: any;
-  ROYALTY_VAULT_ABI?: any;
   TBA_ABI?: any;
 }
 
@@ -51,7 +49,6 @@ export const ENVIRONMENTS = {
     CHAIN: testnet,
     IPNFT_ABI: ipnftMainnetAbi,
     MARKETPLACE_ABI: marketplaceMainnetAbi,
-    ROYALTY_VAULT_ABI: royaltyVaultAbi,
     TBA_ABI: tbaAbi,
   },
   PRODUCTION: {
@@ -65,7 +62,6 @@ export const ENVIRONMENTS = {
     CHAIN: mainnet,
     IPNFT_ABI: ipnftMainnetAbi,
     MARKETPLACE_ABI: marketplaceMainnetAbi,
-    ROYALTY_VAULT_ABI: royaltyVaultAbi,
     TBA_ABI: tbaAbi,
   },
 } as { [key: string]: Environment };

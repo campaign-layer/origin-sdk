@@ -12,7 +12,6 @@ interface Environment {
     CHAIN: any;
     IPNFT_ABI?: any;
     MARKETPLACE_ABI?: any;
-    ROYALTY_VAULT_ABI?: any;
     TBA_ABI?: any;
 }
 
