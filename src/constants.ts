@@ -16,7 +16,7 @@ export default {
   SUPPORTED_VIDEO_FORMATS: ["video/mp4", "video/webm"],
   SUPPORTED_AUDIO_FORMATS: ["audio/mpeg", "audio/wav", "audio/ogg"],
   SUPPORTED_TEXT_FORMATS: ["text/plain"],
-  AVAILABLE_SOCIALS: ["twitter", "spotify", "tiktok"],
+  AVAILABLE_SOCIALS: ["twitter", "spotify"], // tiktok disabled
   MAX_LICENSE_DURATION: 2628000, // 30 days in seconds
   MIN_LICENSE_DURATION: 86400, // 1 day in seconds
   MIN_PRICE: 1000000000000000, // 0.001 CAMP in wei
