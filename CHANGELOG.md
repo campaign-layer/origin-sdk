@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.6](https://github.com/campaign-layer/origin-sdk/compare/v1.2.5...v1.2.6) (2025-12-09)
+
+### Bug Fixes
+
+* disable tiktok ([b84ba4f](https://github.com/campaign-layer/origin-sdk/commit/b84ba4f0dcc29afc7e626a272161380c4d80a0d0))
+* disconnect if saved account is different from default provider ([fa00181](https://github.com/campaign-layer/origin-sdk/commit/fa00181c2a2382c5ccd16bdfa3548e64bf9d9148))
+* remove royalty vault abi ([5ddde55](https://github.com/campaign-layer/origin-sdk/commit/5ddde5512bafb151acd3e5311100c8f2ef27277e))
+
 ## [1.2.6-1](https://github.com/campaign-layer/origin-sdk/compare/v1.2.5...v1.2.6-1) (2025-12-08)
 
 ### Bug Fixes

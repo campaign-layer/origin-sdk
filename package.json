@@ -1,6 +1,6 @@
 {
   "name": "@campnetwork/origin",
-  "version": "1.2.6-1",
+  "version": "1.2.6",
   "main": "dist/core.cjs",
   "exports": {
     ".": {
