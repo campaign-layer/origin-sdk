@@ -16,3 +16,9 @@ export {
   LicenseTerms,
   DataStatus,
 } from "./core/origin/utils";
+
+export type {
+  BuyParams,
+  TolerantResult,
+  BulkCostPreview,
+} from "./core/origin/bulkBuyAccess";

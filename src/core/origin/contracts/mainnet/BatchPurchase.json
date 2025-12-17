@@ -1,0 +1,186 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_marketplace", "type": "address" },
+      { "internalType": "address", "name": "_ipNFT", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyPurchaseList",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTotalPayment",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "internalType": "string", "name": "reason", "type": "string" }
+    ],
+    "name": "PurchaseFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RefundFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "buyer", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "count", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "totalPaid", "type": "uint256" }
+    ],
+    "name": "BulkPurchaseExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "buyer", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "successCount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "failureCount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256[]", "name": "failedTokenIds", "type": "uint256[]" }
+    ],
+    "name": "BulkPurchasePartial",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "buyer", "type": "address" },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+          { "internalType": "uint256", "name": "expectedPrice", "type": "uint256" },
+          { "internalType": "uint32", "name": "expectedDuration", "type": "uint32" },
+          { "internalType": "address", "name": "expectedPaymentToken", "type": "address" }
+        ],
+        "internalType": "struct IBatchPurchase.BuyParams[]",
+        "name": "purchases",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "bulkBuyAccess",
+    "outputs": [
+      { "internalType": "uint256", "name": "totalPaid", "type": "uint256" }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "buyer", "type": "address" },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+          { "internalType": "uint256", "name": "expectedPrice", "type": "uint256" },
+          { "internalType": "uint32", "name": "expectedDuration", "type": "uint32" },
+          { "internalType": "address", "name": "expectedPaymentToken", "type": "address" }
+        ],
+        "internalType": "struct IBatchPurchase.BuyParams[]",
+        "name": "purchases",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "bulkBuyAccessTolerant",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "successCount", "type": "uint256" },
+          { "internalType": "uint256", "name": "failureCount", "type": "uint256" },
+          { "internalType": "uint256", "name": "totalSpent", "type": "uint256" },
+          { "internalType": "uint256", "name": "refundAmount", "type": "uint256" },
+          { "internalType": "uint256[]", "name": "failedTokenIds", "type": "uint256[]" }
+        ],
+        "internalType": "struct IBatchPurchase.TolerantResult",
+        "name": "result",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "tokenIds", "type": "uint256[]" }
+    ],
+    "name": "buildPurchaseParams",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+          { "internalType": "uint256", "name": "expectedPrice", "type": "uint256" },
+          { "internalType": "uint32", "name": "expectedDuration", "type": "uint32" },
+          { "internalType": "address", "name": "expectedPaymentToken", "type": "address" }
+        ],
+        "internalType": "struct IBatchPurchase.BuyParams[]",
+        "name": "purchases",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "tokenIds", "type": "uint256[]" }
+    ],
+    "name": "checkActiveStatus",
+    "outputs": [
+      { "internalType": "bool[]", "name": "activeFlags", "type": "bool[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ipNFT",
+    "outputs": [
+      { "internalType": "contract IIpNFT", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "marketplace",
+    "outputs": [
+      { "internalType": "contract IMarketplace", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256[]", "name": "tokenIds", "type": "uint256[]" }
+    ],
+    "name": "previewBulkCost",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "totalNativeCost", "type": "uint256" },
+          { "internalType": "uint256", "name": "totalERC20Cost", "type": "uint256" },
+          { "internalType": "uint256", "name": "validCount", "type": "uint256" },
+          { "internalType": "uint256[]", "name": "invalidTokenIds", "type": "uint256[]" }
+        ],
+        "internalType": "struct IBatchPurchase.BulkCostPreview",
+        "name": "preview",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
+
