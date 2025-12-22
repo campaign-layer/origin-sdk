@@ -1,11 +1,11 @@
 /**
  * Example: Fetch IP-NFT information before bulk purchase
- * 
+ *
  * This example shows how to:
  * - Check if tokens are active
  * - Preview bulk purchase costs
  * - Build purchase parameters
- * 
+ *
  * Usage: node --experimental-fetch examples/server-side/bulk-purchase-info.js
  */
 
@@ -15,18 +15,20 @@ import { campTestnet, campMainnet } from "@campnetwork/origin";
 // Configuration - Change these for your use case
 const USE_TESTNET = true;
 const chain = USE_TESTNET ? campTestnet : campMainnet;
-const RPC_URL = USE_TESTNET 
+const RPC_URL = USE_TESTNET
   ? "https://rpc.basecamp.t.raas.gelato.cloud"
   : "https://rpc.camp.network"; // Update with actual mainnet RPC
 
 // BatchPurchase contract addresses
 const BATCH_PURCHASE_ADDRESS = USE_TESTNET
-  ? "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518"  // Testnet
-  : "0x31885cD2A445322067dF890bACf6CeFE9b233BCC";  // Mainnet
+  ? "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518" // Testnet
+  : "0x31885cD2A445322067dF890bACf6CeFE9b233BCC"; // Mainnet
 
 const BATCH_PURCHASE_ABI = [
   {
-    inputs: [{ internalType: "uint256[]", name: "tokenIds", type: "uint256[]" }],
+    inputs: [
+      { internalType: "uint256[]", name: "tokenIds", type: "uint256[]" },
+    ],
     name: "previewBulkCost",
     outputs: [
       {
@@ -34,7 +36,11 @@ const BATCH_PURCHASE_ABI = [
           { internalType: "uint256", name: "totalNativeCost", type: "uint256" },
           { internalType: "uint256", name: "totalERC20Cost", type: "uint256" },
           { internalType: "uint256", name: "validCount", type: "uint256" },
-          { internalType: "uint256[]", name: "invalidTokenIds", type: "uint256[]" },
+          {
+            internalType: "uint256[]",
+            name: "invalidTokenIds",
+            type: "uint256[]",
+          },
         ],
         internalType: "struct IBatchPurchase.BulkCostPreview",
         name: "preview",
@@ -45,7 +51,9 @@ const BATCH_PURCHASE_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256[]", name: "tokenIds", type: "uint256[]" }],
+    inputs: [
+      { internalType: "uint256[]", name: "tokenIds", type: "uint256[]" },
+    ],
     name: "buildPurchaseParams",
     outputs: [
       {
@@ -53,7 +61,11 @@ const BATCH_PURCHASE_ABI = [
           { internalType: "uint256", name: "tokenId", type: "uint256" },
           { internalType: "uint256", name: "expectedPrice", type: "uint256" },
           { internalType: "uint32", name: "expectedDuration", type: "uint32" },
-          { internalType: "address", name: "expectedPaymentToken", type: "address" },
+          {
+            internalType: "address",
+            name: "expectedPaymentToken",
+            type: "address",
+          },
         ],
         internalType: "struct IBatchPurchase.BuyParams[]",
         name: "purchases",
@@ -64,7 +76,9 @@ const BATCH_PURCHASE_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256[]", name: "tokenIds", type: "uint256[]" }],
+    inputs: [
+      { internalType: "uint256[]", name: "tokenIds", type: "uint256[]" },
+    ],
     name: "checkActiveStatus",
     outputs: [{ internalType: "bool[]", name: "activeFlags", type: "bool[]" }],
     stateMutability: "view",
@@ -102,7 +116,7 @@ async function main() {
       functionName: "checkActiveStatus",
       args: [TOKEN_IDS],
     });
-    
+
     TOKEN_IDS.forEach((id, i) => {
       console.log(`Token ${id}: ${activeFlags[i] ? "ACTIVE" : "NOT ACTIVE"}`);
     });
@@ -119,11 +133,21 @@ async function main() {
       functionName: "previewBulkCost",
       args: [TOKEN_IDS],
     });
-    
-    console.log(`Total Native Cost: ${formatEther(preview.totalNativeCost)} CAMP`);
-    console.log(`Total ERC20 Cost: ${formatEther(preview.totalERC20Cost)} tokens`);
+
+    console.log(
+      `Total Native Cost: ${formatEther(preview.totalNativeCost)} CAMP`
+    );
+    console.log(
+      `Total ERC20 Cost: ${formatEther(preview.totalERC20Cost)} tokens`
+    );
     console.log(`Valid Count: ${preview.validCount}`);
-    console.log(`Invalid Tokens: ${preview.invalidTokenIds.length > 0 ? preview.invalidTokenIds.join(", ") : "None"}`);
+    console.log(
+      `Invalid Tokens: ${
+        preview.invalidTokenIds.length > 0
+          ? preview.invalidTokenIds.join(", ")
+          : "None"
+      }`
+    );
   } catch (error) {
     console.log("Error:", error.shortMessage || error.message);
   }
@@ -137,13 +161,19 @@ async function main() {
       functionName: "buildPurchaseParams",
       args: [TOKEN_IDS],
     });
-    
+
     params.forEach((p, i) => {
       console.log(`\nToken #${i + 1}:`);
       console.log(`  ID: ${p.tokenId}`);
       console.log(`  Price: ${formatEther(p.expectedPrice)} CAMP`);
       console.log(`  Duration: ${p.expectedDuration / 86400} days`);
-      console.log(`  Payment: ${p.expectedPaymentToken === zeroAddress ? "Native (CAMP)" : p.expectedPaymentToken}`);
+      console.log(
+        `  Payment: ${
+          p.expectedPaymentToken === zeroAddress
+            ? "Native (CAMP)"
+            : p.expectedPaymentToken
+        }`
+      );
     });
   } catch (error) {
     console.log("Error:", error.shortMessage || error.message);
@@ -151,4 +181,3 @@ async function main() {
 }
 
 main().catch(console.error);
-

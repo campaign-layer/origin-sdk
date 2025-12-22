@@ -37,12 +37,12 @@ export interface BulkCostPreview {
 /**
  * Executes an atomic bulk purchase of multiple IP-NFT licenses.
  * All purchases succeed or all fail together.
- * 
+ *
  * @param buyer The address that will receive the licenses.
  * @param purchases Array of purchase parameters for each token.
  * @param value Total native token value to send (sum of all native token purchases).
  * @returns A promise that resolves with the transaction result.
- * 
+ *
  * @example
  * ```typescript
  * const purchases = [
@@ -72,12 +72,12 @@ export function bulkBuyAccess(
  * Executes a fault-tolerant bulk purchase of multiple IP-NFT licenses.
  * Individual purchases can fail without reverting the entire transaction.
  * Unused funds are automatically refunded.
- * 
+ *
  * @param buyer The address that will receive the licenses.
  * @param purchases Array of purchase parameters for each token.
  * @param value Total native token value to send (can be more than needed; excess is refunded).
  * @returns A promise that resolves with the tolerant result including success/failure counts.
- * 
+ *
  * @example
  * ```typescript
  * const result = await origin.bulkBuyAccessTolerant(buyerAddress, purchases, totalValue);
@@ -103,10 +103,10 @@ export function bulkBuyAccessTolerant(
 /**
  * Previews the total cost of purchasing multiple IP-NFT licenses.
  * This is a view function that doesn't require a transaction.
- * 
+ *
  * @param tokenIds Array of token IDs to preview costs for.
  * @returns A promise that resolves with the cost preview including total costs and invalid tokens.
- * 
+ *
  * @example
  * ```typescript
  * const preview = await origin.previewBulkCost([1n, 2n, 3n]);
@@ -129,10 +129,10 @@ export function previewBulkCost(
 /**
  * Builds purchase parameters for multiple tokens by fetching their current license terms.
  * This is a view function that doesn't require a transaction.
- * 
+ *
  * @param tokenIds Array of token IDs to build parameters for.
  * @returns A promise that resolves with an array of BuyParams ready for bulk purchase.
- * 
+ *
  * @example
  * ```typescript
  * const params = await origin.buildPurchaseParams([1n, 2n, 3n]);
@@ -153,10 +153,10 @@ export function buildPurchaseParams(
 
 /**
  * Checks the active status of multiple tokens.
- * 
+ *
  * @param tokenIds Array of token IDs to check.
  * @returns A promise that resolves with an array of boolean flags indicating active status.
- * 
+ *
  * @example
  * ```typescript
  * const activeFlags = await origin.checkActiveStatus([1n, 2n, 3n]);
@@ -178,16 +178,16 @@ export function checkActiveStatus(
 /**
  * Smart bulk purchase that automatically fetches terms and handles the entire purchase flow.
  * This is the recommended method for most use cases.
- * 
+ *
  * @param tokenIds Array of token IDs to purchase.
  * @param options Optional configuration for the purchase.
  * @returns A promise that resolves with the transaction result.
- * 
+ *
  * @example
  * ```typescript
  * // Atomic purchase - all succeed or all fail
  * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n]);
- * 
+ *
  * // Tolerant purchase - continue even if some fail
  * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n], { tolerant: true });
  * ```
@@ -269,4 +269,3 @@ export async function bulkBuyAccessSmart(
     return this.bulkBuyAccess(buyer, purchases, totalNativeValue);
   }
 }
-

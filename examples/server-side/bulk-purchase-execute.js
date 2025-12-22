@@ -1,20 +1,26 @@
 /**
  * Example: Execute bulk purchase of IP-NFTs
- * 
+ *
  * This example shows how to execute a bulk purchase transaction
  * using the BatchPurchase contract.
- * 
+ *
  * Usage: PRIVATE_KEY=0x... node --experimental-fetch examples/server-side/bulk-purchase-execute.js
  */
 
-import { createPublicClient, createWalletClient, http, formatEther, zeroAddress } from "viem";
+import {
+  createPublicClient,
+  createWalletClient,
+  http,
+  formatEther,
+  zeroAddress,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { campTestnet, campMainnet } from "@campnetwork/origin";
 
 // Configuration - Change these for your use case
 const USE_TESTNET = true;
 const chain = USE_TESTNET ? campTestnet : campMainnet;
-const RPC_URL = USE_TESTNET 
+const RPC_URL = USE_TESTNET
   ? "https://rpc.basecamp.t.raas.gelato.cloud"
   : "https://rpc.camp.network"; // Update with actual mainnet RPC
 const EXPLORER_URL = USE_TESTNET
@@ -23,8 +29,8 @@ const EXPLORER_URL = USE_TESTNET
 
 // BatchPurchase contract addresses
 const BATCH_PURCHASE_ADDRESS = USE_TESTNET
-  ? "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518"  // Testnet
-  : "0x31885cD2A445322067dF890bACf6CeFE9b233BCC";  // Mainnet
+  ? "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518" // Testnet
+  : "0x31885cD2A445322067dF890bACf6CeFE9b233BCC"; // Mainnet
 
 const BATCH_PURCHASE_ABI = [
   {
@@ -35,7 +41,11 @@ const BATCH_PURCHASE_ABI = [
           { internalType: "uint256", name: "tokenId", type: "uint256" },
           { internalType: "uint256", name: "expectedPrice", type: "uint256" },
           { internalType: "uint32", name: "expectedDuration", type: "uint32" },
-          { internalType: "address", name: "expectedPaymentToken", type: "address" },
+          {
+            internalType: "address",
+            name: "expectedPaymentToken",
+            type: "address",
+          },
         ],
         internalType: "struct IBatchPurchase.BuyParams[]",
         name: "purchases",
@@ -48,7 +58,9 @@ const BATCH_PURCHASE_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256[]", name: "tokenIds", type: "uint256[]" }],
+    inputs: [
+      { internalType: "uint256[]", name: "tokenIds", type: "uint256[]" },
+    ],
     name: "buildPurchaseParams",
     outputs: [
       {
@@ -56,7 +68,11 @@ const BATCH_PURCHASE_ABI = [
           { internalType: "uint256", name: "tokenId", type: "uint256" },
           { internalType: "uint256", name: "expectedPrice", type: "uint256" },
           { internalType: "uint32", name: "expectedDuration", type: "uint32" },
-          { internalType: "address", name: "expectedPaymentToken", type: "address" },
+          {
+            internalType: "address",
+            name: "expectedPaymentToken",
+            type: "address",
+          },
         ],
         internalType: "struct IBatchPurchase.BuyParams[]",
         name: "purchases",
@@ -79,7 +95,9 @@ async function main() {
   const privateKey = process.env.PRIVATE_KEY;
   if (!privateKey) {
     console.error("Error: PRIVATE_KEY environment variable not set");
-    console.log("\nUsage: PRIVATE_KEY=0x... node --experimental-fetch examples/server-side/bulk-purchase-execute.js");
+    console.log(
+      "\nUsage: PRIVATE_KEY=0x... node --experimental-fetch examples/server-side/bulk-purchase-execute.js"
+    );
     process.exit(1);
   }
 
@@ -88,8 +106,10 @@ async function main() {
     process.exit(1);
   }
 
-  const formattedKey = privateKey.startsWith("0x") ? privateKey : `0x${privateKey}`;
-  
+  const formattedKey = privateKey.startsWith("0x")
+    ? privateKey
+    : `0x${privateKey}`;
+
   console.log("Executing Bulk Purchase\n");
   console.log("Network:", USE_TESTNET ? "Testnet" : "Mainnet");
 
@@ -130,12 +150,14 @@ async function main() {
       totalCost += p.expectedPrice;
     }
   });
-  
+
   console.log(`\nTotal Cost: ${formatEther(totalCost)} CAMP`);
 
   // Check balance
   if (balance < totalCost) {
-    console.error(`\nInsufficient balance! Need ${formatEther(totalCost)} CAMP`);
+    console.error(
+      `\nInsufficient balance! Need ${formatEther(totalCost)} CAMP`
+    );
     process.exit(1);
   }
 
@@ -172,4 +194,3 @@ async function main() {
 }
 
 main().catch(console.error);
-
