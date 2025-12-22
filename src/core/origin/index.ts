@@ -32,6 +32,17 @@ import { getDataWithIntent } from "./getDataWithIntent";
 import { LicenseTerms } from "./utils";
 import { approveIfNeeded } from "./approveIfNeeded";
 import { Environment, ENVIRONMENTS } from "../../constants";
+import {
+  bulkBuyAccess,
+  bulkBuyAccessTolerant,
+  bulkBuyAccessSmart,
+  previewBulkCost,
+  buildPurchaseParams,
+  checkActiveStatus,
+  BuyParams,
+  TolerantResult,
+  BulkCostPreview,
+} from "./bulkBuyAccess";
 
 interface RoyaltyInfo {
   tokenBoundAccount: Address;
@@ -73,6 +84,13 @@ export class Origin {
   subscriptionExpiry!: typeof subscriptionExpiry;
   settlePaymentIntent!: typeof settlePaymentIntent;
   getDataWithIntent!: typeof getDataWithIntent;
+  // Bulk purchase methods
+  bulkBuyAccess!: typeof bulkBuyAccess;
+  bulkBuyAccessTolerant!: typeof bulkBuyAccessTolerant;
+  bulkBuyAccessSmart!: typeof bulkBuyAccessSmart;
+  previewBulkCost!: typeof previewBulkCost;
+  buildPurchaseParams!: typeof buildPurchaseParams;
+  checkActiveStatus!: typeof checkActiveStatus;
 
   private jwt?: string;
   environment: Environment;
@@ -117,6 +135,13 @@ export class Origin {
     this.subscriptionExpiry = subscriptionExpiry.bind(this);
     this.settlePaymentIntent = settlePaymentIntent.bind(this);
     this.getDataWithIntent = getDataWithIntent.bind(this);
+    // Bulk purchase methods
+    this.bulkBuyAccess = bulkBuyAccess.bind(this);
+    this.bulkBuyAccessTolerant = bulkBuyAccessTolerant.bind(this);
+    this.bulkBuyAccessSmart = bulkBuyAccessSmart.bind(this);
+    this.previewBulkCost = previewBulkCost.bind(this);
+    this.buildPurchaseParams = buildPurchaseParams.bind(this);
+    this.checkActiveStatus = checkActiveStatus.bind(this);
   }
 
   getJwt() {
@@ -1051,3 +1076,4 @@ export class Origin {
 
 export { createLicenseTerms, LicenseTerms, DataStatus } from "./utils";
 export { X402Response } from "./settlePaymentIntent";
+export type { BuyParams, TolerantResult, BulkCostPreview } from "./bulkBuyAccess";

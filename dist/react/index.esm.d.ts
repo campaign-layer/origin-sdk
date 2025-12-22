@@ -9,10 +9,12 @@ interface Environment {
     ORIGIN_DASHBOARD: string;
     DATANFT_CONTRACT_ADDRESS: string;
     MARKETPLACE_CONTRACT_ADDRESS: string;
+    BATCH_PURCHASE_CONTRACT_ADDRESS: string;
     CHAIN: any;
     IPNFT_ABI?: any;
     MARKETPLACE_ABI?: any;
     TBA_ABI?: any;
+    BATCH_PURCHASE_ABI?: any;
 }
 
 /**
@@ -215,6 +217,125 @@ declare function settlePaymentIntent(this: Origin, paymentIntentResponse: X402Re
  */
 declare function getDataWithIntent(this: Origin, tokenId: bigint, signer?: any, decide?: (terms: any) => Promise<boolean>): Promise<any>;
 
+/**
+ * Parameters for a single purchase in a bulk buy operation.
+ */
+interface BuyParams {
+    tokenId: bigint;
+    expectedPrice: bigint;
+    expectedDuration: number;
+    expectedPaymentToken: Address;
+}
+/**
+ * Preview of bulk purchase costs.
+ */
+interface BulkCostPreview {
+    totalNativeCost: bigint;
+    totalERC20Cost: bigint;
+    validCount: bigint;
+    invalidTokenIds: bigint[];
+}
+/**
+ * Executes an atomic bulk purchase of multiple IP-NFT licenses.
+ * All purchases succeed or all fail together.
+ *
+ * @param buyer The address that will receive the licenses.
+ * @param purchases Array of purchase parameters for each token.
+ * @param value Total native token value to send (sum of all native token purchases).
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * const purchases = [
+ *   { tokenId: 1n, expectedPrice: 1000000000000000n, expectedDuration: 86400, expectedPaymentToken: zeroAddress },
+ *   { tokenId: 2n, expectedPrice: 2000000000000000n, expectedDuration: 86400, expectedPaymentToken: zeroAddress },
+ * ];
+ * const totalValue = 3000000000000000n;
+ * await origin.bulkBuyAccess(buyerAddress, purchases, totalValue);
+ * ```
+ */
+declare function bulkBuyAccess(this: Origin, buyer: Address, purchases: BuyParams[], value?: bigint): Promise<any>;
+/**
+ * Executes a fault-tolerant bulk purchase of multiple IP-NFT licenses.
+ * Individual purchases can fail without reverting the entire transaction.
+ * Unused funds are automatically refunded.
+ *
+ * @param buyer The address that will receive the licenses.
+ * @param purchases Array of purchase parameters for each token.
+ * @param value Total native token value to send (can be more than needed; excess is refunded).
+ * @returns A promise that resolves with the tolerant result including success/failure counts.
+ *
+ * @example
+ * ```typescript
+ * const result = await origin.bulkBuyAccessTolerant(buyerAddress, purchases, totalValue);
+ * console.log(`Purchased ${result.successCount} of ${purchases.length} IPs`);
+ * console.log(`Failed tokens: ${result.failedTokenIds}`);
+ * ```
+ */
+declare function bulkBuyAccessTolerant(this: Origin, buyer: Address, purchases: BuyParams[], value?: bigint): Promise<any>;
+/**
+ * Previews the total cost of purchasing multiple IP-NFT licenses.
+ * This is a view function that doesn't require a transaction.
+ *
+ * @param tokenIds Array of token IDs to preview costs for.
+ * @returns A promise that resolves with the cost preview including total costs and invalid tokens.
+ *
+ * @example
+ * ```typescript
+ * const preview = await origin.previewBulkCost([1n, 2n, 3n]);
+ * console.log(`Total cost: ${preview.totalNativeCost} wei`);
+ * console.log(`Valid tokens: ${preview.validCount}`);
+ * ```
+ */
+declare function previewBulkCost(this: Origin, tokenIds: bigint[]): Promise<BulkCostPreview>;
+/**
+ * Builds purchase parameters for multiple tokens by fetching their current license terms.
+ * This is a view function that doesn't require a transaction.
+ *
+ * @param tokenIds Array of token IDs to build parameters for.
+ * @returns A promise that resolves with an array of BuyParams ready for bulk purchase.
+ *
+ * @example
+ * ```typescript
+ * const params = await origin.buildPurchaseParams([1n, 2n, 3n]);
+ * await origin.bulkBuyAccess(buyer, params, totalValue);
+ * ```
+ */
+declare function buildPurchaseParams(this: Origin, tokenIds: bigint[]): Promise<BuyParams[]>;
+/**
+ * Checks the active status of multiple tokens.
+ *
+ * @param tokenIds Array of token IDs to check.
+ * @returns A promise that resolves with an array of boolean flags indicating active status.
+ *
+ * @example
+ * ```typescript
+ * const activeFlags = await origin.checkActiveStatus([1n, 2n, 3n]);
+ * const activeTokens = tokenIds.filter((_, i) => activeFlags[i]);
+ * ```
+ */
+declare function checkActiveStatus(this: Origin, tokenIds: bigint[]): Promise<boolean[]>;
+/**
+ * Smart bulk purchase that automatically fetches terms and handles the entire purchase flow.
+ * This is the recommended method for most use cases.
+ *
+ * @param tokenIds Array of token IDs to purchase.
+ * @param options Optional configuration for the purchase.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Atomic purchase - all succeed or all fail
+ * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n]);
+ *
+ * // Tolerant purchase - continue even if some fail
+ * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n], { tolerant: true });
+ * ```
+ */
+declare function bulkBuyAccessSmart(this: Origin, tokenIds: bigint[], options?: {
+    tolerant?: boolean;
+}): Promise<any>;
+
 interface RoyaltyInfo {
     tokenBoundAccount: Address;
     balance: bigint;
@@ -252,6 +373,12 @@ declare class Origin {
     subscriptionExpiry: typeof subscriptionExpiry;
     settlePaymentIntent: typeof settlePaymentIntent;
     getDataWithIntent: typeof getDataWithIntent;
+    bulkBuyAccess: typeof bulkBuyAccess;
+    bulkBuyAccessTolerant: typeof bulkBuyAccessTolerant;
+    bulkBuyAccessSmart: typeof bulkBuyAccessSmart;
+    previewBulkCost: typeof previewBulkCost;
+    buildPurchaseParams: typeof buildPurchaseParams;
+    checkActiveStatus: typeof checkActiveStatus;
     private jwt?;
     environment: Environment;
     private viemClient?;

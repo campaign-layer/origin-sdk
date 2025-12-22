@@ -3,6 +3,7 @@ import { mainnet, testnet } from "./core/auth/viem/chains";
 import ipnftMainnetAbi from "./core/origin/contracts/mainnet/IPNFT.json";
 import marketplaceMainnetAbi from "./core/origin/contracts/mainnet/Marketplace.json";
 import tbaAbi from "./core/origin/contracts/mainnet/TBA.json";
+import batchPurchaseAbi from "./core/origin/contracts/mainnet/BatchPurchase.json";
 
 export default {
   SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
@@ -31,10 +32,12 @@ export interface Environment {
   ORIGIN_DASHBOARD: string;
   DATANFT_CONTRACT_ADDRESS: string;
   MARKETPLACE_CONTRACT_ADDRESS: string;
+  BATCH_PURCHASE_CONTRACT_ADDRESS: string;
   CHAIN: any;
   IPNFT_ABI?: any;
   MARKETPLACE_ABI?: any;
   TBA_ABI?: any;
+  BATCH_PURCHASE_ABI?: any;
 }
 
 export const ENVIRONMENTS = {
@@ -46,10 +49,12 @@ export const ENVIRONMENTS = {
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     DATANFT_CONTRACT_ADDRESS: "0xB53F5723Dd4E46da32e1769Bd36A5aD880e707A5",
     MARKETPLACE_CONTRACT_ADDRESS: "0x97b0A18B2888e904940fFd19E480a28aeec3F055",
+    BATCH_PURCHASE_CONTRACT_ADDRESS: "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518",
     CHAIN: testnet,
     IPNFT_ABI: ipnftMainnetAbi,
     MARKETPLACE_ABI: marketplaceMainnetAbi,
     TBA_ABI: tbaAbi,
+    BATCH_PURCHASE_ABI: batchPurchaseAbi,
   },
   PRODUCTION: {
     NAME: "PRODUCTION",
@@ -59,9 +64,11 @@ export const ENVIRONMENTS = {
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     DATANFT_CONTRACT_ADDRESS: "0x39EeE1C3989f0dD543Dee60f8582F7F81F522C38",
     MARKETPLACE_CONTRACT_ADDRESS: "0xc69BAa987757d054455fC0f2d9797684E9FB8b9C",
+    BATCH_PURCHASE_CONTRACT_ADDRESS: "0x31885cD2A445322067dF890bACf6CeFE9b233BCC",
     CHAIN: mainnet,
     IPNFT_ABI: ipnftMainnetAbi,
     MARKETPLACE_ABI: marketplaceMainnetAbi,
     TBA_ABI: tbaAbi,
+    BATCH_PURCHASE_ABI: batchPurchaseAbi,
   },
 } as { [key: string]: Environment };

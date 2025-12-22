@@ -2959,6 +2959,369 @@ var tbaAbi = [
 	}
 ];
 
+var batchPurchaseAbi = [
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "_marketplace",
+				type: "address"
+			},
+			{
+				internalType: "address",
+				name: "_ipNFT",
+				type: "address"
+			}
+		],
+		stateMutability: "nonpayable",
+		type: "constructor"
+	},
+	{
+		inputs: [
+		],
+		name: "EmptyPurchaseList",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "InvalidTotalPayment",
+		type: "error"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "tokenId",
+				type: "uint256"
+			},
+			{
+				internalType: "string",
+				name: "reason",
+				type: "string"
+			}
+		],
+		name: "PurchaseFailed",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "RefundFailed",
+		type: "error"
+	},
+	{
+		inputs: [
+		],
+		name: "ZeroAddress",
+		type: "error"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "count",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "totalPaid",
+				type: "uint256"
+			}
+		],
+		name: "BulkPurchaseExecuted",
+		type: "event"
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "successCount",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "failureCount",
+				type: "uint256"
+			},
+			{
+				indexed: false,
+				internalType: "uint256[]",
+				name: "failedTokenIds",
+				type: "uint256[]"
+			}
+		],
+		name: "BulkPurchasePartial",
+		type: "event"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				components: [
+					{
+						internalType: "uint256",
+						name: "tokenId",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "expectedPrice",
+						type: "uint256"
+					},
+					{
+						internalType: "uint32",
+						name: "expectedDuration",
+						type: "uint32"
+					},
+					{
+						internalType: "address",
+						name: "expectedPaymentToken",
+						type: "address"
+					}
+				],
+				internalType: "struct IBatchPurchase.BuyParams[]",
+				name: "purchases",
+				type: "tuple[]"
+			}
+		],
+		name: "bulkBuyAccess",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "totalPaid",
+				type: "uint256"
+			}
+		],
+		stateMutability: "payable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "buyer",
+				type: "address"
+			},
+			{
+				components: [
+					{
+						internalType: "uint256",
+						name: "tokenId",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "expectedPrice",
+						type: "uint256"
+					},
+					{
+						internalType: "uint32",
+						name: "expectedDuration",
+						type: "uint32"
+					},
+					{
+						internalType: "address",
+						name: "expectedPaymentToken",
+						type: "address"
+					}
+				],
+				internalType: "struct IBatchPurchase.BuyParams[]",
+				name: "purchases",
+				type: "tuple[]"
+			}
+		],
+		name: "bulkBuyAccessTolerant",
+		outputs: [
+			{
+				components: [
+					{
+						internalType: "uint256",
+						name: "successCount",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "failureCount",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "totalSpent",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "refundAmount",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256[]",
+						name: "failedTokenIds",
+						type: "uint256[]"
+					}
+				],
+				internalType: "struct IBatchPurchase.TolerantResult",
+				name: "result",
+				type: "tuple"
+			}
+		],
+		stateMutability: "payable",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256[]",
+				name: "tokenIds",
+				type: "uint256[]"
+			}
+		],
+		name: "buildPurchaseParams",
+		outputs: [
+			{
+				components: [
+					{
+						internalType: "uint256",
+						name: "tokenId",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "expectedPrice",
+						type: "uint256"
+					},
+					{
+						internalType: "uint32",
+						name: "expectedDuration",
+						type: "uint32"
+					},
+					{
+						internalType: "address",
+						name: "expectedPaymentToken",
+						type: "address"
+					}
+				],
+				internalType: "struct IBatchPurchase.BuyParams[]",
+				name: "purchases",
+				type: "tuple[]"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256[]",
+				name: "tokenIds",
+				type: "uint256[]"
+			}
+		],
+		name: "checkActiveStatus",
+		outputs: [
+			{
+				internalType: "bool[]",
+				name: "activeFlags",
+				type: "bool[]"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "ipNFT",
+		outputs: [
+			{
+				internalType: "contract IIpNFT",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+		],
+		name: "marketplace",
+		outputs: [
+			{
+				internalType: "contract IMarketplace",
+				name: "",
+				type: "address"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256[]",
+				name: "tokenIds",
+				type: "uint256[]"
+			}
+		],
+		name: "previewBulkCost",
+		outputs: [
+			{
+				components: [
+					{
+						internalType: "uint256",
+						name: "totalNativeCost",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "totalERC20Cost",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256",
+						name: "validCount",
+						type: "uint256"
+					},
+					{
+						internalType: "uint256[]",
+						name: "invalidTokenIds",
+						type: "uint256[]"
+					}
+				],
+				internalType: "struct IBatchPurchase.BulkCostPreview",
+				name: "preview",
+				type: "tuple"
+			}
+		],
+		stateMutability: "view",
+		type: "function"
+	}
+];
+
 var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
@@ -2986,10 +3349,12 @@ const ENVIRONMENTS = {
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
         DATANFT_CONTRACT_ADDRESS: "0xB53F5723Dd4E46da32e1769Bd36A5aD880e707A5",
         MARKETPLACE_CONTRACT_ADDRESS: "0x97b0A18B2888e904940fFd19E480a28aeec3F055",
+        BATCH_PURCHASE_CONTRACT_ADDRESS: "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518",
         CHAIN: testnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
         TBA_ABI: tbaAbi,
+        BATCH_PURCHASE_ABI: batchPurchaseAbi,
     },
     PRODUCTION: {
         NAME: "PRODUCTION",
@@ -2998,10 +3363,12 @@ const ENVIRONMENTS = {
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
         DATANFT_CONTRACT_ADDRESS: "0x39EeE1C3989f0dD543Dee60f8582F7F81F522C38",
         MARKETPLACE_CONTRACT_ADDRESS: "0xc69BAa987757d054455fC0f2d9797684E9FB8b9C",
+        BATCH_PURCHASE_CONTRACT_ADDRESS: "0x31885cD2A445322067dF890bACf6CeFE9b233BCC",
         CHAIN: mainnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
         TBA_ABI: tbaAbi,
+        BATCH_PURCHASE_ABI: batchPurchaseAbi,
     },
 };
 
@@ -3851,6 +4218,182 @@ function approveIfNeeded(_a) {
     });
 }
 
+/**
+ * Executes an atomic bulk purchase of multiple IP-NFT licenses.
+ * All purchases succeed or all fail together.
+ *
+ * @param buyer The address that will receive the licenses.
+ * @param purchases Array of purchase parameters for each token.
+ * @param value Total native token value to send (sum of all native token purchases).
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * const purchases = [
+ *   { tokenId: 1n, expectedPrice: 1000000000000000n, expectedDuration: 86400, expectedPaymentToken: zeroAddress },
+ *   { tokenId: 2n, expectedPrice: 2000000000000000n, expectedDuration: 86400, expectedPaymentToken: zeroAddress },
+ * ];
+ * const totalValue = 3000000000000000n;
+ * await origin.bulkBuyAccess(buyerAddress, purchases, totalValue);
+ * ```
+ */
+function bulkBuyAccess(buyer, purchases, value) {
+    return this.callContractMethod(this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS, this.environment.BATCH_PURCHASE_ABI, "bulkBuyAccess", [buyer, purchases], { waitForReceipt: true, value });
+}
+/**
+ * Executes a fault-tolerant bulk purchase of multiple IP-NFT licenses.
+ * Individual purchases can fail without reverting the entire transaction.
+ * Unused funds are automatically refunded.
+ *
+ * @param buyer The address that will receive the licenses.
+ * @param purchases Array of purchase parameters for each token.
+ * @param value Total native token value to send (can be more than needed; excess is refunded).
+ * @returns A promise that resolves with the tolerant result including success/failure counts.
+ *
+ * @example
+ * ```typescript
+ * const result = await origin.bulkBuyAccessTolerant(buyerAddress, purchases, totalValue);
+ * console.log(`Purchased ${result.successCount} of ${purchases.length} IPs`);
+ * console.log(`Failed tokens: ${result.failedTokenIds}`);
+ * ```
+ */
+function bulkBuyAccessTolerant(buyer, purchases, value) {
+    return this.callContractMethod(this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS, this.environment.BATCH_PURCHASE_ABI, "bulkBuyAccessTolerant", [buyer, purchases], { waitForReceipt: true, value });
+}
+/**
+ * Previews the total cost of purchasing multiple IP-NFT licenses.
+ * This is a view function that doesn't require a transaction.
+ *
+ * @param tokenIds Array of token IDs to preview costs for.
+ * @returns A promise that resolves with the cost preview including total costs and invalid tokens.
+ *
+ * @example
+ * ```typescript
+ * const preview = await origin.previewBulkCost([1n, 2n, 3n]);
+ * console.log(`Total cost: ${preview.totalNativeCost} wei`);
+ * console.log(`Valid tokens: ${preview.validCount}`);
+ * ```
+ */
+function previewBulkCost(tokenIds) {
+    return this.callContractMethod(this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS, this.environment.BATCH_PURCHASE_ABI, "previewBulkCost", [tokenIds]);
+}
+/**
+ * Builds purchase parameters for multiple tokens by fetching their current license terms.
+ * This is a view function that doesn't require a transaction.
+ *
+ * @param tokenIds Array of token IDs to build parameters for.
+ * @returns A promise that resolves with an array of BuyParams ready for bulk purchase.
+ *
+ * @example
+ * ```typescript
+ * const params = await origin.buildPurchaseParams([1n, 2n, 3n]);
+ * await origin.bulkBuyAccess(buyer, params, totalValue);
+ * ```
+ */
+function buildPurchaseParams(tokenIds) {
+    return this.callContractMethod(this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS, this.environment.BATCH_PURCHASE_ABI, "buildPurchaseParams", [tokenIds]);
+}
+/**
+ * Checks the active status of multiple tokens.
+ *
+ * @param tokenIds Array of token IDs to check.
+ * @returns A promise that resolves with an array of boolean flags indicating active status.
+ *
+ * @example
+ * ```typescript
+ * const activeFlags = await origin.checkActiveStatus([1n, 2n, 3n]);
+ * const activeTokens = tokenIds.filter((_, i) => activeFlags[i]);
+ * ```
+ */
+function checkActiveStatus(tokenIds) {
+    return this.callContractMethod(this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS, this.environment.BATCH_PURCHASE_ABI, "checkActiveStatus", [tokenIds]);
+}
+/**
+ * Smart bulk purchase that automatically fetches terms and handles the entire purchase flow.
+ * This is the recommended method for most use cases.
+ *
+ * @param tokenIds Array of token IDs to purchase.
+ * @param options Optional configuration for the purchase.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Atomic purchase - all succeed or all fail
+ * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n]);
+ *
+ * // Tolerant purchase - continue even if some fail
+ * const result = await origin.bulkBuyAccessSmart([1n, 2n, 3n], { tolerant: true });
+ * ```
+ */
+function bulkBuyAccessSmart(tokenIds, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!tokenIds || tokenIds.length === 0) {
+            throw new Error("No token IDs provided for bulk purchase");
+        }
+        // Get the buyer's wallet address
+        const viemClient = this.viemClient;
+        if (!viemClient) {
+            throw new Error("WalletClient not connected. Please connect a wallet.");
+        }
+        let buyer;
+        if (viemClient.account) {
+            buyer = viemClient.account.address;
+        }
+        else {
+            const accounts = yield viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
+            if (!accounts || accounts.length === 0) {
+                throw new Error("No accounts found in connected wallet.");
+            }
+            buyer = accounts[0];
+        }
+        // Build purchase params from on-chain data
+        const purchases = yield this.buildPurchaseParams(tokenIds);
+        // Calculate total native token cost
+        let totalNativeValue = BigInt(0);
+        const erc20Purchases = [];
+        for (const purchase of purchases) {
+            if (purchase.expectedPaymentToken === zeroAddress) {
+                totalNativeValue += purchase.expectedPrice;
+            }
+            else {
+                // Group ERC20 purchases by token
+                const existing = erc20Purchases.find((p) => p.token === purchase.expectedPaymentToken);
+                if (existing) {
+                    existing.amount += purchase.expectedPrice;
+                }
+                else {
+                    erc20Purchases.push({
+                        token: purchase.expectedPaymentToken,
+                        amount: purchase.expectedPrice,
+                    });
+                }
+            }
+        }
+        // Approve ERC20 tokens if needed
+        const publicClient = getPublicClient();
+        for (const erc20 of erc20Purchases) {
+            yield approveIfNeeded({
+                walletClient: viemClient,
+                publicClient,
+                tokenAddress: erc20.token,
+                owner: buyer,
+                spender: this.environment.BATCH_PURCHASE_CONTRACT_ADDRESS,
+                amount: erc20.amount,
+            });
+        }
+        // Execute the purchase
+        if (options === null || options === void 0 ? void 0 : options.tolerant) {
+            return this.bulkBuyAccessTolerant(buyer, purchases, totalNativeValue);
+        }
+        else {
+            return this.bulkBuyAccess(buyer, purchases, totalNativeValue);
+        }
+    });
+}
+
 var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadToIPFS, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
 /**
  * The Origin class
@@ -3893,6 +4436,13 @@ class Origin {
         this.subscriptionExpiry = subscriptionExpiry.bind(this);
         this.settlePaymentIntent = settlePaymentIntent.bind(this);
         this.getDataWithIntent = getDataWithIntent.bind(this);
+        // Bulk purchase methods
+        this.bulkBuyAccess = bulkBuyAccess.bind(this);
+        this.bulkBuyAccessTolerant = bulkBuyAccessTolerant.bind(this);
+        this.bulkBuyAccessSmart = bulkBuyAccessSmart.bind(this);
+        this.previewBulkCost = previewBulkCost.bind(this);
+        this.buildPurchaseParams = buildPurchaseParams.bind(this);
+        this.checkActiveStatus = checkActiveStatus.bind(this);
     }
     getJwt() {
         return this.jwt;
