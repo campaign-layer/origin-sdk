@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.7](https://github.com/campaign-layer/origin-sdk/compare/v1.2.6...v1.2.7) (2025-12-22)
+
+### Bug Fixes
+
+* formatting ([b4bf7b6](https://github.com/campaign-layer/origin-sdk/commit/b4bf7b67fa30b38b5a82d70bcd344b498fc06585))
+
 ## [1.2.6](https://github.com/campaign-layer/origin-sdk/compare/v1.2.5...v1.2.6) (2025-12-09)
 
 ### Bug Fixes
