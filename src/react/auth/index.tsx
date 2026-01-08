@@ -5,6 +5,7 @@ import { providerStore, Provider } from "../../core/auth/viem/providers";
 import { CampModal, MyCampModal } from "./modals";
 import { Auth } from "../../core/auth";
 import { SocialsContext } from "../context/SocialsContext";
+import { UserContext, UserContextProps } from "../context/UserContext";
 import { LinkButton, StandaloneCampButton } from "./buttons";
 import constants from "../../constants";
 import { type UseQueryResult } from "@tanstack/react-query";
@@ -381,4 +382,21 @@ export const useSocials = (): UseSocialsResult => {
     ...query,
     socials,
   };
+};
+
+/**
+ * Fetches the user data including allow list status.
+ * @returns { UserContextProps } The user data and query state.
+ * @example
+ * const { user, isAllowListed, isLoading, refetch } = useUser();
+ * if (isAllowListed) {
+ *   // User has no upload size limits
+ * }
+ */
+export const useUser = (): UserContextProps => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 };

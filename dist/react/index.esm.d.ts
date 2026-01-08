@@ -775,6 +775,32 @@ declare const MyCampModal: ({ wcProvider, }: {
     wcProvider: any;
 }) => JSX.Element;
 
+interface UserData {
+    id: string;
+    privyId: string | null;
+    email: string | null;
+    uniqueId: string;
+    spotifyId: string | null;
+    youtubeId: string | null;
+    tiktokId: string | null;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string | null;
+    walletAddress: string;
+    image: string;
+    isDeleted: boolean;
+    createdAt: string;
+    updatedAt: string;
+    isAllowListed: boolean;
+}
+interface UserContextProps {
+    query: UseQueryResult<UserData | null, Error> | null;
+    user: UserData | null;
+    isAllowListed: boolean;
+    isLoading: boolean;
+    refetch: () => void;
+}
+
 declare const StandaloneCampButton: () => JSX.Element | null;
 interface LinkButtonProps {
     variant?: "default" | "icon";
@@ -872,5 +898,15 @@ type UseSocialsResult<TData = unknown, TError = Error> = UseQueryResult<TData, T
  * @returns { { data: {}, socials: {}, error: Error, isLoading: boolean, refetch: () => {} } } react-query query object.
  */
 declare const useSocials: () => UseSocialsResult;
+/**
+ * Fetches the user data including allow list status.
+ * @returns { UserContextProps } The user data and query state.
+ * @example
+ * const { user, isAllowListed, isLoading, refetch } = useUser();
+ * if (isAllowListed) {
+ *   // User has no upload size limits
+ * }
+ */
+declare const useUser: () => UserContextProps;
 
-export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials, useViem };
+export { StandaloneCampButton as CampButton, CampContext, CampModal, CampProvider, LinkButton, ModalContext, MyCampModal, useAuth, useAuthState, useConnect, useLinkModal, useLinkSocials, useModal, useProvider, useProviders, useSocials, useUser, useViem };

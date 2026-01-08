@@ -256,6 +256,15 @@
   color: #555;
 }
 
+.container .header .profile-image {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  margin-right: 0.5rem;
+}
+
 .container .close-button {
   position: absolute;
   top: 1rem;

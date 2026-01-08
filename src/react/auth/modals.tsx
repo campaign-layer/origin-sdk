@@ -13,6 +13,7 @@ import {
   useProvider,
   useProviders,
   useSocials,
+  useUser,
 } from "./index";
 import { ModalContext } from "../context/ModalContext";
 import styles from "./styles/auth.module.css";
@@ -1004,6 +1005,7 @@ export const MyCampModal = ({
   const { setIsVisible: setIsVisible } = useContext(ModalContext);
   const { disconnect } = useConnect();
   const { socials, isLoading, refetch } = useSocials();
+  const { user } = useUser();
   const [isLoadingSocials, setIsLoadingSocials] = useState(true);
   const { linkTiktok, linkTelegram } = useLinkModal();
   const [activeTab, setActiveTab] = useState<
@@ -1083,7 +1085,15 @@ export const MyCampModal = ({
           <CloseIcon />
         </div>
         <div className={styles.header}>
-          <CampIcon customStyles={{ marginRight: "0.5rem" }} />
+          {user?.image ? (
+            <img
+              src={user.image}
+              alt="Profile"
+              className={styles["profile-image"]}
+            />
+          ) : (
+            <CampIcon customStyles={{ marginRight: "0.5rem" }} />
+          )}
           {/* <span>My Origin</span> */}
           <span
             className={styles["wallet-address"]}

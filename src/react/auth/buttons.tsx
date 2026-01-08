@@ -18,6 +18,7 @@ import {
   useLinkModal,
   useModal,
   useSocials,
+  useUser,
 } from "./index";
 import styles from "./styles/auth.module.css";
 import buttonStyles from "./styles/buttons.module.css";
@@ -561,6 +562,8 @@ export const FileUpload = ({
   maxFileSize,
 }: FileUploadProps): JSX.Element => {
   const auth = useAuth();
+  const { isAllowListed } = useUser();
+  const effectiveMaxFileSize = isAllowListed ? undefined : maxFileSize;
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -693,10 +696,10 @@ export const FileUpload = ({
 
     const file = files[0];
 
-    if (maxFileSize && file.size > maxFileSize) {
+    if (effectiveMaxFileSize && file.size > effectiveMaxFileSize) {
       addToast(
         `File size exceeds the limit of ${(
-          maxFileSize /
+          effectiveMaxFileSize /
           1024 /
           1024
         ).toPrecision(2)} MB`,
@@ -714,10 +717,10 @@ export const FileUpload = ({
     if (files.length > 0) {
       const file = files[0];
 
-      if (maxFileSize && file.size > maxFileSize) {
+      if (effectiveMaxFileSize && file.size > effectiveMaxFileSize) {
         addToast(
           `File size exceeds the limit of ${(
-            maxFileSize /
+            effectiveMaxFileSize /
             1024 /
             1024
           ).toPrecision(2)} MB`,
@@ -755,10 +758,10 @@ export const FileUpload = ({
         return;
       }
 
-      if (maxFileSize && file.size > maxFileSize) {
+      if (effectiveMaxFileSize && file.size > effectiveMaxFileSize) {
         addToast(
           `File size exceeds the limit of ${(
-            maxFileSize /
+            effectiveMaxFileSize /
             1024 /
             1024
           ).toPrecision(2)} MB`,
@@ -1006,11 +1009,15 @@ export const FileUpload = ({
             </span>
           )}
           <br />
-          {maxFileSize && (
+          {effectiveMaxFileSize ? (
             <span className={buttonStyles["accepted-types"]}>
-              Max size: {(maxFileSize / 1024 / 1024).toPrecision(2)} MB
+              Max size: {(effectiveMaxFileSize / 1024 / 1024).toPrecision(2)} MB
             </span>
-          )}
+          ) : maxFileSize && isAllowListed ? (
+            <span className={buttonStyles["accepted-types"]}>
+              No size limit
+            </span>
+          ) : null}
         </p>
       )}
     </div>

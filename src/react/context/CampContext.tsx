@@ -3,6 +3,7 @@ import { Auth } from "../../core/auth";
 import { ModalProvider } from "./ModalContext";
 import { WagmiContext } from "wagmi";
 import { SocialsProvider } from "./SocialsContext";
+import { UserProvider } from "./UserContext";
 import { ToastProvider } from "../components/toasts";
 import { Environment, ENVIRONMENTS } from "../../constants";
 
@@ -86,9 +87,11 @@ const CampProvider = ({
       }}
     >
       <SocialsProvider>
-        <ToastProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </ToastProvider>
+        <UserProvider>
+          <ToastProvider>
+            <ModalProvider>{children}</ModalProvider>
+          </ToastProvider>
+        </UserProvider>
       </SocialsProvider>
     </CampContext.Provider>
   );
