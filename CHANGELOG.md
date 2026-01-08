@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.2.8](https://github.com/campaign-layer/origin-sdk/compare/v1.2.7...v1.2.8) (2026-01-08)
+
+### Features
+
+* store user object in context ([ab2e1df](https://github.com/campaign-layer/origin-sdk/commit/ab2e1df3474f86814a66dec9f52f0f1f648745c9))
+
 ## [1.2.7](https://github.com/campaign-layer/origin-sdk/compare/v1.2.6...v1.2.7) (2025-12-22)
 
 ### Bug Fixes
