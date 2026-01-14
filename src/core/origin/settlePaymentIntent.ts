@@ -27,6 +27,67 @@ interface TransactionResult {
   txHash: string;
   receipt?: any;
 }
+
+/**
+ * Fetches the protocol fee from the marketplace contract.
+ */
+async function getProtocolFeeBps(origin: Origin): Promise<number> {
+  try {
+    const protocolFeeBps = await origin.callContractMethod(
+      origin.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
+      origin.environment.MARKETPLACE_ABI as Abi,
+      "protocolFeeBps",
+      []
+    );
+    return Number(protocolFeeBps);
+  } catch (error) {
+    console.warn("Failed to fetch protocol fee, defaulting to 0:", error);
+    return 0;
+  }
+}
+
+/**
+ * Fetches the app fee for a specific token from the AppRegistry.
+ */
+async function getAppFeeBpsForToken(
+  origin: Origin,
+  tokenId: bigint
+): Promise<number> {
+  try {
+    const tokenInfo = await origin.callContractMethod(
+      origin.environment.DATANFT_CONTRACT_ADDRESS as Address,
+      origin.environment.IPNFT_ABI as Abi,
+      "tokenInfo",
+      [tokenId]
+    );
+
+    const appId = tokenInfo?.appId;
+    if (!appId || appId === "") return 0;
+
+    if (
+      !origin.environment.APP_REGISTRY_CONTRACT_ADDRESS ||
+      !origin.environment.APP_REGISTRY_ABI
+    ) {
+      return 0;
+    }
+
+    const appInfo = await origin.callContractMethod(
+      origin.environment.APP_REGISTRY_CONTRACT_ADDRESS as Address,
+      origin.environment.APP_REGISTRY_ABI as Abi,
+      "getAppInfo",
+      [appId]
+    );
+
+    if (appInfo?.isActive) {
+      return Number(appInfo.revenueShareBps);
+    }
+    return 0;
+  } catch (error) {
+    console.warn("Failed to fetch app fee, defaulting to 0:", error);
+    return 0;
+  }
+}
+
 /**
  * EXPERIMENTAL METHOD
  * Settles a payment intent response by purchasing access if needed.
@@ -71,6 +132,11 @@ export async function settlePaymentIntent(
     expectedPaymentToken === "0x0000000000000000000000000000000000000000";
   const value = isNativeToken ? expectedPrice : BigInt(0);
 
+  const [protocolFeeBps, appFeeBps] = await Promise.all([
+    getProtocolFeeBps(this),
+    getAppFeeBpsForToken(this, tokenId),
+  ]);
+
   if (signer) {
     const signerAdapter = createSignerAdapter(signer);
     const marketplaceAddress = this.environment
@@ -86,6 +152,8 @@ export async function settlePaymentIntent(
         expectedPrice,
         expectedDuration,
         expectedPaymentToken,
+        protocolFeeBps,
+        appFeeBps,
       ],
     });
 
@@ -148,6 +216,8 @@ export async function settlePaymentIntent(
     expectedPrice,
     expectedDuration,
     expectedPaymentToken,
+    protocolFeeBps,
+    appFeeBps,
     isNativeToken ? value : undefined
   );
 }

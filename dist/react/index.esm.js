@@ -3322,6 +3322,1985 @@ var batchPurchaseAbi = [
 	}
 ];
 
+var disputeAbi = [
+	{
+		type: "constructor",
+		inputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "UPGRADE_INTERFACE_VERSION",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "cancelDispute",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "disputeAssertion",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_counterEvidenceHash",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "disputeBond",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputeCoolDownPeriod",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputeCounter",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputeJudgementPeriod",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputeQuorum",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputeToken",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract IERC20"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "disputes",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "initiator",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "targetId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "disputeTag",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "disputeEvidenceHash",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "counterEvidenceHash",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "disputeTimestamp",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "assertionTimestamp",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "yesVotes",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "noVotes",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "status",
+				type: "uint8",
+				internalType: "enum DisputeModule.DisputeStatus"
+			},
+			{
+				name: "bondAmount",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "protocolFeeAmount",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "hasVoted",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "initialize",
+		inputs: [
+			{
+				name: "_ipToken",
+				type: "address",
+				internalType: "contract IIpNFT"
+			},
+			{
+				name: "_marketplace",
+				type: "address",
+				internalType: "contract IMarketplace"
+			},
+			{
+				name: "_disputeToken",
+				type: "address",
+				internalType: "contract IERC20"
+			},
+			{
+				name: "_disputeBond",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_disputeCoolDownPeriod",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_disputeJudgementPeriod",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_bondFeeBPS",
+				type: "uint16",
+				internalType: "uint16"
+			},
+			{
+				name: "_stakingThreshold",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_stakingVault",
+				type: "address",
+				internalType: "contract ICampStakingVault"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "ipToken",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract IIpNFT"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "isUsedEvidenceHash",
+		inputs: [
+			{
+				name: "",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "marketplace",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract IMarketplace"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "owner",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "protocolDisputeFee",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "proxiableUUID",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "raiseDispute",
+		inputs: [
+			{
+				name: "_targetIpId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_disputeEvidenceHash",
+				type: "bytes32",
+				internalType: "bytes32"
+			},
+			{
+				name: "_disputeTag",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		outputs: [
+			{
+				name: "id",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "renounceOwnership",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "resolveDispute",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "setDisputeQuorum",
+		inputs: [
+			{
+				name: "_disputeQuorum",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "stakingThreshold",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "stakingVault",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract ICampStakingVault"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "tagChildIp",
+		inputs: [
+			{
+				name: "_childIpId",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "_infringerDisputeId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "transferOwnership",
+		inputs: [
+			{
+				name: "newOwner",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "upgradeToAndCall",
+		inputs: [
+			{
+				name: "newImplementation",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "data",
+				type: "bytes",
+				internalType: "bytes"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "payable"
+	},
+	{
+		type: "function",
+		name: "voteOnDispute",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "support",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "event",
+		name: "AccessPurchased",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "buyer",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "periods",
+				type: "uint32",
+				indexed: false,
+				internalType: "uint32"
+			},
+			{
+				name: "newExpiry",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			},
+			{
+				name: "amountPaid",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AgentRegistered",
+		inputs: [
+			{
+				name: "agentId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "ipNftId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "agentAddress",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AppRegistryUpdated",
+		inputs: [
+			{
+				name: "appRegistry",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ChildIpTagged",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "childIp",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "parentIp",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DataDeleted",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DataMinted",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "contentHash",
+				type: "bytes32",
+				indexed: false,
+				internalType: "bytes32"
+			},
+			{
+				name: "parents",
+				type: "uint256[]",
+				indexed: false,
+				internalType: "uint256[]"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DisputeAssertion",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "counterEvidenceHash",
+				type: "bytes32",
+				indexed: false,
+				internalType: "bytes32"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DisputeCancelled",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DisputeJudged",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "judgement",
+				type: "bool",
+				indexed: false,
+				internalType: "bool"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DisputeModuleUpdated",
+		inputs: [
+			{
+				name: "disputeModule",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "DisputeRaised",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "initiator",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "targetId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "disputeTag",
+				type: "bytes32",
+				indexed: false,
+				internalType: "bytes32"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Initialized",
+		inputs: [
+			{
+				name: "version",
+				type: "uint64",
+				indexed: false,
+				internalType: "uint64"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "MarketPlaceUpdated",
+		inputs: [
+			{
+				name: "marketPlace",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "OwnershipTransferred",
+		inputs: [
+			{
+				name: "previousOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "newOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ParentIpsSet",
+		inputs: [
+			{
+				name: "childIpId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "parentIds",
+				type: "uint256[]",
+				indexed: false,
+				internalType: "uint256[]"
+			},
+			{
+				name: "totalRoyaltyBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ProtocolFeeUpdated",
+		inputs: [
+			{
+				name: "newFeeBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "RoyaltyPaid",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "royaltyAmount",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			},
+			{
+				name: "creator",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			},
+			{
+				name: "protocolAmount",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "SignerUpdated",
+		inputs: [
+			{
+				name: "signer",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "StatusUpdated",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "status",
+				type: "uint8",
+				indexed: false,
+				internalType: "enum IIpNFT.DataStatus"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "TermsUpdated",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "newPrice",
+				type: "uint128",
+				indexed: false,
+				internalType: "uint128"
+			},
+			{
+				name: "newDuration",
+				type: "uint32",
+				indexed: false,
+				internalType: "uint32"
+			},
+			{
+				name: "newRoyaltyBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			},
+			{
+				name: "paymentToken",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "TreasuryUpdated",
+		inputs: [
+			{
+				name: "newTreasury",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Upgraded",
+		inputs: [
+			{
+				name: "implementation",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Voted",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "voter",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "support",
+				type: "bool",
+				indexed: false,
+				internalType: "bool"
+			},
+			{
+				name: "weight",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "error",
+		name: "AddressEmptyCode",
+		inputs: [
+			{
+				name: "target",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "AlreadyVoted",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "CoolDownPeriodActive",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "CoolDownPeriodOver",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "ERC1967InvalidImplementation",
+		inputs: [
+			{
+				name: "implementation",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "ERC1967NonPayable",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "EvidenceAlreadyUsed",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "FailedCall",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidBondFeeBps",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidChildIpId",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidDisputeStatus",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidDisputeTag",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidEvidenceHash",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidInitialization",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidTargetIp",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NoVotingPower",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotAParentIp",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotInitializing",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotInitiator",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotTokenOwner",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "OwnableInvalidOwner",
+		inputs: [
+			{
+				name: "owner",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "OwnableUnauthorizedAccount",
+		inputs: [
+			{
+				name: "account",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "ParentNotDisputed",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "SelfAssertionNotAllowed",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "StakedAfterDispute",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "TagNotAllowed",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "UUPSUnauthorizedCallContext",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "UUPSUnsupportedProxiableUUID",
+		inputs: [
+			{
+				name: "slot",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "VotingPeriodActive",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "VotingPeriodOver",
+		inputs: [
+		]
+	}
+];
+
+var fractionalizerAbi = [
+	{
+		type: "constructor",
+		inputs: [
+			{
+				name: "ipNFT_",
+				type: "address",
+				internalType: "contract IIpNFT"
+			},
+			{
+				name: "exchangeRate_",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "exchangeRate",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "fractionalize",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "getTokenForNFT",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "ipNFT",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract IIpNFT"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "nftToToken",
+		inputs: [
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract FractionalToken"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "onERC721Received",
+		inputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "",
+				type: "uint256",
+				internalType: "uint256"
+			},
+			{
+				name: "",
+				type: "bytes",
+				internalType: "bytes"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bytes4",
+				internalType: "bytes4"
+			}
+		],
+		stateMutability: "pure"
+	},
+	{
+		type: "function",
+		name: "redeem",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				internalType: "uint256"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "event",
+		name: "Fractionalized",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "depositor",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "token",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			},
+			{
+				name: "supply",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Redeemed",
+		inputs: [
+			{
+				name: "tokenId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "redeemer",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "error",
+		name: "AlreadyFractionalized",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InsufficientFractionalTokens",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidExchangeRate",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotFractionalized",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotTokenOwner",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "ZeroAddress",
+		inputs: [
+		]
+	}
+];
+
+var appRegistryAbi = [
+	{
+		type: "constructor",
+		inputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "UPGRADE_INTERFACE_VERSION",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "appExists",
+		inputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "apps",
+		inputs: [
+			{
+				name: "",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		outputs: [
+			{
+				name: "treasury",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "revenueShareBps",
+				type: "uint16",
+				internalType: "uint16"
+			},
+			{
+				name: "isActive",
+				type: "bool",
+				internalType: "bool"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "deactivateApp",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "getAppInfo",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		outputs: [
+			{
+				name: "",
+				type: "tuple",
+				internalType: "struct AppRegistry.AppInfo",
+				components: [
+					{
+						name: "treasury",
+						type: "address",
+						internalType: "address"
+					},
+					{
+						name: "revenueShareBps",
+						type: "uint16",
+						internalType: "uint16"
+					},
+					{
+						name: "isActive",
+						type: "bool",
+						internalType: "bool"
+					}
+				]
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "initialize",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "owner",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "proxiableUUID",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "reactivateApp",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "registerApp",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
+			},
+			{
+				name: "treasury",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "revenueShareBps",
+				type: "uint16",
+				internalType: "uint16"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "renounceOwnership",
+		inputs: [
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "transferOwnership",
+		inputs: [
+			{
+				name: "newOwner",
+				type: "address",
+				internalType: "address"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "updateApp",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
+			},
+			{
+				name: "treasury",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "revenueShareBps",
+				type: "uint16",
+				internalType: "uint16"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "upgradeToAndCall",
+		inputs: [
+			{
+				name: "newImplementation",
+				type: "address",
+				internalType: "address"
+			},
+			{
+				name: "data",
+				type: "bytes",
+				internalType: "bytes"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "payable"
+	},
+	{
+		type: "event",
+		name: "AppDeactivated",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				indexed: true,
+				internalType: "string"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AppReactivated",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				indexed: true,
+				internalType: "string"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AppRegistered",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				indexed: true,
+				internalType: "string"
+			},
+			{
+				name: "treasury",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			},
+			{
+				name: "revenueShareBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AppUpdated",
+		inputs: [
+			{
+				name: "appId",
+				type: "string",
+				indexed: true,
+				internalType: "string"
+			},
+			{
+				name: "treasury",
+				type: "address",
+				indexed: false,
+				internalType: "address"
+			},
+			{
+				name: "revenueShareBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Initialized",
+		inputs: [
+			{
+				name: "version",
+				type: "uint64",
+				indexed: false,
+				internalType: "uint64"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "OwnershipTransferred",
+		inputs: [
+			{
+				name: "previousOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "newOwner",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Upgraded",
+		inputs: [
+			{
+				name: "implementation",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "error",
+		name: "AddressEmptyCode",
+		inputs: [
+			{
+				name: "target",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "AppAlreadyActive",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "AppAlreadyExists",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "AppAlreadyInactive",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "AppNotFound",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "ERC1967InvalidImplementation",
+		inputs: [
+			{
+				name: "implementation",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "ERC1967NonPayable",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "FailedCall",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidAppId",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidInitialization",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidRoyalty",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "NotInitializing",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "OwnableInvalidOwner",
+		inputs: [
+			{
+				name: "owner",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "OwnableUnauthorizedAccount",
+		inputs: [
+			{
+				name: "account",
+				type: "address",
+				internalType: "address"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "UUPSUnauthorizedCallContext",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "UUPSUnsupportedProxiableUUID",
+		inputs: [
+			{
+				name: "slot",
+				type: "bytes32",
+				internalType: "bytes32"
+			}
+		]
+	},
+	{
+		type: "error",
+		name: "ZeroAddress",
+		inputs: [
+		]
+	}
+];
+
 var constants = {
     SIWE_MESSAGE_STATEMENT: "Connect with Camp Network",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
@@ -3350,11 +5329,18 @@ const ENVIRONMENTS = {
         DATANFT_CONTRACT_ADDRESS: "0xB53F5723Dd4E46da32e1769Bd36A5aD880e707A5",
         MARKETPLACE_CONTRACT_ADDRESS: "0x97b0A18B2888e904940fFd19E480a28aeec3F055",
         BATCH_PURCHASE_CONTRACT_ADDRESS: "0xaF0cF04DBfeeAcEdC77Dc68A91381AFB967B8518",
+        // TODO: Add actual contract addresses when deployed
+        DISPUTE_CONTRACT_ADDRESS: "",
+        FRACTIONALIZER_CONTRACT_ADDRESS: "",
+        APP_REGISTRY_CONTRACT_ADDRESS: "",
         CHAIN: testnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
         TBA_ABI: tbaAbi,
         BATCH_PURCHASE_ABI: batchPurchaseAbi,
+        DISPUTE_ABI: disputeAbi,
+        FRACTIONALIZER_ABI: fractionalizerAbi,
+        APP_REGISTRY_ABI: appRegistryAbi,
     },
     PRODUCTION: {
         NAME: "PRODUCTION",
@@ -3364,11 +5350,18 @@ const ENVIRONMENTS = {
         DATANFT_CONTRACT_ADDRESS: "0x39EeE1C3989f0dD543Dee60f8582F7F81F522C38",
         MARKETPLACE_CONTRACT_ADDRESS: "0xc69BAa987757d054455fC0f2d9797684E9FB8b9C",
         BATCH_PURCHASE_CONTRACT_ADDRESS: "0x31885cD2A445322067dF890bACf6CeFE9b233BCC",
+        // TODO: Add actual contract addresses when deployed
+        DISPUTE_CONTRACT_ADDRESS: "",
+        FRACTIONALIZER_CONTRACT_ADDRESS: "",
+        APP_REGISTRY_CONTRACT_ADDRESS: "",
         CHAIN: mainnet,
         IPNFT_ABI: ipnftMainnetAbi,
         MARKETPLACE_ABI: marketplaceMainnetAbi,
         TBA_ABI: tbaAbi,
         BATCH_PURCHASE_ABI: batchPurchaseAbi,
+        DISPUTE_ABI: disputeAbi,
+        FRACTIONALIZER_ABI: fractionalizerAbi,
+        APP_REGISTRY_ABI: appRegistryAbi,
     },
 };
 
@@ -3514,11 +5507,26 @@ const validateRoyaltyBps = (royaltyBps) => {
  * @param licenseTerms The terms of the license for the NFT.
  * @param deadline The deadline for the minting operation.
  * @param signature The signature for the minting operation.
+ * @param appId Optional app ID for the minting operation. Defaults to the SDK's appId (clientId).
  * @returns A promise that resolves when the minting is complete.
  */
-function mintWithSignature(to, tokenId, parents, isIp, hash, uri, licenseTerms, deadline, signature) {
+function mintWithSignature(to, tokenId, parents, isIp, hash, uri, licenseTerms, deadline, signature, appId) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [to, tokenId, hash, uri, licenseTerms, deadline, parents, isIp, signature], { waitForReceipt: true });
+        var _a;
+        // Use provided appId, or fall back to SDK's appId, or use empty string
+        const effectiveAppId = (_a = appId !== null && appId !== void 0 ? appId : this.appId) !== null && _a !== void 0 ? _a : "";
+        return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [
+            to,
+            tokenId,
+            hash,
+            uri,
+            licenseTerms,
+            deadline,
+            parents,
+            isIp,
+            effectiveAppId,
+            signature,
+        ], { waitForReceipt: true });
     });
 }
 /**
@@ -3541,6 +5549,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
                 duration: licenseTerms.duration,
                 royaltyBps: licenseTerms.royaltyBps,
                 paymentToken: licenseTerms.paymentToken,
+                licenseType: licenseTerms.licenseType,
             },
             metadata,
             parentId: parents ? parents.map((p) => p.toString()) : [],
@@ -3680,12 +5689,22 @@ function setApprovalForAll(operator, approved) {
  * @param expectedPrice The expected price for the access.
  * @param expectedDuration The expected duration of the access in seconds.
  * @param expectedPaymentToken The address of the payment token (use zero address for native token).
+ * @param expectedProtocolFeeBps The expected protocol fee in basis points (0-10000). Defaults to 0.
+ * @param expectedAppFeeBps The expected app fee in basis points (0-10000). Defaults to 0.
  * @param value The amount of native token to send (only required if paying with native token).
  * @returns A promise that resolves when the transaction is confirmed.
  */
-function buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, value // only for native token payments
+function buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, expectedProtocolFeeBps = 0, expectedAppFeeBps = 0, value // only for native token payments
 ) {
-    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, this.environment.MARKETPLACE_ABI, "buyAccess", [buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken], { waitForReceipt: true, value });
+    return this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, this.environment.MARKETPLACE_ABI, "buyAccess", [
+        buyer,
+        tokenId,
+        expectedPrice,
+        expectedDuration,
+        expectedPaymentToken,
+        expectedProtocolFeeBps,
+        expectedAppFeeBps,
+    ], { waitForReceipt: true, value });
 }
 
 /**
@@ -3885,6 +5904,47 @@ function createSignerAdapter(signer) {
 }
 
 /**
+ * Fetches the protocol fee from the marketplace contract.
+ */
+function getProtocolFeeBps(origin) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const protocolFeeBps = yield origin.callContractMethod(origin.environment.MARKETPLACE_CONTRACT_ADDRESS, origin.environment.MARKETPLACE_ABI, "protocolFeeBps", []);
+            return Number(protocolFeeBps);
+        }
+        catch (error) {
+            console.warn("Failed to fetch protocol fee, defaulting to 0:", error);
+            return 0;
+        }
+    });
+}
+/**
+ * Fetches the app fee for a specific token from the AppRegistry.
+ */
+function getAppFeeBpsForToken(origin, tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const tokenInfo = yield origin.callContractMethod(origin.environment.DATANFT_CONTRACT_ADDRESS, origin.environment.IPNFT_ABI, "tokenInfo", [tokenId]);
+            const appId = tokenInfo === null || tokenInfo === void 0 ? void 0 : tokenInfo.appId;
+            if (!appId || appId === "")
+                return 0;
+            if (!origin.environment.APP_REGISTRY_CONTRACT_ADDRESS ||
+                !origin.environment.APP_REGISTRY_ABI) {
+                return 0;
+            }
+            const appInfo = yield origin.callContractMethod(origin.environment.APP_REGISTRY_CONTRACT_ADDRESS, origin.environment.APP_REGISTRY_ABI, "getAppInfo", [appId]);
+            if (appInfo === null || appInfo === void 0 ? void 0 : appInfo.isActive) {
+                return Number(appInfo.revenueShareBps);
+            }
+            return 0;
+        }
+        catch (error) {
+            console.warn("Failed to fetch app fee, defaulting to 0:", error);
+            return 0;
+        }
+    });
+}
+/**
  * EXPERIMENTAL METHOD
  * Settles a payment intent response by purchasing access if needed.
  * This method checks if the user already has access to the item, and if not,
@@ -3917,6 +5977,11 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
         const expectedPaymentToken = marketplaceAction.asset;
         const isNativeToken = expectedPaymentToken === "0x0000000000000000000000000000000000000000";
         const value = isNativeToken ? expectedPrice : BigInt(0);
+        // Fetch actual fees from contracts
+        const [protocolFeeBps, appFeeBps] = yield Promise.all([
+            getProtocolFeeBps(this),
+            getAppFeeBpsForToken(this, tokenId),
+        ]);
         if (signer) {
             const signerAdapter = createSignerAdapter(signer);
             const marketplaceAddress = this.environment
@@ -3931,6 +5996,8 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
                     expectedPrice,
                     expectedDuration,
                     expectedPaymentToken,
+                    protocolFeeBps,
+                    appFeeBps,
                 ],
             });
             if (signerAdapter.type === "viem") {
@@ -3976,38 +6043,74 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
         if (!this.viemClient) {
             throw new Error("No signer or wallet client provided for settleX402");
         }
-        return yield this.buyAccess(payerAddress, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, isNativeToken ? value : undefined);
+        return yield this.buyAccess(payerAddress, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, protocolFeeBps, appFeeBps, isNativeToken ? value : undefined);
     });
 }
 
 /**
+ * Enum representing the type of license for an IP NFT.
+ * - DURATION_BASED: License expires after a set duration (subscription model).
+ * - SINGLE_PAYMENT: One-time payment for perpetual access.
+ * - X402: HTTP 402-based micropayment license (no on-chain payments).
+ */
+var LicenseType;
+(function (LicenseType) {
+    LicenseType[LicenseType["DURATION_BASED"] = 0] = "DURATION_BASED";
+    LicenseType[LicenseType["SINGLE_PAYMENT"] = 1] = "SINGLE_PAYMENT";
+    LicenseType[LicenseType["X402"] = 2] = "X402";
+})(LicenseType || (LicenseType = {}));
+/**
  * Enum representing the status of data in the system.
- * * - ACTIVE: The data is currently active and available.
- * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
- * * - DELETED: The data has been deleted and is no longer available.
+ * - ACTIVE: The data is currently active and available.
+ * - DELETED: The data has been deleted and is no longer available.
+ * - DISPUTED: The data has been disputed and marked as potentially infringing.
  */
 var DataStatus;
 (function (DataStatus) {
     DataStatus[DataStatus["ACTIVE"] = 0] = "ACTIVE";
-    DataStatus[DataStatus["PENDING_DELETE"] = 1] = "PENDING_DELETE";
-    DataStatus[DataStatus["DELETED"] = 2] = "DELETED";
+    DataStatus[DataStatus["DELETED"] = 1] = "DELETED";
+    DataStatus[DataStatus["DISPUTED"] = 2] = "DISPUTED";
 })(DataStatus || (DataStatus = {}));
+/**
+ * Enum representing the status of a dispute.
+ * - Uninitialized: Dispute does not exist.
+ * - Raised: Dispute has been raised but not yet asserted by IP owner.
+ * - Asserted: IP owner has responded to the dispute.
+ * - Resolved: Dispute has been resolved (either valid or invalid).
+ * - Cancelled: Dispute was cancelled by the initiator.
+ */
+var DisputeStatus;
+(function (DisputeStatus) {
+    DisputeStatus[DisputeStatus["Uninitialized"] = 0] = "Uninitialized";
+    DisputeStatus[DisputeStatus["Raised"] = 1] = "Raised";
+    DisputeStatus[DisputeStatus["Asserted"] = 2] = "Asserted";
+    DisputeStatus[DisputeStatus["Resolved"] = 3] = "Resolved";
+    DisputeStatus[DisputeStatus["Cancelled"] = 4] = "Cancelled";
+})(DisputeStatus || (DisputeStatus = {}));
 /**
  * Creates license terms for a digital asset.
  * @param price The price of the asset in wei.
- * @param duration The duration of the license in seconds.
+ * @param duration The duration of the license in seconds (use 0 for SINGLE_PAYMENT and X402).
  * @param royaltyBps The royalty percentage in basis points (0-10000).
  * @param paymentToken The address of the payment token (ERC20 / address(0) for native currency).
+ * @param licenseType The type of license (defaults to DURATION_BASED).
  * @returns The created license terms.
  */
-const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
+const createLicenseTerms = (price, duration, royaltyBps, paymentToken, licenseType = LicenseType.DURATION_BASED) => {
     if (royaltyBps < constants.MIN_ROYALTY_BPS ||
         royaltyBps > constants.MAX_ROYALTY_BPS) {
         throw new Error(`Royalty basis points must be between ${constants.MIN_ROYALTY_BPS} and ${constants.MAX_ROYALTY_BPS}`);
     }
-    if (duration < constants.MIN_LICENSE_DURATION ||
-        duration > constants.MAX_LICENSE_DURATION) {
-        throw new Error(`Duration must be between ${constants.MIN_LICENSE_DURATION} and ${constants.MAX_LICENSE_DURATION} seconds`);
+    if (licenseType === LicenseType.DURATION_BASED) {
+        if (duration < constants.MIN_LICENSE_DURATION ||
+            duration > constants.MAX_LICENSE_DURATION) {
+            throw new Error(`Duration must be between ${constants.MIN_LICENSE_DURATION} and ${constants.MAX_LICENSE_DURATION} seconds for DURATION_BASED licenses`);
+        }
+    }
+    else if ((licenseType === LicenseType.SINGLE_PAYMENT ||
+        licenseType === LicenseType.X402) &&
+        duration > 0) {
+        throw new Error(`Duration must be 0 for ${LicenseType[licenseType]} licenses`);
     }
     if (price < constants.MIN_PRICE) {
         throw new Error(`Price must be at least ${constants.MIN_PRICE} wei`);
@@ -4017,6 +6120,7 @@ const createLicenseTerms = (price, duration, royaltyBps, paymentToken) => {
         duration,
         royaltyBps,
         paymentToken,
+        licenseType,
     };
 };
 /**
@@ -4189,6 +6293,995 @@ function getCurrentAccount() {
             throw new Error("No accounts found in connected wallet.");
         }
         return accounts[0];
+    });
+}
+
+/**
+ * Raises a dispute against an IP NFT.
+ * Requires the caller to have the dispute bond amount in dispute tokens.
+ *
+ * @param targetIpId The token ID of the IP NFT to dispute.
+ * @param evidenceHash The hash of evidence supporting the dispute.
+ * @param disputeTag A tag identifying the type of dispute.
+ * @returns A promise that resolves with the transaction result including the dispute ID.
+ *
+ * @example
+ * ```typescript
+ * const result = await origin.raiseDispute(
+ *   1n,
+ *   "0x1234...", // evidence hash
+ *   "0x5678..." // dispute tag (e.g., "infringement", "fraud")
+ * );
+ * ```
+ */
+function raiseDispute(targetIpId, evidenceHash, disputeTag) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "raiseDispute", [targetIpId, evidenceHash, disputeTag], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Asserts a dispute as the IP owner with counter-evidence.
+ * Must be called by the owner of the disputed IP within the cooldown period.
+ *
+ * @param disputeId The ID of the dispute to assert.
+ * @param counterEvidenceHash The hash of evidence countering the dispute.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.disputeAssertion(1n, "0x1234..."); // counter-evidence hash
+ * ```
+ */
+function disputeAssertion(disputeId, counterEvidenceHash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "disputeAssertion", [disputeId, counterEvidenceHash], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Votes on a dispute as a CAMP token staker.
+ * Only users who staked before the dispute was raised can vote.
+ * Requires the caller to have voting power >= staking threshold.
+ *
+ * @param disputeId The ID of the dispute to vote on.
+ * @param support True to vote in favor of the dispute, false to vote against.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Vote in favor of the dispute
+ * await origin.voteOnDispute(1n, true);
+ *
+ * // Vote against the dispute
+ * await origin.voteOnDispute(1n, false);
+ * ```
+ */
+function voteOnDispute(disputeId, support) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "voteOnDispute", [disputeId, support], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Resolves a dispute after the voting period has ended.
+ * Can be called by anyone - resolution is deterministic based on votes and quorum.
+ * If the dispute is valid, the IP is marked as disputed and bond is returned.
+ * If invalid, the bond is split between the IP owner and resolver (protocol fee to caller).
+ *
+ * @param disputeId The ID of the dispute to resolve.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.resolveDispute(1n);
+ * ```
+ */
+function resolveDispute(disputeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "resolveDispute", [disputeId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Cancels a dispute that is still in the raised state.
+ * Can only be called by the dispute initiator during the cooldown period.
+ * The bond is returned to the initiator.
+ *
+ * @param disputeId The ID of the dispute to cancel.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.cancelDispute(1n);
+ * ```
+ */
+function cancelDispute(disputeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "cancelDispute", [disputeId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Tags a child IP as disputed if its parent has been successfully disputed.
+ * This propagates the dispute status to derivative IPs.
+ *
+ * @param childIpId The token ID of the child IP to tag.
+ * @param infringerDisputeId The ID of the resolved dispute against the parent IP.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // After parent IP (tokenId 1) has been disputed, tag child IP (tokenId 2)
+ * await origin.tagChildIp(2n, 1n); // childIpId, disputeId of parent
+ * ```
+ */
+function tagChildIp(childIpId, infringerDisputeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "tagChildIp", [childIpId, infringerDisputeId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Gets the details of a dispute by its ID.
+ *
+ * @param disputeId The ID of the dispute to fetch.
+ * @returns A promise that resolves with the dispute details.
+ *
+ * @example
+ * ```typescript
+ * const dispute = await origin.getDispute(1n);
+ * console.log(`Status: ${dispute.status}`);
+ * console.log(`Yes votes: ${dispute.yesVotes}`);
+ * console.log(`No votes: ${dispute.noVotes}`);
+ * ```
+ */
+function getDispute(disputeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "disputes", [disputeId]);
+    });
+}
+
+// Minimal ABI for staking vault
+const STAKING_VAULT_ABI = [
+    {
+        inputs: [{ name: "account", type: "address" }],
+        name: "balanceOf",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ name: "account", type: "address" }],
+        name: "userStakeTimestamp",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+];
+/**
+ * Checks if a user meets the requirements to vote on a dispute.
+ * Returns detailed information about eligibility and reason if ineligible.
+ *
+ * @param disputeId The ID of the dispute to check.
+ * @param voter Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the vote eligibility details.
+ *
+ * @example
+ * ```typescript
+ * const eligibility = await origin.canVoteOnDispute(1n);
+ *
+ * if (eligibility.canVote) {
+ *   console.log(`You can vote with weight: ${eligibility.votingWeight}`);
+ *   await origin.voteOnDispute(1n, true);
+ * } else {
+ *   console.log(`Cannot vote: ${eligibility.reason}`);
+ * }
+ * ```
+ */
+function canVoteOnDispute(disputeId, voter) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d, _e;
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        // Resolve voter address
+        let voterAddress;
+        if (voter) {
+            voterAddress = voter;
+        }
+        else {
+            const viemClient = this.viemClient;
+            if (!viemClient) {
+                throw new Error("No voter address provided and no wallet connected");
+            }
+            if (viemClient.account) {
+                voterAddress = viemClient.account.address;
+            }
+            else {
+                const accounts = yield viemClient.request({
+                    method: "eth_requestAccounts",
+                    params: [],
+                });
+                if (!accounts || accounts.length === 0) {
+                    throw new Error("No accounts found in connected wallet");
+                }
+                voterAddress = accounts[0];
+            }
+        }
+        const publicClient = getPublicClient();
+        const disputeContractAddress = this.environment
+            .DISPUTE_CONTRACT_ADDRESS;
+        const disputeAbi = this.environment.DISPUTE_ABI;
+        // Fetch dispute data, config, and hasVoted in parallel
+        const [dispute, stakingVaultAddress, stakingThreshold, cooldownPeriod, judgementPeriod, hasAlreadyVoted,] = yield Promise.all([
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputes",
+                args: [disputeId],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "stakingVault",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "stakingThreshold",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputeCoolDownPeriod",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputeJudgementPeriod",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "hasVoted",
+                args: [disputeId, voterAddress],
+            }),
+        ]);
+        // Parse dispute struct
+        const disputeStatus = Number((_a = dispute.status) !== null && _a !== void 0 ? _a : dispute[9]);
+        const disputeTimestamp = BigInt((_c = (_b = dispute.disputeTimestamp) !== null && _b !== void 0 ? _b : dispute[5]) !== null && _c !== void 0 ? _c : 0);
+        const assertionTimestamp = BigInt((_e = (_d = dispute.assertionTimestamp) !== null && _d !== void 0 ? _d : dispute[6]) !== null && _e !== void 0 ? _e : 0);
+        // Fetch staking vault data
+        const [userStakeTimestamp, votingWeight] = yield Promise.all([
+            publicClient.readContract({
+                address: stakingVaultAddress,
+                abi: STAKING_VAULT_ABI,
+                functionName: "userStakeTimestamp",
+                args: [voterAddress],
+            }),
+            publicClient.readContract({
+                address: stakingVaultAddress,
+                abi: STAKING_VAULT_ABI,
+                functionName: "balanceOf",
+                args: [voterAddress],
+            }),
+        ]);
+        // Calculate voting period
+        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
+        let isVotingPeriodActive = false;
+        let votingPeriodEnd;
+        if (disputeStatus === DisputeStatus.Asserted) {
+            // For asserted disputes, voting period is relative to assertion timestamp
+            votingPeriodEnd = assertionTimestamp + judgementPeriod;
+            isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
+        }
+        else if (disputeStatus === DisputeStatus.Raised) {
+            // For raised disputes, voting period extends from cooldown through judgement
+            votingPeriodEnd = disputeTimestamp + cooldownPeriod + judgementPeriod;
+            isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
+        }
+        // Build base result
+        const baseResult = {
+            canVote: false,
+            votingWeight,
+            stakingThreshold,
+            hasAlreadyVoted,
+            userStakeTimestamp,
+            disputeTimestamp,
+            disputeStatus,
+            isVotingPeriodActive,
+        };
+        // Check all requirements in order
+        if (disputeStatus !== DisputeStatus.Raised &&
+            disputeStatus !== DisputeStatus.Asserted) {
+            return Object.assign(Object.assign({}, baseResult), { reason: `Dispute is not in a voteable status (current: ${DisputeStatus[disputeStatus]})` });
+        }
+        if (!isVotingPeriodActive) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "Voting period has ended" });
+        }
+        if (hasAlreadyVoted) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "You have already voted on this dispute" });
+        }
+        if (userStakeTimestamp === BigInt(0)) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "You have never staked CAMP tokens" });
+        }
+        if (userStakeTimestamp >= disputeTimestamp) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "You staked after this dispute was raised (vote recycling prevention)" });
+        }
+        if (votingWeight < stakingThreshold) {
+            return Object.assign(Object.assign({}, baseResult), { reason: `Insufficient stake: you have ${votingWeight} but need at least ${stakingThreshold}` });
+        }
+        // All checks passed
+        return Object.assign(Object.assign({}, baseResult), { canVote: true });
+    });
+}
+
+/**
+ * Gets detailed progress and voting statistics for a dispute.
+ * Includes vote counts, percentages, quorum progress, and timeline.
+ *
+ * @param disputeId The ID of the dispute to check.
+ * @returns A promise that resolves with the dispute progress details.
+ *
+ * @example
+ * ```typescript
+ * const progress = await origin.getDisputeProgress(1n);
+ *
+ * console.log(`Yes: ${progress.yesPercentage}% | No: ${progress.noPercentage}%`);
+ * console.log(`Quorum: ${progress.quorumPercentage}% (${progress.quorumMet ? 'met' : 'not met'})`);
+ * console.log(`Projected outcome: ${progress.projectedOutcome}`);
+ *
+ * if (progress.timeline.canResolveNow) {
+ *   await origin.resolveDispute(1n);
+ * } else {
+ *   console.log(`Can resolve in ${progress.timeline.timeUntilResolution} seconds`);
+ * }
+ * ```
+ */
+function getDisputeProgress(disputeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
+            throw new Error("Dispute contract address not configured");
+        }
+        if (!this.environment.DISPUTE_ABI) {
+            throw new Error("Dispute ABI not configured");
+        }
+        const publicClient = getPublicClient();
+        const disputeContractAddress = this.environment
+            .DISPUTE_CONTRACT_ADDRESS;
+        const disputeAbi = this.environment.DISPUTE_ABI;
+        // Fetch dispute and config in parallel
+        const [dispute, quorum, cooldownPeriod, judgementPeriod] = yield Promise.all([
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputes",
+                args: [disputeId],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputeQuorum",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputeCoolDownPeriod",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: disputeContractAddress,
+                abi: disputeAbi,
+                functionName: "disputeJudgementPeriod",
+                args: [],
+            }),
+        ]);
+        // Parse dispute struct
+        const status = Number((_a = dispute.status) !== null && _a !== void 0 ? _a : dispute[9]);
+        const disputeTimestamp = BigInt((_c = (_b = dispute.disputeTimestamp) !== null && _b !== void 0 ? _b : dispute[5]) !== null && _c !== void 0 ? _c : 0);
+        const assertionTimestamp = BigInt((_e = (_d = dispute.assertionTimestamp) !== null && _d !== void 0 ? _d : dispute[6]) !== null && _e !== void 0 ? _e : 0);
+        const yesVotes = BigInt((_g = (_f = dispute.yesVotes) !== null && _f !== void 0 ? _f : dispute[7]) !== null && _g !== void 0 ? _g : 0);
+        const noVotes = BigInt((_j = (_h = dispute.noVotes) !== null && _h !== void 0 ? _h : dispute[8]) !== null && _j !== void 0 ? _j : 0);
+        // Calculate vote statistics
+        const totalVotes = yesVotes + noVotes;
+        let yesPercentage = 0;
+        let noPercentage = 0;
+        if (totalVotes > BigInt(0)) {
+            yesPercentage = Number((yesVotes * BigInt(10000)) / totalVotes) / 100;
+            noPercentage = Number((noVotes * BigInt(10000)) / totalVotes) / 100;
+        }
+        // Calculate quorum progress
+        let quorumPercentage = 0;
+        if (quorum > BigInt(0)) {
+            quorumPercentage = Number((totalVotes * BigInt(10000)) / quorum) / 100;
+        }
+        const quorumMet = totalVotes >= quorum;
+        // Determine projected outcome
+        let projectedOutcome;
+        if (!quorumMet) {
+            projectedOutcome = "no_quorum";
+        }
+        else if (yesVotes > noVotes) {
+            projectedOutcome = "dispute_succeeds";
+        }
+        else {
+            projectedOutcome = "dispute_fails";
+        }
+        // Calculate timeline
+        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
+        const raisedAt = new Date(Number(disputeTimestamp) * 1000);
+        const cooldownEndsAt = new Date(Number(disputeTimestamp + cooldownPeriod) * 1000);
+        let votingEndsAt;
+        let resolutionTimestamp;
+        if (status === DisputeStatus.Asserted) {
+            // For asserted disputes, voting ends relative to assertion
+            votingEndsAt = new Date(Number(assertionTimestamp + judgementPeriod) * 1000);
+            resolutionTimestamp = assertionTimestamp + judgementPeriod;
+        }
+        else {
+            // For raised disputes, voting ends after cooldown + judgement
+            votingEndsAt = new Date(Number(disputeTimestamp + cooldownPeriod + judgementPeriod) * 1000);
+            resolutionTimestamp = disputeTimestamp + cooldownPeriod + judgementPeriod;
+        }
+        const canResolveNow = (status === DisputeStatus.Raised || status === DisputeStatus.Asserted) &&
+            currentTimestamp > resolutionTimestamp;
+        const timeUntilResolution = canResolveNow
+            ? 0
+            : Number(resolutionTimestamp - currentTimestamp);
+        return {
+            disputeId,
+            status,
+            yesVotes,
+            noVotes,
+            totalVotes,
+            yesPercentage,
+            noPercentage,
+            quorum,
+            quorumPercentage,
+            quorumMet,
+            projectedOutcome,
+            timeline: {
+                raisedAt,
+                cooldownEndsAt,
+                votingEndsAt,
+                canResolveNow,
+                timeUntilResolution,
+            },
+        };
+    });
+}
+
+/**
+ * Fractionalizes an IP NFT into fungible ERC20 tokens.
+ * The NFT is transferred to the fractionalizer contract and a new ERC20 token is created.
+ * The caller receives the full supply of fractional tokens.
+ *
+ * @param tokenId The token ID of the IP NFT to fractionalize.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // First approve the fractionalizer contract to transfer your NFT
+ * await origin.approve(fractionalizerAddress, tokenId);
+ *
+ * // Then fractionalize
+ * const result = await origin.fractionalize(1n);
+ * ```
+ */
+function fractionalize(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "fractionalize", [tokenId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Redeems an IP NFT by burning all of its fractional tokens.
+ * The caller must hold the entire supply of the NFT's fractional token.
+ * After redemption, the NFT is transferred back to the caller.
+ *
+ * @param tokenId The token ID of the IP NFT to redeem.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Requires holding 100% of the fractional token supply
+ * await origin.redeem(1n);
+ * ```
+ */
+function redeem(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "redeem", [tokenId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Gets the fractional ERC20 token address for a specific IP NFT.
+ * Returns zero address if the NFT has not been fractionalized.
+ *
+ * @param tokenId The token ID of the IP NFT.
+ * @returns A promise that resolves with the fractional token address.
+ *
+ * @example
+ * ```typescript
+ * const fractionalToken = await origin.getTokenForNFT(1n);
+ * if (fractionalToken !== zeroAddress) {
+ *   console.log(`Fractional token: ${fractionalToken}`);
+ * } else {
+ *   console.log("NFT has not been fractionalized");
+ * }
+ * ```
+ */
+function getTokenForNFT(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "getTokenForNFT", [tokenId]);
+    });
+}
+
+/**
+ * Fractionalizes an IP NFT with automatic approval.
+ * This method first approves the fractionalizer contract to transfer your NFT,
+ * then calls fractionalize. This is the recommended method for most use cases.
+ *
+ * @param tokenId The token ID of the IP NFT to fractionalize.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Single call handles approval and fractionalization
+ * const result = await origin.fractionalizeWithApproval(1n);
+ * ```
+ */
+function fractionalizeWithApproval(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        // Approve the fractionalizer contract to transfer the NFT
+        yield this.approve(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, tokenId);
+        // Then fractionalize
+        return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "fractionalize", [tokenId], { waitForReceipt: true });
+    });
+}
+
+/**
+ * Redeems fractional tokens for the underlying NFT, but only if the caller owns 100% of the supply.
+ * This method checks the caller's balance before attempting to redeem, providing a clear error
+ * if they don't hold the full supply.
+ *
+ * @param tokenId The token ID of the original NFT to redeem.
+ * @returns A promise that resolves with the transaction result.
+ * @throws Error if the caller doesn't own 100% of the fractional tokens.
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const result = await origin.redeemIfComplete(1n);
+ *   console.log("NFT redeemed successfully!");
+ * } catch (error) {
+ *   console.log("You don't own all fractional tokens yet");
+ * }
+ * ```
+ */
+function redeemIfComplete(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        // Get the ERC20 token address for this NFT
+        const erc20Address = yield this.getTokenForNFT(tokenId);
+        if (!erc20Address ||
+            erc20Address === "0x0000000000000000000000000000000000000000") {
+            throw new Error("This NFT has not been fractionalized");
+        }
+        // Get current wallet address
+        const viemClient = this.viemClient;
+        if (!viemClient) {
+            throw new Error("WalletClient not connected. Please connect a wallet.");
+        }
+        let owner;
+        if (viemClient.account) {
+            owner = viemClient.account.address;
+        }
+        else {
+            const accounts = yield viemClient.request({
+                method: "eth_requestAccounts",
+                params: [],
+            });
+            if (!accounts || accounts.length === 0) {
+                throw new Error("No accounts found in connected wallet.");
+            }
+            owner = accounts[0];
+        }
+        // Check caller's balance and total supply
+        const erc20Abi = [
+            {
+                inputs: [{ name: "owner", type: "address" }],
+                name: "balanceOf",
+                outputs: [{ name: "", type: "uint256" }],
+                stateMutability: "view",
+                type: "function",
+            },
+            {
+                inputs: [],
+                name: "totalSupply",
+                outputs: [{ name: "", type: "uint256" }],
+                stateMutability: "view",
+                type: "function",
+            },
+        ];
+        const publicClient = getPublicClient();
+        const [balance, totalSupply] = yield Promise.all([
+            publicClient.readContract({
+                address: erc20Address,
+                abi: erc20Abi,
+                functionName: "balanceOf",
+                args: [owner],
+            }),
+            publicClient.readContract({
+                address: erc20Address,
+                abi: erc20Abi,
+                functionName: "totalSupply",
+                args: [],
+            }),
+        ]);
+        if (balance < totalSupply) {
+            const percentage = (balance * BigInt(10000)) / totalSupply;
+            throw new Error(`Cannot redeem: you own ${percentage / BigInt(100)}.${percentage % BigInt(100)}% of the fractional tokens (${balance}/${totalSupply}). You need 100% to redeem.`);
+        }
+        // Proceed with redemption
+        return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "redeem", [tokenId], { waitForReceipt: true });
+    });
+}
+
+// Minimal ERC20 ABI
+const ERC20_ABI = [
+    {
+        inputs: [{ name: "owner", type: "address" }],
+        name: "balanceOf",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "totalSupply",
+        outputs: [{ name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "decimals",
+        outputs: [{ name: "", type: "uint8" }],
+        stateMutability: "view",
+        type: "function",
+    },
+];
+/**
+ * Gets a user's ownership percentage of a fractionalized NFT.
+ * Returns detailed information about the user's fractional token holdings.
+ *
+ * @param tokenId The token ID of the original NFT.
+ * @param owner Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the ownership details.
+ *
+ * @example
+ * ```typescript
+ * const ownership = await origin.getFractionOwnership(1n);
+ *
+ * if (!ownership.isFractionalized) {
+ *   console.log("This NFT has not been fractionalized");
+ * } else {
+ *   console.log(`You own ${ownership.ownershipPercentage}% of this NFT`);
+ *   console.log(`Balance: ${ownership.balance} / ${ownership.totalSupply}`);
+ *
+ *   if (ownership.canRedeem) {
+ *     console.log("You can redeem the original NFT!");
+ *     await origin.redeem(1n);
+ *   }
+ * }
+ * ```
+ */
+function getFractionOwnership(tokenId, owner) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        // Resolve owner address
+        let ownerAddress;
+        if (owner) {
+            ownerAddress = owner;
+        }
+        else {
+            const viemClient = this.viemClient;
+            if (!viemClient) {
+                throw new Error("No owner address provided and no wallet connected");
+            }
+            if (viemClient.account) {
+                ownerAddress = viemClient.account.address;
+            }
+            else {
+                const accounts = yield viemClient.request({
+                    method: "eth_requestAccounts",
+                    params: [],
+                });
+                if (!accounts || accounts.length === 0) {
+                    throw new Error("No accounts found in connected wallet");
+                }
+                ownerAddress = accounts[0];
+            }
+        }
+        // Get the ERC20 token address for this NFT
+        const erc20Address = yield this.getTokenForNFT(tokenId);
+        // Check if fractionalized
+        if (!erc20Address || erc20Address === zeroAddress) {
+            return {
+                tokenId,
+                erc20Address: zeroAddress,
+                isFractionalized: false,
+                balance: BigInt(0),
+                totalSupply: BigInt(0),
+                ownershipPercentage: 0,
+                canRedeem: false,
+                decimals: 18,
+            };
+        }
+        const publicClient = getPublicClient();
+        // Fetch ERC20 data
+        const [balance, totalSupply, decimals] = yield Promise.all([
+            publicClient.readContract({
+                address: erc20Address,
+                abi: ERC20_ABI,
+                functionName: "balanceOf",
+                args: [ownerAddress],
+            }),
+            publicClient.readContract({
+                address: erc20Address,
+                abi: ERC20_ABI,
+                functionName: "totalSupply",
+                args: [],
+            }),
+            publicClient.readContract({
+                address: erc20Address,
+                abi: ERC20_ABI,
+                functionName: "decimals",
+                args: [],
+            }),
+        ]);
+        // Calculate ownership percentage
+        let ownershipPercentage = 0;
+        if (totalSupply > BigInt(0)) {
+            ownershipPercentage =
+                Number((balance * BigInt(10000)) / totalSupply) / 100;
+        }
+        const canRedeem = balance >= totalSupply && totalSupply > BigInt(0);
+        return {
+            tokenId,
+            erc20Address: erc20Address,
+            isFractionalized: true,
+            balance,
+            totalSupply,
+            ownershipPercentage,
+            canRedeem,
+            decimals,
+        };
+    });
+}
+
+/**
+ * Checks if a user can fractionalize an NFT and why not if they can't.
+ * Returns detailed information about eligibility requirements.
+ *
+ * @param tokenId The token ID of the NFT to check.
+ * @param owner Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the fractionalize eligibility details.
+ *
+ * @example
+ * ```typescript
+ * const eligibility = await origin.canFractionalize(1n);
+ *
+ * if (eligibility.canFractionalize) {
+ *   if (eligibility.needsApproval) {
+ *     // Use fractionalizeWithApproval for convenience
+ *     await origin.fractionalizeWithApproval(1n);
+ *   } else {
+ *     await origin.fractionalize(1n);
+ *   }
+ * } else {
+ *   console.log(`Cannot fractionalize: ${eligibility.reason}`);
+ * }
+ * ```
+ */
+function canFractionalize(tokenId, owner) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
+            throw new Error("Fractionalizer contract address not configured");
+        }
+        if (!this.environment.FRACTIONALIZER_ABI) {
+            throw new Error("Fractionalizer ABI not configured");
+        }
+        // Resolve owner address
+        let ownerAddress;
+        if (owner) {
+            ownerAddress = owner;
+        }
+        else {
+            const viemClient = this.viemClient;
+            if (!viemClient) {
+                throw new Error("No owner address provided and no wallet connected");
+            }
+            if (viemClient.account) {
+                ownerAddress = viemClient.account.address;
+            }
+            else {
+                const accounts = yield viemClient.request({
+                    method: "eth_requestAccounts",
+                    params: [],
+                });
+                if (!accounts || accounts.length === 0) {
+                    throw new Error("No accounts found in connected wallet");
+                }
+                ownerAddress = accounts[0];
+            }
+        }
+        const publicClient = getPublicClient();
+        const fractionalizerAddress = this.environment
+            .FRACTIONALIZER_CONTRACT_ADDRESS;
+        // Fetch all required data in parallel
+        const [currentOwner, dataStatus, erc20Address, approvedAddress, isApprovedForAll] = yield Promise.all([
+            this.ownerOf(tokenId),
+            this.dataStatus(tokenId),
+            this.getTokenForNFT(tokenId),
+            publicClient.readContract({
+                address: this.environment.DATANFT_CONTRACT_ADDRESS,
+                abi: this.environment.IPNFT_ABI,
+                functionName: "getApproved",
+                args: [tokenId],
+            }),
+            publicClient.readContract({
+                address: this.environment.DATANFT_CONTRACT_ADDRESS,
+                abi: this.environment.IPNFT_ABI,
+                functionName: "isApprovedForAll",
+                args: [ownerAddress, fractionalizerAddress],
+            }),
+        ]);
+        const isOwner = currentOwner.toLowerCase() === ownerAddress.toLowerCase();
+        const isAlreadyFractionalized = erc20Address && erc20Address !== zeroAddress;
+        const isApproved = isApprovedForAll ||
+            approvedAddress.toLowerCase() === fractionalizerAddress.toLowerCase();
+        // Build base result
+        const baseResult = {
+            canFractionalize: false,
+            isOwner,
+            currentOwner,
+            isAlreadyFractionalized: !!isAlreadyFractionalized,
+            existingErc20Address: isAlreadyFractionalized
+                ? erc20Address
+                : undefined,
+            dataStatus,
+            isApproved,
+            needsApproval: !isApproved,
+        };
+        // Check requirements in order
+        if (!isOwner) {
+            return Object.assign(Object.assign({}, baseResult), { reason: `You don't own this NFT. Current owner: ${currentOwner}` });
+        }
+        if (isAlreadyFractionalized) {
+            return Object.assign(Object.assign({}, baseResult), { reason: `This NFT is already fractionalized. ERC20: ${erc20Address}` });
+        }
+        if (dataStatus === DataStatus.DELETED) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "This NFT has been deleted and cannot be fractionalized" });
+        }
+        if (dataStatus === DataStatus.DISPUTED) {
+            return Object.assign(Object.assign({}, baseResult), { reason: "This NFT is disputed and cannot be fractionalized" });
+        }
+        // All checks passed
+        return Object.assign(Object.assign({}, baseResult), { canFractionalize: true });
+    });
+}
+
+/**
+ * Gets information about a registered app from the AppRegistry.
+ *
+ * @param appId The app ID to look up.
+ * @returns A promise that resolves with the app information.
+ *
+ * @example
+ * ```typescript
+ * const appInfo = await origin.getAppInfo("my-app-id");
+ * console.log(`Treasury: ${appInfo.treasury}`);
+ * console.log(`Revenue Share: ${appInfo.revenueShareBps / 100}%`);
+ * console.log(`Active: ${appInfo.isActive}`);
+ * ```
+ */
+function getAppInfo(appId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!this.environment.APP_REGISTRY_CONTRACT_ADDRESS) {
+            throw new Error("App registry contract address not configured");
+        }
+        if (!this.environment.APP_REGISTRY_ABI) {
+            throw new Error("App registry ABI not configured");
+        }
+        return this.callContractMethod(this.environment.APP_REGISTRY_CONTRACT_ADDRESS, this.environment.APP_REGISTRY_ABI, "getAppInfo", [appId]);
     });
 }
 
@@ -4394,13 +7487,13 @@ function bulkBuyAccessSmart(tokenIds, options) {
     });
 }
 
-var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadToIPFS, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_resolveWalletAddress;
+var _Origin_instances, _Origin_generateURL, _Origin_setOriginStatus, _Origin_uploadToIPFS, _Origin_uploadFile, _Origin_waitForTxReceipt, _Origin_ensureChainId, _Origin_getCurrentAccount, _Origin_getProtocolFeeBps, _Origin_getAppFeeBpsForToken, _Origin_resolveWalletAddress;
 /**
  * The Origin class
  * Handles interactions with Origin protocol.
  */
 class Origin {
-    constructor(environment, jwt, viemClient, baseParentId) {
+    constructor(environment, jwt, viemClient, baseParentId, appId) {
         _Origin_instances.add(this);
         if (jwt) {
             this.jwt = jwt;
@@ -4414,6 +7507,7 @@ class Origin {
                 ? ENVIRONMENTS[environment]
                 : environment || ENVIRONMENTS["DEVELOPMENT"];
         this.baseParentId = baseParentId;
+        this.appId = appId;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
         this.registerIpNFT = registerIpNFT.bind(this);
@@ -4443,6 +7537,26 @@ class Origin {
         this.previewBulkCost = previewBulkCost.bind(this);
         this.buildPurchaseParams = buildPurchaseParams.bind(this);
         this.checkActiveStatus = checkActiveStatus.bind(this);
+        // Dispute module methods
+        this.raiseDispute = raiseDispute.bind(this);
+        this.disputeAssertion = disputeAssertion.bind(this);
+        this.voteOnDispute = voteOnDispute.bind(this);
+        this.resolveDispute = resolveDispute.bind(this);
+        this.cancelDispute = cancelDispute.bind(this);
+        this.tagChildIp = tagChildIp.bind(this);
+        this.getDispute = getDispute.bind(this);
+        this.canVoteOnDispute = canVoteOnDispute.bind(this);
+        this.getDisputeProgress = getDisputeProgress.bind(this);
+        // Fractionalizer module methods
+        this.fractionalize = fractionalize.bind(this);
+        this.redeem = redeem.bind(this);
+        this.getTokenForNFT = getTokenForNFT.bind(this);
+        this.fractionalizeWithApproval = fractionalizeWithApproval.bind(this);
+        this.redeemIfComplete = redeemIfComplete.bind(this);
+        this.getFractionOwnership = getFractionOwnership.bind(this);
+        this.canFractionalize = canFractionalize.bind(this);
+        // AppRegistry module methods
+        this.getAppInfo = getAppInfo.bind(this);
     }
     getJwt() {
         return this.jwt;
@@ -4642,9 +7756,101 @@ class Origin {
         });
     }
     /**
+     * Gets comprehensive token information in a single call.
+     * Combines owner, status, terms, URI, and access information.
+     *
+     * @param tokenId The token ID to get information for.
+     * @param owner Optional address to check access for. If not provided, uses connected wallet.
+     * @returns A promise that resolves with comprehensive token information.
+     *
+     * @example
+     * ```typescript
+     * const info = await origin.getTokenInfoSmart(1n);
+     * console.log(`Owner: ${info.owner}`);
+     * console.log(`Price: ${info.terms.price}`);
+     * console.log(`Has access: ${info.hasAccess}`);
+     * ```
+     */
+    getTokenInfoSmart(tokenId, owner) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            // Resolve the address to check access for
+            let accessAddress;
+            if (owner) {
+                accessAddress = owner;
+            }
+            else if ((_a = this.viemClient) === null || _a === void 0 ? void 0 : _a.account) {
+                accessAddress = this.viemClient.account.address;
+            }
+            else if (this.viemClient) {
+                try {
+                    const accounts = yield this.viemClient.request({
+                        method: "eth_requestAccounts",
+                        params: [],
+                    });
+                    accessAddress =
+                        accounts && accounts.length > 0
+                            ? accounts[0]
+                            : "0x0000000000000000000000000000000000000000";
+                }
+                catch (_b) {
+                    accessAddress = "0x0000000000000000000000000000000000000000";
+                }
+            }
+            else {
+                accessAddress = "0x0000000000000000000000000000000000000000";
+            }
+            // Fetch all information in parallel
+            const [tokenOwner, uri, status, terms, tokenInfo] = yield Promise.all([
+                this.ownerOf(tokenId),
+                this.tokenURI(tokenId),
+                this.dataStatus(tokenId),
+                this.getTerms(tokenId),
+                this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "tokenInfo", [tokenId]).catch(() => ({ appId: "" })),
+            ]);
+            // Get access info if we have a valid address
+            let hasAccessResult = false;
+            let accessExpiry = null;
+            if (accessAddress !== "0x0000000000000000000000000000000000000000") {
+                try {
+                    [hasAccessResult, accessExpiry] = yield Promise.all([
+                        this.hasAccess(accessAddress, tokenId),
+                        this.subscriptionExpiry(tokenId, accessAddress),
+                    ]);
+                }
+                catch (_c) {
+                    // Access check failed, defaults are fine
+                }
+            }
+            return {
+                tokenId,
+                owner: tokenOwner,
+                uri: uri,
+                status: status,
+                terms: terms,
+                hasAccess: hasAccessResult,
+                accessExpiry,
+                appId: (tokenInfo === null || tokenInfo === void 0 ? void 0 : tokenInfo.appId) || "",
+            };
+        });
+    }
+    /**
      * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
-     * @param {bigint} tokenId The token ID of the asset.
-     * @returns {Promise<any>} The result of the buyAccess call.
+     * Automatically fetches protocol and app fees from the contracts.
+     * If the user already has access, returns null without making a transaction.
+     *
+     * @param tokenId The token ID of the asset.
+     * @returns The result of the buyAccess call, or null if user already has access.
+     *
+     * @example
+     * ```typescript
+     * const result = await origin.buyAccessSmart(1n);
+     * if (result === null) {
+     *   console.log("You already have access to this asset");
+     * } else {
+     *   console.log("Access purchased:", result.txHash);
+     * }
+     * ```
      */
     buyAccessSmart(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -4655,6 +7861,12 @@ class Origin {
             catch (error) {
                 throw new Error("Failed to buy access. Wallet not connected.");
             }
+            // Check if user already has access
+            const alreadyHasAccess = yield this.hasAccess(account, tokenId);
+            if (alreadyHasAccess) {
+                console.log("User already has access to this asset");
+                return null;
+            }
             const terms = yield this.getTerms(tokenId);
             if (!terms)
                 throw new Error("Failed to fetch terms for asset");
@@ -4664,10 +7876,14 @@ class Origin {
                 duration === undefined) {
                 throw new Error("Terms missing price, paymentToken, or duration");
             }
+            // Fetch protocol fee from marketplace
+            const protocolFeeBps = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getProtocolFeeBps).call(this);
+            // Fetch app fee from token's appId
+            const appFeeBps = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getAppFeeBpsForToken).call(this, tokenId);
             const totalCost = price;
             const isNative = paymentToken === zeroAddress;
             if (isNative) {
-                return this.buyAccess(account, tokenId, totalCost, duration, paymentToken, totalCost);
+                return this.buyAccess(account, tokenId, totalCost, duration, paymentToken, protocolFeeBps, appFeeBps, totalCost);
             }
             yield approveIfNeeded({
                 walletClient: this.viemClient,
@@ -4677,7 +7893,7 @@ class Origin {
                 spender: this.environment.MARKETPLACE_CONTRACT_ADDRESS,
                 amount: totalCost,
             });
-            return this.buyAccess(account, tokenId, totalCost, duration, paymentToken);
+            return this.buyAccess(account, tokenId, totalCost, duration, paymentToken, protocolFeeBps, appFeeBps);
         });
     }
     /**
@@ -5088,6 +8304,44 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         }
         return accounts[0];
     });
+}, _Origin_getProtocolFeeBps = function _Origin_getProtocolFeeBps() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const protocolFeeBps = yield this.callContractMethod(this.environment.MARKETPLACE_CONTRACT_ADDRESS, this.environment.MARKETPLACE_ABI, "protocolFeeBps", []);
+            return Number(protocolFeeBps);
+        }
+        catch (error) {
+            console.warn("Failed to fetch protocol fee, defaulting to 0:", error);
+            return 0;
+        }
+    });
+}, _Origin_getAppFeeBpsForToken = function _Origin_getAppFeeBpsForToken(tokenId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // First, get the token info to find its appId
+            const tokenInfo = yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "tokenInfo", [tokenId]);
+            const appId = tokenInfo === null || tokenInfo === void 0 ? void 0 : tokenInfo.appId;
+            if (!appId || appId === "") {
+                return 0;
+            }
+            // Check if app registry is configured
+            if (!this.environment.APP_REGISTRY_CONTRACT_ADDRESS ||
+                !this.environment.APP_REGISTRY_ABI) {
+                return 0;
+            }
+            // Fetch app info from registry
+            const appInfo = yield this.callContractMethod(this.environment.APP_REGISTRY_CONTRACT_ADDRESS, this.environment.APP_REGISTRY_ABI, "getAppInfo", [appId]);
+            // Only return fee if app is active
+            if (appInfo === null || appInfo === void 0 ? void 0 : appInfo.isActive) {
+                return Number(appInfo.revenueShareBps);
+            }
+            return 0;
+        }
+        catch (error) {
+            console.warn("Failed to fetch app fee, defaulting to 0:", error);
+            return 0;
+        }
+    });
 }, _Origin_resolveWalletAddress = function _Origin_resolveWalletAddress(owner) {
     return __awaiter(this, void 0, void 0, function* () {
         if (owner) {
@@ -5454,7 +8708,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
+                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId, this.clientId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -5516,7 +8770,7 @@ class Auth {
                     this.isAuthenticated = true;
                     this.userId = res.userId;
                     this.jwt = res.token;
-                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
+                    this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId, this.clientId);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:jwt", this.jwt);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:wallet-address", this.walletAddress);
                     yield __classPrivateFieldGet(this, _Auth_storage, "f").setItem("camp-sdk:user-id", this.userId);
@@ -5905,7 +9159,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             this.walletAddress = walletAddress;
             this.userId = userId;
             this.jwt = jwt;
-            this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId);
+            this.origin = new Origin(this.environment, this.jwt, this.viem, this.baseParentId, this.clientId);
             this.isAuthenticated = true;
             if (provider) {
                 this.setProvider({

@@ -14,7 +14,12 @@ export { Origin } from "./core/origin/index";
 export {
   createLicenseTerms,
   LicenseTerms,
+  LicenseType,
   DataStatus,
+  DisputeStatus,
+  Dispute,
+  AppInfo,
+  TokenInfo,
 } from "./core/origin/utils";
 
 export type {
@@ -22,3 +27,10 @@ export type {
   TolerantResult,
   BulkCostPreview,
 } from "./core/origin/bulkBuyAccess";
+
+export type { VoteEligibility, DisputeProgress } from "./core/origin/dispute";
+
+export type {
+  FractionOwnership,
+  FractionalizeEligibility,
+} from "./core/origin/fractionalizer";

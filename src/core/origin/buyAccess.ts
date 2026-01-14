@@ -8,6 +8,8 @@ import { Abi, Address } from "viem";
  * @param expectedPrice The expected price for the access.
  * @param expectedDuration The expected duration of the access in seconds.
  * @param expectedPaymentToken The address of the payment token (use zero address for native token).
+ * @param expectedProtocolFeeBps The expected protocol fee in basis points (0-10000). Defaults to 0.
+ * @param expectedAppFeeBps The expected app fee in basis points (0-10000). Defaults to 0.
  * @param value The amount of native token to send (only required if paying with native token).
  * @returns A promise that resolves when the transaction is confirmed.
  */
@@ -18,13 +20,23 @@ export function buyAccess(
   expectedPrice: bigint,
   expectedDuration: bigint,
   expectedPaymentToken: Address,
+  expectedProtocolFeeBps: number = 0,
+  expectedAppFeeBps: number = 0,
   value?: bigint // only for native token payments
 ) {
   return this.callContractMethod(
     this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
     this.environment.MARKETPLACE_ABI as Abi,
     "buyAccess",
-    [buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken],
+    [
+      buyer,
+      tokenId,
+      expectedPrice,
+      expectedDuration,
+      expectedPaymentToken,
+      expectedProtocolFeeBps,
+      expectedAppFeeBps,
+    ],
     { waitForReceipt: true, value }
   );
 }

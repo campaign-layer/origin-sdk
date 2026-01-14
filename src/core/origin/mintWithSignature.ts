@@ -13,6 +13,7 @@ import { IpNFTSource, LicenseTerms } from "./utils";
  * @param licenseTerms The terms of the license for the NFT.
  * @param deadline The deadline for the minting operation.
  * @param signature The signature for the minting operation.
+ * @param appId Optional app ID for the minting operation. Defaults to the SDK's appId (clientId).
  * @returns A promise that resolves when the minting is complete.
  */
 export async function mintWithSignature(
@@ -25,13 +26,28 @@ export async function mintWithSignature(
   uri: string,
   licenseTerms: LicenseTerms,
   deadline: bigint,
-  signature: Hex
+  signature: Hex,
+  appId?: string
 ): Promise<any> {
+  // use provided appId, or fall back to SDK's appId, or use empty string
+  const effectiveAppId = appId ?? this.appId ?? "";
+
   return await this.callContractMethod(
     this.environment.DATANFT_CONTRACT_ADDRESS as Address,
     this.environment.IPNFT_ABI as Abi,
     "mintWithSignature",
-    [to, tokenId, hash, uri, licenseTerms, deadline, parents, isIp, signature],
+    [
+      to,
+      tokenId,
+      hash,
+      uri,
+      licenseTerms,
+      deadline,
+      parents,
+      isIp,
+      effectiveAppId,
+      signature,
+    ],
     { waitForReceipt: true }
   );
 }
@@ -63,6 +79,7 @@ export async function registerIpNFT(
       duration: licenseTerms.duration,
       royaltyBps: licenseTerms.royaltyBps,
       paymentToken: licenseTerms.paymentToken,
+      licenseType: licenseTerms.licenseType,
     },
     metadata,
     parentId: parents ? parents.map((p) => p.toString()) : [],

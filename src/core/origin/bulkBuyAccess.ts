@@ -11,6 +11,8 @@ export interface BuyParams {
   expectedPrice: bigint;
   expectedDuration: number;
   expectedPaymentToken: Address;
+  expectedProtocolFeeBps: number;
+  expectedAppFeeBps: number;
 }
 
 /**

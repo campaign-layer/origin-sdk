@@ -18,7 +18,7 @@ The Origin SDK currently exposes the following modules:
   - `Auth` - For authenticating users with the Origin SDK (browser and Node.js)
   - Signer adapters and utilities for Node.js support (ethers, viem, custom signers)
   - Camp Network chain configurations (`campMainnet`, `campTestnet`)
-  - Origin utilities (`createLicenseTerms`, `LicenseTerms`, `DataStatus`)
+  - Origin utilities (`createLicenseTerms`, `LicenseTerms`, `LicenseType`, `DataStatus`, `DisputeStatus`, `Dispute`, `AppInfo`, `TokenInfo`)
 - `"@campnetwork/origin/react"` - Exposes the CampProvider and CampContext, as well as React components and hooks for authentication and fetching user data via Origin
 
 ## Features
@@ -29,6 +29,11 @@ The Origin SDK currently exposes the following modules:
 - **React Components** - Pre-built UI components and hooks
 - **TypeScript Support** - Full type definitions included
 - **Flexible Storage** - Custom storage adapters for session persistence
+- **Multiple License Types** - Duration-based, single payment, and X402 micropayment licenses
+- **Dispute Resolution** - Raise and resolve IP disputes with CAMP token voting
+- **NFT Fractionalization** - Fractionalize IP NFTs into tradable ERC20 tokens
+- **App Revenue Sharing** - Built-in app fee support via AppRegistry
+- **Bulk Operations** - Purchase multiple IP NFTs in a single transaction
 
 # Installation
 
@@ -451,6 +456,9 @@ import {
   // Auth class
   Auth,
 
+  // Origin class
+  Origin,
+
   // Signer adapters
   ViemSignerAdapter,
   EthersSignerAdapter,
@@ -467,6 +475,27 @@ import {
   // Chain configs
   campMainnet,
   campTestnet,
+
+  // License utilities
+  createLicenseTerms,
+  LicenseTerms,
+  LicenseType,
+
+  // Status enums
+  DataStatus,
+  DisputeStatus,
+
+  // Types
+  Dispute,
+  AppInfo,
+  TokenInfo,
+  BuyParams,
+  TolerantResult,
+  BulkCostPreview,
+  VoteEligibility,
+  DisputeProgress,
+  FractionOwnership,
+  FractionalizeEligibility,
 } from "@campnetwork/origin";
 ```
 
@@ -922,6 +951,18 @@ The `Origin` class provides blockchain and API methods for interacting with Orig
 
 ### Types
 
+#### `LicenseType`
+
+Enum representing the type of license for an IP NFT:
+
+```typescript
+enum LicenseType {
+  DURATION_BASED = 0, // License expires after a set duration (subscription model)
+  SINGLE_PAYMENT = 1, // One-time payment for perpetual access
+  X402 = 2, // HTTP 402-based micropayment license
+}
+```
+
 #### `LicenseTerms`
 
 The license terms object used in minting and updating methods:
@@ -929,10 +970,87 @@ The license terms object used in minting and updating methods:
 ```typescript
 type LicenseTerms = {
   price: bigint; // Price in wei
-  duration: number; // Duration in seconds
+  duration: number; // Duration in seconds (0 for SINGLE_PAYMENT and X402)
   royaltyBps: number; // Royalty in basis points (1-10000)
   paymentToken: Address; // Payment token address (address(0) for native currency)
+  licenseType: LicenseType; // Type of license
 };
+```
+
+#### `DataStatus`
+
+Enum representing the status of data in the system:
+
+```typescript
+enum DataStatus {
+  ACTIVE = 0, // Data is currently active and available
+  DELETED = 1, // Data has been deleted
+  DISPUTED = 2, // Data has been disputed and marked as potentially infringing
+}
+```
+
+#### `DisputeStatus`
+
+Enum representing the status of a dispute:
+
+```typescript
+enum DisputeStatus {
+  Uninitialized = 0, // Dispute does not exist
+  Raised = 1, // Dispute has been raised
+  Asserted = 2, // IP owner has responded
+  Resolved = 3, // Dispute has been resolved
+  Cancelled = 4, // Dispute was cancelled
+}
+```
+
+#### `Dispute`
+
+Interface representing a dispute against an IP NFT:
+
+```typescript
+interface Dispute {
+  initiator: Address;
+  targetId: bigint;
+  disputeTag: Hex;
+  disputeEvidenceHash: Hex;
+  counterEvidenceHash: Hex;
+  disputeTimestamp: bigint;
+  assertionTimestamp: bigint;
+  yesVotes: bigint;
+  noVotes: bigint;
+  status: DisputeStatus;
+  bondAmount: bigint;
+  protocolFeeAmount: bigint;
+}
+```
+
+#### `AppInfo`
+
+Interface representing app information from the AppRegistry:
+
+```typescript
+interface AppInfo {
+  treasury: Address;
+  revenueShareBps: number;
+  isActive: boolean;
+}
+```
+
+#### `TokenInfo`
+
+Comprehensive token information returned by `getTokenInfoSmart`:
+
+```typescript
+interface TokenInfo {
+  tokenId: bigint;
+  owner: Address;
+  uri: string;
+  status: DataStatus;
+  terms: LicenseTerms;
+  hasAccess: boolean;
+  accessExpiry: bigint | null;
+  appId: string;
+}
 ```
 
 ### Minting Constraints
@@ -941,36 +1059,47 @@ When minting or updating an IpNFT, the following constraints apply to the `Licen
 
 - The price must be at least `1000000000000000` wei (0.001 $CAMP).
 - The royaltyBps must be between `1` and `10000` (0.01% to 100%).
-- The duration must be between `86400` seconds and `2628000` seconds (1 day to 30 days).
+- For `DURATION_BASED` licenses, the duration must be between `86400` seconds and `2628000` seconds (1 day to 30 days).
+- For `SINGLE_PAYMENT` and `X402` licenses, duration must be `0`.
 
-### `createLicenseTerms(price, duration, royaltyBps, paymentToken)`
+### `createLicenseTerms(price, duration, royaltyBps, paymentToken, licenseType?)`
 
 A utility function to create properly validated license terms for minting and updating IpNFTs.
 
 - `price`: Price in wei (bigint)
-- `duration`: Duration in seconds (number)
+- `duration`: Duration in seconds (number) - use 0 for SINGLE_PAYMENT and X402
 - `royaltyBps`: Royalty in basis points (number)
 - `paymentToken`: Payment token address (Address) - use `zeroAddress` from viem for native currency
+- `licenseType`: Type of license (LicenseType) - defaults to `DURATION_BASED`
 - **Returns:** A validated `LicenseTerms` object
 - **Throws:** Error if any parameter violates the constraints
 
 **Example:**
 
 ```typescript
-import { createLicenseTerms } from "@campnetwork/origin";
+import { createLicenseTerms, LicenseType } from "@campnetwork/origin";
 import { zeroAddress } from "viem";
 
-// Create license terms with validation
-const license = createLicenseTerms(
+// Create duration-based license (subscription)
+const subscriptionLicense = createLicenseTerms(
   BigInt("1000000000000000"), // 0.001 CAMP in wei
   86400, // 1 day in seconds
   1000, // 10% royalty (1000 basis points)
   zeroAddress // Native currency (CAMP)
 );
 
+// Create single payment license (perpetual access)
+const perpetualLicense = createLicenseTerms(
+  BigInt("10000000000000000"), // 0.01 CAMP
+  0, // Duration must be 0 for single payment
+  500, // 5% royalty
+  zeroAddress,
+  LicenseType.SINGLE_PAYMENT
+);
+
 // Use with minting functions
-await auth.origin.mintFile(file, metadata, license);
-await auth.origin.mintSocial("twitter", metadata, license);
+await auth.origin.mintFile(file, metadata, subscriptionLicense);
+await auth.origin.mintSocial("twitter", metadata, perpetualLicense);
 ```
 
 ### File Upload & Minting
@@ -1007,37 +1136,277 @@ Most methods mirror smart contract functions and require appropriate permissions
 
 #### Core IpNFT Methods
 
-- `mintWithSignature(account, tokenId, parents, creatorContentHash, uri, license, deadline, signature)`
-- `registerIpNFT(source, deadline, license, metadata, fileKey?, parents?)`
-- `updateTerms(tokenId, license)`
-- `finalizeDelete(tokenId)`
-- `getOrCreateRoyaltyVault(tokenId)`
-- `getTerms(tokenId)`
-- `ownerOf(tokenId)`
-- `balanceOf(owner)`
-- `tokenURI(tokenId)`
-- `dataStatus(tokenId)`
-- `isApprovedForAll(owner, operator)`
-- `transferFrom(from, to, tokenId)`
-- `safeTransferFrom(from, to, tokenId)`
-- `approve(to, tokenId)`
-- `setApprovalForAll(operator, approved)`
+- `mintWithSignature(to, tokenId, parents, isIp, hash, uri, license, deadline, signature, appId?)` — Mint with a backend signature. `appId` defaults to SDK's clientId.
+- `registerIpNFT(source, deadline, license, metadata, fileKey?, parents?)` — Register IP with backend
+- `updateTerms(tokenId, license)` — Update license terms
+- `finalizeDelete(tokenId)` — Finalize deletion of an IP NFT
+- `getOrCreateRoyaltyVault(tokenId)` — Get or create Token Bound Account for royalties
+- `getTerms(tokenId)` — Get license terms for a token
+- `ownerOf(tokenId)` — Get owner address
+- `balanceOf(owner)` — Get token count for an owner
+- `tokenURI(tokenId)` — Get metadata URI
+- `dataStatus(tokenId)` — Get data status (ACTIVE, DELETED, or DISPUTED)
+- `isApprovedForAll(owner, operator)` — Check operator approval
+- `transferFrom(from, to, tokenId)` — Transfer token
+- `safeTransferFrom(from, to, tokenId)` — Safe transfer token
+- `approve(to, tokenId)` — Approve address for token
+- `setApprovalForAll(operator, approved)` — Set operator approval
 
 #### Marketplace Methods
 
-- `buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, value?)`
-- `hasAccess(tokenId, user)`
-- `subscriptionExpiry(tokenId, user)`
+- `buyAccess(buyer, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, expectedProtocolFeeBps?, expectedAppFeeBps?, value?)` — Purchase access to an IP NFT
+- `hasAccess(address, tokenId)` — Check if address has access
+- `subscriptionExpiry(tokenId, address)` — Get subscription expiry timestamp
 
-#### Utility & Royalty Methods
+#### Smart Helper Methods (Recommended)
 
-- `getRoyalties(token?, owner?)` — Get royalty vault and balance
-- `claimRoyalties(token?, owner?)` — Claim royalties
+These methods handle complexity automatically and are recommended for most use cases:
 
-#### Smart Access & Data
+- `getTokenInfoSmart(tokenId, owner?)` — Get comprehensive token info in a single call (owner, terms, status, access info, etc.)
+- `buyAccessSmart(tokenId)` — Buys access with automatic fee fetching. Returns `null` if user already has access.
+- `settlePaymentIntent(x402Response, signer?)` — Settle an X402 payment intent response
 
-- `buyAccessSmart(tokenId)` — Buys access, handles payment approval and license details - **Recommended in place of buyAccess**
-- `getData(tokenId)` — Fetches the underlying IP for a given IPNFT if the user has purchased access to it
+**Example:**
+
+```typescript
+// Get all token info at once
+const info = await auth.origin.getTokenInfoSmart(1n);
+console.log(`Owner: ${info.owner}`);
+console.log(`Price: ${info.terms.price}`);
+console.log(`Has access: ${info.hasAccess}`);
+console.log(`License type: ${info.terms.licenseType}`);
+
+// Smart purchase - checks access first, fetches fees automatically
+const result = await auth.origin.buyAccessSmart(1n);
+if (result === null) {
+  console.log("Already have access!");
+} else {
+  console.log("Purchased:", result.txHash);
+}
+```
+
+#### Bulk Purchase Methods
+
+For purchasing multiple IP NFTs in a single transaction:
+
+- `bulkBuyAccess(buyer, purchases, value?)` — Atomic bulk purchase (all succeed or all fail)
+- `bulkBuyAccessTolerant(buyer, purchases, value?)` — Tolerant bulk purchase (partial success allowed)
+- `bulkBuyAccessSmart(tokenIds, options?)` — Smart bulk purchase with automatic parameter building
+- `previewBulkCost(tokenIds)` — Preview total cost for multiple tokens
+- `buildPurchaseParams(tokenIds)` — Build purchase parameters from token IDs
+- `checkActiveStatus(tokenIds)` — Check active status of multiple tokens
+
+**Example:**
+
+```typescript
+// Smart bulk purchase - handles everything automatically
+const result = await auth.origin.bulkBuyAccessSmart([1n, 2n, 3n], {
+  tolerant: true, // Continue even if some fail
+});
+
+// Preview costs before purchasing
+const preview = await auth.origin.previewBulkCost([1n, 2n, 3n]);
+console.log(`Total cost: ${preview.totalNativeCost} wei`);
+```
+
+#### Dispute Module Methods
+
+Methods for the IP dispute resolution system:
+
+- `raiseDispute(targetIpId, evidenceHash, disputeTag)` — Raise a dispute against an IP NFT
+- `disputeAssertion(disputeId, counterEvidenceHash)` — IP owner responds to dispute
+- `voteOnDispute(disputeId, support)` — CAMP stakers vote on dispute
+- `resolveDispute(disputeId)` — Finalize dispute after voting period
+- `cancelDispute(disputeId)` — Cancel a dispute (initiator only)
+- `tagChildIp(childIpId, infringerDisputeId)` — Tag derivative IPs of disputed content
+- `getDispute(disputeId)` — Get dispute details
+- `canVoteOnDispute(disputeId, voter?)` — Check if user can vote and why (recommended before voting)
+- `getDisputeProgress(disputeId)` — Get voting stats, quorum progress, timeline, and projected outcome
+
+**VoteEligibility Interface:**
+
+```typescript
+interface VoteEligibility {
+  canVote: boolean; // Whether the user can vote
+  reason?: string; // Why they can't vote (if canVote is false)
+  votingWeight: bigint; // User's staked CAMP balance
+  stakingThreshold: bigint; // Minimum required stake
+  hasAlreadyVoted: boolean; // Whether user already voted
+  userStakeTimestamp: bigint; // When user staked (0 if never)
+  disputeTimestamp: bigint; // When dispute was raised
+  disputeStatus: DisputeStatus; // Current status
+  isVotingPeriodActive: boolean; // Whether voting is open
+}
+```
+
+**DisputeProgress Interface:**
+
+```typescript
+interface DisputeProgress {
+  disputeId: bigint;
+  status: DisputeStatus;
+  yesVotes: bigint; // Total YES votes (weighted)
+  noVotes: bigint; // Total NO votes (weighted)
+  totalVotes: bigint;
+  yesPercentage: number; // 0-100
+  noPercentage: number; // 0-100
+  quorum: bigint; // Required for valid resolution
+  quorumPercentage: number; // Progress toward quorum
+  quorumMet: boolean;
+  projectedOutcome: "dispute_succeeds" | "dispute_fails" | "no_quorum";
+  timeline: {
+    raisedAt: Date;
+    cooldownEndsAt: Date; // Owner can assert until this time
+    votingEndsAt: Date;
+    canResolveNow: boolean;
+    timeUntilResolution: number; // Seconds remaining
+  };
+}
+```
+
+**Example:**
+
+```typescript
+import { keccak256, toBytes } from "viem";
+
+// Raise a dispute
+const evidenceHash = keccak256(toBytes("ipfs://QmEvidence..."));
+const disputeTag = keccak256(toBytes("copyright_infringement"));
+
+const result = await auth.origin.raiseDispute(
+  1n, // Token ID to dispute
+  evidenceHash,
+  disputeTag
+);
+
+// Check if you can vote before voting
+const eligibility = await auth.origin.canVoteOnDispute(disputeId);
+
+if (eligibility.canVote) {
+  console.log(`Voting with weight: ${eligibility.votingWeight}`);
+  await auth.origin.voteOnDispute(disputeId, true); // Vote YES
+} else {
+  console.log(`Cannot vote: ${eligibility.reason}`);
+  // Possible reasons:
+  // - "Dispute is not in a voteable status"
+  // - "Voting period has ended"
+  // - "You have already voted on this dispute"
+  // - "You have never staked CAMP tokens"
+  // - "You staked after this dispute was raised"
+  // - "Insufficient stake: you have X but need at least Y"
+}
+
+// Get detailed dispute progress
+const progress = await auth.origin.getDisputeProgress(disputeId);
+console.log(`Yes: ${progress.yesPercentage}% | No: ${progress.noPercentage}%`);
+console.log(`Quorum: ${progress.quorumPercentage}% (${progress.quorumMet ? "met" : "not met"})`);
+console.log(`Projected outcome: ${progress.projectedOutcome}`);
+
+if (progress.timeline.canResolveNow) {
+  await auth.origin.resolveDispute(disputeId);
+} else {
+  console.log(`Can resolve in ${progress.timeline.timeUntilResolution} seconds`);
+}
+```
+
+#### Fractionalizer Module Methods
+
+Methods for fractionalizing IP NFTs into ERC20 tokens:
+
+- `fractionalize(tokenId)` — Fractionalize an NFT into ERC20 tokens
+- `fractionalizeWithApproval(tokenId)` — Fractionalize with automatic approval (recommended)
+- `redeem(tokenId)` — Redeem fractional tokens for the underlying NFT
+- `redeemIfComplete(tokenId)` — Redeem only if holding 100% of tokens (recommended)
+- `getTokenForNFT(tokenId)` — Get the ERC20 token address for a fractionalized NFT
+- `getFractionOwnership(tokenId, owner?)` — Get user's ownership percentage of fractional tokens
+- `canFractionalize(tokenId, owner?)` — Check if user can fractionalize an NFT
+
+**FractionOwnership Interface:**
+
+```typescript
+interface FractionOwnership {
+  tokenId: bigint;
+  erc20Address: Address; // Zero if not fractionalized
+  isFractionalized: boolean;
+  balance: bigint; // User's fractional token balance
+  totalSupply: bigint; // Total supply of fractional tokens
+  ownershipPercentage: number; // 0-100
+  canRedeem: boolean; // True if owns 100%
+  decimals: number;
+}
+```
+
+**FractionalizeEligibility Interface:**
+
+```typescript
+interface FractionalizeEligibility {
+  canFractionalize: boolean;
+  reason?: string; // Why not (if false)
+  isOwner: boolean;
+  currentOwner: Address;
+  isAlreadyFractionalized: boolean;
+  existingErc20Address?: Address;
+  dataStatus: DataStatus;
+  isApproved: boolean; // Fractionalizer approved to transfer
+  needsApproval: boolean;
+}
+```
+
+**Example:**
+
+```typescript
+// Check if you can fractionalize
+const eligibility = await auth.origin.canFractionalize(1n);
+
+if (eligibility.canFractionalize) {
+  // Fractionalize with automatic approval
+  await auth.origin.fractionalizeWithApproval(1n);
+} else {
+  console.log(`Cannot fractionalize: ${eligibility.reason}`);
+  // Possible reasons:
+  // - "You don't own this NFT"
+  // - "This NFT is already fractionalized"
+  // - "This NFT has been deleted"
+  // - "This NFT is disputed"
+}
+
+// Check your ownership of fractional tokens
+const ownership = await auth.origin.getFractionOwnership(1n);
+
+if (!ownership.isFractionalized) {
+  console.log("This NFT has not been fractionalized");
+} else {
+  console.log(`You own ${ownership.ownershipPercentage}% of this NFT`);
+  console.log(`Balance: ${ownership.balance} / ${ownership.totalSupply}`);
+
+  if (ownership.canRedeem) {
+    console.log("You can redeem the original NFT!");
+    await auth.origin.redeemIfComplete(1n);
+  }
+}
+```
+
+#### AppRegistry Module Methods
+
+Methods for querying app information:
+
+- `getAppInfo(appId)` — Get app information from the registry
+
+**Example:**
+
+```typescript
+const appInfo = await auth.origin.getAppInfo("my-app-id");
+console.log(`Treasury: ${appInfo.treasury}`);
+console.log(`Revenue Share: ${appInfo.revenueShareBps / 100}%`);
+console.log(`Active: ${appInfo.isActive}`);
+```
+
+#### Royalty & Data Methods
+
+- `getTokenBoundAccount(tokenId)` — Get the Token Bound Account address for a token
+- `getRoyalties(tokenId, token?)` — Get royalty balance for a token
+- `claimRoyalties(tokenId, recipient?, token?)` — Claim royalties from a token's TBA
+- `getData(tokenId)` — Fetch the underlying IP data (requires access)
 
 ### Utility Methods
 

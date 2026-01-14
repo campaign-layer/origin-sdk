@@ -373,7 +373,8 @@ class Auth {
         this.environment,
         this.jwt,
         this.viem,
-        this.baseParentId
+        this.baseParentId,
+        this.clientId
       );
       this.isAuthenticated = true;
 
@@ -559,7 +560,8 @@ class Auth {
           this.environment,
           this.jwt,
           this.viem,
-          this.baseParentId
+          this.baseParentId,
+          this.clientId
         );
         await this.#storage.setItem("camp-sdk:jwt", this.jwt);
         await this.#storage.setItem(
@@ -642,7 +644,8 @@ class Auth {
           this.environment,
           this.jwt,
           this.viem,
-          this.baseParentId
+          this.baseParentId,
+          this.clientId
         );
 
         await this.#storage.setItem("camp-sdk:jwt", this.jwt);

@@ -29,7 +29,31 @@ import { hasAccess } from "./hasAccess";
 import { subscriptionExpiry } from "./subscriptionExpiry";
 import { settlePaymentIntent } from "./settlePaymentIntent";
 import { getDataWithIntent } from "./getDataWithIntent";
-import { LicenseTerms } from "./utils";
+import { LicenseTerms, LicenseType, DataStatus, TokenInfo } from "./utils";
+// Dispute module imports
+import {
+  raiseDispute,
+  disputeAssertion,
+  voteOnDispute,
+  resolveDispute,
+  cancelDispute,
+  tagChildIp,
+  getDispute,
+  canVoteOnDispute,
+  getDisputeProgress,
+} from "./dispute";
+// Fractionalizer module imports
+import {
+  fractionalize,
+  redeem,
+  getTokenForNFT,
+  fractionalizeWithApproval,
+  redeemIfComplete,
+  getFractionOwnership,
+  canFractionalize,
+} from "./fractionalizer";
+// AppRegistry module imports
+import { getAppInfo } from "./appRegistry";
 import { approveIfNeeded } from "./approveIfNeeded";
 import { Environment, ENVIRONMENTS } from "../../constants";
 import {
@@ -91,16 +115,38 @@ export class Origin {
   previewBulkCost!: typeof previewBulkCost;
   buildPurchaseParams!: typeof buildPurchaseParams;
   checkActiveStatus!: typeof checkActiveStatus;
+  // Dispute module methods
+  raiseDispute!: typeof raiseDispute;
+  disputeAssertion!: typeof disputeAssertion;
+  voteOnDispute!: typeof voteOnDispute;
+  resolveDispute!: typeof resolveDispute;
+  cancelDispute!: typeof cancelDispute;
+  tagChildIp!: typeof tagChildIp;
+  getDispute!: typeof getDispute;
+  canVoteOnDispute!: typeof canVoteOnDispute;
+  getDisputeProgress!: typeof getDisputeProgress;
+  // Fractionalizer module methods
+  fractionalize!: typeof fractionalize;
+  redeem!: typeof redeem;
+  getTokenForNFT!: typeof getTokenForNFT;
+  fractionalizeWithApproval!: typeof fractionalizeWithApproval;
+  redeemIfComplete!: typeof redeemIfComplete;
+  getFractionOwnership!: typeof getFractionOwnership;
+  canFractionalize!: typeof canFractionalize;
+  // AppRegistry module methods
+  getAppInfo!: typeof getAppInfo;
 
   private jwt?: string;
   environment: Environment;
   private viemClient?: WalletClient;
   baseParentId?: bigint;
+  appId?: string;
   constructor(
     environment?: Environment | string,
     jwt?: string,
     viemClient?: WalletClient,
-    baseParentId?: bigint
+    baseParentId?: bigint,
+    appId?: string
   ) {
     if (jwt) {
       this.jwt = jwt;
@@ -113,6 +159,7 @@ export class Origin {
         ? ENVIRONMENTS[environment]
         : environment || ENVIRONMENTS["DEVELOPMENT"];
     this.baseParentId = baseParentId;
+    this.appId = appId;
     // DataNFT methods
     this.mintWithSignature = mintWithSignature.bind(this);
     this.registerIpNFT = registerIpNFT.bind(this);
@@ -142,6 +189,26 @@ export class Origin {
     this.previewBulkCost = previewBulkCost.bind(this);
     this.buildPurchaseParams = buildPurchaseParams.bind(this);
     this.checkActiveStatus = checkActiveStatus.bind(this);
+    // Dispute module methods
+    this.raiseDispute = raiseDispute.bind(this);
+    this.disputeAssertion = disputeAssertion.bind(this);
+    this.voteOnDispute = voteOnDispute.bind(this);
+    this.resolveDispute = resolveDispute.bind(this);
+    this.cancelDispute = cancelDispute.bind(this);
+    this.tagChildIp = tagChildIp.bind(this);
+    this.getDispute = getDispute.bind(this);
+    this.canVoteOnDispute = canVoteOnDispute.bind(this);
+    this.getDisputeProgress = getDisputeProgress.bind(this);
+    // Fractionalizer module methods
+    this.fractionalize = fractionalize.bind(this);
+    this.redeem = redeem.bind(this);
+    this.getTokenForNFT = getTokenForNFT.bind(this);
+    this.fractionalizeWithApproval = fractionalizeWithApproval.bind(this);
+    this.redeemIfComplete = redeemIfComplete.bind(this);
+    this.getFractionOwnership = getFractionOwnership.bind(this);
+    this.canFractionalize = canFractionalize.bind(this);
+    // AppRegistry module methods
+    this.getAppInfo = getAppInfo.bind(this);
   }
 
   getJwt() {
@@ -779,16 +846,120 @@ export class Origin {
   }
 
   /**
-   * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
-   * @param {bigint} tokenId The token ID of the asset.
-   * @returns {Promise<any>} The result of the buyAccess call.
+   * Gets comprehensive token information in a single call.
+   * Combines owner, status, terms, URI, and access information.
+   *
+   * @param tokenId The token ID to get information for.
+   * @param owner Optional address to check access for. If not provided, uses connected wallet.
+   * @returns A promise that resolves with comprehensive token information.
+   *
+   * @example
+   * ```typescript
+   * const info = await origin.getTokenInfoSmart(1n);
+   * console.log(`Owner: ${info.owner}`);
+   * console.log(`Price: ${info.terms.price}`);
+   * console.log(`Has access: ${info.hasAccess}`);
+   * ```
    */
-  async buyAccessSmart(tokenId: bigint): Promise<any> {
+  async getTokenInfoSmart(
+    tokenId: bigint,
+    owner?: Address
+  ): Promise<TokenInfo> {
+    // Resolve the address to check access for
+    let accessAddress: Address;
+    if (owner) {
+      accessAddress = owner;
+    } else if (this.viemClient?.account) {
+      accessAddress = this.viemClient.account.address;
+    } else if (this.viemClient) {
+      try {
+        const accounts = await this.viemClient.request({
+          method: "eth_requestAccounts",
+          params: [] as any,
+        });
+        accessAddress =
+          accounts && accounts.length > 0
+            ? (accounts[0] as Address)
+            : ("0x0000000000000000000000000000000000000000" as Address);
+      } catch {
+        accessAddress = "0x0000000000000000000000000000000000000000" as Address;
+      }
+    } else {
+      accessAddress = "0x0000000000000000000000000000000000000000" as Address;
+    }
+
+    // Fetch all information in parallel
+    const [tokenOwner, uri, status, terms, tokenInfo] = await Promise.all([
+      this.ownerOf(tokenId),
+      this.tokenURI(tokenId),
+      this.dataStatus(tokenId),
+      this.getTerms(tokenId),
+      this.callContractMethod(
+        this.environment.DATANFT_CONTRACT_ADDRESS as Address,
+        this.environment.IPNFT_ABI as Abi,
+        "tokenInfo",
+        [tokenId]
+      ).catch(() => ({ appId: "" })),
+    ]);
+
+    // Get access info if we have a valid address
+    let hasAccessResult = false;
+    let accessExpiry: bigint | null = null;
+
+    if (accessAddress !== "0x0000000000000000000000000000000000000000") {
+      try {
+        [hasAccessResult, accessExpiry] = await Promise.all([
+          this.hasAccess(accessAddress, tokenId),
+          this.subscriptionExpiry(tokenId, accessAddress),
+        ]);
+      } catch {
+        // Access check failed, defaults are fine
+      }
+    }
+
+    return {
+      tokenId,
+      owner: tokenOwner as Address,
+      uri: uri as string,
+      status: status as DataStatus,
+      terms: terms as LicenseTerms,
+      hasAccess: hasAccessResult,
+      accessExpiry,
+      appId: tokenInfo?.appId || "",
+    };
+  }
+
+  /**
+   * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
+   * Automatically fetches protocol and app fees from the contracts.
+   * If the user already has access, returns null without making a transaction.
+   *
+   * @param tokenId The token ID of the asset.
+   * @returns The result of the buyAccess call, or null if user already has access.
+   *
+   * @example
+   * ```typescript
+   * const result = await origin.buyAccessSmart(1n);
+   * if (result === null) {
+   *   console.log("You already have access to this asset");
+   * } else {
+   *   console.log("Access purchased:", result.txHash);
+   * }
+   * ```
+   */
+  async buyAccessSmart(tokenId: bigint): Promise<any | null> {
     let account: string | null = null;
     try {
       account = await this.#getCurrentAccount();
     } catch (error) {
       throw new Error("Failed to buy access. Wallet not connected.");
+    }
+
+    // Check if user already has access
+    const alreadyHasAccess = await this.hasAccess(account as Address, tokenId);
+    if (alreadyHasAccess) {
+      console.log("User already has access to this asset");
+      return null;
     }
 
     const terms = await this.getTerms(tokenId);
@@ -803,6 +974,12 @@ export class Origin {
       throw new Error("Terms missing price, paymentToken, or duration");
     }
 
+    // Fetch protocol fee from marketplace
+    const protocolFeeBps = await this.#getProtocolFeeBps();
+
+    // Fetch app fee from token's appId
+    const appFeeBps = await this.#getAppFeeBpsForToken(tokenId);
+
     const totalCost = price;
     const isNative = paymentToken === zeroAddress;
     if (isNative) {
@@ -812,6 +989,8 @@ export class Origin {
         totalCost,
         duration,
         paymentToken,
+        protocolFeeBps,
+        appFeeBps,
         totalCost
       );
     }
@@ -830,8 +1009,80 @@ export class Origin {
       tokenId,
       totalCost,
       duration,
-      paymentToken
+      paymentToken,
+      protocolFeeBps,
+      appFeeBps
     );
+  }
+
+  /**
+   * Fetches the protocol fee in basis points from the marketplace contract.
+   * @private
+   * @returns {Promise<number>} The protocol fee in basis points.
+   */
+  async #getProtocolFeeBps(): Promise<number> {
+    try {
+      const protocolFeeBps = await this.callContractMethod(
+        this.environment.MARKETPLACE_CONTRACT_ADDRESS as Address,
+        this.environment.MARKETPLACE_ABI as Abi,
+        "protocolFeeBps",
+        []
+      );
+      return Number(protocolFeeBps);
+    } catch (error) {
+      console.warn("Failed to fetch protocol fee, defaulting to 0:", error);
+      return 0;
+    }
+  }
+
+  /**
+   * Fetches the app fee in basis points for a specific token.
+   * Gets the token's appId and then fetches the app's revenue share from the registry.
+   * @private
+   * @param {bigint} tokenId The token ID to get app fee for.
+   * @returns {Promise<number>} The app fee in basis points, or 0 if no app or inactive.
+   */
+  async #getAppFeeBpsForToken(tokenId: bigint): Promise<number> {
+    try {
+      // First, get the token info to find its appId
+      const tokenInfo = await this.callContractMethod(
+        this.environment.DATANFT_CONTRACT_ADDRESS as Address,
+        this.environment.IPNFT_ABI as Abi,
+        "tokenInfo",
+        [tokenId]
+      );
+
+      const appId = tokenInfo?.appId;
+      if (!appId || appId === "") {
+        return 0;
+      }
+
+      // Check if app registry is configured
+      if (
+        !this.environment.APP_REGISTRY_CONTRACT_ADDRESS ||
+        !this.environment.APP_REGISTRY_ABI
+      ) {
+        return 0;
+      }
+
+      // Fetch app info from registry
+      const appInfo = await this.callContractMethod(
+        this.environment.APP_REGISTRY_CONTRACT_ADDRESS as Address,
+        this.environment.APP_REGISTRY_ABI as Abi,
+        "getAppInfo",
+        [appId]
+      );
+
+      // Only return fee if app is active
+      if (appInfo?.isActive) {
+        return Number(appInfo.revenueShareBps);
+      }
+
+      return 0;
+    } catch (error) {
+      console.warn("Failed to fetch app fee, defaulting to 0:", error);
+      return 0;
+    }
   }
 
   /**
@@ -1074,7 +1325,15 @@ export class Origin {
   }
 }
 
-export { createLicenseTerms, LicenseTerms, DataStatus } from "./utils";
+export {
+  createLicenseTerms,
+  LicenseTerms,
+  LicenseType,
+  DataStatus,
+  DisputeStatus,
+  Dispute,
+  AppInfo,
+} from "./utils";
 export { X402Response } from "./settlePaymentIntent";
 export type {
   BuyParams,

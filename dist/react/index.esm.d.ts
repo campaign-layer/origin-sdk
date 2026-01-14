@@ -10,36 +10,108 @@ interface Environment {
     DATANFT_CONTRACT_ADDRESS: string;
     MARKETPLACE_CONTRACT_ADDRESS: string;
     BATCH_PURCHASE_CONTRACT_ADDRESS: string;
+    DISPUTE_CONTRACT_ADDRESS?: string;
+    FRACTIONALIZER_CONTRACT_ADDRESS?: string;
+    APP_REGISTRY_CONTRACT_ADDRESS?: string;
     CHAIN: any;
     IPNFT_ABI?: any;
     MARKETPLACE_ABI?: any;
     TBA_ABI?: any;
     BATCH_PURCHASE_ABI?: any;
+    DISPUTE_ABI?: any;
+    FRACTIONALIZER_ABI?: any;
+    APP_REGISTRY_ABI?: any;
 }
 
 /**
+ * Enum representing the type of license for an IP NFT.
+ * - DURATION_BASED: License expires after a set duration (subscription model).
+ * - SINGLE_PAYMENT: One-time payment for perpetual access.
+ * - X402: HTTP 402-based micropayment license (no on-chain payments).
+ */
+declare enum LicenseType {
+    DURATION_BASED = 0,
+    SINGLE_PAYMENT = 1,
+    X402 = 2
+}
+/**
  * Represents the terms of a license for a digital asset.
  * @property price - The price of the asset in wei.
- * @property duration - The duration of the license in seconds.
+ * @property duration - The duration of the license in seconds (0 for SINGLE_PAYMENT and X402).
  * @property royaltyBps - The royalty percentage in basis points (0-10000).
  * @property paymentToken - The address of the payment token (ERC20 / address(0) for native currency).
+ * @property licenseType - The type of license (DURATION_BASED, SINGLE_PAYMENT, or X402).
  */
 type LicenseTerms = {
     price: bigint;
     duration: number;
     royaltyBps: number;
     paymentToken: Address;
+    licenseType: LicenseType;
 };
 /**
  * Enum representing the status of data in the system.
- * * - ACTIVE: The data is currently active and available.
- * * - PENDING_DELETE: The data is scheduled for deletion but not yet removed.
- * * - DELETED: The data has been deleted and is no longer available.
+ * - ACTIVE: The data is currently active and available.
+ * - DELETED: The data has been deleted and is no longer available.
+ * - DISPUTED: The data has been disputed and marked as potentially infringing.
  */
 declare enum DataStatus {
     ACTIVE = 0,
-    PENDING_DELETE = 1,
-    DELETED = 2
+    DELETED = 1,
+    DISPUTED = 2
+}
+/**
+ * Enum representing the status of a dispute.
+ * - Uninitialized: Dispute does not exist.
+ * - Raised: Dispute has been raised but not yet asserted by IP owner.
+ * - Asserted: IP owner has responded to the dispute.
+ * - Resolved: Dispute has been resolved (either valid or invalid).
+ * - Cancelled: Dispute was cancelled by the initiator.
+ */
+declare enum DisputeStatus {
+    Uninitialized = 0,
+    Raised = 1,
+    Asserted = 2,
+    Resolved = 3,
+    Cancelled = 4
+}
+/**
+ * Represents a dispute against an IP NFT.
+ */
+interface Dispute {
+    initiator: Address;
+    targetId: bigint;
+    disputeTag: Hex;
+    disputeEvidenceHash: Hex;
+    counterEvidenceHash: Hex;
+    disputeTimestamp: bigint;
+    assertionTimestamp: bigint;
+    yesVotes: bigint;
+    noVotes: bigint;
+    status: DisputeStatus;
+    bondAmount: bigint;
+    protocolFeeAmount: bigint;
+}
+/**
+ * Represents app information from the AppRegistry.
+ */
+interface AppInfo {
+    treasury: Address;
+    revenueShareBps: number;
+    isActive: boolean;
+}
+/**
+ * Comprehensive token information returned by getTokenInfoSmart.
+ */
+interface TokenInfo {
+    tokenId: bigint;
+    owner: Address;
+    uri: string;
+    status: DataStatus;
+    terms: LicenseTerms;
+    hasAccess: boolean;
+    accessExpiry: bigint | null;
+    appId: string;
 }
 /**
  * Represents the source of an IpNFT.
@@ -58,9 +130,10 @@ type IpNFTSource = "spotify" | "twitter" | "tiktok" | "file";
  * @param licenseTerms The terms of the license for the NFT.
  * @param deadline The deadline for the minting operation.
  * @param signature The signature for the minting operation.
+ * @param appId Optional app ID for the minting operation. Defaults to the SDK's appId (clientId).
  * @returns A promise that resolves when the minting is complete.
  */
-declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, parents: bigint[], isIp: boolean, hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: Hex): Promise<any>;
+declare function mintWithSignature(this: Origin, to: Address, tokenId: bigint, parents: bigint[], isIp: boolean, hash: Hex, uri: string, licenseTerms: LicenseTerms, deadline: bigint, signature: Hex, appId?: string): Promise<any>;
 /**
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.
  * @param source The source of the Data NFT (e.g., "spotify", "twitter", "tiktok", or "file").
@@ -154,10 +227,12 @@ declare function setApprovalForAll(this: Origin, operator: Address, approved: bo
  * @param expectedPrice The expected price for the access.
  * @param expectedDuration The expected duration of the access in seconds.
  * @param expectedPaymentToken The address of the payment token (use zero address for native token).
+ * @param expectedProtocolFeeBps The expected protocol fee in basis points (0-10000). Defaults to 0.
+ * @param expectedAppFeeBps The expected app fee in basis points (0-10000). Defaults to 0.
  * @param value The amount of native token to send (only required if paying with native token).
  * @returns A promise that resolves when the transaction is confirmed.
  */
-declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, expectedPrice: bigint, expectedDuration: bigint, expectedPaymentToken: Address, value?: bigint): Promise<any>;
+declare function buyAccess(this: Origin, buyer: Address, tokenId: bigint, expectedPrice: bigint, expectedDuration: bigint, expectedPaymentToken: Address, expectedProtocolFeeBps?: number, expectedAppFeeBps?: number, value?: bigint): Promise<any>;
 
 /**
  * Checks if a user has access to a specific token based on subscription expiry.
@@ -218,6 +293,437 @@ declare function settlePaymentIntent(this: Origin, paymentIntentResponse: X402Re
 declare function getDataWithIntent(this: Origin, tokenId: bigint, signer?: any, decide?: (terms: any) => Promise<boolean>): Promise<any>;
 
 /**
+ * Raises a dispute against an IP NFT.
+ * Requires the caller to have the dispute bond amount in dispute tokens.
+ *
+ * @param targetIpId The token ID of the IP NFT to dispute.
+ * @param evidenceHash The hash of evidence supporting the dispute.
+ * @param disputeTag A tag identifying the type of dispute.
+ * @returns A promise that resolves with the transaction result including the dispute ID.
+ *
+ * @example
+ * ```typescript
+ * const result = await origin.raiseDispute(
+ *   1n,
+ *   "0x1234...", // evidence hash
+ *   "0x5678..." // dispute tag (e.g., "infringement", "fraud")
+ * );
+ * ```
+ */
+declare function raiseDispute(this: Origin, targetIpId: bigint, evidenceHash: Hex, disputeTag: Hex): Promise<any>;
+
+/**
+ * Asserts a dispute as the IP owner with counter-evidence.
+ * Must be called by the owner of the disputed IP within the cooldown period.
+ *
+ * @param disputeId The ID of the dispute to assert.
+ * @param counterEvidenceHash The hash of evidence countering the dispute.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.disputeAssertion(1n, "0x1234..."); // counter-evidence hash
+ * ```
+ */
+declare function disputeAssertion(this: Origin, disputeId: bigint, counterEvidenceHash: Hex): Promise<any>;
+
+/**
+ * Votes on a dispute as a CAMP token staker.
+ * Only users who staked before the dispute was raised can vote.
+ * Requires the caller to have voting power >= staking threshold.
+ *
+ * @param disputeId The ID of the dispute to vote on.
+ * @param support True to vote in favor of the dispute, false to vote against.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Vote in favor of the dispute
+ * await origin.voteOnDispute(1n, true);
+ *
+ * // Vote against the dispute
+ * await origin.voteOnDispute(1n, false);
+ * ```
+ */
+declare function voteOnDispute(this: Origin, disputeId: bigint, support: boolean): Promise<any>;
+
+/**
+ * Resolves a dispute after the voting period has ended.
+ * Can be called by anyone - resolution is deterministic based on votes and quorum.
+ * If the dispute is valid, the IP is marked as disputed and bond is returned.
+ * If invalid, the bond is split between the IP owner and resolver (protocol fee to caller).
+ *
+ * @param disputeId The ID of the dispute to resolve.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.resolveDispute(1n);
+ * ```
+ */
+declare function resolveDispute(this: Origin, disputeId: bigint): Promise<any>;
+
+/**
+ * Cancels a dispute that is still in the raised state.
+ * Can only be called by the dispute initiator during the cooldown period.
+ * The bond is returned to the initiator.
+ *
+ * @param disputeId The ID of the dispute to cancel.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * await origin.cancelDispute(1n);
+ * ```
+ */
+declare function cancelDispute(this: Origin, disputeId: bigint): Promise<any>;
+
+/**
+ * Tags a child IP as disputed if its parent has been successfully disputed.
+ * This propagates the dispute status to derivative IPs.
+ *
+ * @param childIpId The token ID of the child IP to tag.
+ * @param infringerDisputeId The ID of the resolved dispute against the parent IP.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // After parent IP (tokenId 1) has been disputed, tag child IP (tokenId 2)
+ * await origin.tagChildIp(2n, 1n); // childIpId, disputeId of parent
+ * ```
+ */
+declare function tagChildIp(this: Origin, childIpId: bigint, infringerDisputeId: bigint): Promise<any>;
+
+/**
+ * Gets the details of a dispute by its ID.
+ *
+ * @param disputeId The ID of the dispute to fetch.
+ * @returns A promise that resolves with the dispute details.
+ *
+ * @example
+ * ```typescript
+ * const dispute = await origin.getDispute(1n);
+ * console.log(`Status: ${dispute.status}`);
+ * console.log(`Yes votes: ${dispute.yesVotes}`);
+ * console.log(`No votes: ${dispute.noVotes}`);
+ * ```
+ */
+declare function getDispute(this: Origin, disputeId: bigint): Promise<Dispute>;
+
+/**
+ * Result of checking if a user can vote on a dispute.
+ */
+interface VoteEligibility {
+    /** Whether the user can vote on this dispute */
+    canVote: boolean;
+    /** Reason why user cannot vote (if canVote is false) */
+    reason?: string;
+    /** User's voting weight (staked CAMP balance) */
+    votingWeight: bigint;
+    /** Minimum required stake to vote */
+    stakingThreshold: bigint;
+    /** Whether user has already voted */
+    hasAlreadyVoted: boolean;
+    /** Timestamp when user staked (0 if never staked) */
+    userStakeTimestamp: bigint;
+    /** Timestamp when dispute was raised */
+    disputeTimestamp: bigint;
+    /** Current dispute status */
+    disputeStatus: DisputeStatus;
+    /** Whether voting period is still active */
+    isVotingPeriodActive: boolean;
+}
+/**
+ * Checks if a user meets the requirements to vote on a dispute.
+ * Returns detailed information about eligibility and reason if ineligible.
+ *
+ * @param disputeId The ID of the dispute to check.
+ * @param voter Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the vote eligibility details.
+ *
+ * @example
+ * ```typescript
+ * const eligibility = await origin.canVoteOnDispute(1n);
+ *
+ * if (eligibility.canVote) {
+ *   console.log(`You can vote with weight: ${eligibility.votingWeight}`);
+ *   await origin.voteOnDispute(1n, true);
+ * } else {
+ *   console.log(`Cannot vote: ${eligibility.reason}`);
+ * }
+ * ```
+ */
+declare function canVoteOnDispute(this: Origin, disputeId: bigint, voter?: Address): Promise<VoteEligibility>;
+
+/**
+ * Progress and voting statistics for a dispute.
+ */
+interface DisputeProgress {
+    /** Dispute ID */
+    disputeId: bigint;
+    /** Current dispute status */
+    status: DisputeStatus;
+    /** Total YES votes (weighted by stake) */
+    yesVotes: bigint;
+    /** Total NO votes (weighted by stake) */
+    noVotes: bigint;
+    /** Total votes cast */
+    totalVotes: bigint;
+    /** YES votes as percentage (0-100) */
+    yesPercentage: number;
+    /** NO votes as percentage (0-100) */
+    noPercentage: number;
+    /** Required quorum for valid resolution */
+    quorum: bigint;
+    /** Current progress toward quorum (0-100+) */
+    quorumPercentage: number;
+    /** Whether quorum has been met */
+    quorumMet: boolean;
+    /** Projected outcome if resolved now */
+    projectedOutcome: "dispute_succeeds" | "dispute_fails" | "no_quorum";
+    /** Timeline information */
+    timeline: {
+        /** When the dispute was raised */
+        raisedAt: Date;
+        /** When the cooldown period ends (owner can no longer assert) */
+        cooldownEndsAt: Date;
+        /** When the voting period ends */
+        votingEndsAt: Date;
+        /** Whether the dispute can be resolved now */
+        canResolveNow: boolean;
+        /** Time remaining until resolution (in seconds, 0 if can resolve) */
+        timeUntilResolution: number;
+    };
+}
+/**
+ * Gets detailed progress and voting statistics for a dispute.
+ * Includes vote counts, percentages, quorum progress, and timeline.
+ *
+ * @param disputeId The ID of the dispute to check.
+ * @returns A promise that resolves with the dispute progress details.
+ *
+ * @example
+ * ```typescript
+ * const progress = await origin.getDisputeProgress(1n);
+ *
+ * console.log(`Yes: ${progress.yesPercentage}% | No: ${progress.noPercentage}%`);
+ * console.log(`Quorum: ${progress.quorumPercentage}% (${progress.quorumMet ? 'met' : 'not met'})`);
+ * console.log(`Projected outcome: ${progress.projectedOutcome}`);
+ *
+ * if (progress.timeline.canResolveNow) {
+ *   await origin.resolveDispute(1n);
+ * } else {
+ *   console.log(`Can resolve in ${progress.timeline.timeUntilResolution} seconds`);
+ * }
+ * ```
+ */
+declare function getDisputeProgress(this: Origin, disputeId: bigint): Promise<DisputeProgress>;
+
+/**
+ * Fractionalizes an IP NFT into fungible ERC20 tokens.
+ * The NFT is transferred to the fractionalizer contract and a new ERC20 token is created.
+ * The caller receives the full supply of fractional tokens.
+ *
+ * @param tokenId The token ID of the IP NFT to fractionalize.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // First approve the fractionalizer contract to transfer your NFT
+ * await origin.approve(fractionalizerAddress, tokenId);
+ *
+ * // Then fractionalize
+ * const result = await origin.fractionalize(1n);
+ * ```
+ */
+declare function fractionalize(this: Origin, tokenId: bigint): Promise<any>;
+
+/**
+ * Redeems an IP NFT by burning all of its fractional tokens.
+ * The caller must hold the entire supply of the NFT's fractional token.
+ * After redemption, the NFT is transferred back to the caller.
+ *
+ * @param tokenId The token ID of the IP NFT to redeem.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Requires holding 100% of the fractional token supply
+ * await origin.redeem(1n);
+ * ```
+ */
+declare function redeem(this: Origin, tokenId: bigint): Promise<any>;
+
+/**
+ * Gets the fractional ERC20 token address for a specific IP NFT.
+ * Returns zero address if the NFT has not been fractionalized.
+ *
+ * @param tokenId The token ID of the IP NFT.
+ * @returns A promise that resolves with the fractional token address.
+ *
+ * @example
+ * ```typescript
+ * const fractionalToken = await origin.getTokenForNFT(1n);
+ * if (fractionalToken !== zeroAddress) {
+ *   console.log(`Fractional token: ${fractionalToken}`);
+ * } else {
+ *   console.log("NFT has not been fractionalized");
+ * }
+ * ```
+ */
+declare function getTokenForNFT(this: Origin, tokenId: bigint): Promise<Address>;
+
+/**
+ * Fractionalizes an IP NFT with automatic approval.
+ * This method first approves the fractionalizer contract to transfer your NFT,
+ * then calls fractionalize. This is the recommended method for most use cases.
+ *
+ * @param tokenId The token ID of the IP NFT to fractionalize.
+ * @returns A promise that resolves with the transaction result.
+ *
+ * @example
+ * ```typescript
+ * // Single call handles approval and fractionalization
+ * const result = await origin.fractionalizeWithApproval(1n);
+ * ```
+ */
+declare function fractionalizeWithApproval(this: Origin, tokenId: bigint): Promise<any>;
+
+/**
+ * Redeems fractional tokens for the underlying NFT, but only if the caller owns 100% of the supply.
+ * This method checks the caller's balance before attempting to redeem, providing a clear error
+ * if they don't hold the full supply.
+ *
+ * @param tokenId The token ID of the original NFT to redeem.
+ * @returns A promise that resolves with the transaction result.
+ * @throws Error if the caller doesn't own 100% of the fractional tokens.
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   const result = await origin.redeemIfComplete(1n);
+ *   console.log("NFT redeemed successfully!");
+ * } catch (error) {
+ *   console.log("You don't own all fractional tokens yet");
+ * }
+ * ```
+ */
+declare function redeemIfComplete(this: Origin, tokenId: bigint): Promise<any>;
+
+/**
+ * Ownership information for fractional tokens.
+ */
+interface FractionOwnership {
+    /** The original NFT token ID */
+    tokenId: bigint;
+    /** The ERC20 token address (zero if not fractionalized) */
+    erc20Address: Address;
+    /** Whether this NFT has been fractionalized */
+    isFractionalized: boolean;
+    /** User's balance of fractional tokens */
+    balance: bigint;
+    /** Total supply of fractional tokens */
+    totalSupply: bigint;
+    /** User's ownership percentage (0-100) */
+    ownershipPercentage: number;
+    /** Whether user owns 100% and can redeem */
+    canRedeem: boolean;
+    /** Number of decimals for the ERC20 token */
+    decimals: number;
+}
+/**
+ * Gets a user's ownership percentage of a fractionalized NFT.
+ * Returns detailed information about the user's fractional token holdings.
+ *
+ * @param tokenId The token ID of the original NFT.
+ * @param owner Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the ownership details.
+ *
+ * @example
+ * ```typescript
+ * const ownership = await origin.getFractionOwnership(1n);
+ *
+ * if (!ownership.isFractionalized) {
+ *   console.log("This NFT has not been fractionalized");
+ * } else {
+ *   console.log(`You own ${ownership.ownershipPercentage}% of this NFT`);
+ *   console.log(`Balance: ${ownership.balance} / ${ownership.totalSupply}`);
+ *
+ *   if (ownership.canRedeem) {
+ *     console.log("You can redeem the original NFT!");
+ *     await origin.redeem(1n);
+ *   }
+ * }
+ * ```
+ */
+declare function getFractionOwnership(this: Origin, tokenId: bigint, owner?: Address): Promise<FractionOwnership>;
+
+/**
+ * Result of checking if a user can fractionalize an NFT.
+ */
+interface FractionalizeEligibility {
+    /** Whether the user can fractionalize this NFT */
+    canFractionalize: boolean;
+    /** Reason why user cannot fractionalize (if canFractionalize is false) */
+    reason?: string;
+    /** Whether the user owns this NFT */
+    isOwner: boolean;
+    /** Current owner of the NFT */
+    currentOwner: Address;
+    /** Whether this NFT is already fractionalized */
+    isAlreadyFractionalized: boolean;
+    /** ERC20 address if already fractionalized */
+    existingErc20Address?: Address;
+    /** Current data status of the NFT */
+    dataStatus: DataStatus;
+    /** Whether the fractionalizer contract is approved to transfer */
+    isApproved: boolean;
+    /** Whether approval is needed before fractionalizing */
+    needsApproval: boolean;
+}
+/**
+ * Checks if a user can fractionalize an NFT and why not if they can't.
+ * Returns detailed information about eligibility requirements.
+ *
+ * @param tokenId The token ID of the NFT to check.
+ * @param owner Optional address to check. If not provided, uses connected wallet.
+ * @returns A promise that resolves with the fractionalize eligibility details.
+ *
+ * @example
+ * ```typescript
+ * const eligibility = await origin.canFractionalize(1n);
+ *
+ * if (eligibility.canFractionalize) {
+ *   if (eligibility.needsApproval) {
+ *     // Use fractionalizeWithApproval for convenience
+ *     await origin.fractionalizeWithApproval(1n);
+ *   } else {
+ *     await origin.fractionalize(1n);
+ *   }
+ * } else {
+ *   console.log(`Cannot fractionalize: ${eligibility.reason}`);
+ * }
+ * ```
+ */
+declare function canFractionalize(this: Origin, tokenId: bigint, owner?: Address): Promise<FractionalizeEligibility>;
+
+/**
+ * Gets information about a registered app from the AppRegistry.
+ *
+ * @param appId The app ID to look up.
+ * @returns A promise that resolves with the app information.
+ *
+ * @example
+ * ```typescript
+ * const appInfo = await origin.getAppInfo("my-app-id");
+ * console.log(`Treasury: ${appInfo.treasury}`);
+ * console.log(`Revenue Share: ${appInfo.revenueShareBps / 100}%`);
+ * console.log(`Active: ${appInfo.isActive}`);
+ * ```
+ */
+declare function getAppInfo(this: Origin, appId: string): Promise<AppInfo>;
+
+/**
  * Parameters for a single purchase in a bulk buy operation.
  */
 interface BuyParams {
@@ -225,6 +731,8 @@ interface BuyParams {
     expectedPrice: bigint;
     expectedDuration: number;
     expectedPaymentToken: Address;
+    expectedProtocolFeeBps: number;
+    expectedAppFeeBps: number;
 }
 /**
  * Preview of bulk purchase costs.
@@ -379,11 +887,29 @@ declare class Origin {
     previewBulkCost: typeof previewBulkCost;
     buildPurchaseParams: typeof buildPurchaseParams;
     checkActiveStatus: typeof checkActiveStatus;
+    raiseDispute: typeof raiseDispute;
+    disputeAssertion: typeof disputeAssertion;
+    voteOnDispute: typeof voteOnDispute;
+    resolveDispute: typeof resolveDispute;
+    cancelDispute: typeof cancelDispute;
+    tagChildIp: typeof tagChildIp;
+    getDispute: typeof getDispute;
+    canVoteOnDispute: typeof canVoteOnDispute;
+    getDisputeProgress: typeof getDisputeProgress;
+    fractionalize: typeof fractionalize;
+    redeem: typeof redeem;
+    getTokenForNFT: typeof getTokenForNFT;
+    fractionalizeWithApproval: typeof fractionalizeWithApproval;
+    redeemIfComplete: typeof redeemIfComplete;
+    getFractionOwnership: typeof getFractionOwnership;
+    canFractionalize: typeof canFractionalize;
+    getAppInfo: typeof getAppInfo;
     private jwt?;
     environment: Environment;
     private viemClient?;
     baseParentId?: bigint;
-    constructor(environment?: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint);
+    appId?: string;
+    constructor(environment?: Environment | string, jwt?: string, viemClient?: WalletClient, baseParentId?: bigint, appId?: string);
     getJwt(): string | undefined;
     setViemClient(client: WalletClient): void;
     /**
@@ -420,11 +946,41 @@ declare class Origin {
      */
     callContractMethod(contractAddress: string, abi: Abi, methodName: string, params: any[], options?: CallOptions): Promise<any>;
     /**
-     * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
-     * @param {bigint} tokenId The token ID of the asset.
-     * @returns {Promise<any>} The result of the buyAccess call.
+     * Gets comprehensive token information in a single call.
+     * Combines owner, status, terms, URI, and access information.
+     *
+     * @param tokenId The token ID to get information for.
+     * @param owner Optional address to check access for. If not provided, uses connected wallet.
+     * @returns A promise that resolves with comprehensive token information.
+     *
+     * @example
+     * ```typescript
+     * const info = await origin.getTokenInfoSmart(1n);
+     * console.log(`Owner: ${info.owner}`);
+     * console.log(`Price: ${info.terms.price}`);
+     * console.log(`Has access: ${info.hasAccess}`);
+     * ```
      */
-    buyAccessSmart(tokenId: bigint): Promise<any>;
+    getTokenInfoSmart(tokenId: bigint, owner?: Address): Promise<TokenInfo>;
+    /**
+     * Buy access to an asset by first checking its price via getTerms, then calling buyAccess.
+     * Automatically fetches protocol and app fees from the contracts.
+     * If the user already has access, returns null without making a transaction.
+     *
+     * @param tokenId The token ID of the asset.
+     * @returns The result of the buyAccess call, or null if user already has access.
+     *
+     * @example
+     * ```typescript
+     * const result = await origin.buyAccessSmart(1n);
+     * if (result === null) {
+     *   console.log("You already have access to this asset");
+     * } else {
+     *   console.log("Access purchased:", result.txHash);
+     * }
+     * ```
+     */
+    buyAccessSmart(tokenId: bigint): Promise<any | null>;
     /**
      * Fetch the underlying data associated with a specific token ID.
      * @param {bigint} tokenId - The token ID to fetch data for.

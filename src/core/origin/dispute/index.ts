@@ -1,0 +1,11 @@
+export { raiseDispute } from "./raiseDispute";
+export { disputeAssertion } from "./disputeAssertion";
+export { voteOnDispute } from "./voteOnDispute";
+export { resolveDispute } from "./resolveDispute";
+export { cancelDispute } from "./cancelDispute";
+export { tagChildIp } from "./tagChildIp";
+export { getDispute } from "./getDispute";
+export { canVoteOnDispute } from "./canVoteOnDispute";
+export { getDisputeProgress } from "./getDisputeProgress";
+export type { VoteEligibility } from "./canVoteOnDispute";
+export type { DisputeProgress } from "./getDisputeProgress";

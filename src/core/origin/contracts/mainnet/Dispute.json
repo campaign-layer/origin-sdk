@@ -1,0 +1,884 @@
+[
+  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
+  {
+    "type": "function",
+    "name": "UPGRADE_INTERFACE_VERSION",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "cancelDispute",
+    "inputs": [{ "name": "id", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "disputeAssertion",
+    "inputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_counterEvidenceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "disputeBond",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputeCoolDownPeriod",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputeCounter",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputeJudgementPeriod",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputeQuorum",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputeToken",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "address", "internalType": "contract IERC20" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "disputes",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "initiator", "type": "address", "internalType": "address" },
+      { "name": "targetId", "type": "uint256", "internalType": "uint256" },
+      { "name": "disputeTag", "type": "bytes32", "internalType": "bytes32" },
+      {
+        "name": "disputeEvidenceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "counterEvidenceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "disputeTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assertionTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "yesVotes", "type": "uint256", "internalType": "uint256" },
+      { "name": "noVotes", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum DisputeModule.DisputeStatus"
+      },
+      { "name": "bondAmount", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "protocolFeeAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasVoted",
+    "inputs": [
+      { "name": "", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [
+      {
+        "name": "_ipToken",
+        "type": "address",
+        "internalType": "contract IIpNFT"
+      },
+      {
+        "name": "_marketplace",
+        "type": "address",
+        "internalType": "contract IMarketplace"
+      },
+      {
+        "name": "_disputeToken",
+        "type": "address",
+        "internalType": "contract IERC20"
+      },
+      {
+        "name": "_disputeBond",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_disputeCoolDownPeriod",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_disputeJudgementPeriod",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "_bondFeeBPS", "type": "uint16", "internalType": "uint16" },
+      {
+        "name": "_stakingThreshold",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "_stakingVault",
+        "type": "address",
+        "internalType": "contract ICampStakingVault"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "ipToken",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "address", "internalType": "contract IIpNFT" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isUsedEvidenceHash",
+    "inputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "marketplace",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IMarketplace"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "protocolDisputeFee",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "proxiableUUID",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "raiseDispute",
+    "inputs": [
+      { "name": "_targetIpId", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_disputeEvidenceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      { "name": "_disputeTag", "type": "bytes32", "internalType": "bytes32" }
+    ],
+    "outputs": [{ "name": "id", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "renounceOwnership",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "resolveDispute",
+    "inputs": [{ "name": "id", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDisputeQuorum",
+    "inputs": [
+      {
+        "name": "_disputeQuorum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "stakingThreshold",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "stakingVault",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract ICampStakingVault"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tagChildIp",
+    "inputs": [
+      { "name": "_childIpId", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "_infringerDisputeId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferOwnership",
+    "inputs": [
+      { "name": "newOwner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upgradeToAndCall",
+    "inputs": [
+      {
+        "name": "newImplementation",
+        "type": "address",
+        "internalType": "address"
+      },
+      { "name": "data", "type": "bytes", "internalType": "bytes" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "voteOnDispute",
+    "inputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      { "name": "support", "type": "bool", "internalType": "bool" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AccessPurchased",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "buyer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "periods",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "newExpiry",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amountPaid",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AgentRegistered",
+    "inputs": [
+      {
+        "name": "agentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "ipNftId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "agentAddress",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AppRegistryUpdated",
+    "inputs": [
+      {
+        "name": "appRegistry",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ChildIpTagged",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "childIp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "parentIp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DataDeleted",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DataMinted",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "contentHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "parents",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DisputeAssertion",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "counterEvidenceHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DisputeCancelled",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DisputeJudged",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "judgement",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DisputeModuleUpdated",
+    "inputs": [
+      {
+        "name": "disputeModule",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DisputeRaised",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "initiator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "targetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "disputeTag",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Initialized",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MarketPlaceUpdated",
+    "inputs": [
+      {
+        "name": "marketPlace",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "OwnershipTransferred",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ParentIpsSet",
+    "inputs": [
+      {
+        "name": "childIpId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "parentIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "totalRoyaltyBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolFeeUpdated",
+    "inputs": [
+      {
+        "name": "newFeeBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RoyaltyPaid",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "protocolAmount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "SignerUpdated",
+    "inputs": [
+      {
+        "name": "signer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StatusUpdated",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "status",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum IIpNFT.DataStatus"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TermsUpdated",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newPrice",
+        "type": "uint128",
+        "indexed": false,
+        "internalType": "uint128"
+      },
+      {
+        "name": "newDuration",
+        "type": "uint32",
+        "indexed": false,
+        "internalType": "uint32"
+      },
+      {
+        "name": "newRoyaltyBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "paymentToken",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TreasuryUpdated",
+    "inputs": [
+      {
+        "name": "newTreasury",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Upgraded",
+    "inputs": [
+      {
+        "name": "implementation",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Voted",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "voter",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "support",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "weight",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AddressEmptyCode",
+    "inputs": [
+      { "name": "target", "type": "address", "internalType": "address" }
+    ]
+  },
+  { "type": "error", "name": "AlreadyVoted", "inputs": [] },
+  { "type": "error", "name": "CoolDownPeriodActive", "inputs": [] },
+  { "type": "error", "name": "CoolDownPeriodOver", "inputs": [] },
+  {
+    "type": "error",
+    "name": "ERC1967InvalidImplementation",
+    "inputs": [
+      {
+        "name": "implementation",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  { "type": "error", "name": "ERC1967NonPayable", "inputs": [] },
+  { "type": "error", "name": "EvidenceAlreadyUsed", "inputs": [] },
+  { "type": "error", "name": "FailedCall", "inputs": [] },
+  { "type": "error", "name": "InvalidBondFeeBps", "inputs": [] },
+  { "type": "error", "name": "InvalidChildIpId", "inputs": [] },
+  { "type": "error", "name": "InvalidDisputeStatus", "inputs": [] },
+  { "type": "error", "name": "InvalidDisputeTag", "inputs": [] },
+  { "type": "error", "name": "InvalidEvidenceHash", "inputs": [] },
+  { "type": "error", "name": "InvalidInitialization", "inputs": [] },
+  { "type": "error", "name": "InvalidTargetIp", "inputs": [] },
+  { "type": "error", "name": "NoVotingPower", "inputs": [] },
+  { "type": "error", "name": "NotAParentIp", "inputs": [] },
+  { "type": "error", "name": "NotInitializing", "inputs": [] },
+  { "type": "error", "name": "NotInitiator", "inputs": [] },
+  { "type": "error", "name": "NotTokenOwner", "inputs": [] },
+  {
+    "type": "error",
+    "name": "OwnableInvalidOwner",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "OwnableUnauthorizedAccount",
+    "inputs": [
+      { "name": "account", "type": "address", "internalType": "address" }
+    ]
+  },
+  { "type": "error", "name": "ParentNotDisputed", "inputs": [] },
+  { "type": "error", "name": "SelfAssertionNotAllowed", "inputs": [] },
+  { "type": "error", "name": "StakedAfterDispute", "inputs": [] },
+  { "type": "error", "name": "TagNotAllowed", "inputs": [] },
+  { "type": "error", "name": "UUPSUnauthorizedCallContext", "inputs": [] },
+  {
+    "type": "error",
+    "name": "UUPSUnsupportedProxiableUUID",
+    "inputs": [{ "name": "slot", "type": "bytes32", "internalType": "bytes32" }]
+  },
+  { "type": "error", "name": "VotingPeriodActive", "inputs": [] },
+  { "type": "error", "name": "VotingPeriodOver", "inputs": [] }
+]

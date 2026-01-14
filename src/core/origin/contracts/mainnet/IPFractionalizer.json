@@ -1,0 +1,142 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "ipNFT_",
+        "type": "address",
+        "internalType": "contract IIpNFT"
+      },
+      {
+        "name": "exchangeRate_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "exchangeRate",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "fractionalize",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getTokenForNFT",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ipNFT",
+    "inputs": [],
+    "outputs": [
+      { "name": "", "type": "address", "internalType": "contract IIpNFT" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "nftToToken",
+    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract FractionalToken"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "onERC721Received",
+    "inputs": [
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" },
+      { "name": "", "type": "bytes", "internalType": "bytes" }
+    ],
+    "outputs": [{ "name": "", "type": "bytes4", "internalType": "bytes4" }],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "redeem",
+    "inputs": [
+      { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "Fractionalized",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "depositor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "supply",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Redeemed",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "redeemer",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  { "type": "error", "name": "AlreadyFractionalized", "inputs": [] },
+  { "type": "error", "name": "InsufficientFractionalTokens", "inputs": [] },
+  { "type": "error", "name": "InvalidExchangeRate", "inputs": [] },
+  { "type": "error", "name": "NotFractionalized", "inputs": [] },
+  { "type": "error", "name": "NotTokenOwner", "inputs": [] },
+  { "type": "error", "name": "ZeroAddress", "inputs": [] }
+]
