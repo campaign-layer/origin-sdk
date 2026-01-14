@@ -85,7 +85,7 @@ DISPUTE_CONTRACT_ADDRESS:"",FRACTIONALIZER_CONTRACT_ADDRESS:"",APP_REGISTRY_CONT
  * @returns A promise that resolves when the minting is complete.
  */
 function Y(e,t,n,i,a,r,s,o,d,u){return T(this,void 0,void 0,(function*(){var p;
-// Use provided appId, or fall back to SDK's appId, or use empty string
+// use provided appId, or fall back to SDK's appId, or use empty string
 const l=null!==(p=null!=u?u:this.appId)&&void 0!==p?p:"";return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS,this.environment.IPNFT_ABI,"mintWithSignature",[e,t,a,r,s,o,n,i,l,d],{waitForReceipt:!0})}))}
 /**
  * Registers a Data NFT with the Origin service in order to obtain a signature for minting.

@@ -5513,7 +5513,7 @@ const validateRoyaltyBps = (royaltyBps) => {
 function mintWithSignature(to, tokenId, parents, isIp, hash, uri, licenseTerms, deadline, signature, appId) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
-        // Use provided appId, or fall back to SDK's appId, or use empty string
+        // use provided appId, or fall back to SDK's appId, or use empty string
         const effectiveAppId = (_a = appId !== null && appId !== void 0 ? appId : this.appId) !== null && _a !== void 0 ? _a : "";
         return yield this.callContractMethod(this.environment.DATANFT_CONTRACT_ADDRESS, this.environment.IPNFT_ABI, "mintWithSignature", [
             to,
@@ -5977,7 +5977,6 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
         const expectedPaymentToken = marketplaceAction.asset;
         const isNativeToken = expectedPaymentToken === "0x0000000000000000000000000000000000000000";
         const value = isNativeToken ? expectedPrice : BigInt(0);
-        // Fetch actual fees from contracts
         const [protocolFeeBps, appFeeBps] = yield Promise.all([
             getProtocolFeeBps(this),
             getAppFeeBpsForToken(this, tokenId),
@@ -7130,8 +7129,7 @@ function getFractionOwnership(tokenId, owner) {
         // Calculate ownership percentage
         let ownershipPercentage = 0;
         if (totalSupply > BigInt(0)) {
-            ownershipPercentage =
-                Number((balance * BigInt(10000)) / totalSupply) / 100;
+            ownershipPercentage = Number((balance * BigInt(10000)) / totalSupply) / 100;
         }
         const canRedeem = balance >= totalSupply && totalSupply > BigInt(0);
         return {
@@ -7207,7 +7205,7 @@ function canFractionalize(tokenId, owner) {
         const fractionalizerAddress = this.environment
             .FRACTIONALIZER_CONTRACT_ADDRESS;
         // Fetch all required data in parallel
-        const [currentOwner, dataStatus, erc20Address, approvedAddress, isApprovedForAll] = yield Promise.all([
+        const [currentOwner, dataStatus, erc20Address, approvedAddress, isApprovedForAll,] = yield Promise.all([
             this.ownerOf(tokenId),
             this.dataStatus(tokenId),
             this.getTokenForNFT(tokenId),
