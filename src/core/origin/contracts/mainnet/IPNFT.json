@@ -1,9 +1,23 @@
 [
+  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
   {
     "type": "function",
     "name": "UPGRADE_INTERFACE_VERSION",
     "inputs": [],
     "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "appRegistry",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract AppRegistry"
+      }
+    ],
     "stateMutability": "view"
   },
   {
@@ -32,7 +46,11 @@
       { "name": "tokenId", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [
-      { "name": "", "type": "uint8", "internalType": "enum IIpNFT.DataStatus" }
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum IIpNFT.DataStatus"
+      }
     ],
     "stateMutability": "view"
   },
@@ -87,7 +105,7 @@
     "outputs": [
       { "name": "account", "type": "address", "internalType": "address" }
     ],
-    "stateMutability": "nonpayable"
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -112,11 +130,20 @@
         "components": [
           { "name": "price", "type": "uint128", "internalType": "uint128" },
           { "name": "duration", "type": "uint32", "internalType": "uint32" },
-          { "name": "royaltyBps", "type": "uint16", "internalType": "uint16" },
+          {
+            "name": "royaltyBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
           {
             "name": "paymentToken",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "licenseType",
+            "type": "uint8",
+            "internalType": "enum IIpNFT.LicenseType"
           }
         ]
       }
@@ -156,6 +183,11 @@
         "name": "implementation_",
         "type": "address",
         "internalType": "contract IERC6551Account"
+      },
+      {
+        "name": "appRegistry_",
+        "type": "address",
+        "internalType": "contract AppRegistry"
       }
     ],
     "outputs": [],
@@ -185,7 +217,11 @@
     "name": "marketPlace",
     "inputs": [],
     "outputs": [
-      { "name": "", "type": "address", "internalType": "contract IMarketplace" }
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IMarketplace"
+      }
     ],
     "stateMutability": "view"
   },
@@ -236,17 +272,27 @@
         "components": [
           { "name": "price", "type": "uint128", "internalType": "uint128" },
           { "name": "duration", "type": "uint32", "internalType": "uint32" },
-          { "name": "royaltyBps", "type": "uint16", "internalType": "uint16" },
+          {
+            "name": "royaltyBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
           {
             "name": "paymentToken",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "licenseType",
+            "type": "uint8",
+            "internalType": "enum IIpNFT.LicenseType"
           }
         ]
       },
       { "name": "deadline", "type": "uint256", "internalType": "uint256" },
       { "name": "parents", "type": "uint256[]", "internalType": "uint256[]" },
       { "name": "isIP", "type": "bool", "internalType": "bool" },
+      { "name": "appId", "type": "string", "internalType": "string" },
       { "name": "signature", "type": "bytes", "internalType": "bytes" }
     ],
     "outputs": [],
@@ -328,6 +374,15 @@
   },
   {
     "type": "function",
+    "name": "setAppRegistry",
+    "inputs": [
+      { "name": "_appRegistry", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setApprovalForAll",
     "inputs": [
       { "name": "operator", "type": "address", "internalType": "address" },
@@ -340,7 +395,11 @@
     "type": "function",
     "name": "setDisputeModule",
     "inputs": [
-      { "name": "_disputeModule", "type": "address", "internalType": "address" }
+      {
+        "name": "_disputeModule",
+        "type": "address",
+        "internalType": "address"
+      }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -410,7 +469,11 @@
             "type": "tuple",
             "internalType": "struct IIpNFT.LicenseTerms",
             "components": [
-              { "name": "price", "type": "uint128", "internalType": "uint128" },
+              {
+                "name": "price",
+                "type": "uint128",
+                "internalType": "uint128"
+              },
               {
                 "name": "duration",
                 "type": "uint32",
@@ -425,6 +488,11 @@
                 "name": "paymentToken",
                 "type": "address",
                 "internalType": "address"
+              },
+              {
+                "name": "licenseType",
+                "type": "uint8",
+                "internalType": "enum IIpNFT.LicenseType"
               }
             ]
           },
@@ -432,7 +500,8 @@
             "name": "status",
             "type": "uint8",
             "internalType": "enum IIpNFT.DataStatus"
-          }
+          },
+          { "name": "appId", "type": "string", "internalType": "string" }
         ]
       }
     ],
@@ -486,11 +555,20 @@
         "components": [
           { "name": "price", "type": "uint128", "internalType": "uint128" },
           { "name": "duration", "type": "uint32", "internalType": "uint32" },
-          { "name": "royaltyBps", "type": "uint16", "internalType": "uint16" },
+          {
+            "name": "royaltyBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
           {
             "name": "paymentToken",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "licenseType",
+            "type": "uint8",
+            "internalType": "enum IIpNFT.LicenseType"
           }
         ]
       }
@@ -576,6 +654,19 @@
         "name": "agentAddress",
         "type": "address",
         "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AppRegistryUpdated",
+    "inputs": [
+      {
+        "name": "appRegistry",
+        "type": "address",
+        "indexed": true,
         "internalType": "address"
       }
     ],
@@ -848,6 +939,31 @@
   },
   {
     "type": "event",
+    "name": "ParentIpsSet",
+    "inputs": [
+      {
+        "name": "childIpId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "parentIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "totalRoyaltyBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Paused",
     "inputs": [
       {
@@ -855,6 +971,19 @@
         "type": "address",
         "indexed": false,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolFeeUpdated",
+    "inputs": [
+      {
+        "name": "newFeeBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
       }
     ],
     "anonymous": false
@@ -986,6 +1115,19 @@
   },
   {
     "type": "event",
+    "name": "TreasuryUpdated",
+    "inputs": [
+      {
+        "name": "newTreasury",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Unpaused",
     "inputs": [
       {
@@ -1011,6 +1153,37 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "Voted",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "voter",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "support",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "weight",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AddressEmptyCode",
     "inputs": [
@@ -1021,7 +1194,11 @@
     "type": "error",
     "name": "ERC1967InvalidImplementation",
     "inputs": [
-      { "name": "implementation", "type": "address", "internalType": "address" }
+      {
+        "name": "implementation",
+        "type": "address",
+        "internalType": "address"
+      }
     ]
   },
   { "type": "error", "name": "ERC1967NonPayable", "inputs": [] },

@@ -247,6 +247,12 @@ const setChain = (chain) => {
 
 var ipnftMainnetAbi = [
 	{
+		type: "constructor",
+		inputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
 		type: "function",
 		name: "UPGRADE_INTERFACE_VERSION",
 		inputs: [
@@ -256,6 +262,20 @@ var ipnftMainnetAbi = [
 				name: "",
 				type: "string",
 				internalType: "string"
+			}
+		],
+		stateMutability: "view"
+	},
+	{
+		type: "function",
+		name: "appRegistry",
+		inputs: [
+		],
+		outputs: [
+			{
+				name: "",
+				type: "address",
+				internalType: "contract AppRegistry"
 			}
 		],
 		stateMutability: "view"
@@ -390,7 +410,7 @@ var ipnftMainnetAbi = [
 				internalType: "address"
 			}
 		],
-		stateMutability: "nonpayable"
+		stateMutability: "view"
 	},
 	{
 		type: "function",
@@ -446,6 +466,11 @@ var ipnftMainnetAbi = [
 						name: "paymentToken",
 						type: "address",
 						internalType: "address"
+					},
+					{
+						name: "licenseType",
+						type: "uint8",
+						internalType: "enum IIpNFT.LicenseType"
 					}
 				]
 			}
@@ -505,6 +530,11 @@ var ipnftMainnetAbi = [
 				name: "implementation_",
 				type: "address",
 				internalType: "contract IERC6551Account"
+			},
+			{
+				name: "appRegistry_",
+				type: "address",
+				internalType: "contract AppRegistry"
 			}
 		],
 		outputs: [
@@ -667,6 +697,11 @@ var ipnftMainnetAbi = [
 						name: "paymentToken",
 						type: "address",
 						internalType: "address"
+					},
+					{
+						name: "licenseType",
+						type: "uint8",
+						internalType: "enum IIpNFT.LicenseType"
 					}
 				]
 			},
@@ -684,6 +719,11 @@ var ipnftMainnetAbi = [
 				name: "isIP",
 				type: "bool",
 				internalType: "bool"
+			},
+			{
+				name: "appId",
+				type: "string",
+				internalType: "string"
 			},
 			{
 				name: "signature",
@@ -835,6 +875,20 @@ var ipnftMainnetAbi = [
 				name: "data",
 				type: "bytes",
 				internalType: "bytes"
+			}
+		],
+		outputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
+		type: "function",
+		name: "setAppRegistry",
+		inputs: [
+			{
+				name: "_appRegistry",
+				type: "address",
+				internalType: "address"
 			}
 		],
 		outputs: [
@@ -1004,6 +1058,11 @@ var ipnftMainnetAbi = [
 								name: "paymentToken",
 								type: "address",
 								internalType: "address"
+							},
+							{
+								name: "licenseType",
+								type: "uint8",
+								internalType: "enum IIpNFT.LicenseType"
 							}
 						]
 					},
@@ -1011,6 +1070,11 @@ var ipnftMainnetAbi = [
 						name: "status",
 						type: "uint8",
 						internalType: "enum IIpNFT.DataStatus"
+					},
+					{
+						name: "appId",
+						type: "string",
+						internalType: "string"
 					}
 				]
 			}
@@ -1116,6 +1180,11 @@ var ipnftMainnetAbi = [
 						name: "paymentToken",
 						type: "address",
 						internalType: "address"
+					},
+					{
+						name: "licenseType",
+						type: "uint8",
+						internalType: "enum IIpNFT.LicenseType"
 					}
 				]
 			}
@@ -1214,6 +1283,19 @@ var ipnftMainnetAbi = [
 				name: "agentAddress",
 				type: "address",
 				indexed: false,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "AppRegistryUpdated",
+		inputs: [
+			{
+				name: "appRegistry",
+				type: "address",
+				indexed: true,
 				internalType: "address"
 			}
 		],
@@ -1486,6 +1568,31 @@ var ipnftMainnetAbi = [
 	},
 	{
 		type: "event",
+		name: "ParentIpsSet",
+		inputs: [
+			{
+				name: "childIpId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "parentIds",
+				type: "uint256[]",
+				indexed: false,
+				internalType: "uint256[]"
+			},
+			{
+				name: "totalRoyaltyBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
 		name: "Paused",
 		inputs: [
 			{
@@ -1493,6 +1600,19 @@ var ipnftMainnetAbi = [
 				type: "address",
 				indexed: false,
 				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ProtocolFeeUpdated",
+		inputs: [
+			{
+				name: "newFeeBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
 			}
 		],
 		anonymous: false
@@ -1624,6 +1744,19 @@ var ipnftMainnetAbi = [
 	},
 	{
 		type: "event",
+		name: "TreasuryUpdated",
+		inputs: [
+			{
+				name: "newTreasury",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
 		name: "Unpaused",
 		inputs: [
 			{
@@ -1644,6 +1777,37 @@ var ipnftMainnetAbi = [
 				type: "address",
 				indexed: true,
 				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Voted",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "voter",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "support",
+				type: "bool",
+				indexed: false,
+				internalType: "bool"
+			},
+			{
+				name: "weight",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
 			}
 		],
 		anonymous: false
@@ -1906,6 +2070,12 @@ var ipnftMainnetAbi = [
 
 var marketplaceMainnetAbi = [
 	{
+		type: "constructor",
+		inputs: [
+		],
+		stateMutability: "nonpayable"
+	},
+	{
 		type: "function",
 		name: "MAX_PARENTS",
 		inputs: [
@@ -1961,6 +2131,16 @@ var marketplaceMainnetAbi = [
 				name: "expectedPaymentToken",
 				type: "address",
 				internalType: "address"
+			},
+			{
+				name: "expectedProtocolFeeBps",
+				type: "uint16",
+				internalType: "uint16"
+			},
+			{
+				name: "expectedAppFeeBps",
+				type: "uint16",
+				internalType: "uint16"
 			}
 		],
 		outputs: [
@@ -2342,6 +2522,19 @@ var marketplaceMainnetAbi = [
 	},
 	{
 		type: "event",
+		name: "AppRegistryUpdated",
+		inputs: [
+			{
+				name: "appRegistry",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
 		name: "ChildIpTagged",
 		inputs: [
 			{
@@ -2557,6 +2750,31 @@ var marketplaceMainnetAbi = [
 	},
 	{
 		type: "event",
+		name: "ParentIpsSet",
+		inputs: [
+			{
+				name: "childIpId",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "parentIds",
+				type: "uint256[]",
+				indexed: false,
+				internalType: "uint256[]"
+			},
+			{
+				name: "totalRoyaltyBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
 		name: "Paused",
 		inputs: [
 			{
@@ -2564,6 +2782,19 @@ var marketplaceMainnetAbi = [
 				type: "address",
 				indexed: false,
 				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "ProtocolFeeUpdated",
+		inputs: [
+			{
+				name: "newFeeBps",
+				type: "uint16",
+				indexed: false,
+				internalType: "uint16"
 			}
 		],
 		anonymous: false
@@ -2670,6 +2901,19 @@ var marketplaceMainnetAbi = [
 	},
 	{
 		type: "event",
+		name: "TreasuryUpdated",
+		inputs: [
+			{
+				name: "newTreasury",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
 		name: "Unpaused",
 		inputs: [
 			{
@@ -2690,6 +2934,37 @@ var marketplaceMainnetAbi = [
 				type: "address",
 				indexed: true,
 				internalType: "address"
+			}
+		],
+		anonymous: false
+	},
+	{
+		type: "event",
+		name: "Voted",
+		inputs: [
+			{
+				name: "id",
+				type: "uint256",
+				indexed: true,
+				internalType: "uint256"
+			},
+			{
+				name: "voter",
+				type: "address",
+				indexed: true,
+				internalType: "address"
+			},
+			{
+				name: "support",
+				type: "bool",
+				indexed: false,
+				internalType: "bool"
+			},
+			{
+				name: "weight",
+				type: "uint256",
+				indexed: false,
+				internalType: "uint256"
 			}
 		],
 		anonymous: false
@@ -2742,7 +3017,25 @@ var marketplaceMainnetAbi = [
 	},
 	{
 		type: "error",
+		name: "FeesExceedMaximum",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "FeesMismatch",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
 		name: "InvalidInitialization",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidLicenseType",
 		inputs: [
 		]
 	},
@@ -2755,6 +3048,12 @@ var marketplaceMainnetAbi = [
 	{
 		type: "error",
 		name: "InvalidPayment",
+		inputs: [
+		]
+	},
+	{
+		type: "error",
+		name: "InvalidPrice",
 		inputs: [
 		]
 	},

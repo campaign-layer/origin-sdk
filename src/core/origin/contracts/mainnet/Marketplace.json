@@ -1,4 +1,5 @@
 [
+  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
   {
     "type": "function",
     "name": "MAX_PARENTS",
@@ -19,7 +20,11 @@
     "inputs": [
       { "name": "buyer", "type": "address", "internalType": "address" },
       { "name": "tokenId", "type": "uint256", "internalType": "uint256" },
-      { "name": "expectedPrice", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "expectedPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
       {
         "name": "expectedDuration",
         "type": "uint32",
@@ -29,6 +34,16 @@
         "name": "expectedPaymentToken",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "expectedProtocolFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "expectedAppFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "outputs": [],
@@ -49,7 +64,11 @@
     "name": "initialize",
     "inputs": [
       { "name": "dataNFT_", "type": "address", "internalType": "address" },
-      { "name": "protocolFeeBps_", "type": "uint16", "internalType": "uint16" },
+      {
+        "name": "protocolFeeBps_",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
       { "name": "treasury_", "type": "address", "internalType": "address" }
     ],
     "outputs": [],
@@ -256,6 +275,19 @@
         "name": "agentAddress",
         "type": "address",
         "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AppRegistryUpdated",
+    "inputs": [
+      {
+        "name": "appRegistry",
+        "type": "address",
+        "indexed": true,
         "internalType": "address"
       }
     ],
@@ -478,6 +510,31 @@
   },
   {
     "type": "event",
+    "name": "ParentIpsSet",
+    "inputs": [
+      {
+        "name": "childIpId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "parentIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "totalRoyaltyBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Paused",
     "inputs": [
       {
@@ -485,6 +542,19 @@
         "type": "address",
         "indexed": false,
         "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ProtocolFeeUpdated",
+    "inputs": [
+      {
+        "name": "newFeeBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
       }
     ],
     "anonymous": false
@@ -591,6 +661,19 @@
   },
   {
     "type": "event",
+    "name": "TreasuryUpdated",
+    "inputs": [
+      {
+        "name": "newTreasury",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Unpaused",
     "inputs": [
       {
@@ -616,6 +699,37 @@
     "anonymous": false
   },
   {
+    "type": "event",
+    "name": "Voted",
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "voter",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "support",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      },
+      {
+        "name": "weight",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "error",
     "name": "AddressEmptyCode",
     "inputs": [
@@ -626,16 +740,24 @@
     "type": "error",
     "name": "ERC1967InvalidImplementation",
     "inputs": [
-      { "name": "implementation", "type": "address", "internalType": "address" }
+      {
+        "name": "implementation",
+        "type": "address",
+        "internalType": "address"
+      }
     ]
   },
   { "type": "error", "name": "ERC1967NonPayable", "inputs": [] },
   { "type": "error", "name": "EnforcedPause", "inputs": [] },
   { "type": "error", "name": "ExpectedPause", "inputs": [] },
   { "type": "error", "name": "FailedCall", "inputs": [] },
+  { "type": "error", "name": "FeesExceedMaximum", "inputs": [] },
+  { "type": "error", "name": "FeesMismatch", "inputs": [] },
   { "type": "error", "name": "InvalidInitialization", "inputs": [] },
+  { "type": "error", "name": "InvalidLicenseType", "inputs": [] },
   { "type": "error", "name": "InvalidParentIp", "inputs": [] },
   { "type": "error", "name": "InvalidPayment", "inputs": [] },
+  { "type": "error", "name": "InvalidPrice", "inputs": [] },
   { "type": "error", "name": "InvalidRoyalty", "inputs": [] },
   { "type": "error", "name": "MaxParentsExceeded", "inputs": [] },
   { "type": "error", "name": "MaxRoyaltyExceeded", "inputs": [] },
