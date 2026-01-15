@@ -1,5 +1,44 @@
-import { Address, Hex, TypedDataParameter } from "viem";
+import { Address, Hex, TypedDataParameter, WalletClient } from "viem";
 import constants from "../../constants";
+
+/**
+ * Resolves a wallet address from an optional address parameter or connected wallet.
+ * Checks viemClient.account first, then falls back to eth_requestAccounts.
+ *
+ * @param viemClient The viem WalletClient instance.
+ * @param address Optional address to use directly.
+ * @returns The resolved wallet address.
+ * @throws Error if no address provided and no wallet connected or no accounts found.
+ */
+export async function resolveWalletAddress(
+  viemClient: WalletClient | undefined,
+  address?: Address
+): Promise<Address> {
+  if (address) {
+    return address;
+  }
+
+  if (!viemClient) {
+    throw new Error(
+      "No address provided and no wallet connected. Please provide an address or connect a wallet."
+    );
+  }
+
+  if (viemClient.account) {
+    return viemClient.account.address;
+  }
+
+  const accounts = await viemClient.request({
+    method: "eth_requestAccounts",
+    params: [] as any,
+  });
+
+  if (!accounts || accounts.length === 0) {
+    throw new Error("No accounts found in connected wallet.");
+  }
+
+  return accounts[0] as Address;
+}
 
 /**
  * Enum representing the type of license for an IP NFT.

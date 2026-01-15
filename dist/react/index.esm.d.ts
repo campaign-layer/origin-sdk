@@ -414,7 +414,6 @@ declare function getDispute(this: Origin, disputeId: bigint): Promise<Dispute>;
  * Result of checking if a user can vote on a dispute.
  */
 interface VoteEligibility {
-    /** Whether the user can vote on this dispute */
     canVote: boolean;
     /** Reason why user cannot vote (if canVote is false) */
     reason?: string;
@@ -422,15 +421,11 @@ interface VoteEligibility {
     votingWeight: bigint;
     /** Minimum required stake to vote */
     stakingThreshold: bigint;
-    /** Whether user has already voted */
     hasAlreadyVoted: boolean;
     /** Timestamp when user staked (0 if never staked) */
     userStakeTimestamp: bigint;
-    /** Timestamp when dispute was raised */
     disputeTimestamp: bigint;
-    /** Current dispute status */
     disputeStatus: DisputeStatus;
-    /** Whether voting period is still active */
     isVotingPeriodActive: boolean;
 }
 /**
@@ -459,15 +454,12 @@ declare function canVoteOnDispute(this: Origin, disputeId: bigint, voter?: Addre
  * Progress and voting statistics for a dispute.
  */
 interface DisputeProgress {
-    /** Dispute ID */
     disputeId: bigint;
-    /** Current dispute status */
     status: DisputeStatus;
     /** Total YES votes (weighted by stake) */
     yesVotes: bigint;
     /** Total NO votes (weighted by stake) */
     noVotes: bigint;
-    /** Total votes cast */
     totalVotes: bigint;
     /** YES votes as percentage (0-100) */
     yesPercentage: number;
@@ -477,19 +469,14 @@ interface DisputeProgress {
     quorum: bigint;
     /** Current progress toward quorum (0-100+) */
     quorumPercentage: number;
-    /** Whether quorum has been met */
     quorumMet: boolean;
     /** Projected outcome if resolved now */
     projectedOutcome: "dispute_succeeds" | "dispute_fails" | "no_quorum";
-    /** Timeline information */
     timeline: {
-        /** When the dispute was raised */
         raisedAt: Date;
         /** When the cooldown period ends (owner can no longer assert) */
         cooldownEndsAt: Date;
-        /** When the voting period ends */
         votingEndsAt: Date;
-        /** Whether the dispute can be resolved now */
         canResolveNow: boolean;
         /** Time remaining until resolution (in seconds, 0 if can resolve) */
         timeUntilResolution: number;
@@ -614,11 +601,9 @@ declare function redeemIfComplete(this: Origin, tokenId: bigint): Promise<any>;
  * Ownership information for fractional tokens.
  */
 interface FractionOwnership {
-    /** The original NFT token ID */
     tokenId: bigint;
     /** The ERC20 token address (zero if not fractionalized) */
     erc20Address: Address;
-    /** Whether this NFT has been fractionalized */
     isFractionalized: boolean;
     /** User's balance of fractional tokens */
     balance: bigint;
@@ -628,7 +613,6 @@ interface FractionOwnership {
     ownershipPercentage: number;
     /** Whether user owns 100% and can redeem */
     canRedeem: boolean;
-    /** Number of decimals for the ERC20 token */
     decimals: number;
 }
 /**
@@ -662,23 +646,16 @@ declare function getFractionOwnership(this: Origin, tokenId: bigint, owner?: Add
  * Result of checking if a user can fractionalize an NFT.
  */
 interface FractionalizeEligibility {
-    /** Whether the user can fractionalize this NFT */
     canFractionalize: boolean;
     /** Reason why user cannot fractionalize (if canFractionalize is false) */
     reason?: string;
-    /** Whether the user owns this NFT */
     isOwner: boolean;
-    /** Current owner of the NFT */
     currentOwner: Address;
-    /** Whether this NFT is already fractionalized */
     isAlreadyFractionalized: boolean;
     /** ERC20 address if already fractionalized */
     existingErc20Address?: Address;
-    /** Current data status of the NFT */
     dataStatus: DataStatus;
-    /** Whether the fractionalizer contract is approved to transfer */
     isApproved: boolean;
-    /** Whether approval is needed before fractionalizing */
     needsApproval: boolean;
 }
 /**

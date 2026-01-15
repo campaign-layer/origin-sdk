@@ -20,13 +20,6 @@ export async function getDispute(
   this: Origin,
   disputeId: bigint
 ): Promise<Dispute> {
-  if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-    throw new Error("Dispute contract address not configured");
-  }
-  if (!this.environment.DISPUTE_ABI) {
-    throw new Error("Dispute ABI not configured");
-  }
-
   return this.callContractMethod(
     this.environment.DISPUTE_CONTRACT_ADDRESS as Address,
     this.environment.DISPUTE_ABI as Abi,

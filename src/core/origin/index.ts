@@ -1304,24 +1304,22 @@ export class Origin {
       );
     }
 
-    try {
-      const accounts = await this.viemClient.request({
-        method: "eth_requestAccounts",
-        params: [] as any,
-      });
-
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts found in connected wallet.");
-      }
-
-      return accounts[0] as Address;
-    } catch (error) {
-      throw new Error(
-        `Failed to get wallet address: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+    // If account is already set on the client, return it directly
+    if (this.viemClient.account) {
+      return this.viemClient.account.address;
     }
+
+    // Otherwise request accounts (browser wallet flow)
+    const accounts = await this.viemClient.request({
+      method: "eth_requestAccounts",
+      params: [] as any,
+    });
+
+    if (!accounts || accounts.length === 0) {
+      throw new Error("No accounts found in connected wallet.");
+    }
+
+    return accounts[0] as Address;
   }
 }
 

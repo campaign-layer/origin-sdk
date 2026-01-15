@@ -1,5 +1,6 @@
 import { Abi, Address } from "viem";
 import { Origin } from "..";
+import { resolveWalletAddress } from "../utils";
 import { getPublicClient } from "../../auth/viem/client";
 
 /**
@@ -25,14 +26,7 @@ export async function redeemIfComplete(
   this: Origin,
   tokenId: bigint
 ): Promise<any> {
-  if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-    throw new Error("Fractionalizer contract address not configured");
-  }
-  if (!this.environment.FRACTIONALIZER_ABI) {
-    throw new Error("Fractionalizer ABI not configured");
-  }
-
-  // Get the ERC20 token address for this NFT
+  // get the ERC20 token address for this NFT
   const erc20Address = await this.getTokenForNFT(tokenId);
   if (
     !erc20Address ||
@@ -41,27 +35,10 @@ export async function redeemIfComplete(
     throw new Error("This NFT has not been fractionalized");
   }
 
-  // Get current wallet address
-  const viemClient = (this as any).viemClient;
-  if (!viemClient) {
-    throw new Error("WalletClient not connected. Please connect a wallet.");
-  }
+  // get current wallet address
+  const owner = await resolveWalletAddress((this as any).viemClient);
 
-  let owner: Address;
-  if (viemClient.account) {
-    owner = viemClient.account.address;
-  } else {
-    const accounts = await viemClient.request({
-      method: "eth_requestAccounts",
-      params: [] as any,
-    });
-    if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found in connected wallet.");
-    }
-    owner = accounts[0] as Address;
-  }
-
-  // Check caller's balance and total supply
+  // check caller's balance and total supply
   const erc20Abi = [
     {
       inputs: [{ name: "owner", type: "address" }],
@@ -105,7 +82,7 @@ export async function redeemIfComplete(
     );
   }
 
-  // Proceed with redemption
+  // proceed with redemption
   return this.callContractMethod(
     this.environment.FRACTIONALIZER_CONTRACT_ADDRESS as Address,
     this.environment.FRACTIONALIZER_ABI as Abi,

@@ -7,15 +7,12 @@ import { getPublicClient } from "../../auth/viem/client";
  * Progress and voting statistics for a dispute.
  */
 export interface DisputeProgress {
-  /** Dispute ID */
   disputeId: bigint;
-  /** Current dispute status */
   status: DisputeStatus;
   /** Total YES votes (weighted by stake) */
   yesVotes: bigint;
   /** Total NO votes (weighted by stake) */
   noVotes: bigint;
-  /** Total votes cast */
   totalVotes: bigint;
   /** YES votes as percentage (0-100) */
   yesPercentage: number;
@@ -25,19 +22,14 @@ export interface DisputeProgress {
   quorum: bigint;
   /** Current progress toward quorum (0-100+) */
   quorumPercentage: number;
-  /** Whether quorum has been met */
   quorumMet: boolean;
   /** Projected outcome if resolved now */
   projectedOutcome: "dispute_succeeds" | "dispute_fails" | "no_quorum";
-  /** Timeline information */
   timeline: {
-    /** When the dispute was raised */
     raisedAt: Date;
     /** When the cooldown period ends (owner can no longer assert) */
     cooldownEndsAt: Date;
-    /** When the voting period ends */
     votingEndsAt: Date;
-    /** Whether the dispute can be resolved now */
     canResolveNow: boolean;
     /** Time remaining until resolution (in seconds, 0 if can resolve) */
     timeUntilResolution: number;
@@ -70,19 +62,12 @@ export async function getDisputeProgress(
   this: Origin,
   disputeId: bigint
 ): Promise<DisputeProgress> {
-  if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-    throw new Error("Dispute contract address not configured");
-  }
-  if (!this.environment.DISPUTE_ABI) {
-    throw new Error("Dispute ABI not configured");
-  }
-
   const publicClient = getPublicClient();
   const disputeContractAddress = this.environment
     .DISPUTE_CONTRACT_ADDRESS as Address;
   const disputeAbi = this.environment.DISPUTE_ABI as Abi;
 
-  // Fetch dispute and config in parallel
+  // fetch dispute and config in parallel
   const [dispute, quorum, cooldownPeriod, judgementPeriod] = await Promise.all([
     publicClient.readContract({
       address: disputeContractAddress,
@@ -110,7 +95,7 @@ export async function getDisputeProgress(
     }) as Promise<bigint>,
   ]);
 
-  // Parse dispute struct
+  // parse dispute struct
   const status = Number(dispute.status ?? dispute[9]) as DisputeStatus;
   const disputeTimestamp = BigInt(dispute.disputeTimestamp ?? dispute[5] ?? 0);
   const assertionTimestamp = BigInt(
@@ -119,7 +104,7 @@ export async function getDisputeProgress(
   const yesVotes = BigInt(dispute.yesVotes ?? dispute[7] ?? 0);
   const noVotes = BigInt(dispute.noVotes ?? dispute[8] ?? 0);
 
-  // Calculate vote statistics
+  // calculate vote statistics
   const totalVotes = yesVotes + noVotes;
   let yesPercentage = 0;
   let noPercentage = 0;
@@ -129,14 +114,14 @@ export async function getDisputeProgress(
     noPercentage = Number((noVotes * BigInt(10000)) / totalVotes) / 100;
   }
 
-  // Calculate quorum progress
+  // calculate quorum progress
   let quorumPercentage = 0;
   if (quorum > BigInt(0)) {
     quorumPercentage = Number((totalVotes * BigInt(10000)) / quorum) / 100;
   }
   const quorumMet = totalVotes >= quorum;
 
-  // Determine projected outcome
+  // determine projected outcome
   let projectedOutcome: "dispute_succeeds" | "dispute_fails" | "no_quorum";
   if (!quorumMet) {
     projectedOutcome = "no_quorum";
@@ -146,7 +131,7 @@ export async function getDisputeProgress(
     projectedOutcome = "dispute_fails";
   }
 
-  // Calculate timeline
+  // calculate timeline
   const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
   const raisedAt = new Date(Number(disputeTimestamp) * 1000);
   const cooldownEndsAt = new Date(
@@ -157,13 +142,13 @@ export async function getDisputeProgress(
   let resolutionTimestamp: bigint;
 
   if (status === DisputeStatus.Asserted) {
-    // For asserted disputes, voting ends relative to assertion
+    // for asserted disputes, voting ends relative to assertion
     votingEndsAt = new Date(
       Number(assertionTimestamp + judgementPeriod) * 1000
     );
     resolutionTimestamp = assertionTimestamp + judgementPeriod;
   } else {
-    // For raised disputes, voting ends after cooldown + judgement
+    // for raised disputes, voting ends after cooldown + judgement
     votingEndsAt = new Date(
       Number(disputeTimestamp + cooldownPeriod + judgementPeriod) * 1000
     );

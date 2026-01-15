@@ -1,29 +1,22 @@
 import { Abi, Address, zeroAddress } from "viem";
 import { Origin } from "..";
-import { DataStatus } from "../utils";
+import { DataStatus, resolveWalletAddress } from "../utils";
 import { getPublicClient } from "../../auth/viem/client";
 
 /**
  * Result of checking if a user can fractionalize an NFT.
  */
 export interface FractionalizeEligibility {
-  /** Whether the user can fractionalize this NFT */
   canFractionalize: boolean;
   /** Reason why user cannot fractionalize (if canFractionalize is false) */
   reason?: string;
-  /** Whether the user owns this NFT */
   isOwner: boolean;
-  /** Current owner of the NFT */
   currentOwner: Address;
-  /** Whether this NFT is already fractionalized */
   isAlreadyFractionalized: boolean;
   /** ERC20 address if already fractionalized */
   existingErc20Address?: Address;
-  /** Current data status of the NFT */
   dataStatus: DataStatus;
-  /** Whether the fractionalizer contract is approved to transfer */
   isApproved: boolean;
-  /** Whether approval is needed before fractionalizing */
   needsApproval: boolean;
 }
 
@@ -56,41 +49,16 @@ export async function canFractionalize(
   tokenId: bigint,
   owner?: Address
 ): Promise<FractionalizeEligibility> {
-  if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-    throw new Error("Fractionalizer contract address not configured");
-  }
-  if (!this.environment.FRACTIONALIZER_ABI) {
-    throw new Error("Fractionalizer ABI not configured");
-  }
-
-  // Resolve owner address
-  let ownerAddress: Address;
-  if (owner) {
-    ownerAddress = owner;
-  } else {
-    const viemClient = (this as any).viemClient;
-    if (!viemClient) {
-      throw new Error("No owner address provided and no wallet connected");
-    }
-    if (viemClient.account) {
-      ownerAddress = viemClient.account.address;
-    } else {
-      const accounts = await viemClient.request({
-        method: "eth_requestAccounts",
-        params: [] as any,
-      });
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts found in connected wallet");
-      }
-      ownerAddress = accounts[0] as Address;
-    }
-  }
+  const ownerAddress = await resolveWalletAddress(
+    (this as any).viemClient,
+    owner
+  );
 
   const publicClient = getPublicClient();
   const fractionalizerAddress = this.environment
     .FRACTIONALIZER_CONTRACT_ADDRESS as Address;
 
-  // Fetch all required data in parallel
+  // fetch all required data
   const [
     currentOwner,
     dataStatus,
@@ -121,7 +89,7 @@ export async function canFractionalize(
     isApprovedForAll ||
     approvedAddress.toLowerCase() === fractionalizerAddress.toLowerCase();
 
-  // Build base result
+  // build base result
   const baseResult: FractionalizeEligibility = {
     canFractionalize: false,
     isOwner,
@@ -135,7 +103,7 @@ export async function canFractionalize(
     needsApproval: !isApproved,
   };
 
-  // Check requirements in order
+  // check requirements
   if (!isOwner) {
     return {
       ...baseResult,
@@ -164,7 +132,7 @@ export async function canFractionalize(
     };
   }
 
-  // All checks passed
+  // passed
   return {
     ...baseResult,
     canFractionalize: true,

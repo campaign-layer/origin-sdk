@@ -1,16 +1,15 @@
 import { Abi, Address, zeroAddress } from "viem";
 import { Origin } from "..";
+import { resolveWalletAddress } from "../utils";
 import { getPublicClient } from "../../auth/viem/client";
 
 /**
  * Ownership information for fractional tokens.
  */
 export interface FractionOwnership {
-  /** The original NFT token ID */
   tokenId: bigint;
   /** The ERC20 token address (zero if not fractionalized) */
   erc20Address: Address;
-  /** Whether this NFT has been fractionalized */
   isFractionalized: boolean;
   /** User's balance of fractional tokens */
   balance: bigint;
@@ -20,11 +19,10 @@ export interface FractionOwnership {
   ownershipPercentage: number;
   /** Whether user owns 100% and can redeem */
   canRedeem: boolean;
-  /** Number of decimals for the ERC20 token */
   decimals: number;
 }
 
-// Minimal ERC20 ABI
+// minimal ERC20 ABI
 const ERC20_ABI = [
   {
     inputs: [{ name: "owner", type: "address" }],
@@ -79,40 +77,15 @@ export async function getFractionOwnership(
   tokenId: bigint,
   owner?: Address
 ): Promise<FractionOwnership> {
-  if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-    throw new Error("Fractionalizer contract address not configured");
-  }
-  if (!this.environment.FRACTIONALIZER_ABI) {
-    throw new Error("Fractionalizer ABI not configured");
-  }
+  const ownerAddress = await resolveWalletAddress(
+    (this as any).viemClient,
+    owner
+  );
 
-  // Resolve owner address
-  let ownerAddress: Address;
-  if (owner) {
-    ownerAddress = owner;
-  } else {
-    const viemClient = (this as any).viemClient;
-    if (!viemClient) {
-      throw new Error("No owner address provided and no wallet connected");
-    }
-    if (viemClient.account) {
-      ownerAddress = viemClient.account.address;
-    } else {
-      const accounts = await viemClient.request({
-        method: "eth_requestAccounts",
-        params: [] as any,
-      });
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts found in connected wallet");
-      }
-      ownerAddress = accounts[0] as Address;
-    }
-  }
-
-  // Get the ERC20 token address for this NFT
+  // get the ERC20 token address for this NFT
   const erc20Address = await this.getTokenForNFT(tokenId);
 
-  // Check if fractionalized
+  // check if fractionalized
   if (!erc20Address || erc20Address === zeroAddress) {
     return {
       tokenId,
@@ -128,7 +101,7 @@ export async function getFractionOwnership(
 
   const publicClient = getPublicClient();
 
-  // Fetch ERC20 data
+  // fetch ERC20 data
   const [balance, totalSupply, decimals] = await Promise.all([
     publicClient.readContract({
       address: erc20Address as Address,
@@ -150,7 +123,7 @@ export async function getFractionOwnership(
     }) as Promise<number>,
   ]);
 
-  // Calculate ownership percentage
+  // calculate ownership percentage
   let ownershipPercentage = 0;
   if (totalSupply > BigInt(0)) {
     ownershipPercentage = Number((balance * BigInt(10000)) / totalSupply) / 100;

@@ -6047,6 +6047,36 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
 }
 
 /**
+ * Resolves a wallet address from an optional address parameter or connected wallet.
+ * Checks viemClient.account first, then falls back to eth_requestAccounts.
+ *
+ * @param viemClient The viem WalletClient instance.
+ * @param address Optional address to use directly.
+ * @returns The resolved wallet address.
+ * @throws Error if no address provided and no wallet connected or no accounts found.
+ */
+function resolveWalletAddress(viemClient, address) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (address) {
+            return address;
+        }
+        if (!viemClient) {
+            throw new Error("No address provided and no wallet connected. Please provide an address or connect a wallet.");
+        }
+        if (viemClient.account) {
+            return viemClient.account.address;
+        }
+        const accounts = yield viemClient.request({
+            method: "eth_requestAccounts",
+            params: [],
+        });
+        if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found in connected wallet.");
+        }
+        return accounts[0];
+    });
+}
+/**
  * Enum representing the type of license for an IP NFT.
  * - DURATION_BASED: License expires after a set duration (subscription model).
  * - SINGLE_PAYMENT: One-time payment for perpetual access.
@@ -6315,12 +6345,6 @@ function getCurrentAccount() {
  */
 function raiseDispute(targetIpId, evidenceHash, disputeTag) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "raiseDispute", [targetIpId, evidenceHash, disputeTag], { waitForReceipt: true });
     });
 }
@@ -6340,12 +6364,6 @@ function raiseDispute(targetIpId, evidenceHash, disputeTag) {
  */
 function disputeAssertion(disputeId, counterEvidenceHash) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "disputeAssertion", [disputeId, counterEvidenceHash], { waitForReceipt: true });
     });
 }
@@ -6370,12 +6388,6 @@ function disputeAssertion(disputeId, counterEvidenceHash) {
  */
 function voteOnDispute(disputeId, support) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "voteOnDispute", [disputeId, support], { waitForReceipt: true });
     });
 }
@@ -6396,12 +6408,6 @@ function voteOnDispute(disputeId, support) {
  */
 function resolveDispute(disputeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "resolveDispute", [disputeId], { waitForReceipt: true });
     });
 }
@@ -6421,12 +6427,6 @@ function resolveDispute(disputeId) {
  */
 function cancelDispute(disputeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "cancelDispute", [disputeId], { waitForReceipt: true });
     });
 }
@@ -6447,12 +6447,6 @@ function cancelDispute(disputeId) {
  */
 function tagChildIp(childIpId, infringerDisputeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "tagChildIp", [childIpId, infringerDisputeId], { waitForReceipt: true });
     });
 }
@@ -6473,17 +6467,11 @@ function tagChildIp(childIpId, infringerDisputeId) {
  */
 function getDispute(disputeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         return this.callContractMethod(this.environment.DISPUTE_CONTRACT_ADDRESS, this.environment.DISPUTE_ABI, "disputes", [disputeId]);
     });
 }
 
-// Minimal ABI for staking vault
+// minimal ABI for staking vault
 const STAKING_VAULT_ABI = [
     {
         inputs: [{ name: "account", type: "address" }],
@@ -6522,49 +6510,14 @@ const STAKING_VAULT_ABI = [
  */
 function canVoteOnDispute(disputeId, voter) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e;
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
-        // Resolve voter address
-        let voterAddress;
-        if (voter) {
-            voterAddress = voter;
-        }
-        else {
-            const viemClient = this.viemClient;
-            if (!viemClient) {
-                throw new Error("No voter address provided and no wallet connected");
-            }
-            if (viemClient.account) {
-                voterAddress = viemClient.account.address;
-            }
-            else {
-                const accounts = yield viemClient.request({
-                    method: "eth_requestAccounts",
-                    params: [],
-                });
-                if (!accounts || accounts.length === 0) {
-                    throw new Error("No accounts found in connected wallet");
-                }
-                voterAddress = accounts[0];
-            }
-        }
+        const voterAddress = yield resolveWalletAddress(this.viemClient, voter);
         const publicClient = getPublicClient();
         const disputeContractAddress = this.environment
             .DISPUTE_CONTRACT_ADDRESS;
         const disputeAbi = this.environment.DISPUTE_ABI;
-        // Fetch dispute data, config, and hasVoted in parallel
+        // fetch dispute data, config, and hasVoted in parallel
         const [dispute, stakingVaultAddress, stakingThreshold, cooldownPeriod, judgementPeriod, hasAlreadyVoted,] = yield Promise.all([
-            publicClient.readContract({
-                address: disputeContractAddress,
-                abi: disputeAbi,
-                functionName: "disputes",
-                args: [disputeId],
-            }),
+            this.getDispute(disputeId),
             publicClient.readContract({
                 address: disputeContractAddress,
                 abi: disputeAbi,
@@ -6596,11 +6549,11 @@ function canVoteOnDispute(disputeId, voter) {
                 args: [disputeId, voterAddress],
             }),
         ]);
-        // Parse dispute struct
-        const disputeStatus = Number((_a = dispute.status) !== null && _a !== void 0 ? _a : dispute[9]);
-        const disputeTimestamp = BigInt((_c = (_b = dispute.disputeTimestamp) !== null && _b !== void 0 ? _b : dispute[5]) !== null && _c !== void 0 ? _c : 0);
-        const assertionTimestamp = BigInt((_e = (_d = dispute.assertionTimestamp) !== null && _d !== void 0 ? _d : dispute[6]) !== null && _e !== void 0 ? _e : 0);
-        // Fetch staking vault data
+        // parse dispute struct
+        const disputeStatus = dispute.status;
+        const disputeTimestamp = dispute.disputeTimestamp;
+        const assertionTimestamp = dispute.assertionTimestamp;
+        // fetch staking vault data
         const [userStakeTimestamp, votingWeight] = yield Promise.all([
             publicClient.readContract({
                 address: stakingVaultAddress,
@@ -6615,21 +6568,21 @@ function canVoteOnDispute(disputeId, voter) {
                 args: [voterAddress],
             }),
         ]);
-        // Calculate voting period
+        // calculate voting period
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
         let isVotingPeriodActive = false;
         let votingPeriodEnd;
         if (disputeStatus === DisputeStatus.Asserted) {
-            // For asserted disputes, voting period is relative to assertion timestamp
+            // for asserted disputes, voting period is relative to assertion timestamp
             votingPeriodEnd = assertionTimestamp + judgementPeriod;
             isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
         }
         else if (disputeStatus === DisputeStatus.Raised) {
-            // For raised disputes, voting period extends from cooldown through judgement
+            // for raised disputes, voting period extends from cooldown through judgement
             votingPeriodEnd = disputeTimestamp + cooldownPeriod + judgementPeriod;
             isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
         }
-        // Build base result
+        // build base result
         const baseResult = {
             canVote: false,
             votingWeight,
@@ -6640,7 +6593,7 @@ function canVoteOnDispute(disputeId, voter) {
             disputeStatus,
             isVotingPeriodActive,
         };
-        // Check all requirements in order
+        // check all requirements
         if (disputeStatus !== DisputeStatus.Raised &&
             disputeStatus !== DisputeStatus.Asserted) {
             return Object.assign(Object.assign({}, baseResult), { reason: `Dispute is not in a voteable status (current: ${DisputeStatus[disputeStatus]})` });
@@ -6660,7 +6613,7 @@ function canVoteOnDispute(disputeId, voter) {
         if (votingWeight < stakingThreshold) {
             return Object.assign(Object.assign({}, baseResult), { reason: `Insufficient stake: you have ${votingWeight} but need at least ${stakingThreshold}` });
         }
-        // All checks passed
+        // passed
         return Object.assign(Object.assign({}, baseResult), { canVote: true });
     });
 }
@@ -6690,17 +6643,11 @@ function canVoteOnDispute(disputeId, voter) {
 function getDisputeProgress(disputeId) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-        if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-            throw new Error("Dispute contract address not configured");
-        }
-        if (!this.environment.DISPUTE_ABI) {
-            throw new Error("Dispute ABI not configured");
-        }
         const publicClient = getPublicClient();
         const disputeContractAddress = this.environment
             .DISPUTE_CONTRACT_ADDRESS;
         const disputeAbi = this.environment.DISPUTE_ABI;
-        // Fetch dispute and config in parallel
+        // fetch dispute and config in parallel
         const [dispute, quorum, cooldownPeriod, judgementPeriod] = yield Promise.all([
             publicClient.readContract({
                 address: disputeContractAddress,
@@ -6727,13 +6674,13 @@ function getDisputeProgress(disputeId) {
                 args: [],
             }),
         ]);
-        // Parse dispute struct
+        // parse dispute struct
         const status = Number((_a = dispute.status) !== null && _a !== void 0 ? _a : dispute[9]);
         const disputeTimestamp = BigInt((_c = (_b = dispute.disputeTimestamp) !== null && _b !== void 0 ? _b : dispute[5]) !== null && _c !== void 0 ? _c : 0);
         const assertionTimestamp = BigInt((_e = (_d = dispute.assertionTimestamp) !== null && _d !== void 0 ? _d : dispute[6]) !== null && _e !== void 0 ? _e : 0);
         const yesVotes = BigInt((_g = (_f = dispute.yesVotes) !== null && _f !== void 0 ? _f : dispute[7]) !== null && _g !== void 0 ? _g : 0);
         const noVotes = BigInt((_j = (_h = dispute.noVotes) !== null && _h !== void 0 ? _h : dispute[8]) !== null && _j !== void 0 ? _j : 0);
-        // Calculate vote statistics
+        // calculate vote statistics
         const totalVotes = yesVotes + noVotes;
         let yesPercentage = 0;
         let noPercentage = 0;
@@ -6741,13 +6688,13 @@ function getDisputeProgress(disputeId) {
             yesPercentage = Number((yesVotes * BigInt(10000)) / totalVotes) / 100;
             noPercentage = Number((noVotes * BigInt(10000)) / totalVotes) / 100;
         }
-        // Calculate quorum progress
+        // calculate quorum progress
         let quorumPercentage = 0;
         if (quorum > BigInt(0)) {
             quorumPercentage = Number((totalVotes * BigInt(10000)) / quorum) / 100;
         }
         const quorumMet = totalVotes >= quorum;
-        // Determine projected outcome
+        // determine projected outcome
         let projectedOutcome;
         if (!quorumMet) {
             projectedOutcome = "no_quorum";
@@ -6758,19 +6705,19 @@ function getDisputeProgress(disputeId) {
         else {
             projectedOutcome = "dispute_fails";
         }
-        // Calculate timeline
+        // calculate timeline
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
         const raisedAt = new Date(Number(disputeTimestamp) * 1000);
         const cooldownEndsAt = new Date(Number(disputeTimestamp + cooldownPeriod) * 1000);
         let votingEndsAt;
         let resolutionTimestamp;
         if (status === DisputeStatus.Asserted) {
-            // For asserted disputes, voting ends relative to assertion
+            // for asserted disputes, voting ends relative to assertion
             votingEndsAt = new Date(Number(assertionTimestamp + judgementPeriod) * 1000);
             resolutionTimestamp = assertionTimestamp + judgementPeriod;
         }
         else {
-            // For raised disputes, voting ends after cooldown + judgement
+            // for raised disputes, voting ends after cooldown + judgement
             votingEndsAt = new Date(Number(disputeTimestamp + cooldownPeriod + judgementPeriod) * 1000);
             resolutionTimestamp = disputeTimestamp + cooldownPeriod + judgementPeriod;
         }
@@ -6821,12 +6768,6 @@ function getDisputeProgress(disputeId) {
  */
 function fractionalize(tokenId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
         return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "fractionalize", [tokenId], { waitForReceipt: true });
     });
 }
@@ -6847,12 +6788,6 @@ function fractionalize(tokenId) {
  */
 function redeem(tokenId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
         return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "redeem", [tokenId], { waitForReceipt: true });
     });
 }
@@ -6876,12 +6811,6 @@ function redeem(tokenId) {
  */
 function getTokenForNFT(tokenId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
         return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "getTokenForNFT", [tokenId]);
     });
 }
@@ -6902,15 +6831,7 @@ function getTokenForNFT(tokenId) {
  */
 function fractionalizeWithApproval(tokenId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
-        // Approve the fractionalizer contract to transfer the NFT
         yield this.approve(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, tokenId);
-        // Then fractionalize
         return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "fractionalize", [tokenId], { waitForReceipt: true });
     });
 }
@@ -6936,38 +6857,15 @@ function fractionalizeWithApproval(tokenId) {
  */
 function redeemIfComplete(tokenId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
-        // Get the ERC20 token address for this NFT
+        // get the ERC20 token address for this NFT
         const erc20Address = yield this.getTokenForNFT(tokenId);
         if (!erc20Address ||
             erc20Address === "0x0000000000000000000000000000000000000000") {
             throw new Error("This NFT has not been fractionalized");
         }
-        // Get current wallet address
-        const viemClient = this.viemClient;
-        if (!viemClient) {
-            throw new Error("WalletClient not connected. Please connect a wallet.");
-        }
-        let owner;
-        if (viemClient.account) {
-            owner = viemClient.account.address;
-        }
-        else {
-            const accounts = yield viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            });
-            if (!accounts || accounts.length === 0) {
-                throw new Error("No accounts found in connected wallet.");
-            }
-            owner = accounts[0];
-        }
-        // Check caller's balance and total supply
+        // get current wallet address
+        const owner = yield resolveWalletAddress(this.viemClient);
+        // check caller's balance and total supply
         const erc20Abi = [
             {
                 inputs: [{ name: "owner", type: "address" }],
@@ -7003,12 +6901,12 @@ function redeemIfComplete(tokenId) {
             const percentage = (balance * BigInt(10000)) / totalSupply;
             throw new Error(`Cannot redeem: you own ${percentage / BigInt(100)}.${percentage % BigInt(100)}% of the fractional tokens (${balance}/${totalSupply}). You need 100% to redeem.`);
         }
-        // Proceed with redemption
+        // proceed with redemption
         return this.callContractMethod(this.environment.FRACTIONALIZER_CONTRACT_ADDRESS, this.environment.FRACTIONALIZER_ABI, "redeem", [tokenId], { waitForReceipt: true });
     });
 }
 
-// Minimal ERC20 ABI
+// minimal ERC20 ABI
 const ERC20_ABI = [
     {
         inputs: [{ name: "owner", type: "address" }],
@@ -7059,39 +6957,10 @@ const ERC20_ABI = [
  */
 function getFractionOwnership(tokenId, owner) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
-        // Resolve owner address
-        let ownerAddress;
-        if (owner) {
-            ownerAddress = owner;
-        }
-        else {
-            const viemClient = this.viemClient;
-            if (!viemClient) {
-                throw new Error("No owner address provided and no wallet connected");
-            }
-            if (viemClient.account) {
-                ownerAddress = viemClient.account.address;
-            }
-            else {
-                const accounts = yield viemClient.request({
-                    method: "eth_requestAccounts",
-                    params: [],
-                });
-                if (!accounts || accounts.length === 0) {
-                    throw new Error("No accounts found in connected wallet");
-                }
-                ownerAddress = accounts[0];
-            }
-        }
-        // Get the ERC20 token address for this NFT
+        const ownerAddress = yield resolveWalletAddress(this.viemClient, owner);
+        // get the ERC20 token address for this NFT
         const erc20Address = yield this.getTokenForNFT(tokenId);
-        // Check if fractionalized
+        // check if fractionalized
         if (!erc20Address || erc20Address === zeroAddress) {
             return {
                 tokenId,
@@ -7105,7 +6974,7 @@ function getFractionOwnership(tokenId, owner) {
             };
         }
         const publicClient = getPublicClient();
-        // Fetch ERC20 data
+        // fetch ERC20 data
         const [balance, totalSupply, decimals] = yield Promise.all([
             publicClient.readContract({
                 address: erc20Address,
@@ -7126,7 +6995,7 @@ function getFractionOwnership(tokenId, owner) {
                 args: [],
             }),
         ]);
-        // Calculate ownership percentage
+        // calculate ownership percentage
         let ownershipPercentage = 0;
         if (totalSupply > BigInt(0)) {
             ownershipPercentage = Number((balance * BigInt(10000)) / totalSupply) / 100;
@@ -7171,40 +7040,11 @@ function getFractionOwnership(tokenId, owner) {
  */
 function canFractionalize(tokenId, owner) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-            throw new Error("Fractionalizer contract address not configured");
-        }
-        if (!this.environment.FRACTIONALIZER_ABI) {
-            throw new Error("Fractionalizer ABI not configured");
-        }
-        // Resolve owner address
-        let ownerAddress;
-        if (owner) {
-            ownerAddress = owner;
-        }
-        else {
-            const viemClient = this.viemClient;
-            if (!viemClient) {
-                throw new Error("No owner address provided and no wallet connected");
-            }
-            if (viemClient.account) {
-                ownerAddress = viemClient.account.address;
-            }
-            else {
-                const accounts = yield viemClient.request({
-                    method: "eth_requestAccounts",
-                    params: [],
-                });
-                if (!accounts || accounts.length === 0) {
-                    throw new Error("No accounts found in connected wallet");
-                }
-                ownerAddress = accounts[0];
-            }
-        }
+        const ownerAddress = yield resolveWalletAddress(this.viemClient, owner);
         const publicClient = getPublicClient();
         const fractionalizerAddress = this.environment
             .FRACTIONALIZER_CONTRACT_ADDRESS;
-        // Fetch all required data in parallel
+        // fetch all required data
         const [currentOwner, dataStatus, erc20Address, approvedAddress, isApprovedForAll,] = yield Promise.all([
             this.ownerOf(tokenId),
             this.dataStatus(tokenId),
@@ -7226,7 +7066,7 @@ function canFractionalize(tokenId, owner) {
         const isAlreadyFractionalized = erc20Address && erc20Address !== zeroAddress;
         const isApproved = isApprovedForAll ||
             approvedAddress.toLowerCase() === fractionalizerAddress.toLowerCase();
-        // Build base result
+        // build base result
         const baseResult = {
             canFractionalize: false,
             isOwner,
@@ -7239,7 +7079,7 @@ function canFractionalize(tokenId, owner) {
             isApproved,
             needsApproval: !isApproved,
         };
-        // Check requirements in order
+        // check requirements
         if (!isOwner) {
             return Object.assign(Object.assign({}, baseResult), { reason: `You don't own this NFT. Current owner: ${currentOwner}` });
         }
@@ -7252,7 +7092,7 @@ function canFractionalize(tokenId, owner) {
         if (dataStatus === DataStatus.DISPUTED) {
             return Object.assign(Object.assign({}, baseResult), { reason: "This NFT is disputed and cannot be fractionalized" });
         }
-        // All checks passed
+        // passed
         return Object.assign(Object.assign({}, baseResult), { canFractionalize: true });
     });
 }
@@ -7273,12 +7113,6 @@ function canFractionalize(tokenId, owner) {
  */
 function getAppInfo(appId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.environment.APP_REGISTRY_CONTRACT_ADDRESS) {
-            throw new Error("App registry contract address not configured");
-        }
-        if (!this.environment.APP_REGISTRY_ABI) {
-            throw new Error("App registry ABI not configured");
-        }
         return this.callContractMethod(this.environment.APP_REGISTRY_CONTRACT_ADDRESS, this.environment.APP_REGISTRY_ABI, "getAppInfo", [appId]);
     });
 }
@@ -8348,19 +8182,19 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         if (!this.viemClient) {
             throw new Error("No wallet address provided and no wallet client connected. Please provide an owner address or connect a wallet.");
         }
-        try {
-            const accounts = yield this.viemClient.request({
-                method: "eth_requestAccounts",
-                params: [],
-            });
-            if (!accounts || accounts.length === 0) {
-                throw new Error("No accounts found in connected wallet.");
-            }
-            return accounts[0];
+        // If account is already set on the client, return it directly
+        if (this.viemClient.account) {
+            return this.viemClient.account.address;
         }
-        catch (error) {
-            throw new Error(`Failed to get wallet address: ${error instanceof Error ? error.message : String(error)}`);
+        // Otherwise request accounts (browser wallet flow)
+        const accounts = yield this.viemClient.request({
+            method: "eth_requestAccounts",
+            params: [],
+        });
+        if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found in connected wallet.");
         }
+        return accounts[0];
     });
 };
 

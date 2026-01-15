@@ -22,13 +22,6 @@ export async function getTokenForNFT(
   this: Origin,
   tokenId: bigint
 ): Promise<Address> {
-  if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-    throw new Error("Fractionalizer contract address not configured");
-  }
-  if (!this.environment.FRACTIONALIZER_ABI) {
-    throw new Error("Fractionalizer ABI not configured");
-  }
-
   return this.callContractMethod(
     this.environment.FRACTIONALIZER_CONTRACT_ADDRESS as Address,
     this.environment.FRACTIONALIZER_ABI as Abi,

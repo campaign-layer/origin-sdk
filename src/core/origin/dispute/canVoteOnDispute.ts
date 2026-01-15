@@ -1,13 +1,12 @@
 import { Abi, Address } from "viem";
 import { Origin } from "..";
-import { DisputeStatus } from "../utils";
+import { DisputeStatus, resolveWalletAddress } from "../utils";
 import { getPublicClient } from "../../auth/viem/client";
 
 /**
  * Result of checking if a user can vote on a dispute.
  */
 export interface VoteEligibility {
-  /** Whether the user can vote on this dispute */
   canVote: boolean;
   /** Reason why user cannot vote (if canVote is false) */
   reason?: string;
@@ -15,19 +14,15 @@ export interface VoteEligibility {
   votingWeight: bigint;
   /** Minimum required stake to vote */
   stakingThreshold: bigint;
-  /** Whether user has already voted */
   hasAlreadyVoted: boolean;
   /** Timestamp when user staked (0 if never staked) */
   userStakeTimestamp: bigint;
-  /** Timestamp when dispute was raised */
   disputeTimestamp: bigint;
-  /** Current dispute status */
   disputeStatus: DisputeStatus;
-  /** Whether voting period is still active */
   isVotingPeriodActive: boolean;
 }
 
-// Minimal ABI for staking vault
+// minimal ABI for staking vault
 const STAKING_VAULT_ABI = [
   {
     inputs: [{ name: "account", type: "address" }],
@@ -70,42 +65,17 @@ export async function canVoteOnDispute(
   disputeId: bigint,
   voter?: Address
 ): Promise<VoteEligibility> {
-  if (!this.environment.DISPUTE_CONTRACT_ADDRESS) {
-    throw new Error("Dispute contract address not configured");
-  }
-  if (!this.environment.DISPUTE_ABI) {
-    throw new Error("Dispute ABI not configured");
-  }
-
-  // Resolve voter address
-  let voterAddress: Address;
-  if (voter) {
-    voterAddress = voter;
-  } else {
-    const viemClient = (this as any).viemClient;
-    if (!viemClient) {
-      throw new Error("No voter address provided and no wallet connected");
-    }
-    if (viemClient.account) {
-      voterAddress = viemClient.account.address;
-    } else {
-      const accounts = await viemClient.request({
-        method: "eth_requestAccounts",
-        params: [] as any,
-      });
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts found in connected wallet");
-      }
-      voterAddress = accounts[0] as Address;
-    }
-  }
+  const voterAddress = await resolveWalletAddress(
+    (this as any).viemClient,
+    voter
+  );
 
   const publicClient = getPublicClient();
   const disputeContractAddress = this.environment
     .DISPUTE_CONTRACT_ADDRESS as Address;
   const disputeAbi = this.environment.DISPUTE_ABI as Abi;
 
-  // Fetch dispute data, config, and hasVoted in parallel
+  // fetch dispute data, config, and hasVoted in parallel
   const [
     dispute,
     stakingVaultAddress,
@@ -114,12 +84,7 @@ export async function canVoteOnDispute(
     judgementPeriod,
     hasAlreadyVoted,
   ] = await Promise.all([
-    publicClient.readContract({
-      address: disputeContractAddress,
-      abi: disputeAbi,
-      functionName: "disputes",
-      args: [disputeId],
-    }) as Promise<any>,
+    this.getDispute(disputeId),
     publicClient.readContract({
       address: disputeContractAddress,
       abi: disputeAbi,
@@ -152,14 +117,12 @@ export async function canVoteOnDispute(
     }) as Promise<boolean>,
   ]);
 
-  // Parse dispute struct
-  const disputeStatus = Number(dispute.status ?? dispute[9]) as DisputeStatus;
-  const disputeTimestamp = BigInt(dispute.disputeTimestamp ?? dispute[5] ?? 0);
-  const assertionTimestamp = BigInt(
-    dispute.assertionTimestamp ?? dispute[6] ?? 0
-  );
+  // parse dispute struct
+  const disputeStatus = dispute.status;
+  const disputeTimestamp = dispute.disputeTimestamp;
+  const assertionTimestamp = dispute.assertionTimestamp;
 
-  // Fetch staking vault data
+  // fetch staking vault data
   const [userStakeTimestamp, votingWeight] = await Promise.all([
     publicClient.readContract({
       address: stakingVaultAddress,
@@ -175,22 +138,22 @@ export async function canVoteOnDispute(
     }) as Promise<bigint>,
   ]);
 
-  // Calculate voting period
+  // calculate voting period
   const currentTimestamp = BigInt(Math.floor(Date.now() / 1000));
   let isVotingPeriodActive = false;
   let votingPeriodEnd: bigint;
 
   if (disputeStatus === DisputeStatus.Asserted) {
-    // For asserted disputes, voting period is relative to assertion timestamp
+    // for asserted disputes, voting period is relative to assertion timestamp
     votingPeriodEnd = assertionTimestamp + judgementPeriod;
     isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
   } else if (disputeStatus === DisputeStatus.Raised) {
-    // For raised disputes, voting period extends from cooldown through judgement
+    // for raised disputes, voting period extends from cooldown through judgement
     votingPeriodEnd = disputeTimestamp + cooldownPeriod + judgementPeriod;
     isVotingPeriodActive = currentTimestamp <= votingPeriodEnd;
   }
 
-  // Build base result
+  // build base result
   const baseResult: VoteEligibility = {
     canVote: false,
     votingWeight,
@@ -202,7 +165,7 @@ export async function canVoteOnDispute(
     isVotingPeriodActive,
   };
 
-  // Check all requirements in order
+  // check all requirements
   if (
     disputeStatus !== DisputeStatus.Raised &&
     disputeStatus !== DisputeStatus.Asserted
@@ -249,7 +212,7 @@ export async function canVoteOnDispute(
     };
   }
 
-  // All checks passed
+  // passed
   return {
     ...baseResult,
     canVote: true,

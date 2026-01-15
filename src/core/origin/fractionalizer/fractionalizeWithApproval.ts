@@ -19,20 +19,11 @@ export async function fractionalizeWithApproval(
   this: Origin,
   tokenId: bigint
 ): Promise<any> {
-  if (!this.environment.FRACTIONALIZER_CONTRACT_ADDRESS) {
-    throw new Error("Fractionalizer contract address not configured");
-  }
-  if (!this.environment.FRACTIONALIZER_ABI) {
-    throw new Error("Fractionalizer ABI not configured");
-  }
-
-  // Approve the fractionalizer contract to transfer the NFT
   await this.approve(
     this.environment.FRACTIONALIZER_CONTRACT_ADDRESS as Address,
     tokenId
   );
 
-  // Then fractionalize
   return this.callContractMethod(
     this.environment.FRACTIONALIZER_CONTRACT_ADDRESS as Address,
     this.environment.FRACTIONALIZER_ABI as Abi,
