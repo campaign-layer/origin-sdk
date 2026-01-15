@@ -97,6 +97,8 @@ class Auth {
 
     this.viem = null;
     this.environment = ENVIRONMENTS[environment];
+    this.environment.AUTH_HUB_BASE_API +=
+      environment === "PRODUCTION" ? "/auth-mainnet" : "";
     this.baseParentId = baseParentId;
 
     this.redirectUri = createRedirectUriObject(redirectUri);
@@ -421,7 +423,7 @@ class Auth {
   async #fetchNonce(): Promise<string> {
     try {
       const res = await fetch(
-        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/nonce`,
+        `${this.environment.AUTH_HUB_BASE_API}/client-user/nonce`,
         {
           method: "POST",
           headers: {
@@ -455,7 +457,7 @@ class Auth {
   ): Promise<{ success: boolean; userId: string; token: string }> {
     try {
       const res = await fetch(
-        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/verify`,
+        `${this.environment.AUTH_HUB_BASE_API}/client-user/verify`,
         {
           method: "POST",
           headers: {
@@ -688,7 +690,7 @@ class Auth {
     if (!this.isAuthenticated)
       throw new Error("User needs to be authenticated");
     const connections = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/connections-sdk`,
+      `${this.environment.AUTH_HUB_BASE_API}/client-user/connections-sdk`,
       {
         method: "GET",
         headers: {

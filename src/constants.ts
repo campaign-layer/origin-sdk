@@ -27,7 +27,6 @@ export default {
 export interface Environment {
   NAME: string;
   AUTH_HUB_BASE_API: string;
-  AUTH_ENDPOINT: string;
   ORIGIN_DASHBOARD: string;
   DATANFT_CONTRACT_ADDRESS: string;
   MARKETPLACE_CONTRACT_ADDRESS: string;
@@ -40,9 +39,7 @@ export interface Environment {
 export const ENVIRONMENTS = {
   DEVELOPMENT: {
     NAME: "DEVELOPMENT",
-    AUTH_HUB_BASE_API:
-      "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-    AUTH_ENDPOINT: "auth-testnet",
+    AUTH_HUB_BASE_API: "https://origin-backend-iota.vercel.app",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     DATANFT_CONTRACT_ADDRESS: "0xB53F5723Dd4E46da32e1769Bd36A5aD880e707A5",
     MARKETPLACE_CONTRACT_ADDRESS: "0x97b0A18B2888e904940fFd19E480a28aeec3F055",
@@ -55,7 +52,6 @@ export const ENVIRONMENTS = {
     NAME: "PRODUCTION",
     AUTH_HUB_BASE_API:
       "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-    AUTH_ENDPOINT: "auth-mainnet",
     ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
     DATANFT_CONTRACT_ADDRESS: "0x39EeE1C3989f0dD543Dee60f8582F7F81F522C38",
     MARKETPLACE_CONTRACT_ADDRESS: "0xc69BAa987757d054455fC0f2d9797684E9FB8b9C",

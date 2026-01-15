@@ -98,52 +98,145 @@ interface UploadProgressCallback {
 }
 
 interface UploadWithProgress {
-  (
-    file: File,
-    url: string,
-    onProgress: UploadProgressCallback
-  ): Promise<string>;
+  (chunks: Blob[], urls: string[], onProgress: UploadProgressCallback): Promise<
+    UploadPartResult[]
+  >;
+}
+
+export interface UploadPartResult {
+  ETag: string;
+  PartNumber: number;
 }
 
 /**
- * Uploads a file to a specified URL with progress tracking.
+ * Uploads chunks to respective presigned URLs with progress tracking.
  * Falls back to a simple fetch request if XMLHttpRequest is not available.
- * @param {File} file - The file to upload.
- * @param {string} url - The URL to upload the file to.
+ * @param {Blob[]} chunks - The file to upload.
+ * @param {string[]} urls - The URL to upload the file to.
  * @param {UploadProgressCallback} onProgress - A callback function to track upload progress.
  * @returns {Promise<string>} - A promise that resolves with the response from the server.
  */
 export const uploadWithProgress: UploadWithProgress = (
-  file,
-  url,
+  chunks,
+  urls,
   onProgress
 ) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .put(url, file, {
-        headers: {
-          "Content-Type": file.type,
-        },
-        ...(typeof window !== "undefined" && typeof onProgress === "function"
-          ? {
-              onUploadProgress: (progressEvent) => {
-                if (progressEvent.total) {
-                  const percent =
-                    (progressEvent.loaded / progressEvent.total) * 100;
-                  onProgress(percent);
-                }
-              },
+  const MAX_RETRIES = 3;
+  const CONCURRENCY_LIMIT = 4; // Parallel uploads for performance
+  const parts: UploadPartResult[] = [];
+  let failedParts: number[] = [];
+  let isAborted = false;
+  let completedChunks = 0;
+  const totalChunks = chunks.length;
+
+  return new Promise<UploadPartResult[]>((resolve, reject) => {
+    function updateProgress() {
+      const progress = (completedChunks / totalChunks) * 100;
+      onProgress(progress);
+    }
+
+    async function uploadPart(
+      blob: Blob,
+      url: string,
+      partNumber: number,
+      retryCount = 0
+    ): Promise<UploadPartResult> {
+      try {
+        const response = await axios.put(url, blob, {
+          headers: { "Content-Type": blob.type || "application/octet-stream" },
+          timeout: 300000, // 5 minutes per part
+        });
+
+        const etag = response.headers.etag?.replace(/"/g, "");
+        if (!etag) {
+          throw new Error(`Missing ETag for part ${partNumber}`);
+        }
+
+        return { ETag: etag, PartNumber: partNumber };
+      } catch (error: any) {
+        if (retryCount < MAX_RETRIES) {
+          const delay = 1000 * Math.pow(2, retryCount); // Exponential backoff
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          return uploadPart(blob, url, partNumber, retryCount + 1);
+        }
+
+        throw new Error(
+          `Part ${partNumber} failed after ${MAX_RETRIES} retries: ${error.message}`
+        );
+      }
+    }
+
+    async function uploadAllParts() {
+      const uploadPromises: Promise<void>[] = [];
+
+      for (let i = 0; i < totalChunks; i++) {
+        if (isAborted) break;
+
+        const uploadPromise = (async () => {
+          try {
+            if (failedParts.includes(i)) return;
+
+            const result = await uploadPart(chunks[i], urls[i], i + 1);
+            parts.push(result);
+            completedChunks++;
+            updateProgress();
+          } catch (error: any) {
+            console.error(`Part ${i + 1} failed:`, error);
+            failedParts.push(i);
+            if (failedParts.length > totalChunks * 0.1) {
+              // Fail fast if >10% fail
+              throw error;
             }
-          : {}),
-      })
-      .then((res) => {
-        resolve(res.data);
-      })
-      .catch((error) => {
-        const message =
-          error?.response?.data || error?.message || "Upload failed";
-        reject(message);
-      });
+          }
+        })();
+
+        uploadPromises.push(uploadPromise);
+
+        // Limit concurrency
+        if (uploadPromises.length >= CONCURRENCY_LIMIT) {
+          await Promise.race(uploadPromises);
+          // Remove settled promises to continue
+          uploadPromises.splice(
+            0,
+            uploadPromises.length,
+            ...(await Promise.allSettled(uploadPromises))
+              .map((_, idx) => uploadPromises[idx] as Promise<void>)
+              .filter(Boolean)
+          );
+        }
+      }
+
+      await Promise.allSettled(uploadPromises);
+
+      if (isAborted) {
+        reject(new Error("Upload aborted by user"));
+        return;
+      }
+
+      if (failedParts.length > 0) {
+        reject(
+          new Error(
+            `Failed to upload ${
+              failedParts.length
+            }/${totalChunks} parts: ${failedParts.join(", ")}`
+          )
+        );
+        return;
+      }
+
+      parts.sort((a, b) => a.PartNumber - b.PartNumber);
+
+      resolve(parts);
+    }
+
+    // Expose abort method
+    (uploadWithProgress as any).abort = () => {
+      isAborted = true;
+      axios.isCancel("Upload aborted");
+    };
+
+    updateProgress(); // Initial 0%
+    uploadAllParts().catch(reject);
   });
 };
 
@@ -215,6 +308,16 @@ export const validateRoyaltyBps = (royaltyBps: string) => {
   } else {
     return false;
   }
+};
+
+export const splitFileIntoChunks = (file: File, chunkSize: number): Blob[] => {
+  const chunks: Blob[] = [];
+  let start = 0;
+  while (start < file.size) {
+    chunks.push(file.slice(start, start + chunkSize));
+    start += chunkSize;
+  }
+  return chunks;
 };
 
 export { fetchData, buildQueryString, buildURL, formatAddress, capitalize };

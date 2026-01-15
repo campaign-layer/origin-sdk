@@ -16,7 +16,7 @@ const fetchTokenData = async (
   headers: any
 ) => {
   const response = await fetch(
-    `${origin.environment.AUTH_HUB_BASE_API}/${origin.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
+    `${origin.environment.AUTH_HUB_BASE_API}/origin/data/${tokenId}`,
     {
       method: "GET",
       headers: {

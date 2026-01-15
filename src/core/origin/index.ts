@@ -8,7 +8,11 @@ import {
   formatUnits,
   WalletClient,
 } from "viem";
-import { uploadWithProgress } from "../../utils";
+import {
+  splitFileIntoChunks,
+  UploadPartResult,
+  uploadWithProgress,
+} from "../../utils";
 import { getPublicClient, setChain } from "../auth/viem/client";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
 import { updateTerms } from "./updateTerms";
@@ -94,6 +98,8 @@ export class Origin {
       typeof environment === "string"
         ? ENVIRONMENTS[environment]
         : environment || ENVIRONMENTS["DEVELOPMENT"];
+    this.environment.AUTH_HUB_BASE_API +=
+      environment === "PRODUCTION" ? "/auth-mainnet" : "";
     this.baseParentId = baseParentId;
     // DataNFT methods
     this.mintWithSignature = mintWithSignature.bind(this);
@@ -127,15 +133,16 @@ export class Origin {
     this.viemClient = client;
   }
 
-  async #generateURL(file: File) {
+  async #generateURL(file: File, partCount: number) {
     try {
       const uploadRes = await fetch(
-        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`,
+        `${this.environment.AUTH_HUB_BASE_API}/origin/upload-url`,
         {
           method: "POST",
           body: JSON.stringify({
             name: file.name,
             type: file.type,
+            partCount,
           }),
           headers: {
             Authorization: `Bearer ${this.jwt}`,
@@ -161,15 +168,20 @@ export class Origin {
     }
   }
 
-  async #setOriginStatus(key: string, status: string) {
+  async #setOriginStatus(
+    key: string,
+    uploadId: string,
+    parts: UploadPartResult[]
+  ) {
     try {
       const res = await fetch(
-        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`,
+        `${this.environment.AUTH_HUB_BASE_API}/origin/update-status`,
         {
           method: "PATCH",
           body: JSON.stringify({
-            status,
             fileKey: key,
+            uploadId,
+            parts,
           }),
           headers: {
             Authorization: `Bearer ${this.jwt}`,
@@ -201,7 +213,7 @@ export class Origin {
 
     try {
       const presignedResponse = await fetch(
-        `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url-ipfs`,
+        `${this.environment.AUTH_HUB_BASE_API}/origin/upload-url-ipfs`,
         {
           method: "POST",
           headers: {
@@ -281,9 +293,11 @@ export class Origin {
     options?: { progressCallback?: (percent: number) => void }
   ) {
     let uploadInfo;
-
+    let chunks: Blob[];
+    const CHUNK_SIZE = 10 * 1024 * 1024;
     try {
-      uploadInfo = await this.#generateURL(file);
+      chunks = splitFileIntoChunks(file, CHUNK_SIZE);
+      uploadInfo = await this.#generateURL(file, chunks.length);
     } catch (error) {
       console.error("Failed to generate upload URL:", error);
       throw new Error(
@@ -297,15 +311,20 @@ export class Origin {
       throw new Error("Failed to generate upload URL: No upload info returned");
     }
 
+    let uploadResult;
     try {
-      await uploadWithProgress(
-        file,
-        uploadInfo.url,
+      uploadResult = await uploadWithProgress(
+        chunks,
+        uploadInfo.urls,
         options?.progressCallback || (() => {})
       );
     } catch (error) {
       try {
-        await this.#setOriginStatus(uploadInfo.key, "failed");
+        await this.#setOriginStatus(
+          uploadInfo.key,
+          uploadInfo.uploadId,
+          uploadResult || []
+        );
       } catch (statusError) {
         console.error("Failed to update status to failed:", statusError);
       }
@@ -316,7 +335,11 @@ export class Origin {
     }
 
     try {
-      await this.#setOriginStatus(uploadInfo.key, "success");
+      await this.#setOriginStatus(
+        uploadInfo.key,
+        uploadInfo.uploadId,
+        uploadResult
+      );
     } catch (statusError) {
       console.error("Failed to update status to success:", statusError);
     }
@@ -401,7 +424,7 @@ export class Origin {
         parents
       );
     } catch (error) {
-      await this.#setOriginStatus(info.key, "failed");
+      await this.#setOriginStatus(info.key, info.uploadId, []);
       throw new Error(
         `Failed to register IpNFT: ${
           error instanceof Error ? (error as Error).message : String(error)
@@ -436,13 +459,13 @@ export class Origin {
         signature
       );
       if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
-        await this.#setOriginStatus(info.key, "failed");
+        await this.#setOriginStatus(info.key, info.uploadId, []);
         throw new Error(
           `Minting failed with status: ${mintResult.receipt.status}`
         );
       }
     } catch (error) {
-      await this.#setOriginStatus(info.key, "failed");
+      await this.#setOriginStatus(info.key, info.uploadId, []);
       throw new Error(
         `Minting transaction failed: ${
           error instanceof Error ? (error as Error).message : String(error)
@@ -817,7 +840,7 @@ export class Origin {
    */
   async getData(tokenId: bigint): Promise<any> {
     const response = await fetch(
-      `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`,
+      `${this.environment.AUTH_HUB_BASE_API}/origin/data/${tokenId}`,
       {
         method: "GET",
         headers: {

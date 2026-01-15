@@ -2981,8 +2981,7 @@ var constants = {
 const ENVIRONMENTS = {
     DEVELOPMENT: {
         NAME: "DEVELOPMENT",
-        AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-        AUTH_ENDPOINT: "auth-testnet",
+        AUTH_HUB_BASE_API: "https://origin-backend-iota.vercel.app",
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
         DATANFT_CONTRACT_ADDRESS: "0xB53F5723Dd4E46da32e1769Bd36A5aD880e707A5",
         MARKETPLACE_CONTRACT_ADDRESS: "0x97b0A18B2888e904940fFd19E480a28aeec3F055",
@@ -2994,7 +2993,6 @@ const ENVIRONMENTS = {
     PRODUCTION: {
         NAME: "PRODUCTION",
         AUTH_HUB_BASE_API: "https://wv2h4to5qa.execute-api.us-east-2.amazonaws.com/dev",
-        AUTH_ENDPOINT: "auth-mainnet",
         ORIGIN_DASHBOARD: "https://origin.campnetwork.xyz",
         DATANFT_CONTRACT_ADDRESS: "0x39EeE1C3989f0dD543Dee60f8582F7F81F522C38",
         MARKETPLACE_CONTRACT_ADDRESS: "0xc69BAa987757d054455fC0f2d9797684E9FB8b9C",
@@ -3044,36 +3042,104 @@ const SECONDS_IN_HOUR = 3600;
 const SECONDS_IN_DAY = 86400;
 const SECONDS_IN_WEEK = 604800;
 /**
- * Uploads a file to a specified URL with progress tracking.
+ * Uploads chunks to respective presigned URLs with progress tracking.
  * Falls back to a simple fetch request if XMLHttpRequest is not available.
- * @param {File} file - The file to upload.
- * @param {string} url - The URL to upload the file to.
+ * @param {Blob[]} chunks - The file to upload.
+ * @param {string[]} urls - The URL to upload the file to.
  * @param {UploadProgressCallback} onProgress - A callback function to track upload progress.
  * @returns {Promise<string>} - A promise that resolves with the response from the server.
  */
-const uploadWithProgress = (file, url, onProgress) => {
+const uploadWithProgress = (chunks, urls, onProgress) => {
+    const MAX_RETRIES = 3;
+    const CONCURRENCY_LIMIT = 4; // Parallel uploads for performance
+    const parts = [];
+    let failedParts = [];
+    let isAborted = false;
+    let completedChunks = 0;
+    const totalChunks = chunks.length;
     return new Promise((resolve, reject) => {
-        axios
-            .put(url, file, Object.assign({ headers: {
-                "Content-Type": file.type,
-            } }, (typeof window !== "undefined" && typeof onProgress === "function"
-            ? {
-                onUploadProgress: (progressEvent) => {
-                    if (progressEvent.total) {
-                        const percent = (progressEvent.loaded / progressEvent.total) * 100;
-                        onProgress(percent);
+        function updateProgress() {
+            const progress = (completedChunks / totalChunks) * 100;
+            onProgress(progress);
+        }
+        function uploadPart(blob_1, url_1, partNumber_1) {
+            return __awaiter(this, arguments, void 0, function* (blob, url, partNumber, retryCount = 0) {
+                var _a;
+                try {
+                    const response = yield axios.put(url, blob, {
+                        headers: { "Content-Type": blob.type || "application/octet-stream" },
+                        timeout: 300000, // 5 minutes per part
+                    });
+                    const etag = (_a = response.headers.etag) === null || _a === void 0 ? void 0 : _a.replace(/"/g, "");
+                    if (!etag) {
+                        throw new Error(`Missing ETag for part ${partNumber}`);
                     }
-                },
-            }
-            : {})))
-            .then((res) => {
-            resolve(res.data);
-        })
-            .catch((error) => {
-            var _a;
-            const message = ((_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data) || (error === null || error === void 0 ? void 0 : error.message) || "Upload failed";
-            reject(message);
-        });
+                    return { ETag: etag, PartNumber: partNumber };
+                }
+                catch (error) {
+                    if (retryCount < MAX_RETRIES) {
+                        const delay = 1000 * Math.pow(2, retryCount); // Exponential backoff
+                        yield new Promise((resolve) => setTimeout(resolve, delay));
+                        return uploadPart(blob, url, partNumber, retryCount + 1);
+                    }
+                    throw new Error(`Part ${partNumber} failed after ${MAX_RETRIES} retries: ${error.message}`);
+                }
+            });
+        }
+        function uploadAllParts() {
+            return __awaiter(this, void 0, void 0, function* () {
+                const uploadPromises = [];
+                for (let i = 0; i < totalChunks; i++) {
+                    if (isAborted)
+                        break;
+                    const uploadPromise = (() => __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            if (failedParts.includes(i))
+                                return;
+                            const result = yield uploadPart(chunks[i], urls[i], i + 1);
+                            parts.push(result);
+                            completedChunks++;
+                            updateProgress();
+                        }
+                        catch (error) {
+                            console.error(`Part ${i + 1} failed:`, error);
+                            failedParts.push(i);
+                            if (failedParts.length > totalChunks * 0.1) {
+                                // Fail fast if >10% fail
+                                throw error;
+                            }
+                        }
+                    }))();
+                    uploadPromises.push(uploadPromise);
+                    // Limit concurrency
+                    if (uploadPromises.length >= CONCURRENCY_LIMIT) {
+                        yield Promise.race(uploadPromises);
+                        // Remove settled promises to continue
+                        uploadPromises.splice(0, uploadPromises.length, ...(yield Promise.allSettled(uploadPromises))
+                            .map((_, idx) => uploadPromises[idx])
+                            .filter(Boolean));
+                    }
+                }
+                yield Promise.allSettled(uploadPromises);
+                if (isAborted) {
+                    reject(new Error("Upload aborted by user"));
+                    return;
+                }
+                if (failedParts.length > 0) {
+                    reject(new Error(`Failed to upload ${failedParts.length}/${totalChunks} parts: ${failedParts.join(", ")}`));
+                    return;
+                }
+                parts.sort((a, b) => a.PartNumber - b.PartNumber);
+                resolve(parts);
+            });
+        }
+        // Expose abort method
+        uploadWithProgress.abort = () => {
+            isAborted = true;
+            axios.isCancel("Upload aborted");
+        };
+        updateProgress(); // Initial 0%
+        uploadAllParts().catch(reject);
     });
 };
 const toSeconds = (duration, licenseDurationUnit) => {
@@ -3135,6 +3201,15 @@ const validateRoyaltyBps = (royaltyBps) => {
         return false;
     }
 };
+const splitFileIntoChunks = (file, chunkSize) => {
+    const chunks = [];
+    let start = 0;
+    while (start < file.size) {
+        chunks.push(file.slice(start, start + chunkSize));
+        start += chunkSize;
+    }
+    return chunks;
+};
 
 /**
  * Mints a Data NFT with a signature.
@@ -3181,7 +3256,7 @@ function registerIpNFT(source, deadline, licenseTerms, metadata, fileKey, parent
         if (fileKey !== undefined) {
             body.fileKey = fileKey;
         }
-        const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/register`, {
+        const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/origin/register`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${this.getJwt()}`,
@@ -3670,7 +3745,7 @@ const X402_INTENT_TYPES = {
 };
 
 const fetchTokenData = (origin, tokenId, headers) => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield fetch(`${origin.environment.AUTH_HUB_BASE_API}/${origin.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+    const response = yield fetch(`${origin.environment.AUTH_HUB_BASE_API}/origin/data/${tokenId}`, {
         method: "GET",
         headers: Object.assign({ "Content-Type": "application/json" }, headers),
     });
@@ -3870,6 +3945,8 @@ class Origin {
             typeof environment === "string"
                 ? ENVIRONMENTS[environment]
                 : environment || ENVIRONMENTS["DEVELOPMENT"];
+        this.environment.AUTH_HUB_BASE_API +=
+            environment === "PRODUCTION" ? "/auth-mainnet" : "";
         this.baseParentId = baseParentId;
         // DataNFT methods
         this.mintWithSignature = mintWithSignature.bind(this);
@@ -3954,7 +4031,7 @@ class Origin {
                 registration = yield this.registerIpNFT("file", deadline, license, metadata, info.key, parents);
             }
             catch (error) {
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, info.uploadId, []);
                 throw new Error(`Failed to register IpNFT: ${error instanceof Error ? error.message : String(error)}`);
             }
             const { tokenId, signerAddress, creatorContentHash, signature, uri } = registration;
@@ -3968,12 +4045,12 @@ class Origin {
             try {
                 const mintResult = yield this.mintWithSignature(account, tokenId, parents || [], true, creatorContentHash, uri, license, deadline, signature);
                 if (["0x1", "success"].indexOf(mintResult.receipt.status) === -1) {
-                    yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                    yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, info.uploadId, []);
                     throw new Error(`Minting failed with status: ${mintResult.receipt.status}`);
                 }
             }
             catch (error) {
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, "failed");
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, info.key, info.uploadId, []);
                 throw new Error(`Minting transaction failed: ${error instanceof Error ? error.message : String(error)}`);
             }
             return tokenId.toString();
@@ -4138,7 +4215,7 @@ class Origin {
      */
     getData(tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/data/${tokenId}`, {
+            const response = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/origin/data/${tokenId}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -4299,14 +4376,15 @@ class Origin {
         });
     }
 }
-_Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_generateURL(file) {
+_Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_generateURL(file, partCount) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url`, {
+            const uploadRes = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/origin/upload-url`, {
                 method: "POST",
                 body: JSON.stringify({
                     name: file.name,
                     type: file.type,
+                    partCount,
                 }),
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -4327,14 +4405,15 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             throw error;
         }
     });
-}, _Origin_setOriginStatus = function _Origin_setOriginStatus(key, status) {
+}, _Origin_setOriginStatus = function _Origin_setOriginStatus(key, uploadId, parts) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/update-status`, {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/origin/update-status`, {
                 method: "PATCH",
                 body: JSON.stringify({
-                    status,
                     fileKey: key,
+                    uploadId,
+                    parts,
                 }),
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -4358,7 +4437,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         if (!image)
             return null;
         try {
-            const presignedResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/origin/upload-url-ipfs`, {
+            const presignedResponse = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/origin/upload-url-ipfs`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -4407,8 +4486,11 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
 }, _Origin_uploadFile = function _Origin_uploadFile(file, options) {
     return __awaiter(this, void 0, void 0, function* () {
         let uploadInfo;
+        let chunks;
+        const CHUNK_SIZE = 10 * 1024 * 1024;
         try {
-            uploadInfo = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_generateURL).call(this, file);
+            chunks = splitFileIntoChunks(file, CHUNK_SIZE);
+            uploadInfo = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_generateURL).call(this, file, chunks.length);
         }
         catch (error) {
             console.error("Failed to generate upload URL:", error);
@@ -4417,12 +4499,13 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
         if (!uploadInfo) {
             throw new Error("Failed to generate upload URL: No upload info returned");
         }
+        let uploadResult;
         try {
-            yield uploadWithProgress(file, uploadInfo.url, (options === null || options === void 0 ? void 0 : options.progressCallback) || (() => { }));
+            uploadResult = yield uploadWithProgress(chunks, uploadInfo.urls, (options === null || options === void 0 ? void 0 : options.progressCallback) || (() => { }));
         }
         catch (error) {
             try {
-                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "failed");
+                yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, uploadInfo.uploadId, uploadResult || []);
             }
             catch (statusError) {
                 console.error("Failed to update status to failed:", statusError);
@@ -4431,7 +4514,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             throw new Error(`Failed to upload file: ${errorMessage}`);
         }
         try {
-            yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, "success");
+            yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_setOriginStatus).call(this, uploadInfo.key, uploadInfo.uploadId, uploadResult);
         }
         catch (statusError) {
             console.error("Failed to update status to success:", statusError);
@@ -4673,6 +4756,8 @@ class Auth {
             (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f") ? new MemoryStorage() : new BrowserStorage()), "f");
         this.viem = null;
         this.environment = ENVIRONMENTS[environment];
+        this.environment.AUTH_HUB_BASE_API +=
+            environment === "PRODUCTION" ? "/auth-mainnet" : "";
         this.baseParentId = baseParentId;
         this.redirectUri = createRedirectUriObject(redirectUri);
         this.clientId = clientId;
@@ -5005,7 +5090,7 @@ class Auth {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated)
                 throw new Error("User needs to be authenticated");
-            const connections = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/connections-sdk`, {
+            const connections = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/client-user/connections-sdk`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${this.jwt}`,
@@ -5389,7 +5474,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
 }, _Auth_fetchNonce = function _Auth_fetchNonce() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/nonce`, {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/client-user/nonce`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -5410,7 +5495,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
 }, _Auth_verifySignature = function _Auth_verifySignature(message, signature) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/verify`, {
+            const res = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/client-user/verify`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

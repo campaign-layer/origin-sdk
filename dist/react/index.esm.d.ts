@@ -5,7 +5,6 @@ import { UseQueryResult } from '@tanstack/react-query';
 interface Environment {
     NAME: string;
     AUTH_HUB_BASE_API: string;
-    AUTH_ENDPOINT: string;
     ORIGIN_DASHBOARD: string;
     DATANFT_CONTRACT_ADDRESS: string;
     MARKETPLACE_CONTRACT_ADDRESS: string;
