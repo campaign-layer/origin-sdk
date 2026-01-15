@@ -98,9 +98,15 @@ describe("Auth Class", () => {
   });
 
   test("should throw error if user is not authenticated when linking socials", async () => {
-    await expect(auth.linkTwitter()).rejects.toThrow("User needs to be authenticated");
-    await expect(auth.linkSpotify()).rejects.toThrow("User needs to be authenticated");
-    await expect(auth.linkTikTok("handle")).rejects.toThrow("User needs to be authenticated");
+    await expect(auth.linkTwitter()).rejects.toThrow(
+      "User must be authenticated"
+    );
+    await expect(auth.linkSpotify()).rejects.toThrow(
+      "User must be authenticated"
+    );
+    await expect(auth.linkTikTok("handle")).rejects.toThrow(
+      "User must be authenticated"
+    );
   });
 
   test("should throw error if user is not authenticated when unlinking socials", async () => {
@@ -110,7 +116,9 @@ describe("Auth Class", () => {
   });
 
   test("should throw error if not authenticated for getLinkedSocials", async () => {
-    await expect(auth.getLinkedSocials()).rejects.toThrow("User needs to be authenticated");
+    await expect(auth.getLinkedSocials()).rejects.toThrow(
+      "User must be authenticated"
+    );
   });
 
   test("should trigger and unsubscribe events", () => {
@@ -137,7 +145,10 @@ describe("Auth Class", () => {
 
   test("should set and recover wallet address", async () => {
     auth.walletAddress = "0x123";
-    localStorage.setItem("camp-sdk:provider", JSON.stringify({ name: "test-provider" }));
+    localStorage.setItem(
+      "camp-sdk:provider",
+      JSON.stringify({ name: "test-provider" })
+    );
     await expect(auth.recoverProvider()).resolves.toBeUndefined();
   });
 });

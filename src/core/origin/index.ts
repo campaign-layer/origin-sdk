@@ -8,6 +8,12 @@ import {
   formatUnits,
   WalletClient,
 } from "viem";
+import {
+  WalletError,
+  ContractError,
+  APIError,
+  getErrorMessage,
+} from "../../errors";
 import { uploadWithProgress } from "../../utils";
 import { getPublicClient, setChain } from "../auth/viem/client";
 import { mintWithSignature, registerIpNFT } from "./mintWithSignature";
@@ -440,20 +446,24 @@ export class Origin {
     try {
       account = await this.#getCurrentAccount();
     } catch (error) {
-      throw new Error("Failed to mint file IP. Wallet not connected.");
+      throw new WalletError(
+        `Cannot mint file "${file.name}": wallet not connected. Please connect a wallet first.`
+      );
     }
 
     let info;
     try {
       info = await this.#uploadFile(file, options);
       if (!info || !info.key) {
-        throw new Error("Failed to upload file or get upload info.");
+        throw new APIError(
+          `Failed to upload file "${file.name}": no upload info returned from server`
+        );
       }
     } catch (error) {
-      throw new Error(
-        `File upload failed: ${
-          error instanceof Error ? (error as Error).message : String(error)
-        }`
+      if (error instanceof APIError || error instanceof WalletError)
+        throw error;
+      throw new APIError(
+        `Failed to upload file "${file.name}": ${getErrorMessage(error)}`
       );
     }
 
@@ -561,7 +571,9 @@ export class Origin {
     try {
       account = await this.#getCurrentAccount();
     } catch (error) {
-      throw new Error("Failed to mint social IP. Wallet not connected.");
+      throw new WalletError(
+        `Cannot mint ${source} social IP: wallet not connected. Please connect a wallet first.`
+      );
     }
 
     metadata.mimetype = `social/${source}`;
@@ -688,8 +700,11 @@ export class Origin {
    * @throws {Error} - Throws an error if the wallet client is not connected.
    */
   async #ensureChainId(chain: any): Promise<void> {
-    if (!this.viemClient)
-      throw new Error("WalletClient not connected. Could not ensure chain ID.");
+    if (!this.viemClient) {
+      throw new WalletError(
+        `Cannot switch to chain "${chain.name}": wallet not connected. Please connect a wallet first.`
+      );
+    }
 
     let currentChainId = (await this.viemClient.request({
       method: "eth_chainId",
@@ -740,7 +755,9 @@ export class Origin {
    */
   async #getCurrentAccount(): Promise<string> {
     if (!this.viemClient) {
-      throw new Error("WalletClient not connected. Please connect a wallet.");
+      throw new WalletError(
+        "No wallet connected. Please connect a wallet to perform this action."
+      );
     }
 
     // If account is already set on the client, return it directly
@@ -754,7 +771,9 @@ export class Origin {
       params: [] as any,
     });
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found in connected wallet.");
+      throw new WalletError(
+        "No accounts found in connected wallet. Please unlock your wallet or add an account."
+      );
     }
     return accounts[0];
   }
@@ -780,7 +799,9 @@ export class Origin {
     try {
       account = await this.#getCurrentAccount();
     } catch (error) {
-      throw new Error("Failed to call contract method. Wallet not connected.");
+      throw new WalletError(
+        `Cannot call "${methodName}" on contract ${contractAddress}: wallet not connected`
+      );
     }
 
     const abiItem = getAbiItem({ abi, name: methodName });
@@ -826,7 +847,10 @@ export class Origin {
       const txHash = await this.viemClient?.writeContract(request);
 
       if (typeof txHash !== "string") {
-        throw new Error("Transaction failed to send.");
+        throw new ContractError(
+          `Transaction for "${methodName}" failed to send: no transaction hash returned`,
+          { contractName: contractAddress, methodName }
+        );
       }
 
       if (!options.waitForReceipt) {
@@ -840,8 +864,13 @@ export class Origin {
 
       return { txHash, receipt, simulatedResult };
     } catch (error) {
-      console.error("Transaction failed:", error);
-      throw new Error("Transaction failed: " + error);
+      if (error instanceof ContractError || error instanceof WalletError) {
+        throw error;
+      }
+      throw new ContractError(
+        `Transaction for "${methodName}" failed: ${getErrorMessage(error)}`,
+        { contractName: contractAddress, methodName }
+      );
     }
   }
 
@@ -952,7 +981,9 @@ export class Origin {
     try {
       account = await this.#getCurrentAccount();
     } catch (error) {
-      throw new Error("Failed to buy access. Wallet not connected.");
+      throw new WalletError(
+        `Cannot buy access to token ${tokenId}: wallet not connected. Please connect a wallet first.`
+      );
     }
 
     // Check if user already has access
@@ -963,7 +994,11 @@ export class Origin {
     }
 
     const terms = await this.getTerms(tokenId);
-    if (!terms) throw new Error("Failed to fetch terms for asset");
+    if (!terms) {
+      throw new APIError(
+        `Failed to fetch license terms for token ${tokenId}: no terms returned`
+      );
+    }
 
     const { price, paymentToken, duration } = terms;
     if (
@@ -971,7 +1006,9 @@ export class Origin {
       paymentToken === undefined ||
       duration === undefined
     ) {
-      throw new Error("Terms missing price, paymentToken, or duration");
+      throw new APIError(
+        `Invalid license terms for token ${tokenId}: missing price, paymentToken, or duration`
+      );
     }
 
     // Fetch protocol fee from marketplace
@@ -1103,7 +1140,11 @@ export class Origin {
       }
     );
     if (!response.ok) {
-      throw new Error("Failed to fetch data");
+      const errorText = await response.text().catch(() => response.statusText);
+      throw new APIError(
+        `Failed to fetch data for token ${tokenId} (HTTP ${response.status}): ${errorText}`,
+        response.status
+      );
     }
     return response.json();
   }
@@ -1299,8 +1340,8 @@ export class Origin {
     }
 
     if (!this.viemClient) {
-      throw new Error(
-        "No wallet address provided and no wallet client connected. Please provide an owner address or connect a wallet."
+      throw new WalletError(
+        "No wallet address provided and no wallet connected. Please provide an address or connect a wallet."
       );
     }
 
@@ -1316,7 +1357,9 @@ export class Origin {
     });
 
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found in connected wallet.");
+      throw new WalletError(
+        "No accounts found in connected wallet. Please unlock your wallet or add an account."
+      );
     }
 
     return accounts[0] as Address;

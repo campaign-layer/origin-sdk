@@ -1,4 +1,10 @@
-import { APIError } from "../../errors";
+import {
+  APIError,
+  AuthenticationError,
+  WalletError,
+  ValidationError,
+  getErrorMessage,
+} from "../../errors";
 import { getClient } from "./viem/client";
 import { createSiweMessage } from "viem/siwe";
 import constants, { Environment, ENVIRONMENTS } from "../../constants";
@@ -84,10 +90,12 @@ class Auth {
     storage?: StorageAdapter;
   }) {
     if (!clientId) {
-      throw new Error("clientId is required");
+      throw new ValidationError("clientId is required");
     }
     if (["PRODUCTION", "DEVELOPMENT"].indexOf(environment) === -1) {
-      throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");
+      throw new ValidationError(
+        `Invalid environment "${environment}". Must be "DEVELOPMENT" or "PRODUCTION"`
+      );
     }
 
     this.#isNodeEnvironment = typeof window === "undefined";
@@ -408,8 +416,10 @@ class Auth {
       const [account] = await this.viem.requestAddresses();
       this.walletAddress = checksumAddress(account);
       return this.walletAddress;
-    } catch (e: any) {
-      throw new APIError(e);
+    } catch (e: unknown) {
+      throw new WalletError(
+        `Failed to connect wallet: ${getErrorMessage(e)}`
+      );
     }
   }
 
@@ -434,11 +444,15 @@ class Auth {
       );
       const data = await res.json();
       if (res.status !== 200) {
-        return Promise.reject(data.message || "Failed to fetch nonce");
+        throw new APIError(
+          data.message || `Failed to fetch nonce (HTTP ${res.status})`,
+          res.status
+        );
       }
       return data.data;
-    } catch (e: any) {
-      throw new Error(e);
+    } catch (e: unknown) {
+      if (e instanceof APIError) throw e;
+      throw new APIError(`Failed to fetch nonce: ${getErrorMessage(e)}`);
     }
   }
 
@@ -478,8 +492,10 @@ class Auth {
         userId: decoded.id,
         token: data.data,
       };
-    } catch (e: any) {
-      throw new APIError(e);
+    } catch (e: unknown) {
+      throw new APIError(
+        `Failed to verify signature: ${getErrorMessage(e)}`
+      );
     }
   }
 
@@ -582,12 +598,15 @@ class Auth {
       } else {
         this.isAuthenticated = false;
         this.#trigger("state", "unauthenticated");
-        throw new APIError("Failed to authenticate");
+        throw new APIError(
+          "Failed to authenticate: signature verification failed"
+        );
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       this.isAuthenticated = false;
       this.#trigger("state", "unauthenticated");
-      throw new APIError(e);
+      if (e instanceof APIError || e instanceof WalletError) throw e;
+      throw new APIError(`Failed to authenticate: ${getErrorMessage(e)}`);
     }
   }
 
@@ -668,13 +687,16 @@ class Auth {
       } else {
         this.isAuthenticated = false;
         this.#trigger("state", "unauthenticated");
-        throw new APIError("Failed to authenticate");
+        throw new APIError(
+          "Failed to authenticate: signature verification failed"
+        );
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       this.isAuthenticated = false;
       this.#signerAdapter = undefined;
       this.#trigger("state", "unauthenticated");
-      throw new APIError(e);
+      if (e instanceof APIError || e instanceof WalletError) throw e;
+      throw new APIError(`Failed to authenticate: ${getErrorMessage(e)}`);
     }
   }
 
@@ -688,8 +710,11 @@ class Auth {
    * console.log(socials);
    */
   async getLinkedSocials(): Promise<Record<string, boolean>> {
-    if (!this.isAuthenticated)
-      throw new Error("User needs to be authenticated");
+    if (!this.isAuthenticated) {
+      throw new AuthenticationError(
+        "User must be authenticated to get linked social accounts"
+      );
+    }
     const connections = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/connections-sdk`,
       {
@@ -719,11 +744,13 @@ class Auth {
    */
   async linkTwitter(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new Error("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to link Twitter account"
+      );
     }
     if (this.#isNodeEnvironment) {
-      throw new Error(
-        "Social linking requires browser environment for OAuth flow"
+      throw new APIError(
+        "Cannot link Twitter: OAuth flow requires a browser environment"
       );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
@@ -736,11 +763,13 @@ class Auth {
    */
   async linkDiscord(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new Error("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to link Discord account"
+      );
     }
     if (this.#isNodeEnvironment) {
-      throw new Error(
-        "Social linking requires browser environment for OAuth flow"
+      throw new APIError(
+        "Cannot link Discord: OAuth flow requires a browser environment"
       );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
@@ -753,11 +782,13 @@ class Auth {
    */
   async linkSpotify(): Promise<void> {
     if (!this.isAuthenticated) {
-      throw new Error("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to link Spotify account"
+      );
     }
     if (this.#isNodeEnvironment) {
-      throw new Error(
-        "Social linking requires browser environment for OAuth flow"
+      throw new APIError(
+        "Cannot link Spotify: OAuth flow requires a browser environment"
       );
     }
     window.location.href = `${this.environment.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
@@ -771,7 +802,9 @@ class Auth {
    */
   async linkTikTok(handle: string): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new Error("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to link TikTok account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/tiktok/connect-sdk`,
@@ -811,9 +844,14 @@ class Auth {
    * @throws {Error|APIError} - Throws an error if the user is not authenticated.
    */
   async sendTelegramOTP(phoneNumber: string): Promise<any> {
-    if (!this.isAuthenticated)
-      throw new Error("User needs to be authenticated");
-    if (!phoneNumber) throw new APIError("Phone number is required");
+    if (!this.isAuthenticated) {
+      throw new AuthenticationError(
+        "User must be authenticated to send Telegram OTP"
+      );
+    }
+    if (!phoneNumber) {
+      throw new ValidationError("Phone number is required to send Telegram OTP");
+    }
     await this.unlinkTelegram();
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`,
@@ -851,10 +889,16 @@ class Auth {
     otp: string,
     phoneCodeHash: string
   ): Promise<any> {
-    if (!this.isAuthenticated)
-      throw new Error("User needs to be authenticated");
-    if (!phoneNumber || !otp || !phoneCodeHash)
-      throw new APIError("Phone number, OTP, and phone code hash are required");
+    if (!this.isAuthenticated) {
+      throw new AuthenticationError(
+        "User must be authenticated to link Telegram account"
+      );
+    }
+    if (!phoneNumber || !otp || !phoneCodeHash) {
+      throw new ValidationError(
+        "Phone number, OTP, and phone code hash are all required to link Telegram"
+      );
+    }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/telegram/signIn-sdk`,
       {
@@ -890,7 +934,9 @@ class Auth {
    */
   async unlinkTwitter(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new Error("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to unlink Twitter account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`,
@@ -922,7 +968,9 @@ class Auth {
    */
   async unlinkDiscord(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to unlink Discord account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/discord/disconnect-sdk`,
@@ -954,7 +1002,9 @@ class Auth {
    */
   async unlinkSpotify(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to unlink Spotify account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`,
@@ -986,7 +1036,9 @@ class Auth {
    */
   async unlinkTikTok(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to unlink TikTok account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`,
@@ -1019,7 +1071,9 @@ class Auth {
    */
   async unlinkTelegram(): Promise<any> {
     if (!this.isAuthenticated) {
-      throw new APIError("User needs to be authenticated");
+      throw new AuthenticationError(
+        "User must be authenticated to unlink Telegram account"
+      );
     }
     const data = await fetch(
       `${this.environment.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`,

@@ -80,6 +80,78 @@ class APIError extends Error {
         };
     }
 }
+class ValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+        Error.captureStackTrace(this, this.constructor);
+    }
+    toJSON() {
+        return {
+            error: this.name,
+            message: this.message,
+            statusCode: 400,
+        };
+    }
+}
+class AuthenticationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "AuthenticationError";
+        Error.captureStackTrace(this, this.constructor);
+    }
+    toJSON() {
+        return {
+            error: this.name,
+            message: this.message,
+            statusCode: 401,
+        };
+    }
+}
+class WalletError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "WalletError";
+        Error.captureStackTrace(this, this.constructor);
+    }
+    toJSON() {
+        return {
+            error: this.name,
+            message: this.message,
+            statusCode: 400,
+        };
+    }
+}
+class ContractError extends Error {
+    constructor(message, options) {
+        super(message);
+        this.name = "ContractError";
+        this.contractName = options === null || options === void 0 ? void 0 : options.contractName;
+        this.methodName = options === null || options === void 0 ? void 0 : options.methodName;
+        Error.captureStackTrace(this, this.constructor);
+    }
+    toJSON() {
+        return {
+            error: this.name,
+            message: this.message,
+            statusCode: 400,
+            contractName: this.contractName,
+            methodName: this.methodName,
+        };
+    }
+}
+function getErrorMessage(error) {
+    if (error instanceof Error)
+        return error.message;
+    if (typeof error === "string")
+        return error;
+    try {
+        return JSON.stringify(error);
+    }
+    catch (_a) {
+        return String(error);
+    }
+}
 
 const testnet = {
     id: 123420001114,
@@ -5959,11 +6031,11 @@ function getAppFeeBpsForToken(origin, tokenId) {
 function settlePaymentIntent(paymentIntentResponse, signer) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!paymentIntentResponse.marketplaceAction) {
-            throw new Error("No marketplace action found in X402 response");
+            throw new ValidationError("Invalid X402 response: no marketplace action found. The response may be malformed or the server returned an error.");
         }
         const { marketplaceAction } = paymentIntentResponse;
         if (marketplaceAction.method !== "buyAccess") {
-            throw new Error(`Unsupported marketplace action method: ${marketplaceAction.method}`);
+            throw new ValidationError(`Unsupported marketplace action method "${marketplaceAction.method}". Only "buyAccess" is currently supported.`);
         }
         const tokenId = BigInt(marketplaceAction.tokenId);
         const payerAddress = marketplaceAction.payer;
@@ -6025,7 +6097,7 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
             else {
                 const customSigner = signerAdapter.signer;
                 if (typeof customSigner.sendTransaction !== "function") {
-                    throw new Error("Custom signer must implement sendTransaction() method");
+                    throw new ValidationError("Custom signer must implement sendTransaction() method to settle payment intents");
                 }
                 const tx = yield customSigner.sendTransaction({
                     to: marketplaceAddress,
@@ -6040,7 +6112,7 @@ function settlePaymentIntent(paymentIntentResponse, signer) {
             }
         }
         if (!this.viemClient) {
-            throw new Error("No signer or wallet client provided for settleX402");
+            throw new WalletError("Cannot settle payment intent: no signer or wallet connected. Please connect a wallet or provide a signer.");
         }
         return yield this.buyAccess(payerAddress, tokenId, expectedPrice, expectedDuration, expectedPaymentToken, protocolFeeBps, appFeeBps, isNativeToken ? value : undefined);
     });
@@ -6189,12 +6261,15 @@ function getDataWithIntent(tokenId, signer, decide) {
         var _a;
         const viemClient = this.viemClient;
         if (!signer && !viemClient) {
-            throw new Error("No signer or wallet client provided for X402 intent.");
+            throw new WalletError(`Cannot fetch data for token ${tokenId}: no signer or wallet client provided. Please connect a wallet or provide a signer.`);
         }
         const initialResponse = yield fetchTokenData(this, tokenId, {});
         if (initialResponse.status !== 402) {
             if (!initialResponse.ok) {
-                throw new Error("Failed to fetch data");
+                const errorText = yield initialResponse
+                    .text()
+                    .catch(() => initialResponse.statusText);
+                throw new APIError(`Failed to fetch data for token ${tokenId} (HTTP ${initialResponse.status}): ${errorText}`, initialResponse.status);
             }
             return initialResponse.json();
         }
@@ -6204,7 +6279,7 @@ function getDataWithIntent(tokenId, signer, decide) {
             : yield sig.getAddress();
         const intentData = yield initialResponse.json();
         if (intentData.error) {
-            throw new Error(intentData.error);
+            throw new APIError(`Failed to process X402 intent for token ${tokenId}: ${intentData.error}`);
         }
         const requirements = intentData.accepts[0];
         const x402Payload = yield buildX402Payload.call(this, requirements, checksumAddress(walletAddress), sig);
@@ -6220,7 +6295,7 @@ function getDataWithIntent(tokenId, signer, decide) {
                 if (accepted) {
                     const settlement = yield this.settlePaymentIntent(resJson, signer || viemClient);
                     if (settlement && !settlement.txHash) {
-                        throw new Error(`Failed to settle payment intent for token ID ${tokenId}`);
+                        throw new APIError(`Failed to settle X402 payment for token ${tokenId}: no transaction hash returned`);
                     }
                     // retry fetching data after settlement
                     const finalResponse = yield this.getDataWithIntent(tokenId, signer, undefined);
@@ -6239,7 +6314,10 @@ function getDataWithIntent(tokenId, signer, decide) {
             }
         }
         if (!retryResponse.ok) {
-            throw new Error("Failed to fetch data after X402 payment");
+            const errorText = yield retryResponse
+                .text()
+                .catch(() => retryResponse.statusText);
+            throw new APIError(`Failed to fetch data for token ${tokenId} after X402 payment (HTTP ${retryResponse.status}): ${errorText}`, retryResponse.status);
         }
         const res = yield retryResponse.json();
         return {
@@ -6307,7 +6385,7 @@ function getCurrentAccount() {
     return __awaiter(this, void 0, void 0, function* () {
         const viemClient = this.viemClient;
         if (!viemClient) {
-            throw new Error("WalletClient not connected. Please connect a wallet.");
+            throw new WalletError("No wallet connected. Please connect a wallet to perform this action.");
         }
         // If account is already set on the client, return it directly
         if (viemClient.account) {
@@ -6319,7 +6397,7 @@ function getCurrentAccount() {
             params: [],
         });
         if (!accounts || accounts.length === 0) {
-            throw new Error("No accounts found in connected wallet.");
+            throw new WalletError("No accounts found in connected wallet. Please unlock your wallet or add an account.");
         }
         return accounts[0];
     });
@@ -7253,12 +7331,12 @@ function checkActiveStatus(tokenIds) {
 function bulkBuyAccessSmart(tokenIds, options) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!tokenIds || tokenIds.length === 0) {
-            throw new Error("No token IDs provided for bulk purchase");
+            throw new ValidationError("No token IDs provided for bulk purchase. Please provide at least one token ID.");
         }
         // Get the buyer's wallet address
         const viemClient = this.viemClient;
         if (!viemClient) {
-            throw new Error("WalletClient not connected. Please connect a wallet.");
+            throw new WalletError("Cannot perform bulk purchase: wallet not connected. Please connect a wallet first.");
         }
         let buyer;
         if (viemClient.account) {
@@ -7270,7 +7348,7 @@ function bulkBuyAccessSmart(tokenIds, options) {
                 params: [],
             });
             if (!accounts || accounts.length === 0) {
-                throw new Error("No accounts found in connected wallet.");
+                throw new WalletError("No accounts found in connected wallet. Please unlock your wallet or add an account.");
             }
             buyer = accounts[0];
         }
@@ -7412,17 +7490,19 @@ class Origin {
                 account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
             }
             catch (error) {
-                throw new Error("Failed to mint file IP. Wallet not connected.");
+                throw new WalletError(`Cannot mint file "${file.name}": wallet not connected. Please connect a wallet first.`);
             }
             let info;
             try {
                 info = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_uploadFile).call(this, file, options);
                 if (!info || !info.key) {
-                    throw new Error("Failed to upload file or get upload info.");
+                    throw new APIError(`Failed to upload file "${file.name}": no upload info returned from server`);
                 }
             }
             catch (error) {
-                throw new Error(`File upload failed: ${error instanceof Error ? error.message : String(error)}`);
+                if (error instanceof APIError || error instanceof WalletError)
+                    throw error;
+                throw new APIError(`Failed to upload file "${file.name}": ${getErrorMessage(error)}`);
             }
             if (file.type) {
                 metadata.mimetype = file.type;
@@ -7489,7 +7569,7 @@ class Origin {
                 account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
             }
             catch (error) {
-                throw new Error("Failed to mint social IP. Wallet not connected.");
+                throw new WalletError(`Cannot mint ${source} social IP: wallet not connected. Please connect a wallet first.`);
             }
             metadata.mimetype = `social/${source}`;
             const deadline = BigInt(Math.floor(Date.now() / 1000) + 600); // 10 minutes from now
@@ -7539,7 +7619,7 @@ class Origin {
                 account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
             }
             catch (error) {
-                throw new Error("Failed to call contract method. Wallet not connected.");
+                throw new WalletError(`Cannot call "${methodName}" on contract ${contractAddress}: wallet not connected`);
             }
             const abiItem = getAbiItem({ abi, name: methodName });
             const isView = abiItem &&
@@ -7573,7 +7653,7 @@ class Origin {
             try {
                 const txHash = yield ((_a = this.viemClient) === null || _a === void 0 ? void 0 : _a.writeContract(request));
                 if (typeof txHash !== "string") {
-                    throw new Error("Transaction failed to send.");
+                    throw new ContractError(`Transaction for "${methodName}" failed to send: no transaction hash returned`, { contractName: contractAddress, methodName });
                 }
                 if (!options.waitForReceipt) {
                     return { txHash, simulatedResult };
@@ -7582,8 +7662,10 @@ class Origin {
                 return { txHash, receipt, simulatedResult };
             }
             catch (error) {
-                console.error("Transaction failed:", error);
-                throw new Error("Transaction failed: " + error);
+                if (error instanceof ContractError || error instanceof WalletError) {
+                    throw error;
+                }
+                throw new ContractError(`Transaction for "${methodName}" failed: ${getErrorMessage(error)}`, { contractName: contractAddress, methodName });
             }
         });
     }
@@ -7691,7 +7773,7 @@ class Origin {
                 account = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getCurrentAccount).call(this);
             }
             catch (error) {
-                throw new Error("Failed to buy access. Wallet not connected.");
+                throw new WalletError(`Cannot buy access to token ${tokenId}: wallet not connected. Please connect a wallet first.`);
             }
             // Check if user already has access
             const alreadyHasAccess = yield this.hasAccess(account, tokenId);
@@ -7700,13 +7782,14 @@ class Origin {
                 return null;
             }
             const terms = yield this.getTerms(tokenId);
-            if (!terms)
-                throw new Error("Failed to fetch terms for asset");
+            if (!terms) {
+                throw new APIError(`Failed to fetch license terms for token ${tokenId}: no terms returned`);
+            }
             const { price, paymentToken, duration } = terms;
             if (price === undefined ||
                 paymentToken === undefined ||
                 duration === undefined) {
-                throw new Error("Terms missing price, paymentToken, or duration");
+                throw new APIError(`Invalid license terms for token ${tokenId}: missing price, paymentToken, or duration`);
             }
             // Fetch protocol fee from marketplace
             const protocolFeeBps = yield __classPrivateFieldGet(this, _Origin_instances, "m", _Origin_getProtocolFeeBps).call(this);
@@ -7744,7 +7827,8 @@ class Origin {
                 },
             });
             if (!response.ok) {
-                throw new Error("Failed to fetch data");
+                const errorText = yield response.text().catch(() => response.statusText);
+                throw new APIError(`Failed to fetch data for token ${tokenId} (HTTP ${response.status}): ${errorText}`, response.status);
             }
             return response.json();
         });
@@ -8075,8 +8159,9 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
     });
 }, _Origin_ensureChainId = function _Origin_ensureChainId(chain) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!this.viemClient)
-            throw new Error("WalletClient not connected. Could not ensure chain ID.");
+        if (!this.viemClient) {
+            throw new WalletError(`Cannot switch to chain "${chain.name}": wallet not connected. Please connect a wallet first.`);
+        }
         let currentChainId = (yield this.viemClient.request({
             method: "eth_chainId",
             params: [],
@@ -8120,7 +8205,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
 }, _Origin_getCurrentAccount = function _Origin_getCurrentAccount() {
     return __awaiter(this, void 0, void 0, function* () {
         if (!this.viemClient) {
-            throw new Error("WalletClient not connected. Please connect a wallet.");
+            throw new WalletError("No wallet connected. Please connect a wallet to perform this action.");
         }
         // If account is already set on the client, return it directly
         if (this.viemClient.account) {
@@ -8132,7 +8217,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             params: [],
         });
         if (!accounts || accounts.length === 0) {
-            throw new Error("No accounts found in connected wallet.");
+            throw new WalletError("No accounts found in connected wallet. Please unlock your wallet or add an account.");
         }
         return accounts[0];
     });
@@ -8180,7 +8265,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             return owner;
         }
         if (!this.viemClient) {
-            throw new Error("No wallet address provided and no wallet client connected. Please provide an owner address or connect a wallet.");
+            throw new WalletError("No wallet address provided and no wallet connected. Please provide an address or connect a wallet.");
         }
         // If account is already set on the client, return it directly
         if (this.viemClient.account) {
@@ -8192,7 +8277,7 @@ _Origin_instances = new WeakSet(), _Origin_generateURL = function _Origin_genera
             params: [],
         });
         if (!accounts || accounts.length === 0) {
-            throw new Error("No accounts found in connected wallet.");
+            throw new WalletError("No accounts found in connected wallet. Please unlock your wallet or add an account.");
         }
         return accounts[0];
     });
@@ -8299,10 +8384,10 @@ class Auth {
         _Auth_signerAdapter.set(this, void 0);
         _Auth_storage.set(this, void 0);
         if (!clientId) {
-            throw new Error("clientId is required");
+            throw new ValidationError("clientId is required");
         }
         if (["PRODUCTION", "DEVELOPMENT"].indexOf(environment) === -1) {
-            throw new Error("Invalid environment, must be DEVELOPMENT or PRODUCTION");
+            throw new ValidationError(`Invalid environment "${environment}". Must be "DEVELOPMENT" or "PRODUCTION"`);
         }
         __classPrivateFieldSet(this, _Auth_isNodeEnvironment, typeof window === "undefined", "f");
         __classPrivateFieldSet(this, _Auth_storage, storage ||
@@ -8555,13 +8640,15 @@ class Auth {
                 else {
                     this.isAuthenticated = false;
                     __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
-                    throw new APIError("Failed to authenticate");
+                    throw new APIError("Failed to authenticate: signature verification failed");
                 }
             }
             catch (e) {
                 this.isAuthenticated = false;
                 __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
-                throw new APIError(e);
+                if (e instanceof APIError || e instanceof WalletError)
+                    throw e;
+                throw new APIError(`Failed to authenticate: ${getErrorMessage(e)}`);
             }
         });
     }
@@ -8617,14 +8704,16 @@ class Auth {
                 else {
                     this.isAuthenticated = false;
                     __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
-                    throw new APIError("Failed to authenticate");
+                    throw new APIError("Failed to authenticate: signature verification failed");
                 }
             }
             catch (e) {
                 this.isAuthenticated = false;
                 __classPrivateFieldSet(this, _Auth_signerAdapter, undefined, "f");
                 __classPrivateFieldGet(this, _Auth_instances, "m", _Auth_trigger).call(this, "state", "unauthenticated");
-                throw new APIError(e);
+                if (e instanceof APIError || e instanceof WalletError)
+                    throw e;
+                throw new APIError(`Failed to authenticate: ${getErrorMessage(e)}`);
             }
         });
     }
@@ -8639,8 +8728,9 @@ class Auth {
      */
     getLinkedSocials() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.isAuthenticated)
-                throw new Error("User needs to be authenticated");
+            if (!this.isAuthenticated) {
+                throw new AuthenticationError("User must be authenticated to get linked social accounts");
+            }
             const connections = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/${this.environment.AUTH_ENDPOINT}/client-user/connections-sdk`, {
                 method: "GET",
                 headers: {
@@ -8669,10 +8759,10 @@ class Auth {
     linkTwitter() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new Error("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to link Twitter account");
             }
             if (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f")) {
-                throw new Error("Social linking requires browser environment for OAuth flow");
+                throw new APIError("Cannot link Twitter: OAuth flow requires a browser environment");
             }
             window.location.href = `${this.environment.AUTH_HUB_BASE_API}/twitter/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["twitter"]}`;
         });
@@ -8685,10 +8775,10 @@ class Auth {
     linkDiscord() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new Error("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to link Discord account");
             }
             if (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f")) {
-                throw new Error("Social linking requires browser environment for OAuth flow");
+                throw new APIError("Cannot link Discord: OAuth flow requires a browser environment");
             }
             window.location.href = `${this.environment.AUTH_HUB_BASE_API}/discord/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["discord"]}`;
         });
@@ -8701,10 +8791,10 @@ class Auth {
     linkSpotify() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new Error("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to link Spotify account");
             }
             if (__classPrivateFieldGet(this, _Auth_isNodeEnvironment, "f")) {
-                throw new Error("Social linking requires browser environment for OAuth flow");
+                throw new APIError("Cannot link Spotify: OAuth flow requires a browser environment");
             }
             window.location.href = `${this.environment.AUTH_HUB_BASE_API}/spotify/connect?clientId=${this.clientId}&userId=${this.userId}&redirect_url=${this.redirectUri["spotify"]}`;
         });
@@ -8718,7 +8808,7 @@ class Auth {
     linkTikTok(handle) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new Error("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to link TikTok account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/tiktok/connect-sdk`, {
                 method: "POST",
@@ -8755,10 +8845,12 @@ class Auth {
      */
     sendTelegramOTP(phoneNumber) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.isAuthenticated)
-                throw new Error("User needs to be authenticated");
-            if (!phoneNumber)
-                throw new APIError("Phone number is required");
+            if (!this.isAuthenticated) {
+                throw new AuthenticationError("User must be authenticated to send Telegram OTP");
+            }
+            if (!phoneNumber) {
+                throw new ValidationError("Phone number is required to send Telegram OTP");
+            }
             yield this.unlinkTelegram();
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/telegram/sendOTP-sdk`, {
                 method: "POST",
@@ -8790,10 +8882,12 @@ class Auth {
      */
     linkTelegram(phoneNumber, otp, phoneCodeHash) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.isAuthenticated)
-                throw new Error("User needs to be authenticated");
-            if (!phoneNumber || !otp || !phoneCodeHash)
-                throw new APIError("Phone number, OTP, and phone code hash are required");
+            if (!this.isAuthenticated) {
+                throw new AuthenticationError("User must be authenticated to link Telegram account");
+            }
+            if (!phoneNumber || !otp || !phoneCodeHash) {
+                throw new ValidationError("Phone number, OTP, and phone code hash are all required to link Telegram");
+            }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/telegram/signIn-sdk`, {
                 method: "POST",
                 redirect: "follow",
@@ -8827,7 +8921,7 @@ class Auth {
     unlinkTwitter() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new Error("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to unlink Twitter account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/twitter/disconnect-sdk`, {
                 method: "POST",
@@ -8858,7 +8952,7 @@ class Auth {
     unlinkDiscord() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new APIError("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to unlink Discord account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/discord/disconnect-sdk`, {
                 method: "POST",
@@ -8889,7 +8983,7 @@ class Auth {
     unlinkSpotify() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new APIError("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to unlink Spotify account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/spotify/disconnect-sdk`, {
                 method: "POST",
@@ -8920,7 +9014,7 @@ class Auth {
     unlinkTikTok() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new APIError("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to unlink TikTok account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/tiktok/disconnect-sdk`, {
                 method: "POST",
@@ -8951,7 +9045,7 @@ class Auth {
     unlinkTelegram() {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isAuthenticated) {
-                throw new APIError("User needs to be authenticated");
+                throw new AuthenticationError("User must be authenticated to unlink Telegram account");
             }
             const data = yield fetch(`${this.environment.AUTH_HUB_BASE_API}/telegram/disconnect-sdk`, {
                 method: "POST",
@@ -9019,7 +9113,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             return this.walletAddress;
         }
         catch (e) {
-            throw new APIError(e);
+            throw new WalletError(`Failed to connect wallet: ${getErrorMessage(e)}`);
         }
     });
 }, _Auth_fetchNonce = function _Auth_fetchNonce() {
@@ -9035,12 +9129,14 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             });
             const data = yield res.json();
             if (res.status !== 200) {
-                return Promise.reject(data.message || "Failed to fetch nonce");
+                throw new APIError(data.message || `Failed to fetch nonce (HTTP ${res.status})`, res.status);
             }
             return data.data;
         }
         catch (e) {
-            throw new Error(e);
+            if (e instanceof APIError)
+                throw e;
+            throw new APIError(`Failed to fetch nonce: ${getErrorMessage(e)}`);
         }
     });
 }, _Auth_verifySignature = function _Auth_verifySignature(message, signature) {
@@ -9068,7 +9164,7 @@ _Auth_triggers = new WeakMap(), _Auth_isNodeEnvironment = new WeakMap(), _Auth_s
             };
         }
         catch (e) {
-            throw new APIError(e);
+            throw new APIError(`Failed to verify signature: ${getErrorMessage(e)}`);
         }
     });
 }, _Auth_createMessage = function _Auth_createMessage(nonce, domain, uri) {

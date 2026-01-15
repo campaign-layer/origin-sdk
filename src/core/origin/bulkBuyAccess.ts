@@ -2,6 +2,7 @@ import { Origin } from ".";
 import { Abi, Address, zeroAddress } from "viem";
 import { getPublicClient } from "../auth/viem/client";
 import { approveIfNeeded } from "./approveIfNeeded";
+import { WalletError, ValidationError } from "../../errors";
 
 /**
  * Parameters for a single purchase in a bulk buy operation.
@@ -202,13 +203,17 @@ export async function bulkBuyAccessSmart(
   }
 ): Promise<any> {
   if (!tokenIds || tokenIds.length === 0) {
-    throw new Error("No token IDs provided for bulk purchase");
+    throw new ValidationError(
+      "No token IDs provided for bulk purchase. Please provide at least one token ID."
+    );
   }
 
   // Get the buyer's wallet address
   const viemClient = (this as any).viemClient;
   if (!viemClient) {
-    throw new Error("WalletClient not connected. Please connect a wallet.");
+    throw new WalletError(
+      "Cannot perform bulk purchase: wallet not connected. Please connect a wallet first."
+    );
   }
 
   let buyer: Address;
@@ -220,7 +225,9 @@ export async function bulkBuyAccessSmart(
       params: [] as any,
     });
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found in connected wallet.");
+      throw new WalletError(
+        "No accounts found in connected wallet. Please unlock your wallet or add an account."
+      );
     }
     buyer = accounts[0] as Address;
   }

@@ -1,6 +1,7 @@
 import { Origin } from ".";
 import { Address, encodeFunctionData, Abi } from "viem";
 import { createSignerAdapter, SignerAdapter } from "../auth/signers";
+import { WalletError, ValidationError } from "../../errors";
 
 /**
  * Response from getDataWithX402 when payment is required
@@ -106,12 +107,14 @@ export async function settlePaymentIntent(
   signer?: any
 ): Promise<TransactionResult | null> {
   if (!paymentIntentResponse.marketplaceAction) {
-    throw new Error("No marketplace action found in X402 response");
+    throw new ValidationError(
+      "Invalid X402 response: no marketplace action found. The response may be malformed or the server returned an error."
+    );
   }
   const { marketplaceAction } = paymentIntentResponse;
   if (marketplaceAction.method !== "buyAccess") {
-    throw new Error(
-      `Unsupported marketplace action method: ${marketplaceAction.method}`
+    throw new ValidationError(
+      `Unsupported marketplace action method "${marketplaceAction.method}". Only "buyAccess" is currently supported.`
     );
   }
 
@@ -186,8 +189,8 @@ export async function settlePaymentIntent(
       const customSigner = (signerAdapter as any).signer;
 
       if (typeof customSigner.sendTransaction !== "function") {
-        throw new Error(
-          "Custom signer must implement sendTransaction() method"
+        throw new ValidationError(
+          "Custom signer must implement sendTransaction() method to settle payment intents"
         );
       }
 
@@ -207,7 +210,9 @@ export async function settlePaymentIntent(
   }
 
   if (!(this as any).viemClient) {
-    throw new Error("No signer or wallet client provided for settleX402");
+    throw new WalletError(
+      "Cannot settle payment intent: no signer or wallet connected. Please connect a wallet or provide a signer."
+    );
   }
 
   return await this.buyAccess(

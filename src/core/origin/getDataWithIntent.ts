@@ -9,6 +9,7 @@ import {
 } from "viem";
 import { createSignerAdapter, SignerAdapter } from "../auth/signers";
 import { X402_INTENT_TYPES } from "./utils";
+import { WalletError, APIError } from "../../errors";
 
 const fetchTokenData = async (
   origin: Origin,
@@ -44,14 +45,22 @@ export async function getDataWithIntent(
   const viemClient = (this as any).viemClient;
 
   if (!signer && !viemClient) {
-    throw new Error("No signer or wallet client provided for X402 intent.");
+    throw new WalletError(
+      `Cannot fetch data for token ${tokenId}: no signer or wallet client provided. Please connect a wallet or provide a signer.`
+    );
   }
 
   const initialResponse = await fetchTokenData(this, tokenId, {});
 
   if (initialResponse.status !== 402) {
     if (!initialResponse.ok) {
-      throw new Error("Failed to fetch data");
+      const errorText = await initialResponse
+        .text()
+        .catch(() => initialResponse.statusText);
+      throw new APIError(
+        `Failed to fetch data for token ${tokenId} (HTTP ${initialResponse.status}): ${errorText}`,
+        initialResponse.status
+      );
     }
     return initialResponse.json();
   }
@@ -63,7 +72,9 @@ export async function getDataWithIntent(
 
   const intentData = await initialResponse.json();
   if (intentData.error) {
-    throw new Error(intentData.error);
+    throw new APIError(
+      `Failed to process X402 intent for token ${tokenId}: ${intentData.error}`
+    );
   }
 
   const requirements = intentData.accepts[0];
@@ -91,8 +102,8 @@ export async function getDataWithIntent(
           signer || viemClient
         );
         if (settlement && !settlement.txHash) {
-          throw new Error(
-            `Failed to settle payment intent for token ID ${tokenId}`
+          throw new APIError(
+            `Failed to settle X402 payment for token ${tokenId}: no transaction hash returned`
           );
         }
         // retry fetching data after settlement
@@ -115,7 +126,13 @@ export async function getDataWithIntent(
   }
 
   if (!retryResponse.ok) {
-    throw new Error("Failed to fetch data after X402 payment");
+    const errorText = await retryResponse
+      .text()
+      .catch(() => retryResponse.statusText);
+    throw new APIError(
+      `Failed to fetch data for token ${tokenId} after X402 payment (HTTP ${retryResponse.status}): ${errorText}`,
+      retryResponse.status
+    );
   }
 
   const res = await retryResponse.json();
@@ -198,7 +215,9 @@ async function getCurrentAccount(this: Origin): Promise<string> {
   const viemClient = (this as any).viemClient;
 
   if (!viemClient) {
-    throw new Error("WalletClient not connected. Please connect a wallet.");
+    throw new WalletError(
+      "No wallet connected. Please connect a wallet to perform this action."
+    );
   }
 
   // If account is already set on the client, return it directly
@@ -212,7 +231,9 @@ async function getCurrentAccount(this: Origin): Promise<string> {
     params: [] as any,
   });
   if (!accounts || accounts.length === 0) {
-    throw new Error("No accounts found in connected wallet.");
+    throw new WalletError(
+      "No accounts found in connected wallet. Please unlock your wallet or add an account."
+    );
   }
   return accounts[0];
 }
